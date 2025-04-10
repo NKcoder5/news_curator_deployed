@@ -1,0 +1,28 @@
+# === Node modules ===
+node_modules/
+**/node_modules/
+
+
+# === Build Artifacts ===
+dist/
+build/
+**/dist/
+**/build/
+
+# === Logs ===
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === OS Generated Files ===
+.DS_Store
+Thumbs.db
+
+# === IDE and Editor Files ===
+.vscode/
+.idea/
+
+# === Misc ===
+*.local
+*.log
+*.cache

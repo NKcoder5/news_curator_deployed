@@ -1,0 +1,11 @@
+.homepage {
+    padding: 2rem;
+    background-color: #f9f9fb;
+  }
+  
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  

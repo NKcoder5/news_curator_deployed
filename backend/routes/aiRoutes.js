@@ -1,4 +1,3 @@
-// backend/routes/aiRoutes.js
 const express = require('express');
 const router = express.Router();
 
@@ -19,8 +18,8 @@ router.post('/summarize', async (req, res) => {
 router.post('/credibility', async (req, res) => {
   const { title, content, source } = req.body;
   try {
-    const result = await checkCredibility(title, content, source);
-    res.json({ result });
+    const { score, reasoning } = await checkCredibility(title, content, source);
+    res.json({ score, reasoning }); // Send flat { score, reasoning }
   } catch (err) {
     res.status(500).json({ error: 'Failed to check credibility.' });
   }

@@ -1,0 +1,28 @@
+.dashboard {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .dashboard h1 {
+    color: #2c3e50;
+    margin-bottom: 2rem;
+  }
+  
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .welcome-message {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+  }
+  
+  .welcome-message h2 {
+    color: #3498db;
+    margin-bottom: 0.5rem;
+  }

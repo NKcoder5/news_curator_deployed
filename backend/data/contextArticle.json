@@ -1,0 +1,122 @@
+[
+  {
+    "title": "Global Summit Addressesグローバル気候変動",
+    "content": "World leaders met in Geneva to discuss urgent climate action, agreeing on a framework to reduce emissions by 2030. Reports indicate mixed commitments from major economies.",
+    "source": "worldnews.org",
+    "keywords": ["climate change", "global summit", "emissions"]
+  },
+  {
+    "title": "Tech Giant Unveils AI Breakthrough",
+    "content": "A leading tech company announced a new AI model that outperforms previous benchmarks in natural language tasks. Critics question its energy consumption.",
+    "source": "techdaily.com",
+    "keywords": ["artificial intelligence", "technology", "innovation"]
+  },
+  {
+    "title": "Economic Growth Slows in Q3",
+    "content": "Recent data shows a 1.2% GDP growth rate, below expectations, due to supply chain issues and rising inflation. Analysts predict recovery in the next quarter.",
+    "source": "econreport.net",
+    "keywords": ["economy", "GDP", "inflation"]
+  },
+  {
+    "title": "Health Agency Warns of New Virus Strain",
+    "content": "A new variant of a respiratory virus has been detected in multiple countries, prompting travel advisories. Vaccines are being evaluated for efficacy.",
+    "source": "healthgov.org",
+    "keywords": ["virus", "health", "pandemic"]
+  },
+  {
+    "title": "Sports League Faces Doping Scandal",
+    "content": "Several athletes tested positive for banned substances, leading to suspensions and an investigation into testing protocols. The league vows stricter regulations.",
+    "source": "sportsinsider.com",
+    "keywords": ["sports", "doping", "scandal"]
+  },
+  {
+    "title": "Claim: Climate Deal Solves Crisis",
+    "content": "A news story said a new deal ends climate woes; experts say it’s a step, not a solution.",
+    "source": "factcheck.org",
+    "keywords": ["climate", "deal", "misinformation"]
+  },
+  {
+    "title": "Artificial Intelligence Overview",
+    "content": "AI systems mimic human tasks; credible advancements are peer-reviewed, not just hyped.",
+    "source": "wikipedia.org",
+    "keywords": ["AI", "technology"]
+  },
+  {
+    "title": "Tech Launch Reaction",
+    "content": "New gadget sounds amazing, but no data backs it up yet #technews",
+    "source": "x.com/techfan",
+    "keywords": ["tech", "gadget"]
+  },
+  {
+    "title": "Economic Forecast 2025",
+    "content": "Analysts predict 2% growth if inflation stabilizes, per historical trends.",
+    "source": "econjournal.org",
+    "keywords": ["economy", "inflation"]
+  },
+  {
+    "title": "Virus Outbreak Rumors",
+    "content": "Social media exaggerated a virus spread; official data shows limited cases.",
+    "source": "snopes.com",
+    "keywords": ["virus", "health", "rumors"]
+  },
+  {
+    "title": "Space Mission Milestones",
+    "content": "Mars missions require verified tech; untested claims are suspect.",
+    "source": "nasa.gov",
+    "keywords": ["space", "Mars"]
+  },
+  {
+    "title": "Cybersecurity Breach Reports",
+    "content": "Gov breaches are rare; credible reports cite official statements #security",
+    "source": "x.com/cyberwatch",
+    "keywords": ["cyberattack", "security"]
+  },
+  {
+    "title": "Sports Doping History",
+    "content": "Doping scandals often involve unverified tests; WADA standards are key.",
+    "source": "wada-ama.org",
+    "keywords": ["sports", "doping"]
+  },
+  {
+    "title": "Flood Impact Assessment",
+    "content": "Flood claims need data; NOAA confirms rising sea levels but not all reports match.",
+    "source": "noaa.gov",
+    "keywords": ["flood", "climate"]
+  },
+  {
+    "title": "Quantum Computing Claims",
+    "content": "Breakthroughs are legit if published in journals, not just press releases.",
+    "source": "sciencemag.org",
+    "keywords": ["quantum", "technology"]
+  },
+    {
+      "title": "Champions League Squad Announcements",
+      "content": "Squad lists for Champions League matches are typically reliable when sourced from official club sites or verified fan blogs like Barca Blaugranes, though they may lack insider details.",
+      "source": "uefa.com",
+      "keywords": ["Champions League", "soccer", "squad"]
+    },
+    {
+      "title": "Barcelona Match Previews",
+      "content": "Previews for Barcelona games from fan sites like Barca Blaugranes are enthusiast-driven and generally accurate for team news, but official confirmation from FC Barcelona adds credibility.",
+      "source": "fcbarcelona.com",
+      "keywords": ["Barcelona", "soccer", "preview"]
+    },
+    {
+      "title": "Sports Reporting Standards",
+      "content": "Credible sports news cites primary sources like coaches or clubs; fan blogs can be reliable but often lack official verification.",
+      "source": "espn.com",
+      "keywords": ["sports", "credibility", "reporting"]
+    },
+    {
+      "title": "Borussia Dortmund Updates",
+      "content": "Dortmund’s squad updates are best verified via club statements; secondary sources may exaggerate or speculate.",
+      "source": "bvb.de",
+      "keywords": ["Dortmund", "soccer", "squad"]
+    },
+    {
+      "title": "Fan Blog Reliability",
+      "content": "Fan-run sites like Barca Blaugranes provide timely updates but may reflect bias; cross-check with official sources for accuracy.",
+      "source": "sportsjournal.org",
+      "keywords": ["fan blog", "sports", "credibility"]
+    }
+]

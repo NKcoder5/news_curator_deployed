@@ -1,11 +1,132 @@
-.homepage {
-    padding: 2rem;
-    background-color: #f9f9fb;
+.homepage-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.header-content h1 {
+  font-size: 2.2rem;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.header-content p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.category-selector {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.category-selector label {
+  font-weight: 500;
+  color: #444;
+}
+
+.category-dropdown {
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 200px;
+}
+
+.category-dropdown:hover {
+  border-color: #3b82f6;
+}
+
+.category-dropdown:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-state {
+  background-color: #fee2e2;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  color: #dc2626;
+  margin-top: 2rem;
+}
+
+.retry-button {
+  margin-top: 1rem;
+  padding: 0.6rem 1.2rem;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.retry-button:hover {
+  background-color: #b91c1c;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+  }
+  
+  .category-selector {
+    flex-direction: column;
+    align-items: flex-start;
   }
   
   .news-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: 1fr;
   }
-  
+}

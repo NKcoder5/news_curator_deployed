@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 import '../styles/Auth.css';
 
 const LoginPage = ({ setUser }) => {
@@ -23,14 +23,18 @@ const LoginPage = ({ setUser }) => {
     setIsLoading(true);
     
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', { 
+      const res = await api.post('/auth/login', { 
         email, 
         password 
       });
       
       localStorage.setItem('token', res.data.token);
-      setUser({ token: res.data.token });
-      navigate('/dashboard');
+      setUser({ 
+        token: res.data.token,
+        userId: res.data.userId,
+        interests: res.data.interests || []
+      });
+      navigate('/home');
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Please check your credentials.');
     } finally {
@@ -98,7 +102,7 @@ const LoginPage = ({ setUser }) => {
       </form>
 
       <div className="auth-footer">
-        <p>Don't have an account? <a href="/signup">Create one</a></p>
+        <p>Don't have an account? <a href="/signup">Sign up</a></p>
       </div>
     </div>
   );

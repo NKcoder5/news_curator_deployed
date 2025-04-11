@@ -1,28 +1,57 @@
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import FeedbackModal from '../components/FeedbackModal';
 import '../styles/ArticlePage.css';
 
 const ArticlePage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const article = location.state?.article;
+  const startTime = location.state?.startTime;
 
   const [summary, setSummary] = useState('');
   const [feedback, setFeedback] = useState('');
   const [credibility, setCredibility] = useState(null);
   const [loadingStates, setLoadingStates] = useState({
-    summary: false,
+    summary: true,
     feedback: false,
     credibility: false,
   });
   const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState(null);
 
-  const analyze = async (type) => {
+  // Define trackActivity function using useCallback to avoid recreation on each render
+  const trackActivity = useCallback(async (activityType, duration = 0) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      await axios.post('http://localhost:5000/api/tracking/activity', {
+        articleId: article.url,
+        title: article.title,
+        category: article.category || 'general',
+        source: article.source?.name || 'Unknown Source',
+        activityType,
+        duration,
+        completed: activityType === 'read'
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (error) {
+      // Silently handle errors
+    }
+  }, [article]);
+
+  // Define analyze function using useCallback
+  const analyze = useCallback(async (type) => {
     if (!article) return;
 
     const content = article.content || article.description || article.title;
-
     setLoadingStates(prev => ({ ...prev, [type]: true }));
+    setError(null);
 
     try {
       let endpoint, body;
@@ -45,126 +74,248 @@ const ArticlePage = () => {
           };
           break;
         default:
+          console.warn('Unknown analysis type:', type);
           return;
       }
 
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) throw new Error('API request failed');
-
-      const data = await response.json();
-      console.log(`${type} API response:`, data);
+      const response = await axios.post(`http://localhost:5000${endpoint}`, body);
 
       switch (type) {
         case 'summary':
-          setSummary(data.summary || 'No summary available');
+          setSummary(response.data.summary);
           break;
         case 'feedback':
-          setFeedback(data.suggestion || 'No feedback available');
+          setFeedback(response.data.suggestion);
           break;
         case 'credibility':
-          setCredibility({
-            score: data.score ?? null,
-            reasoning: data.reasoning || 'No reasoning provided by the server.',
-          });
+          setCredibility(response.data);
           break;
       }
     } catch (err) {
-      console.error(`${type} analysis error:`, err);
-      switch (type) {
-        case 'summary':
-          setSummary('Error generating summary');
-          break;
-        case 'feedback':
-          setFeedback('Error generating feedback');
-          break;
-        case 'credibility':
-          setCredibility({ score: null, reasoning: 'Error assessing credibility' });
-          break;
-      }
+      console.error(`Error in ${type} analysis:`, err);
+      setError(`Failed to analyze ${type}. Please try again.`);
     } finally {
       setLoadingStates(prev => ({ ...prev, [type]: false }));
     }
+  }, [article]);
+
+  // Redirect if no article data
+  useEffect(() => {
+    if (!article) {
+      navigate('/home');
+    }
+  }, [article, navigate]);
+
+  // Handle tracking when component unmounts
+  useEffect(() => {
+    return () => {
+      // Calculate duration and track activity if user was logged in
+      if (startTime) {
+        const duration = Math.round((Date.now() - startTime) / 1000);
+        trackActivity('read', duration);
+      }
+    };
+  }, [startTime, trackActivity]);
+
+  // Automatically start summarization when page loads
+  useEffect(() => {
+    if (article) {
+      analyze('summary');
+    }
+  }, [article, analyze]);
+
+  const handleShowFullFeedback = () => {
+    setShowModal(true);
   };
 
-  if (!article) return <div>Error loading article.</div>;
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const handleSubmitFeedback = async (userFeedback) => {
+    if (!article) return;
+    
+    setLoadingStates(prev => ({ ...prev, feedback: true }));
+    
+    try {
+      const content = article.content || article.description || article.title;
+      const response = await axios.post('http://localhost:5000/api/ai/feedback', {
+        article: content,
+        userFeedback
+      });
+      
+      setFeedback(response.data.suggestion);
+    } catch (err) {
+      console.error('Error submitting feedback:', err);
+      setError('Failed to submit feedback. Please try again.');
+    } finally {
+      setLoadingStates(prev => ({ ...prev, feedback: false }));
+      setShowModal(false);
+    }
+  };
+
+  if (!article) {
+    return (
+      <div className="article-page">
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p className="loading-text">Loading article...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="article-page">
-      <h2>{article.title}</h2>
-      <p>{article.content || article.description}</p>
-
-      <div className="analysis-options">
-        <div className="analysis-card">
-          <h4>📝 Summary</h4>
-          <p>Get a concise summary of the article's key points</p>
-          <button
-            onClick={() => analyze('summary')}
-            disabled={loadingStates.summary}
-            className="analysis-button"
+      <div className="article-header">
+        <h1 className="article-title">{article.title}</h1>
+        <div className="article-meta">
+          <span className="article-source">{article.source?.name || 'Unknown Source'}</span>
+          <span className="article-date">
+            {new Date(article.publishedAt).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </span>
+        </div>
+        {article.urlToImage && (
+          <img 
+            className="article-image"
+            src={article.urlToImage} 
+            alt={article.title}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = 'https://via.placeholder.com/800x400?text=No+Image+Available';
+            }}
+          />
+        )}
+        <div className="article-content">
+          <p>{article.description}</p>
+        </div>
+        <div className="article-actions">
+          <a 
+            href={article.url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="feedback-button"
           >
-            {loadingStates.summary ? 'Summarizing...' : 'Generate Summary'}
-          </button>
-          {summary && (
-            <div className="analysis-result">
-              <h5>Summary:</h5>
+            Read Original Article
+          </a>
+        </div>
+      </div>
+
+      <div className="article-bottom-section">
+        <div className="summary-section">
+          <h3 className="summary-title">AI Summary</h3>
+          {loadingStates.summary ? (
+            <div className="loading-state">
+              <div className="spinner"></div>
+              <p className="loading-text">Generating summary...</p>
+            </div>
+          ) : error ? (
+            <div className="error-message">
+              <p>{error}</p>
+              <button 
+                className="feedback-button"
+                onClick={() => analyze('summary')}
+              >
+                Retry
+              </button>
+            </div>
+          ) : (
+            <div className="summary-content">
               <p>{summary}</p>
             </div>
           )}
         </div>
 
-        <div className="analysis-card">
-          <h4>🔍 Credibility Score</h4>
-          <p>Evaluate the trustworthiness of this article</p>
-          <button
-            onClick={() => analyze('credibility')}
-            disabled={loadingStates.credibility}
-            className="analysis-button"
-          >
-            {loadingStates.credibility ? 'Assessing...' : 'Check Credibility'}
-          </button>
-          {credibility && (
-            <div className="analysis-result">
-              <h5>Credibility Score:</h5>
-              <p>
-                {credibility.score !== null ? `${credibility.score}/10` : 'N/A'}
-                {credibility.reasoning ? ` - ${credibility.reasoning}` : ' - No reasoning available'}
-              </p>
-            </div>
-          )}
-        </div>
-
-        <div className="analysis-card">
-          <h4>💬 Feedback</h4>
-          <p>Get AI feedback on the article's content</p>
-          <button
-            onClick={() => analyze('feedback')}
-            disabled={loadingStates.feedback}
-            className="analysis-button"
-          >
-            {loadingStates.feedback ? 'Generating...' : 'Get Feedback'}
-          </button>
-          {feedback && (
-            <div className="analysis-result">
-              <h5>Feedback:</h5>
-              <p>{feedback.slice(0, 100)}...</p>
-              <button
-                onClick={() => setShowModal(true)}
-                className="read-more-button"
+        <div className="right-cards">
+          <div className="credibility-card">
+            <h3 className="credibility-title">Credibility Analysis</h3>
+            {loadingStates.credibility ? (
+              <div className="loading-state">
+                <div className="spinner"></div>
+                <p className="loading-text">Analyzing credibility...</p>
+              </div>
+            ) : error ? (
+              <div className="error-message">
+                <p>{error}</p>
+                <button 
+                  className="feedback-button"
+                  onClick={() => analyze('credibility')}
+                >
+                  Retry
+                </button>
+              </div>
+            ) : credibility ? (
+              <div className="credibility-content">
+                <div className="credibility-score">
+                  <div className="score-circle" style={{
+                    background: `conic-gradient(#4CAF50 ${credibility.score * 10}%, #f0f0f0 0)`
+                  }}>
+                    <div className="score-inner">
+                      <span>{credibility.score}</span>
+                      <span className="score-label">/10</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="credibility-reasoning">{credibility.reasoning}</p>
+              </div>
+            ) : (
+              <button 
+                className="feedback-button"
+                onClick={() => analyze('credibility')}
               >
-                Read Full Feedback
+                Check Credibility
               </button>
-            </div>
-          )}
+            )}
+          </div>
+
+          <div className="feedback-card">
+            <h3 className="feedback-title">AI Feedback</h3>
+            {loadingStates.feedback ? (
+              <div className="loading-state">
+                <div className="spinner"></div>
+                <p className="loading-text">Generating feedback...</p>
+              </div>
+            ) : error ? (
+              <div className="error-message">
+                <p>{error}</p>
+                <button 
+                  className="feedback-button"
+                  onClick={() => analyze('feedback')}
+                >
+                  Retry
+                </button>
+              </div>
+            ) : feedback ? (
+              <div className="feedback-content">
+                <p>{feedback}</p>
+                <button 
+                  className="feedback-button"
+                  onClick={handleShowFullFeedback}
+                >
+                  Provide Your Feedback
+                </button>
+              </div>
+            ) : (
+              <button 
+                className="feedback-button"
+                onClick={() => analyze('feedback')}
+              >
+                Get AI Feedback
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {showModal && (
-        <FeedbackModal feedback={feedback} onClose={() => setShowModal(false)} />
+        <FeedbackModal 
+          onSubmit={handleSubmitFeedback} 
+          onClose={handleCloseModal} 
+        />
       )}
     </div>
   );

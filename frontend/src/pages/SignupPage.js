@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 import '../styles/Auth.css';
 
 const SignupPage = ({ setUser }) => {
@@ -34,14 +34,20 @@ const SignupPage = ({ setUser }) => {
     setIsLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/signup', { 
+      const res = await api.post('/auth/signup', { 
         email, 
         password 
       });
       
+      // Store token and user info
       localStorage.setItem('token', res.data.token);
-      setUser({ token: res.data.token });
-      navigate('/dashboard');
+      setUser({ 
+        token: res.data.token,
+        userId: res.data.userId
+      });
+      
+      // Navigate to home page
+      navigate('/home');
     } catch (err) {
       setError(err.response?.data?.error || 'Registration failed. Please try again.');
     } finally {

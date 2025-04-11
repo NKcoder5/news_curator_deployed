@@ -1,5 +1,6 @@
 // backend/utils/newsFetcher.js
 const axios = require('axios');
+const { response } = require('express');
 require('dotenv').config();
 
 const fetchTopNews = async (category = 'general') => {
@@ -14,7 +15,8 @@ const fetchTopNews = async (category = 'general') => {
     description: article.description,
     content: article.content,
     url: article.url,
-    source: article.source.name,
+    urlToImage: article.urlToImage,
+    source: { name: article.source.name },
     publishedAt: article.publishedAt
   }));
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import ArticlePage from './pages/ArticlePage';
@@ -6,12 +6,46 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import LandingPage from './pages/LandingPage';
 import Navbar from './components/Navbar';
+import api from './services/api';
 import './styles/global.css';
 
 const App = () => {
-  const [user, setUser] = useState(
-    localStorage.getItem('token') ? { token: localStorage.getItem('token') } : null
-  );
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Set initial user state with token
+      setUser({ token });
+      
+      // Verify token and get user data
+      api.get('/auth/verify')
+        .then(response => {
+          setUser({
+            token,
+            userId: response.data.userId,
+            interests: response.data.interests || []
+          });
+        })
+        .catch(error => {
+          console.error('Token verification failed:', error);
+          // Clear invalid token
+          localStorage.removeItem('token');
+          setUser(null);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else {
+      setIsLoading(false);
+    }
+  }, []);
+
+  if (isLoading) {
+    return <div className="loading-container">Loading...</div>;
+  }
 
   return (
     <BrowserRouter>

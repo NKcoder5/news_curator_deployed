@@ -48,7 +48,7 @@ async function fetchContext({ title, content, source }) {
     // Format as context snippets
     const context = rankedArticles.map(article => ({
       snippet: `${article.title}: ${article.content}`,
-      link: article.source || 'Local context',
+      link: typeof article.source === 'object' ? article.source.name : article.source || 'Local context',
       similarity: article.similarity,
     }));
 

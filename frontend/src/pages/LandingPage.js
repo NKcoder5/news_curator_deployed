@@ -18,7 +18,7 @@ const LandingPage = () => {
         <div className="feature-card">
           <div className="feature-icon">🔍</div>
           <h3>Credibility Rating</h3>
-          <p>LLaMA3 analyzes news authenticity with RAG-enhanced verification</p>
+          <p>NVIDIA NIM analyzes news authenticity with RAG-enhanced verification</p>
         </div>
         
         <div className="feature-card">

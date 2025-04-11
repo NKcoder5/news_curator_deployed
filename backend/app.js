@@ -7,9 +7,13 @@ require('dotenv').config();
 const newsRoutes = require('./routes/newsRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const authRoutes = require('./routes/authRoutes'); // New
+const trackingRoutes = require('./routes/trackingRoutes');
 
 // DB Connection
 const connectDB = require('./utils/db'); // New
+
+// Initialize models
+require('./models');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -19,12 +23,17 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Database
-connectDB(); // New
+connectDB().then(() => {
+  console.log('Models initialized');
+}).catch(err => {
+  console.error('Failed to initialize models:', err);
+});
 
 // Routes
 app.use('/api/news', newsRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/auth', authRoutes); // New
+app.use('/api/tracking', trackingRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {

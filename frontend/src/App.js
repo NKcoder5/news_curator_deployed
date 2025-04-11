@@ -5,6 +5,9 @@ import ArticlePage from './pages/ArticlePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import LandingPage from './pages/LandingPage';
+import QuizPage from './pages/QuizPage';
+import PromptQuizPage from './pages/PromptQuizPage';
+import Dashboard from './pages/Dashboard';
 import Navbar from './components/Navbar';
 import api from './services/api';
 import './styles/global.css';
@@ -68,8 +71,24 @@ const App = () => {
           element={user ? <HomePage /> : <Navigate to="/login" />} 
         />
         <Route 
-          path="/article/:id" 
+          path="/article" 
           element={user ? <ArticlePage /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/quiz" 
+          element={user ? <QuizPage /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/prompt-quiz" 
+          element={user ? <PromptQuizPage /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/article-quiz" 
+          element={user ? <QuizPage /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/dashboard" 
+          element={user ? <Dashboard /> : <Navigate to="/login" />} 
         />
 
         {/* Fallback Redirect */}

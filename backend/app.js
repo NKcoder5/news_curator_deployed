@@ -8,6 +8,7 @@ const newsRoutes = require('./routes/newsRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const authRoutes = require('./routes/authRoutes'); // New
 const trackingRoutes = require('./routes/trackingRoutes');
+const articleHistoryRoutes = require('./routes/articleHistory');
 
 // DB Connection
 const connectDB = require('./utils/db'); // New
@@ -34,6 +35,7 @@ app.use('/api/news', newsRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/auth', authRoutes); // New
 app.use('/api/tracking', trackingRoutes);
+app.use('/api/article-history', articleHistoryRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {

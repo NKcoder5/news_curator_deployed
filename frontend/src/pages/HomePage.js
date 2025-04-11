@@ -1,25 +1,24 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import api from '../services/api';
 import NewsCard from '../components/NewsCard';
 import '../styles/HomePage.css';
 
-const categories = [
-  { value: 'general', label: '🌐 General' },
-  { value: 'technology', label: '💻 Technology' },
-  { value: 'business', label: '💼 Business' },
-  { value: 'sports', label: '⚽ Sports' },
-  { value: 'science', label: '🔬 Science' },
-  { value: 'health', label: '🏥 Health' },
-  { value: 'entertainment', label: '🎬 Entertainment' }
-];
-
 const HomePage = () => {
+  const location = useLocation();
   const [articles, setArticles] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('general');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [initialLoad, setInitialLoad] = useState(true);
   const [personalizedMessage, setPersonalizedMessage] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('general');
+
+  // Get category from URL query parameter
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const category = params.get('category') || 'general';
+    setSelectedCategory(category);
+  }, [location.search]);
 
   const fetchNews = useCallback(async () => {
     try {
@@ -61,6 +60,7 @@ const HomePage = () => {
       console.error('News fetch error:', err);
     } finally {
       setIsLoading(false);
+      setInitialLoad(false);
     }
   }, [selectedCategory]);
 
@@ -87,83 +87,87 @@ const HomePage = () => {
     }
   };
 
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
-    if (!initialLoad) {
-      trackCategoryClick(category);
-    }
-  };
-
   useEffect(() => {
     fetchNews();
-  }, [selectedCategory, fetchNews]);
+    if (!initialLoad) {
+      trackCategoryClick(selectedCategory);
+    }
+  }, [selectedCategory, fetchNews, initialLoad]);
 
-  useEffect(() => {
-    setInitialLoad(false);
-  }, []);
+  const getCategoryEmoji = (category) => {
+    const emojiMap = {
+      'general': '🌐',
+      'technology': '💻',
+      'business': '💼',
+      'sports': '⚽',
+      'science': '🔬',
+      'health': '🏥',
+      'entertainment': '🎬'
+    };
+    return emojiMap[category] || '📰';
+  };
+
+  const getCategoryTitle = (category) => {
+    const titleMap = {
+      'general': 'General News',
+      'technology': 'Technology News',
+      'business': 'Business News',
+      'sports': 'Sports News',
+      'science': 'Science News',
+      'health': 'Health News',
+      'entertainment': 'Entertainment News'
+    };
+    return titleMap[category] || 'News';
+  };
+
+  const getCategoryDescription = (category) => {
+    const descriptionMap = {
+      'general': 'Stay informed with the latest news from around the world, covering a wide range of topics and current events.',
+      'technology': 'Discover the latest innovations, tech trends, and digital developments shaping our future.',
+      'business': 'Get insights into market trends, company updates, and economic developments that impact global business.',
+      'sports': 'Follow your favorite teams, athletes, and sporting events with comprehensive coverage and analysis.',
+      'science': 'Explore groundbreaking discoveries, research findings, and scientific advancements across various fields.',
+      'health': 'Stay updated on medical breakthroughs, wellness tips, and health-related news to maintain a healthy lifestyle.',
+      'entertainment': 'Keep up with the latest in movies, music, TV shows, and celebrity news from the entertainment industry.'
+    };
+    return descriptionMap[category] || 'Stay informed with the latest news and updates.';
+  };
 
   return (
-    <div className="homepage-container">
-      <div className="page-header">
-        <div className="header-content">
-          <h1>Your News Dashboard</h1>
-          <p>Stay updated with the latest {selectedCategory} news</p>
-          {personalizedMessage && (
-            <div className="personalized-message">
-              <p>{personalizedMessage}</p>
-            </div>
-          )}
+    <div className="home-container">
+      <div className="category-info-card">
+        <div className="category-header">
+          <span className="category-emoji">{getCategoryEmoji(selectedCategory)}</span>
+          <h1 className="category-title">{getCategoryTitle(selectedCategory)}</h1>
         </div>
-        
-        <div className="category-selector">
-          <label htmlFor="news-category">Filter by:</label>
-          <select
-            id="news-category"
-            onChange={(e) => handleCategoryChange(e.target.value)}
-            value={selectedCategory}
-            className="category-dropdown"
-          >
-            {categories.map((cat) => (
-              <option key={cat.value} value={cat.value}>
-                {cat.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <p className="category-description">{getCategoryDescription(selectedCategory)}</p>
+        {personalizedMessage && (
+          <div className="personalized-message">
+            <p>{personalizedMessage}</p>
+          </div>
+        )}
       </div>
 
       {isLoading ? (
-        <div className="loading-state">
-          <div className="spinner"></div>
-          <p>Loading news...</p>
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p className="loading-text">Loading news...</p>
         </div>
       ) : error ? (
-        <div className="error-state">
+        <div className="error-container">
           <p>{error}</p>
-          <button onClick={handleRetry} className="retry-button">
-            Retry
-          </button>
+          <button onClick={handleRetry} className="retry-button">Retry</button>
+        </div>
+      ) : articles.length === 0 ? (
+        <div className="no-articles">
+          <p>No articles found for this category.</p>
         </div>
       ) : (
-        <>
-          {articles.length > 0 ? (
-            <div className="news-grid">
-              {articles.map((article, idx) => (
-                <div 
-                  key={`${article.url}-${idx}`}
-                  className="news-card-container"
-                  data-article-id={article.url}
-                >
-                  <NewsCard article={article} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="no-results">
-              <p>No articles found for this category.</p>
-            </div>
-          )}
-        </>
+        <div className="news-grid">
+          {articles.map((article, index) => (
+            <NewsCard key={index} article={article} />
+          ))}
+        </div>
       )}
     </div>
   );

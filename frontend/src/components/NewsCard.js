@@ -15,7 +15,7 @@ const NewsCard = ({ article }) => {
       trackActivity('click');
       
       // Navigate to article page
-      navigate(`/article/${encodeURIComponent(article.title)}`, { 
+      navigate('/article', { 
         state: { 
           article,
           startTime: Date.now()
@@ -23,7 +23,7 @@ const NewsCard = ({ article }) => {
       });
     } else {
       // If not logged in, just navigate without tracking
-      navigate(`/article/${encodeURIComponent(article.title)}`, { 
+      navigate('/article', { 
         state: { article } 
       });
     }

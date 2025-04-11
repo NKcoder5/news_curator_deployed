@@ -1,6 +1,7 @@
 // backend/rag/ragPipeline.js
 const fs = require('fs').promises;
 const path = require('path');
+const { fetchWikipediaContent, extractKeywords } = require('../utils/wikipedia');
 
 // Path to context file
 const CONTEXT_FILE = path.join(__dirname, '../data/contextArticle.json');
@@ -23,38 +24,51 @@ function getSimilarity(inputText, articleText, inputKeywords = [], articleKeywor
 
 async function fetchContext({ title, content, source }) {
   try {
-    // Read context file
-    const rawData = await fs.readFile(CONTEXT_FILE, 'utf8');
-    const articles = JSON.parse(rawData);
-
     // Prepare input
     const inputText = `${title} ${content}`.toLowerCase();
-    const inputKeywords = inputText.split(/\s+/).filter(word => word.length > 3); // Basic keyword extraction
-
+    const inputKeywords = extractKeywords(inputText);
+    
+    // Try to fetch Wikipedia content first
+    const wikiArticles = await fetchWikipediaContent(title, 3);
+    
+    // Read local context file as fallback
+    let localArticles = [];
+    try {
+      const rawData = await fs.readFile(CONTEXT_FILE, 'utf8');
+      localArticles = JSON.parse(rawData);
+    } catch (error) {
+      console.warn('Could not read local context file:', error.message);
+    }
+    
+    // Combine Wikipedia and local articles
+    const allArticles = [...wikiArticles, ...localArticles];
+    
+    if (allArticles.length === 0) {
+      return [{ snippet: 'No relevant context found.', link: 'N/A' }];
+    }
+    
     // Rank articles by similarity
-    const rankedArticles = articles
+    const rankedArticles = allArticles
       .map(article => ({
         ...article,
         similarity: getSimilarity(
           inputText,
           `${article.title} ${article.content}`,
           inputKeywords,
-          article.keywords || []
+          article.keywords || extractKeywords(article.content)
         ),
       }))
       .sort((a, b) => b.similarity - a.similarity)
-      .slice(0, 3); // Top 3 matches
+      .slice(0, 5); // Top 5 matches
 
     // Format as context snippets
     const context = rankedArticles.map(article => ({
-      snippet: `${article.title}: ${article.content}`,
-      link: typeof article.source === 'object' ? article.source.name : article.source || 'Local context',
+      snippet: `${article.title}: ${article.content.substring(0, 300)}${article.content.length > 300 ? '...' : ''}`,
+      link: article.url || (typeof article.source === 'object' ? article.source.name : article.source) || 'Local context',
       similarity: article.similarity,
     }));
 
-    return context.length > 0
-      ? context
-      : [{ snippet: 'No relevant context found in local data.', link: 'N/A' }];
+    return context;
   } catch (error) {
     console.error('RAG fetch failed:', error.message);
     return [{ snippet: 'Error loading context data.', link: 'N/A' }];

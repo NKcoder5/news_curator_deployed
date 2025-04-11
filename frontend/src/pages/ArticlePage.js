@@ -8,13 +8,16 @@ const ArticlePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const article = location.state?.article;
-  const startTime = location.state?.startTime;
+  const startTime = location.state?.startTime || Date.now();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [summary, setSummary] = useState('');
+  const [detailedSummary, setDetailedSummary] = useState('');
   const [feedback, setFeedback] = useState('');
   const [credibility, setCredibility] = useState(null);
   const [loadingStates, setLoadingStates] = useState({
     summary: true,
+    detailedSummary: false,
     feedback: false,
     credibility: false,
   });
@@ -61,6 +64,10 @@ const ArticlePage = () => {
           endpoint = '/api/ai/summarize';
           body = { article: content };
           break;
+        case 'detailedSummary':
+          endpoint = '/api/ai/detailed-summary';
+          body = { article: content };
+          break;
         case 'feedback':
           endpoint = '/api/ai/feedback';
           body = { article: content, userFeedback: 'None' };
@@ -78,11 +85,20 @@ const ArticlePage = () => {
           return;
       }
 
-      const response = await axios.post(`http://localhost:5000${endpoint}`, body);
+      // Get the token from localStorage
+      const token = localStorage.getItem('token');
+      
+      // Add authorization header if token exists
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+      const response = await axios.post(`http://localhost:5000${endpoint}`, body, { headers });
 
       switch (type) {
         case 'summary':
           setSummary(response.data.summary);
+          break;
+        case 'detailedSummary':
+          setDetailedSummary(response.data.summary);
           break;
         case 'feedback':
           setFeedback(response.data.suggestion);
@@ -124,6 +140,60 @@ const ArticlePage = () => {
     }
   }, [article, analyze]);
 
+  useEffect(() => {
+    // Check if user is authenticated
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  }, []);
+
+  useEffect(() => {
+    const trackArticleView = async () => {
+      if (isAuthenticated && article) {
+        try {
+          const token = localStorage.getItem('token');
+          await axios.post(
+            'http://localhost:5000/api/article-history/track-view',
+            {
+              articleId: article.url,
+              title: article.title,
+              source: article.source?.name || 'Unknown Source',
+              category: article.category || 'general'
+            },
+            {
+              headers: { Authorization: `Bearer ${token}` }
+            }
+          );
+        } catch (error) {
+          console.error('Error tracking article view:', error);
+        }
+      }
+    };
+
+    if (article) {
+      trackArticleView();
+    }
+  }, [article, isAuthenticated]);
+
+  const handleQuizComplete = async (score) => {
+    if (isAuthenticated && article) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.post(
+          'http://localhost:5000/api/article-history/update-quiz',
+          {
+            articleId: article.url,
+            score: score
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+      } catch (error) {
+        console.error('Error updating quiz attempt:', error);
+      }
+    }
+  };
+
   const handleShowFullFeedback = () => {
     setShowModal(true);
   };
@@ -139,10 +209,17 @@ const ArticlePage = () => {
     
     try {
       const content = article.content || article.description || article.title;
+      
+      // Get the token from localStorage
+      const token = localStorage.getItem('token');
+      
+      // Add authorization header if token exists
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      
       const response = await axios.post('http://localhost:5000/api/ai/feedback', {
         article: content,
         userFeedback
-      });
+      }, { headers });
       
       setFeedback(response.data.suggestion);
     } catch (err) {
@@ -152,6 +229,25 @@ const ArticlePage = () => {
       setLoadingStates(prev => ({ ...prev, feedback: false }));
       setShowModal(false);
     }
+  };
+
+  const handleDetailedSummary = () => {
+    analyze('detailedSummary');
+  };
+
+  const handleQuizClick = () => {
+    if (!detailedSummary) {
+      alert('Please generate a detailed summary first before taking the quiz.');
+      return;
+    }
+    
+    // Navigate to the quiz page with the detailed summary and article title
+    navigate('/quiz', { 
+      state: { 
+        detailedSummary,
+        articleTitle: article.title
+      } 
+    });
   };
 
   if (!article) {
@@ -207,26 +303,38 @@ const ArticlePage = () => {
 
       <div className="article-bottom-section">
         <div className="summary-section">
-          <h3 className="summary-title">AI Summary</h3>
+          <h2>Summary</h2>
           {loadingStates.summary ? (
             <div className="loading-state">
               <div className="spinner"></div>
-              <p className="loading-text">Generating summary...</p>
-            </div>
-          ) : error ? (
-            <div className="error-message">
-              <p>{error}</p>
-              <button 
-                className="feedback-button"
-                onClick={() => analyze('summary')}
-              >
-                Retry
-              </button>
+              <p>Generating summary...</p>
             </div>
           ) : (
-            <div className="summary-content">
+            <>
               <p>{summary}</p>
-            </div>
+              <div className="summary-actions">
+                <button 
+                  className="action-button"
+                  onClick={handleDetailedSummary}
+                  disabled={loadingStates.detailedSummary}
+                >
+                  {loadingStates.detailedSummary ? 'Generating...' : 'Detailed Summary'}
+                </button>
+                <button 
+                  className="action-button"
+                  onClick={handleQuizClick}
+                  disabled={!detailedSummary}
+                >
+                  Wanna validate yourself? Take Quiz
+                </button>
+              </div>
+              {detailedSummary && (
+                <div className="detailed-summary">
+                  <h3>Detailed Summary</h3>
+                  <p>{detailedSummary}</p>
+                </div>
+              )}
+            </>
           )}
         </div>
 

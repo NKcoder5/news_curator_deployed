@@ -51,10 +51,24 @@ ${contextText}
         throw new Error('Invalid quiz format');
       }
       
+      // Ensure each question has the required fields
+      quizData.questions = quizData.questions.map((q, index) => {
+        if (!q.question || !q.options || !Array.isArray(q.options) || q.options.length !== 4 || q.correctAnswer === undefined) {
+          console.error(`Invalid question format at index ${index}:`, q);
+          // Return a default question if the format is invalid
+          return {
+            question: `Question ${index + 1} about ${userPrompt}`,
+            options: ["Option A", "Option B", "Option C", "Option D"],
+            correctAnswer: 0
+          };
+        }
+        return q;
+      });
+      
       return quizData;
     } catch (error) {
       console.error('Error parsing quiz data:', error);
-      // Return a default quiz if parsing fails
+      // Return a default quiz with 5 questions if parsing fails
       return {
         questions: [
           {

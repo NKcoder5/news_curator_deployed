@@ -1,12 +1,22 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import '../styles/Navbar.css';
-// Reference logo from public folder
-const logoImg = '/logo.png'; // NewsAI logo
+
+const logoImg = '/logo.png';
 
 const Navbar = ({ user, setUser }) => {
   const navigate = useNavigate();
-  const [activeLink, setActiveLink] = useState(null); // Track active link
+  const location = useLocation();
+  const [activeLink, setActiveLink] = useState(null);
+
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === '/dashboard') setActiveLink('dashboard');
+    else if (path === '/prompt-quiz') setActiveLink('prompt-quiz');
+    else if (path === '/home') setActiveLink('home');
+    else if (path.includes('/home')) setActiveLink('categories');
+    else setActiveLink(null);
+  }, [location]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -14,48 +24,49 @@ const Navbar = ({ user, setUser }) => {
     navigate('/login');
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const query = e.target.elements.search.value;
-    if (query) {
-      navigate(`/search?q=${encodeURIComponent(query)}`);
-    }
+  const handleCategoryClick = () => {
+    navigate('/home?category=general');
+    setActiveLink('categories');
   };
 
   const handleLinkClick = (link) => {
-    setActiveLink(link); // Set clicked link as active
+    setActiveLink(link);
   };
 
   return (
     <nav className="navbar">
       <Link to="/" className="logo" onClick={() => handleLinkClick(null)}>
         <img src={logoImg} alt="NewsAI Logo" />
-        NewsAI
+        <span className="logo-text">NewsAI</span>
+        <span className="logo-tagline">Daily Intelligence</span>
       </Link>
+      
       <div className="nav-links">
         {user ? (
           <>
-            <form className="search-bar" onSubmit={handleSearch}>
-              <i className="fas fa-newspaper search-logo"></i>
-              <input
-                type="text"
-                name="search"
-                placeholder="Search news..."
-                aria-label="Search news"
-              />
-              <button type="submit">
-                <i className="fas fa-search"></i>
-              </button>
-            </form>
+            <Link
+              to="/home?category=general"
+              className={`nav-link ${activeLink === 'categories' ? 'active' : ''}`}
+              onClick={handleCategoryClick}
+            >
+              <i className="fas fa-newspaper"></i> Categories
+            </Link>
+            <Link
+              to="/prompt-quiz"
+              className={`nav-link ${activeLink === 'prompt-quiz' ? 'active' : ''}`}
+              onClick={() => handleLinkClick('prompt-quiz')}
+            >
+              <i className="fas fa-question-circle"></i> Quiz
+            </Link>
             <Link
               to="/dashboard"
               className={`nav-link ${activeLink === 'dashboard' ? 'active' : ''}`}
               onClick={() => handleLinkClick('dashboard')}
             >
-              Dashboard
+              <i className="fas fa-chart-line"></i> Dashboard
             </Link>
             <button onClick={handleLogout} className="logout-btn">
-              Logout
+              <i className="fas fa-sign-out-alt"></i> Logout
             </button>
           </>
         ) : (
@@ -65,27 +76,15 @@ const Navbar = ({ user, setUser }) => {
               className={`nav-link ${activeLink === 'login' ? 'active' : ''}`}
               onClick={() => handleLinkClick('login')}
             >
-              Login
+              <i className="fas fa-sign-in-alt"></i> Login
             </Link>
             <Link
               to="/signup"
               className={`nav-link ${activeLink === 'signup' ? 'active' : ''}`}
               onClick={() => handleLinkClick('signup')}
             >
-              Signup
+              <i className="fas fa-user-plus"></i> Signup
             </Link>
-            <form className="search-bar" onSubmit={handleSearch}>
-              <i className="fas fa-newspaper search-logo"></i>
-              <input
-                type="text"
-                name="search"
-                placeholder="Search news..."
-                aria-label="Search news"
-              />
-              <button type="submit">
-                <i className="fas fa-search"></i>
-              </button>
-            </form>
           </>
         )}
       </div>

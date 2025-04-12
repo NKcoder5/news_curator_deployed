@@ -1,0 +1,58 @@
+.weather-container {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.weather-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.weather-location {
+  font-weight: 500;
+}
+
+.weather-temp {
+  font-weight: 600;
+}
+
+.weather-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.weather-loading {
+  font-size: 0.8rem;
+  color: #666;
+  margin-right: 20px;
+}
+
+.weather-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #dc3545;
+  margin-right: 20px;
+  text-align: center;
+}
+
+.weather-retry-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.weather-retry-btn:hover {
+  background-color: #0056b3;
+} 

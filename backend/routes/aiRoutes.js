@@ -79,6 +79,14 @@ router.post('/generate-prompt-quiz', async (req, res) => {
     }
     
     const quizData = await generatePromptQuiz(prompt);
+    
+    // Ensure the response format is correct
+    if (!quizData || !quizData.questions || !Array.isArray(quizData.questions)) {
+      console.error('Invalid quiz data format:', quizData);
+      return res.status(500).json({ error: 'Failed to generate quiz: Invalid format' });
+    }
+    
+    // Return the quiz data directly
     res.json(quizData);
   } catch (error) {
     console.error('Error generating prompt quiz:', error);

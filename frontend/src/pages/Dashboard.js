@@ -1,62 +1,99 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import '../styles/Dashboard.css';
+import api from '../services/api';
 
 const Dashboard = () => {
   const [articleHistory, setArticleHistory] = useState([]);
+  const [quizHistory, setQuizHistory] = useState([]);
+  const [feedbackHistory, setFeedbackHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
+  const [showArticleHistory, setShowArticleHistory] = useState(false);
+  const [showQuizHistory, setShowQuizHistory] = useState(false);
+  const [showFeedbackHistory, setShowFeedbackHistory] = useState(false);
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
+  const [showQuizModal, setShowQuizModal] = useState(false);
   const navigate = useNavigate();
 
+  const fetchUserProfile = async () => {
+    try {
+      const response = await api.get('/users/profile');
+      setUserProfile(response.data);
+    } catch (err) {
+      console.error('Error fetching user profile:', err);
+      setError('Failed to load user profile');
+    }
+  };
+
+  const fetchArticleHistory = async () => {
+    try {
+      const response = await api.get('/article-history/history');
+      setArticleHistory(response.data.data || []);
+    } catch (err) {
+      console.error('Error fetching article history:', err);
+      setError('Failed to load article history');
+    }
+  };
+
+  const fetchQuizHistory = async () => {
+    try {
+      const response = await api.get('/prompt-quiz/history');
+      setQuizHistory(response.data.data || []);
+    } catch (err) {
+      console.error('Error fetching quiz history:', err);
+      setError('Failed to load quiz history');
+    }
+  };
+
+  const fetchFeedbackHistory = async () => {
+    try {
+      const response = await api.get('/article-feedback/history/all');
+      setFeedbackHistory(response.data.data || []);
+    } catch (err) {
+      console.error('Error fetching feedback history:', err);
+      setError('Failed to load feedback history');
+    }
+  };
+
+  const fetchAllData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await Promise.all([
+        fetchUserProfile(),
+        fetchArticleHistory(),
+        fetchQuizHistory(),
+        fetchFeedbackHistory()
+      ]);
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/auth/verify', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setUserProfile(response.data);
-      } catch (err) {
-        console.error('Error fetching user profile:', err);
-      }
-    };
-
-    const fetchArticleHistory = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/article-history/history', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setArticleHistory(response.data.data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching article history:', err);
-        setError('Failed to fetch article history');
-        setLoading(false);
-      }
-    };
-
-    fetchUserProfile();
-    fetchArticleHistory();
+    fetchAllData();
   }, []);
 
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
   const handleArticleClick = (article) => {
-    // Create a minimal article object with the required data
     const articleData = {
       url: article.articleId,
       title: article.title,
-      source: { name: article.source },
-      category: article.category,
-      publishedAt: article.lastViewed,
-      // Add any other required fields with default values
-      description: '',
-      content: '',
-      urlToImage: ''
+      source: {
+        name: article.source
+      },
+      category: article.category
     };
-    
-    // Navigate to the article page with the article data
+
     navigate('/article', { 
       state: { 
         article: articleData,
@@ -65,14 +102,37 @@ const Dashboard = () => {
     });
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const getArticleStats = () => {
+    const totalArticles = articleHistory.length;
+    const totalViews = articleHistory.reduce((sum, article) => sum + article.viewCount, 0);
+    const categories = [...new Set(articleHistory.map(article => article.category))];
+    return { totalArticles, totalViews, categories: categories.length };
+  };
+
+  const getQuizStats = () => {
+    const totalQuizzes = quizHistory.length;
+    const averageScore = quizHistory.length > 0 
+      ? Math.round(quizHistory.reduce((sum, quiz) => sum + (quiz.score / quiz.totalQuestions * 100), 0) / quizHistory.length)
+      : 0;
+    return { totalQuizzes, averageScore };
+  };
+
+  const getFeedbackStats = () => {
+    const totalFeedback = feedbackHistory.length;
+    const averageRating = feedbackHistory.length > 0
+      ? Math.round(feedbackHistory.reduce((sum, item) => sum + item.rating, 0) / feedbackHistory.length * 10) / 10
+      : 0;
+    return { totalFeedback, averageRating };
+  };
+
+  const handleQuizClick = (quiz) => {
+    setSelectedQuiz(quiz);
+    setShowQuizModal(true);
+  };
+
+  const closeQuizModal = () => {
+    setShowQuizModal(false);
+    setSelectedQuiz(null);
   };
 
   if (loading) {
@@ -91,6 +151,7 @@ const Dashboard = () => {
       <div className="dashboard-container">
         <div className="error-message">
           <p>{error}</p>
+          <button onClick={fetchAllData}>Try Again</button>
         </div>
       </div>
     );
@@ -99,65 +160,267 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h1>Your Dashboard</h1>
-        {userProfile && (
-          <div className="user-profile">
-            <div className="profile-avatar">
-              <span>{userProfile.email ? userProfile.email.charAt(0).toUpperCase() : 'U'}</span>
-            </div>
-            <div className="profile-info">
-              <h2>{userProfile.email}</h2>
-              <p>Member since {new Date().getFullYear()}</p>
-              {userProfile.interests && userProfile.interests.length > 0 && (
-                <div className="user-interests">
-                  <h3>Your Interests:</h3>
-                  <div className="interest-tags">
-                    {userProfile.interests.map((interest, index) => (
-                      <span key={index} className="interest-tag">{interest}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        <h1>Dashboard</h1>
       </div>
       
-      <div className="dashboard-section">
-        <h2>Reading History</h2>
-        <div className="history-grid">
-          {articleHistory.map((article) => (
-            <div
-              key={article._id}
-              className="history-card"
-              onClick={() => handleArticleClick(article)}
-            >
-              <div className="card-header">
-                <h3>{article.title}</h3>
-                <span className="source">{article.source}</span>
-              </div>
-              <div className="card-content">
-                <p className="category">{article.category}</p>
-                <p className="view-count">Views: {article.viewCount}</p>
-                <p className="last-viewed">Last viewed: {formatDate(article.lastViewed)}</p>
-                {article.quizAttempted && (
-                  <div className="quiz-info">
-                    <span className="quiz-badge">Quiz Completed</span>
-                    {article.quizScore !== null && (
-                      <span className="quiz-score">Score: {article.quizScore}%</span>
-                    )}
-                  </div>
+      <div className="dashboard-content">
+        {/* Left Sidebar - User Profile */}
+        <div className="dashboard-sidebar">
+          <div className="user-profile">
+            <div className="profile-avatar">
+              {userProfile?.email?.charAt(0).toUpperCase() || 'U'}
+            </div>
+            <div className="profile-info">
+              <h2>User</h2>
+              <p>{userProfile?.email}</p>
+            </div>
+            <div className="user-interests">
+              <h3>Interests</h3>
+              <div className="interest-tags">
+                {userProfile?.interests?.length > 0 ? (
+                  userProfile.interests.map((interest, index) => (
+                    <span key={index} className="interest-tag">{interest}</span>
+                  ))
+                ) : (
+                  <span className="interest-tag">No interests set</span>
                 )}
               </div>
             </div>
-          ))}
-        </div>
-        {articleHistory.length === 0 && (
-          <div className="no-history">
-            <p>No reading history yet. Start exploring articles!</p>
           </div>
-        )}
+        </div>
+        
+        {/* Main Content Area - History Cards */}
+        <div className="dashboard-main">
+          {/* Reading History Summary Card */}
+          <div className="dashboard-card">
+            <div 
+              className="summary-header"
+              onClick={() => setShowArticleHistory(!showArticleHistory)}
+            >
+              <h2>Reading History</h2>
+              <div className="summary-stats">
+                <div className="stat-item">
+                  <span className="stat-value">{getArticleStats().totalArticles}</span>
+                  <span className="stat-label">Articles Read</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">{getArticleStats().totalViews}</span>
+                  <span className="stat-label">Total Views</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">{getArticleStats().categories}</span>
+                  <span className="stat-label">Categories</span>
+                </div>
+                <button className="expand-button">
+                  {showArticleHistory ? '▼' : '▶'}
+                </button>
+              </div>
+            </div>
+            
+            {showArticleHistory && (
+              <div className="history-expanded">
+                {articleHistory.length > 0 ? (
+                  <div className="history-grid">
+                    {articleHistory.map((article) => (
+                      <div 
+                        key={article._id} 
+                        className="history-card"
+                        onClick={() => handleArticleClick(article)}
+                      >
+                        <div className="card-header">
+                          <h3>{article.title}</h3>
+                          <div className="source">{article.source}</div>
+                        </div>
+                        <div className="card-content">
+                          <div className="category">{article.category}</div>
+                          <div className="view-count">Views: {article.viewCount}</div>
+                          <div className="last-viewed">Last viewed: {formatDate(article.lastViewed)}</div>
+                          {article.quizAttempted && (
+                            <div className="quiz-info">
+                              <div className="quiz-score">Quiz Score: {article.quizScore}%</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-history">No reading history available</div>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {/* Quiz History Summary Card */}
+          <div className="dashboard-card">
+            <div 
+              className="summary-header"
+              onClick={() => setShowQuizHistory(!showQuizHistory)}
+            >
+              <h2>Quiz History</h2>
+              <div className="summary-stats">
+                <div className="stat-item">
+                  <span className="stat-value">{getQuizStats().totalQuizzes}</span>
+                  <span className="stat-label">Quizzes Taken</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">{getQuizStats().averageScore}%</span>
+                  <span className="stat-label">Average Score</span>
+                </div>
+                <button className="expand-button">
+                  {showQuizHistory ? '▼' : '▶'}
+                </button>
+              </div>
+            </div>
+            
+            {showQuizHistory && (
+              <div className="history-expanded">
+                {quizHistory.length > 0 ? (
+                  <div className="history-grid">
+                    {quizHistory.map((quiz) => (
+                      <div 
+                        key={quiz._id} 
+                        className="history-card"
+                        onClick={() => handleQuizClick(quiz)}
+                      >
+                        <div className="card-header">
+                          <h3>Prompt Quiz</h3>
+                          <div className="quiz-date">{formatDate(quiz.createdAt)}</div>
+                        </div>
+                        <div className="card-content">
+                          <div className="quiz-info">
+                            <div className="quiz-prompt">{quiz.prompt}</div>
+                            <div className="quiz-score">Score: {quiz.score}/{quiz.totalQuestions}</div>
+                            {quiz.feedback && (
+                              <div className="quiz-feedback">{quiz.feedback}</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-history">No quiz history available</div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Feedback History Summary Card */}
+          <div className="dashboard-card">
+            <div 
+              className="summary-header"
+              onClick={() => setShowFeedbackHistory(!showFeedbackHistory)}
+            >
+              <h2>Feedback History</h2>
+              <div className="summary-stats">
+                <div className="stat-item">
+                  <span className="stat-value">{getFeedbackStats().totalFeedback}</span>
+                  <span className="stat-label">Total Feedback</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">{getFeedbackStats().averageRating}</span>
+                  <span className="stat-label">Avg Rating</span>
+                </div>
+                <button className="expand-button">
+                  {showFeedbackHistory ? '▼' : '▶'}
+                </button>
+              </div>
+            </div>
+            
+            {showFeedbackHistory && (
+              <div className="history-expanded">
+                {feedbackHistory.length > 0 ? (
+                  <div className="history-grid">
+                    {feedbackHistory.map((item) => (
+                      <div key={item._id} className="history-card">
+                        <div className="card-header">
+                          <h3>{item.articleTitle || 'Unknown Article'}</h3>
+                          <div className="feedback-date">{formatDate(item.createdAt)}</div>
+                        </div>
+                        <div className="card-content">
+                          <div className="feedback-info">
+                            <div className="feedback-rating">Rating: {item.rating}/5</div>
+                            <div className="feedback-text">{item.feedback}</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-history">No feedback history available</div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* Quiz Modal */}
+      {showQuizModal && selectedQuiz && (
+        <div className="modal-overlay" onClick={closeQuizModal}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Quiz Details</h2>
+              <button className="close-button" onClick={closeQuizModal}>&times;</button>
+            </div>
+            <div className="modal-body">
+              <div className="quiz-summary">
+                <h3>Prompt</h3>
+                <p>{selectedQuiz.prompt}</p>
+                <div className="quiz-score-summary">
+                  <span>Score: {selectedQuiz.score}/{selectedQuiz.totalQuestions}</span>
+                  <span>Percentage: {Math.round((selectedQuiz.score / selectedQuiz.totalQuestions) * 100)}%</span>
+                </div>
+                {selectedQuiz.feedback && (
+                  <div className="quiz-feedback-summary">
+                    <h3>Feedback</h3>
+                    <p>{selectedQuiz.feedback}</p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="quiz-questions">
+                <h3>Questions & Answers</h3>
+                {selectedQuiz.questions && selectedQuiz.questions.length > 0 ? (
+                  selectedQuiz.questions.map((question, index) => (
+                    <div 
+                      key={index} 
+                      className={`question-card ${question.isCorrect ? 'correct' : 'incorrect'}`}
+                    >
+                      <div className="question-header">
+                        <h4>Question {index + 1}</h4>
+                        <span className="question-status">
+                          {question.isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                        </span>
+                      </div>
+                      <p className="question-text">{question.question}</p>
+                      <div className="options-list">
+                        {question.options && question.options.map((option, optionIndex) => (
+                          <div 
+                            key={optionIndex} 
+                            className={`option-item ${
+                              optionIndex === question.correctAnswer ? 'correct-answer' : ''
+                            } ${
+                              optionIndex === question.selectedAnswer && optionIndex !== question.correctAnswer ? 'wrong-answer' : ''
+                            } ${
+                              optionIndex === question.selectedAnswer ? 'selected' : ''
+                            }`}
+                          >
+                            {option}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p>No questions available</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

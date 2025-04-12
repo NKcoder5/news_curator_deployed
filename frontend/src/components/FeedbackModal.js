@@ -3,14 +3,19 @@ import '../styles/FeedbackModal.css';
 
 const FeedbackModal = ({ onSubmit, onClose }) => {
   const [feedback, setFeedback] = useState('');
+  const [rating, setRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!feedback.trim()) return;
+    if (!feedback.trim() || rating === 0) return;
     
     setIsSubmitting(true);
-    onSubmit(feedback);
+    onSubmit({ feedback, rating });
+  };
+
+  const handleRatingClick = (value) => {
+    setRating(value);
   };
 
   return (
@@ -21,6 +26,21 @@ const FeedbackModal = ({ onSubmit, onClose }) => {
           <button className="close-button" onClick={onClose}>×</button>
         </div>
         <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Rate this article:</label>
+            <div className="rating-container">
+              {[1, 2, 3, 4, 5].map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={`rating-star ${value <= rating ? 'active' : ''}`}
+                  onClick={() => handleRatingClick(value)}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="form-group">
             <label htmlFor="feedback">Your feedback on this article:</label>
             <textarea
@@ -44,7 +64,7 @@ const FeedbackModal = ({ onSubmit, onClose }) => {
             <button 
               type="submit" 
               className="submit-button"
-              disabled={isSubmitting || !feedback.trim()}
+              disabled={isSubmitting || !feedback.trim() || rating === 0}
             >
               {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
             </button>

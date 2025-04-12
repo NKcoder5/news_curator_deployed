@@ -1,4 +1,3 @@
-/* Base Styles with Vintage Newspaper Theme */
 .prompt-quiz-page {
   max-width: 800px;
   margin: 0 auto;
@@ -7,7 +6,6 @@
   background-color: #f8f5e6;
   color: #222;
   animation: fadeIn 0.5s ease-in-out;
-  min-height: 100vh;
 }
 
 .prompt-quiz-page h1 {
@@ -40,7 +38,6 @@
   letter-spacing: 1px;
 }
 
-/* Quiz Description */
 .quiz-description {
   font-family: Georgia, serif;
   font-size: 1.1rem;
@@ -52,7 +49,6 @@
   column-rule: 1px solid #ddd;
 }
 
-/* Forms and Inputs */
 .prompt-form {
   display: flex;
   flex-direction: column;
@@ -80,7 +76,6 @@
   border-color: #222;
 }
 
-/* Buttons */
 .submit-button {
   padding: 0.5rem 1rem;
   border: 2px solid #333;
@@ -110,7 +105,6 @@
   cursor: not-allowed;
 }
 
-/* Loading State */
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -138,7 +132,6 @@
   font-style: italic;
 }
 
-/* Error State */
 .error-message {
   color: #730000;
   text-align: center;
@@ -149,19 +142,11 @@
   font-family: Georgia, serif;
 }
 
-/* Quiz Container */
 .quiz-container {
   background-color: white;
   padding: 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border: 1px solid #222;
-}
-
-.question-progress {
-  text-align: center;
-  color: #7f8c8d;
-  margin-bottom: 1rem;
-  font-family: Georgia, serif;
 }
 
 .question-container {
@@ -178,7 +163,6 @@
   line-height: 1.4;
 }
 
-/* Answers */
 .answers-container {
   display: flex;
   flex-direction: column;
@@ -206,7 +190,6 @@
   font-weight: bold;
 }
 
-/* Navigation Buttons */
 .next-button {
   width: 100%;
   padding: 0.8rem;
@@ -231,7 +214,6 @@
   cursor: not-allowed;
 }
 
-/* Results Container */
 .results-container {
   background-color: white;
   padding: 2rem;
@@ -284,7 +266,6 @@
   line-height: 1.6;
 }
 
-/* Question Results */
 .question-results {
   margin-top: 2rem;
 }
@@ -368,15 +349,8 @@
   font-weight: bold;
 }
 
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 2rem;
-}
-
-.restart-button, .history-button {
+.restart-button {
+  width: 100%;
   padding: 0.8rem;
   background-color: #222;
   color: white;
@@ -384,125 +358,16 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  margin-top: 2rem;
   text-transform: uppercase;
   font-family: "Times New Roman", Times, serif;
   letter-spacing: 1px;
-  flex: 1;
 }
 
-.restart-button:hover, .history-button:hover {
+.restart-button:hover {
   background-color: #444;
 }
 
-.history-button {
-  background-color: #333;
-}
-
-/* History Container */
-.history-container {
-  background-color: white;
-  padding: 2rem;
-  border: 1px solid #222;
-  position: relative;
-}
-
-.history-container h2 {
-  font-family: "Times New Roman", Times, serif;
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #222;
-  padding-bottom: 0.5rem;
-}
-
-.back-button {
-  padding: 0.5rem 1rem;
-  border: 2px solid #333;
-  border-radius: 0;
-  background-color: #f8f5e6;
-  color: #333;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-family: "Times New Roman", Times, serif;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: all 0.2s ease;
-  margin: 0 auto 1.5rem;
-  display: block;
-}
-
-.back-button:hover {
-  background-color: #222;
-  color: #f8f5e6;
-}
-
-.no-history {
-  text-align: center;
-  color: #666;
-  font-family: Georgia, serif;
-  font-style: italic;
-}
-
-.history-list {
-  display: grid;
-  gap: 1.5rem;
-}
-
-.history-item {
-  background-color: #fff;
-  padding: 1.5rem;
-  border: 1px solid #ddd;
-}
-
-.history-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  font-family: "Times New Roman", Times, serif;
-}
-
-.history-header h3 {
-  margin: 0;
-  font-size: 1.2rem;
-}
-
-.history-date {
-  color: #666;
-  font-size: 0.9rem;
-  font-family: Georgia, serif;
-}
-
-.history-prompt {
-  color: #222;
-  font-family: Georgia, serif;
-  margin-bottom: 1rem;
-}
-
-.history-score {
-  display: inline-block;
-  margin-bottom: 1rem;
-  font-family: "Times New Roman", Times, serif;
-}
-
-.history-score .score {
-  font-size: 1.5rem;
-  color: #222;
-}
-
-.history-score .total {
-  font-size: 1.2rem;
-  color: #666;
-}
-
-.history-feedback {
-  color: #222;
-  font-family: Georgia, serif;
-  font-style: italic;
-}
-
-/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -523,7 +388,6 @@
   }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .prompt-quiz-page {
     padding: 1rem;
@@ -533,7 +397,7 @@
     column-count: 1;
   }
 
-  .quiz-container, .results-container, .history-container {
+  .quiz-container, .results-container {
     padding: 1.5rem;
   }
 
@@ -552,10 +416,6 @@
   .total {
     font-size: 1.5rem;
   }
-
-  .action-buttons {
-    flex-direction: column;
-  }
 }
 
 @media (max-width: 480px) {
@@ -563,7 +423,7 @@
     padding: 0.5rem;
   }
 
-  .quiz-container, .results-container, .history-container {
+  .quiz-container, .results-container {
     padding: 1rem;
   }
 
@@ -582,9 +442,5 @@
 
   .total {
     font-size: 1.2rem;
-  }
-
-  .prompt-quiz-page h1 {
-    font-size: 2rem;
   }
 }

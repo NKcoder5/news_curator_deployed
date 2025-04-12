@@ -203,35 +203,31 @@ const ArticlePage = () => {
   };
 
   const handleSubmitFeedback = async (userFeedback) => {
+    if (!article) return;
+    
+    setLoadingStates(prev => ({ ...prev, feedback: true }));
+    
     try {
+      const content = article.content || article.description || article.title;
+      
+      // Get the token from localStorage
       const token = localStorage.getItem('token');
-      if (!token) {
-        setError('Please login to submit feedback');
-        return;
-      }
-
-      // Submit feedback to the backend
-      await axios.post(
-        'http://localhost:5000/api/article-feedback/submit',
-        {
-          articleId: article.url,
-          feedback: userFeedback.feedback,
-          rating: userFeedback.rating
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-
-      // Close the modal
-      setShowModal(false);
-
-      // Show success message
-      alert('Thank you for your feedback!');
-
-    } catch (error) {
-      console.error('Error submitting feedback:', error);
+      
+      // Add authorization header if token exists
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      
+      const response = await axios.post('http://localhost:5000/api/ai/feedback', {
+        article: content,
+        userFeedback
+      }, { headers });
+      
+      setFeedback(response.data.suggestion);
+    } catch (err) {
+      console.error('Error submitting feedback:', err);
       setError('Failed to submit feedback. Please try again.');
+    } finally {
+      setLoadingStates(prev => ({ ...prev, feedback: false }));
+      setShowModal(false);
     }
   };
 

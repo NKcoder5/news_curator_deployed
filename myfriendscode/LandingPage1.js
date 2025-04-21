@@ -94,6 +94,11 @@ const LandingPage = () => {
             <Link to="/signup" className="cta-secondary btn-animated">Get Started</Link>
           </div>
         </div>
+        <div className="hero-image">
+          <div className="mockup-container">
+            <div className="mockup-screen"></div>
+          </div>
+        </div>
       </header>
       
       {/* 3D Slider Section */}
@@ -152,7 +157,8 @@ const LandingPage = () => {
               <h3>Tailored Experience</h3>
             </div>
             <p>Receive news that matters to you without the noise and information overload</p>
-            <Link to="/features/personalization" className="card-link">Learn more →</Link>
+            <Link to="/features/per
+            sonalization" className="card-link">Learn more →</Link>
           </div>
           
           <div className="feature-card">
@@ -212,8 +218,8 @@ const LandingPage = () => {
       <section id="cta-section" className={`cta-section ${isVisible.cta ? 'zoom-in' : ''}`}>
         <h2>Start Your Free Trial Today</h2>
         <p>Join thousands of informed readers who trust our AI-powered news analysis</p>
-        <Link to="/signup" className="cta-primary btn-animated large btn-pulse">Get Started</Link>
-        <p className="no-credit-card"></p>
+        <Link to="/signup" className="cta-primary btn-animated large btn-pulse">Get Started - Free for 14 Days</Link>
+        <p className="no-credit-card">No credit card required</p>
       </section>
       
       {/* Footer */}

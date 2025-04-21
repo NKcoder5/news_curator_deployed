@@ -916,3 +916,67 @@
     width: 100%;
   }
 }
+
+/* Article Feedbacks Section */
+.article-feedbacks-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #fbfaf5;
+  border-radius: 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8e5d8;
+}
+
+.article-feedbacks {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.feedback-item {
+  padding: 1rem;
+  background: #fff;
+  border-radius: 4px;
+  border: 1px solid #e8e5d8;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.feedback-user {
+  font-weight: 600;
+  color: #333;
+}
+
+.feedback-date {
+  font-style: italic;
+}
+
+.feedback-rating {
+  color: #ffc107;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.feedback-text {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #333;
+  margin: 0;
+}
+
+.no-feedbacks {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 1rem;
+}

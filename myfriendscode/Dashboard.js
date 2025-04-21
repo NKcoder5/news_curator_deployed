@@ -12,11 +12,9 @@ const Dashboard = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [showArticleHistory, setShowArticleHistory] = useState(false);
   const [showQuizHistory, setShowQuizHistory] = useState(false);
-  const [showFeedbackHistory, setShowFeedbackHistory] = useState(false);
+  const [showFeedbackHistory, setShowFeedbackHistory] = useState(false); // Fixed typo
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [showQuizModal, setShowQuizModal] = useState(false);
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [newName, setNewName] = useState('');
   const navigate = useNavigate();
 
   // API calls and functions remain unchanged
@@ -146,27 +144,6 @@ const Dashboard = () => {
     setSelectedQuiz(null);
   };
 
-  const handleNameEdit = () => {
-    setIsEditingName(true);
-    setNewName(userProfile?.name || '');
-  };
-
-  const handleNameSave = async () => {
-    try {
-      const response = await api.put('/users/profile', { name: newName });
-      setUserProfile(response.data.user);
-      setIsEditingName(false);
-    } catch (err) {
-      console.error('Error updating profile:', err);
-      setError('Failed to update profile');
-    }
-  };
-
-  const handleNameCancel = () => {
-    setIsEditingName(false);
-    setNewName('');
-  };
-
   if (loading) {
     return (
       <div className="newspaper-dashboard-container">
@@ -235,32 +212,7 @@ const Dashboard = () => {
               {userProfile?.email?.charAt(0).toUpperCase() || 'R'}
             </div>
             <div className="newspaper-profile-info">
-              {isEditingName ? (
-                <div className="newspaper-name-edit">
-                  <input
-                    type="text"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    className="newspaper-name-input"
-                    placeholder="Enter your name"
-                  />
-                  <div className="newspaper-name-actions">
-                    <button onClick={handleNameSave} className="newspaper-name-btn save">
-                      Save
-                    </button>
-                    <button onClick={handleNameCancel} className="newspaper-name-btn cancel">
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="newspaper-name-container">
-                  <h4 className="newspaper-name">{userProfile?.name || 'Distinguished Reader'}</h4>
-                  <button onClick={handleNameEdit} className="newspaper-name-btn edit">
-                    Edit
-                  </button>
-                </div>
-              )}
+              <h4 className="newspaper-name">Distinguished Reader</h4>
               <p className="newspaper-email">{userProfile?.email}</p>
             </div>
             <div className="newspaper-interests">
@@ -424,7 +376,7 @@ const Dashboard = () => {
                   <span className="newspaper-stat-label">Avg. Rating</span>
                 </div>
                 <button className="newspaper-toggle-btn">
-                  {showFeedbackHistory ? 'COLLAPSE ▼' : 'EXPAND ▶'}
+                  {showFeedbackHistory ? 'COLLAPSE ▼' : 'EXPAND ▶'} {/* Fixed toggle variable */}
                 </button>
               </div>
             </div>

@@ -74,14 +74,13 @@ body::before {
 .hero-section {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   padding: 3rem 2rem 1.5rem;
   position: relative;
   background-color: var(--white);
   border-bottom: 3px double var(--primary-color);
   overflow: hidden;
-  text-align: center;
 }
 
 .hero-section::before {
@@ -100,10 +99,9 @@ body::before {
 .hero-content {
   flex: 1;
   min-width: 300px;
-  max-width: 800px;
+  max-width: 650px;
   z-index: 1;
-  padding: 0 2rem;
-  margin: 0 auto;
+  padding-right: 2rem;
 }
 
 .hero-content h1 {
@@ -123,18 +121,17 @@ body::before {
   content: '';
   position: absolute;
   bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   width: 80px;
   height: 3px;
-  background-color: var(--accent-color);
+  background-color: var(--accent-color); /* Blue accent */
 }
 
 .hero-subtitle {
   font-size: 1.25rem;
   margin-bottom: 2rem;
   color: var(--light-text);
-  max-width: 100%;
+  max-width: 90%;
   font-style: italic;
 }
 
@@ -143,7 +140,6 @@ body::before {
   gap: 1rem;
   flex-wrap: wrap;
   margin-top: 2rem;
-  justify-content: center;
 }
 
 .cta-primary, .cta-secondary {
@@ -221,14 +217,12 @@ body::before {
   height: 350px;
   perspective: 1000px;
   transform-style: preserve-3d;
-  margin: 0 auto;
-  padding: 20px;
 }
 
 .mockup-screen {
   width: 100%;
   height: 100%;
-  background-color: #fef9e7;
+  background-color: #fef9e7; /* Creamy yellowish newsprint */
   border: 2px solid var(--primary-color);
   box-shadow: var(--shadow-lg);
   position: relative;
@@ -238,7 +232,6 @@ body::before {
   animation: float 6s ease-in-out infinite;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.1'/%3E%3C/svg%3E");
   overflow: hidden;
-  display: block;
 }
 
 .mockup-screen::before {
@@ -253,18 +246,14 @@ body::before {
   background-size: cover;
   background-repeat: no-repeat;
   z-index: 2;
-  display: block;
 }
 
 @keyframes float {
-  0% {
-    transform: rotateY(-15deg) rotateX(5deg) translateY(0px);
+  0%, 100% {
+    transform: rotateY(-15deg) rotateX(5deg) translateY(0);
   }
   50% {
-    transform: rotateY(-15deg) rotateX(5deg) translateY(-20px);
-  }
-  100% {
-    transform: rotateY(-15deg) rotateX(5deg) translateY(0px);
+    transform: rotateY(-12deg) rotateX(3deg) translateY(-10px);
   }
 }
 

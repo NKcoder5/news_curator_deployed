@@ -36,8 +36,8 @@ const Navbar = ({ user, setUser }) => {
   return (
     <nav className="navbar">
       <Link to="/" className="logo" onClick={() => handleLinkClick(null)}>
-        <img src={logoImg} alt="NewsAI Logo" />
-        <span className="logo-text">NewsAI</span>
+        <img src={logoImg} alt="PurePress Logo" />
+        <span className="logo-text">Pure Press</span>
         <span className="logo-tagline">Daily Intelligence</span>
       </Link>
       

@@ -15,11 +15,13 @@ const ArticlePage = () => {
   const [detailedSummary, setDetailedSummary] = useState('');
   const [feedback, setFeedback] = useState('');
   const [credibility, setCredibility] = useState(null);
+  const [articleFeedbacks, setArticleFeedbacks] = useState([]);
   const [loadingStates, setLoadingStates] = useState({
     summary: true,
     detailedSummary: false,
     feedback: false,
     credibility: false,
+    articleFeedbacks: true
   });
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState(null);
@@ -174,6 +176,23 @@ const ArticlePage = () => {
     }
   }, [article, isAuthenticated]);
 
+  useEffect(() => {
+    const fetchArticleFeedbacks = async () => {
+      if (!article) return;
+      
+      try {
+        const response = await axios.get(`http://localhost:5000/api/article-feedback/all/${encodeURIComponent(article.url)}`);
+        setArticleFeedbacks(response.data.data || []);
+      } catch (error) {
+        console.error('Error fetching article feedbacks:', error);
+      } finally {
+        setLoadingStates(prev => ({ ...prev, articleFeedbacks: false }));
+      }
+    };
+
+    fetchArticleFeedbacks();
+  }, [article]);
+
   const handleQuizComplete = async (score) => {
     if (isAuthenticated && article) {
       try {
@@ -252,6 +271,40 @@ const ArticlePage = () => {
         articleTitle: article.title
       } 
     });
+  };
+
+  const renderArticleFeedbacks = () => {
+    if (loadingStates.articleFeedbacks) {
+      return (
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>Loading feedbacks...</p>
+        </div>
+      );
+    }
+
+    if (articleFeedbacks.length === 0) {
+      return <p className="no-feedbacks">No feedbacks yet. Be the first to share your thoughts!</p>;
+    }
+
+    return (
+      <div className="article-feedbacks">
+        {articleFeedbacks.map((feedback) => (
+          <div key={feedback._id} className="feedback-item">
+            <div className="feedback-header">
+              <span className="feedback-user">{feedback.userId?.email || 'Anonymous User'}</span>
+              <span className="feedback-date">
+                {new Date(feedback.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+            <div className="feedback-rating">
+              {'★'.repeat(feedback.rating)}{'☆'.repeat(5 - feedback.rating)}
+            </div>
+            <p className="feedback-text">{feedback.feedback}</p>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   if (!article) {
@@ -420,6 +473,11 @@ const ArticlePage = () => {
               </button>
             )}
           </div>
+        </div>
+
+        <div className="article-feedbacks-section">
+          <h3 className="feedback-title">User Feedbacks</h3>
+          {renderArticleFeedbacks()}
         </div>
       </div>
 

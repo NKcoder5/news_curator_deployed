@@ -111,4 +111,36 @@ exports.getUserFeedbackHistory = async (req, res) => {
       error: 'Error fetching feedback history'
     });
   }
+};
+
+// Get all feedbacks for a specific article
+exports.getAllArticleFeedbacks = async (req, res) => {
+  try {
+    const { articleId } = req.params;
+
+    // Find all feedback entries for the article, sorted by creation date
+    const feedbacks = await ArticleFeedback.find({ articleId })
+      .sort({ createdAt: -1 })
+      .populate('userId', 'email')
+      .lean();
+
+    if (!feedbacks || feedbacks.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: [],
+        message: 'No feedbacks found for this article'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: feedbacks
+    });
+  } catch (error) {
+    console.error('Error fetching article feedbacks:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error fetching article feedbacks'
+    });
+  }
 }; 

@@ -326,85 +326,11 @@
   margin-bottom: 25px;
 }
 
-.newspaper-name-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 5px;
-}
-
 .newspaper-name {
   font-family: 'Playfair Display', serif;
   font-size: 1.3rem;
   font-weight: 700;
-  margin: 0;
-}
-
-.newspaper-name-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: 'Source Serif Pro', serif;
-  font-size: 0.8rem;
-  padding: 2px 8px;
-  border-radius: 3px;
-  transition: all 0.2s;
-}
-
-.newspaper-name-btn.edit {
-  color: #264653;
-  border: 1px solid #264653;
-}
-
-.newspaper-name-btn.edit:hover {
-  background: #264653;
-  color: white;
-}
-
-.newspaper-name-edit {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 5px;
-}
-
-.newspaper-name-input {
-  font-family: 'Source Serif Pro', serif;
-  font-size: 1.1rem;
-  padding: 5px 10px;
-  border: 1px solid #ddd;
-  border-radius: 3px;
-  text-align: center;
-  width: 100%;
-  max-width: 200px;
-  margin: 0 auto;
-}
-
-.newspaper-name-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.newspaper-name-btn.save {
-  color: #264653;
-  border: 1px solid #264653;
-}
-
-.newspaper-name-btn.save:hover {
-  background: #264653;
-  color: white;
-}
-
-.newspaper-name-btn.cancel {
-  color: #e76f51;
-  border: 1px solid #e76f51;
-}
-
-.newspaper-name-btn.cancel:hover {
-  background: #e76f51;
-  color: white;
+  margin: 0 0 5px;
 }
 
 .newspaper-email {

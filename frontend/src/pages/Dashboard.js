@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
 import '../styles/Dashboard.css';
+import api from '../services/api';
 
 const Dashboard = () => {
   const [articleHistory, setArticleHistory] = useState([]);
@@ -15,11 +15,8 @@ const Dashboard = () => {
   const [showFeedbackHistory, setShowFeedbackHistory] = useState(false);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [showQuizModal, setShowQuizModal] = useState(false);
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [newName, setNewName] = useState('');
   const navigate = useNavigate();
 
-  // API calls and functions remain unchanged
   const fetchUserProfile = async () => {
     try {
       const response = await api.get('/users/profile');
@@ -68,7 +65,7 @@ const Dashboard = () => {
         fetchUserProfile(),
         fetchArticleHistory(),
         fetchQuizHistory(),
-        fetchFeedbackHistory(),
+        fetchFeedbackHistory()
       ]);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
@@ -92,47 +89,39 @@ const Dashboard = () => {
       url: article.articleId,
       title: article.title,
       source: {
-        name: article.source,
+        name: article.source
       },
-      category: article.category,
+      category: article.category
     };
 
-    navigate('/article', {
-      state: {
+    navigate('/article', { 
+      state: { 
         article: articleData,
-        startTime: Date.now(),
-      },
+        startTime: Date.now()
+      } 
     });
   };
 
   const getArticleStats = () => {
     const totalArticles = articleHistory.length;
     const totalViews = articleHistory.reduce((sum, article) => sum + article.viewCount, 0);
-    const categories = [...new Set(articleHistory.map((article) => article.category))];
+    const categories = [...new Set(articleHistory.map(article => article.category))];
     return { totalArticles, totalViews, categories: categories.length };
   };
 
   const getQuizStats = () => {
     const totalQuizzes = quizHistory.length;
-    const averageScore =
-      quizHistory.length > 0
-        ? Math.round(
-            quizHistory.reduce((sum, quiz) => sum + (quiz.score / quiz.totalQuestions) * 100, 0) /
-              quizHistory.length
-          )
-        : 0;
+    const averageScore = quizHistory.length > 0 
+      ? Math.round(quizHistory.reduce((sum, quiz) => sum + (quiz.score / quiz.totalQuestions * 100), 0) / quizHistory.length)
+      : 0;
     return { totalQuizzes, averageScore };
   };
 
   const getFeedbackStats = () => {
     const totalFeedback = feedbackHistory.length;
-    const averageRating =
-      feedbackHistory.length > 0
-        ? Math.round(
-            (feedbackHistory.reduce((sum, item) => sum + item.rating, 0) / feedbackHistory.length) *
-              10
-          ) / 10
-        : 0;
+    const averageRating = feedbackHistory.length > 0
+      ? Math.round(feedbackHistory.reduce((sum, item) => sum + item.rating, 0) / feedbackHistory.length * 10) / 10
+      : 0;
     return { totalFeedback, averageRating };
   };
 
@@ -146,33 +135,12 @@ const Dashboard = () => {
     setSelectedQuiz(null);
   };
 
-  const handleNameEdit = () => {
-    setIsEditingName(true);
-    setNewName(userProfile?.name || '');
-  };
-
-  const handleNameSave = async () => {
-    try {
-      const response = await api.put('/users/profile', { name: newName });
-      setUserProfile(response.data.user);
-      setIsEditingName(false);
-    } catch (err) {
-      console.error('Error updating profile:', err);
-      setError('Failed to update profile');
-    }
-  };
-
-  const handleNameCancel = () => {
-    setIsEditingName(false);
-    setNewName('');
-  };
-
   if (loading) {
     return (
-      <div className="newspaper-dashboard-container">
-        <div className="newspaper-loading-state">
-          <div className="newspaper-spinner"></div>
-          <p>Fetching your latest news...</p>
+      <div className="dashboard-container">
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -180,161 +148,96 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <div className="newspaper-dashboard-container">
-        <div className="newspaper-error-message">
-          <p className="error-headline">{error}</p>
-          <button className="newspaper-btn" onClick={fetchAllData}>
-            Refresh News
-          </button>
+      <div className="dashboard-container">
+        <div className="error-message">
+          <p>{error}</p>
+          <button onClick={fetchAllData}>Try Again</button>
         </div>
       </div>
     );
   }
 
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-
   return (
-    <div className="newspaper-dashboard-container">
-      {/* Newspaper Header */}
-      <div className="newspaper-header">
-        <div className="newspaper-date">{currentDate}</div>
-        <h1 className="newspaper-title">THE READER'S CHRONICLE</h1>
-        <div className="newspaper-subtitle">Your Personal Reading Journal</div>
-        <div className="newspaper-divider"></div>
+    <div className="dashboard-container">
+      <div className="dashboard-header">
+        <h1>Dashboard</h1>
       </div>
-
-      {/* Floating and Emoji Elements */}
-      <div className="floating-elements">
-        <div className="floating-element"></div>
-        <div className="floating-element"></div>
-        <div className="floating-element"></div>
-        <div className="floating-element"></div>
-        <div className="floating-element"></div>
-        <div className="floating-element"></div>
-      </div>
-      <div className="emoji-elements">
-        <div className="emoji-element">📊</div>
-        <div className="emoji-element">📈</div>
-        <div className="emoji-element">📉</div>
-        <div className="emoji-element">📰</div>
-        <div className="emoji-element">📋</div>
-        <div className="emoji-element">📱</div>
-      </div>
-
-      <div className="newspaper-content">
-        {/* User Profile Sidebar */}
-        <div className="newspaper-sidebar">
-          <div className="newspaper-user-profile">
-            <h3 className="sidebar-heading">READER PROFILE</h3>
-            <div className="newspaper-avatar">
-              {userProfile?.email?.charAt(0).toUpperCase() || 'R'}
+      
+      <div className="dashboard-content">
+        {/* Left Sidebar - User Profile */}
+        <div className="dashboard-sidebar">
+          <div className="user-profile">
+            <div className="profile-avatar">
+              {userProfile?.email?.charAt(0).toUpperCase() || 'U'}
             </div>
-            <div className="newspaper-profile-info">
-              {isEditingName ? (
-                <div className="newspaper-name-edit">
-                  <input
-                    type="text"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    className="newspaper-name-input"
-                    placeholder="Enter your name"
-                  />
-                  <div className="newspaper-name-actions">
-                    <button onClick={handleNameSave} className="newspaper-name-btn save">
-                      Save
-                    </button>
-                    <button onClick={handleNameCancel} className="newspaper-name-btn cancel">
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="newspaper-name-container">
-                  <h4 className="newspaper-name">{userProfile?.name || 'Distinguished Reader'}</h4>
-                  <button onClick={handleNameEdit} className="newspaper-name-btn edit">
-                    Edit
-                  </button>
-                </div>
-              )}
-              <p className="newspaper-email">{userProfile?.email}</p>
+            <div className="profile-info">
+              <h2>User</h2>
+              <p>{userProfile?.email}</p>
             </div>
-            <div className="newspaper-interests">
-              <h4 className="newspaper-section-title">Topics of Interest</h4>
-              <div className="newspaper-tags">
+            <div className="user-interests">
+              <h3>Interests</h3>
+              <div className="interest-tags">
                 {userProfile?.interests?.length > 0 ? (
                   userProfile.interests.map((interest, index) => (
-                    <span key={index} className="newspaper-tag">
-                      {interest}
-                    </span>
+                    <span key={index} className="interest-tag">{interest}</span>
                   ))
                 ) : (
-                  <span className="newspaper-tag-empty">No interests recorded</span>
+                  <span className="interest-tag">No interests set</span>
                 )}
               </div>
             </div>
           </div>
         </div>
-
-        {/* Main Content */}
-        <div className="newspaper-main">
-          {/* Article History */}
-          <div className="newspaper-section">
-            <div
-              className="newspaper-section-header"
+        
+        {/* Main Content Area - History Cards */}
+        <div className="dashboard-main">
+          {/* Reading History Summary Card */}
+          <div className="dashboard-card">
+            <div 
+              className="summary-header"
               onClick={() => setShowArticleHistory(!showArticleHistory)}
             >
-              <h2 className="newspaper-heading">READING ARCHIVES</h2>
-              <div className="newspaper-stats">
-                <div className="newspaper-stat">
-                  <span className="newspaper-stat-value">{getArticleStats().totalArticles}</span>
-                  <span className="newspaper-stat-label">Articles</span>
+              <h2>Reading History</h2>
+              <div className="summary-stats">
+                <div className="stat-item">
+                  <span className="stat-value">{getArticleStats().totalArticles}</span>
+                  <span className="stat-label">Articles Read</span>
                 </div>
-                <div className="newspaper-stat">
-                  <span className="newspaper-stat-value">{getArticleStats().totalViews}</span>
-                  <span className="newspaper-stat-label">Views</span>
+                <div className="stat-item">
+                  <span className="stat-value">{getArticleStats().totalViews}</span>
+                  <span className="stat-label">Total Views</span>
                 </div>
-                <div className="newspaper-stat">
-                  <span className="newspaper-stat-value">{getArticleStats().categories}</span>
-                  <span className="newspaper-stat-label">Categories</span>
+                <div className="stat-item">
+                  <span className="stat-value">{getArticleStats().categories}</span>
+                  <span className="stat-label">Categories</span>
                 </div>
-                <button className="newspaper-toggle-btn">
-                  {showArticleHistory ? 'COLLAPSE ▼' : 'EXPAND ▶'}
+                <button className="expand-button">
+                  {showArticleHistory ? '▼' : '▶'}
                 </button>
               </div>
             </div>
-
+            
             {showArticleHistory && (
-              <div className="newspaper-expanded-content">
+              <div className="history-expanded">
                 {articleHistory.length > 0 ? (
-                  <div className="newspaper-grid">
+                  <div className="history-grid">
                     {articleHistory.map((article) => (
-                      <div
-                        key={article._id}
-                        className="newspaper-article-card"
+                      <div 
+                        key={article._id} 
+                        className="history-card"
                         onClick={() => handleArticleClick(article)}
                       >
-                        <div className="newspaper-card-header">
-                          <h3 className="newspaper-article-title">{article.title}</h3>
-                          <div className="newspaper-source">{article.source}</div>
+                        <div className="card-header">
+                          <h3>{article.title}</h3>
+                          <div className="source">{article.source}</div>
                         </div>
-                        <div className="newspaper-card-content">
-                          <div className="newspaper-category">{article.category}</div>
-                          <div className="newspaper-article-details">
-                            <span className="newspaper-views">Views: {article.viewCount}</span>
-                            <span className="newspaper-date">
-                              Last read: {formatDate(article.lastViewed)}
-                            </span>
-                          </div>
+                        <div className="card-content">
+                          <div className="category">{article.category}</div>
+                          <div className="view-count">Views: {article.viewCount}</div>
+                          <div className="last-viewed">Last viewed: {formatDate(article.lastViewed)}</div>
                           {article.quizAttempted && (
-                            <div className="newspaper-quiz-note">
-                              <div className="newspaper-score">
-                                Quiz Score: {article.quizScore}%
-                              </div>
+                            <div className="quiz-info">
+                              <div className="quiz-score">Quiz Score: {article.quizScore}%</div>
                             </div>
                           )}
                         </div>
@@ -342,121 +245,110 @@ const Dashboard = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="newspaper-empty-state">Your reading history will appear here</div>
+                  <div className="no-history">No reading history available</div>
                 )}
               </div>
             )}
           </div>
-
-          {/* Quiz History */}
-          <div className="newspaper-section">
-            <div
-              className="newspaper-section-header"
+          
+          {/* Quiz History Summary Card */}
+          <div className="dashboard-card">
+            <div 
+              className="summary-header"
               onClick={() => setShowQuizHistory(!showQuizHistory)}
             >
-              <h2 className="newspaper-heading">QUIZ ARCHIVES</h2>
-              <div className="newspaper-stats">
-                <div className="newspaper-stat">
-                  <span className="newspaper-stat-value">{getQuizStats().totalQuizzes}</span>
-                  <span className="newspaper-stat-label">Quizzes</span>
+              <h2>Quiz History</h2>
+              <div className="summary-stats">
+                <div className="stat-item">
+                  <span className="stat-value">{getQuizStats().totalQuizzes}</span>
+                  <span className="stat-label">Quizzes Taken</span>
                 </div>
-                <div className="newspaper-stat">
-                  <span className="newspaper-stat-value">{getQuizStats().averageScore}%</span>
-                  <span className="newspaper-stat-label">Avg. Score</span>
+                <div className="stat-item">
+                  <span className="stat-value">{getQuizStats().averageScore}%</span>
+                  <span className="stat-label">Average Score</span>
                 </div>
-                <button className="newspaper-toggle-btn">
-                  {showQuizHistory ? 'COLLAPSE ▼' : 'EXPAND ▶'}
+                <button className="expand-button">
+                  {showQuizHistory ? '▼' : '▶'}
                 </button>
               </div>
             </div>
-
+            
             {showQuizHistory && (
-              <div className="newspaper-expanded-content">
+              <div className="history-expanded">
                 {quizHistory.length > 0 ? (
-                  <div className="newspaper-grid">
+                  <div className="history-grid">
                     {quizHistory.map((quiz) => (
-                      <div
-                        key={quiz._id}
-                        className="newspaper-quiz-card"
+                      <div 
+                        key={quiz._id} 
+                        className="history-card"
                         onClick={() => handleQuizClick(quiz)}
                       >
-                        <div className="newspaper-card-header">
-                          <h3 className="newspaper-quiz-title">Knowledge Assessment</h3>
-                          <div className="newspaper-quiz-date">{formatDate(quiz.createdAt)}</div>
+                        <div className="card-header">
+                          <h3>Prompt Quiz</h3>
+                          <div className="quiz-date">{formatDate(quiz.createdAt)}</div>
                         </div>
-                        <div className="newspaper-card-content">
-                          <div className="newspaper-quiz-prompt">
-                            "{quiz.prompt.substring(0, 80)}..."
+                        <div className="card-content">
+                          <div className="quiz-info">
+                            <div className="quiz-prompt">{quiz.prompt}</div>
+                            <div className="quiz-score">Score: {quiz.score}/{quiz.totalQuestions}</div>
+                            {quiz.feedback && (
+                              <div className="quiz-feedback">{quiz.feedback}</div>
+                            )}
                           </div>
-                          <div className="newspaper-quiz-result">
-                            Score: {quiz.score}/{quiz.totalQuestions}
-                          </div>
-                          {quiz.feedback && (
-                            <div className="newspaper-quiz-feedback">
-                              "{quiz.feedback.substring(0, 60)}..."
-                            </div>
-                          )}
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="newspaper-empty-state">Your quiz results will appear here</div>
+                  <div className="no-history">No quiz history available</div>
                 )}
               </div>
             )}
           </div>
 
-          {/* Feedback History */}
-          <div className="newspaper-section">
-            <div
-              className="newspaper-section-header"
+          {/* Feedback History Summary Card */}
+          <div className="dashboard-card">
+            <div 
+              className="summary-header"
               onClick={() => setShowFeedbackHistory(!showFeedbackHistory)}
             >
-              <h2 className="newspaper-heading">READER'S OPINIONS</h2>
-              <div className="newspaper-stats">
-                <div className="newspaper-stat">
-                  <span className="newspaper-stat-value">{getFeedbackStats().totalFeedback}</span>
-                  <span className="newspaper-stat-label">Feedbacks</span>
+              <h2>Feedback History</h2>
+              <div className="summary-stats">
+                <div className="stat-item">
+                  <span className="stat-value">{getFeedbackStats().totalFeedback}</span>
+                  <span className="stat-label">Total Feedback</span>
                 </div>
-                <div className="newspaper-stat">
-                  <span className="newspaper-stat-value">{getFeedbackStats().averageRating}</span>
-                  <span className="newspaper-stat-label">Avg. Rating</span>
+                <div className="stat-item">
+                  <span className="stat-value">{getFeedbackStats().averageRating}</span>
+                  <span className="stat-label">Avg Rating</span>
                 </div>
-                <button className="newspaper-toggle-btn">
-                  {showFeedbackHistory ? 'COLLAPSE ▼' : 'EXPAND ▶'}
+                <button className="expand-button">
+                  {showFeedbackHistory ? '▼' : '▶'}
                 </button>
               </div>
             </div>
-
+            
             {showFeedbackHistory && (
-              <div className="newspaper-expanded-content">
+              <div className="history-expanded">
                 {feedbackHistory.length > 0 ? (
-                  <div className="newspaper-grid">
+                  <div className="history-grid">
                     {feedbackHistory.map((item) => (
-                      <div key={item._id} className="newspaper-feedback-card">
-                        <div className="newspaper-card-header">
-                          <h3 className="newspaper-feedback-title">
-                            {item.articleTitle || 'Article Review'}
-                          </h3>
-                          <div className="newspaper-feedback-date">
-                            {formatDate(item.createdAt)}
-                          </div>
+                      <div key={item._id} className="history-card">
+                        <div className="card-header">
+                          <h3>{item.articleTitle || 'Unknown Article'}</h3>
+                          <div className="feedback-date">{formatDate(item.createdAt)}</div>
                         </div>
-                        <div className="newspaper-card-content">
-                          <div className="newspaper-rating">
-                            <span className="newspaper-stars">
-                              {'★'.repeat(item.rating) + '☆'.repeat(5 - item.rating)}
-                            </span>
-                            <span className="newspaper-rating-value">{item.rating}/5</span>
+                        <div className="card-content">
+                          <div className="feedback-info">
+                            <div className="feedback-rating">Rating: {item.rating}/5</div>
+                            <div className="feedback-text">{item.feedback}</div>
                           </div>
-                          <div className="newspaper-feedback-text">"{item.feedback}"</div>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="newspaper-empty-state">Your article reviews will appear here</div>
+                  <div className="no-history">No feedback history available</div>
                 )}
               </div>
             )}
@@ -464,74 +356,65 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Quiz Details Modal */}
+      {/* Quiz Modal */}
       {showQuizModal && selectedQuiz && (
-        <div className="newspaper-modal-overlay" onClick={closeQuizModal}>
-          <div className="newspaper-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="newspaper-modal-header">
-              <h2 className="newspaper-modal-title">QUIZ DETAILS</h2>
-              <button className="newspaper-close-btn" onClick={closeQuizModal}>
-                ×
-              </button>
+        <div className="modal-overlay" onClick={closeQuizModal}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Quiz Details</h2>
+              <button className="close-button" onClick={closeQuizModal}>&times;</button>
             </div>
-            <div className="newspaper-modal-body">
-              <div className="newspaper-quiz-details">
-                <h3 className="newspaper-quiz-prompt-title">Inquiry</h3>
-                <p className="newspaper-prompt-text">{selectedQuiz.prompt}</p>
-                <div className="newspaper-results-summary">
-                  <span className="newspaper-score-detail">
-                    Score: {selectedQuiz.score}/{selectedQuiz.totalQuestions}
-                  </span>
-                  <span className="newspaper-percentage">
-                    Success rate:{' '}
-                    {Math.round((selectedQuiz.score / selectedQuiz.totalQuestions) * 100)}%
-                  </span>
+            <div className="modal-body">
+              <div className="quiz-summary">
+                <h3>Prompt</h3>
+                <p>{selectedQuiz.prompt}</p>
+                <div className="quiz-score-summary">
+                  <span>Score: {selectedQuiz.score}/{selectedQuiz.totalQuestions}</span>
+                  <span>Percentage: {Math.round((selectedQuiz.score / selectedQuiz.totalQuestions) * 100)}%</span>
                 </div>
                 {selectedQuiz.feedback && (
-                  <div className="newspaper-feedback-detail">
-                    <h3 className="newspaper-feedback-title">Instructor's Notes</h3>
-                    <p className="newspaper-feedback-content">{selectedQuiz.feedback}</p>
+                  <div className="quiz-feedback-summary">
+                    <h3>Feedback</h3>
+                    <p>{selectedQuiz.feedback}</p>
                   </div>
                 )}
               </div>
-
-              <div className="newspaper-questions-section">
-                <h3 className="newspaper-questions-title">QUESTIONS & RESPONSES</h3>
+              
+              <div className="quiz-questions">
+                <h3>Questions & Answers</h3>
                 {selectedQuiz.questions && selectedQuiz.questions.length > 0 ? (
                   selectedQuiz.questions.map((question, index) => (
-                    <div
-                      key={index}
-                      className={`newspaper-question-item ${question.isCorrect ? 'correct' : 'incorrect'}`}
+                    <div 
+                      key={index} 
+                      className={`question-card ${question.isCorrect ? 'correct' : 'incorrect'}`}
                     >
-                      <div className="newspaper-question-header">
-                        <h4 className="newspaper-question-number">Question {index + 1}</h4>
-                        <span className="newspaper-question-result">
+                      <div className="question-header">
+                        <h4>Question {index + 1}</h4>
+                        <span className="question-status">
                           {question.isCorrect ? '✓ Correct' : '✗ Incorrect'}
                         </span>
                       </div>
-                      <p className="newspaper-question-text">{question.question}</p>
-                      <div className="newspaper-options">
-                        {question.options &&
-                          question.options.map((option, optionIndex) => (
-                            <div
-                              key={optionIndex}
-                              className={`newspaper-option ${
-                                optionIndex === question.correctAnswer ? 'correct-answer' : ''
-                              } ${
-                                optionIndex === question.selectedAnswer &&
-                                optionIndex !== question.correctAnswer
-                                  ? 'wrong-answer'
-                                  : ''
-                              } ${optionIndex === question.selectedAnswer ? 'selected' : ''}`}
-                            >
-                              {option}
-                            </div>
-                          ))}
+                      <p className="question-text">{question.question}</p>
+                      <div className="options-list">
+                        {question.options && question.options.map((option, optionIndex) => (
+                          <div 
+                            key={optionIndex} 
+                            className={`option-item ${
+                              optionIndex === question.correctAnswer ? 'correct-answer' : ''
+                            } ${
+                              optionIndex === question.selectedAnswer && optionIndex !== question.correctAnswer ? 'wrong-answer' : ''
+                            } ${
+                              optionIndex === question.selectedAnswer ? 'selected' : ''
+                            }`}
+                          >
+                            {option}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="newspaper-no-questions">No questions available</p>
+                  <p>No questions available</p>
                 )}
               </div>
             </div>
@@ -542,4 +425,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Dashboard; 

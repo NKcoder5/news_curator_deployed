@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import '../styles/SignupPage.css';
 
+const BASE_URL = 'https://news-curator-deployed.onrender.com';
+
 const SignupPage = ({ setUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -67,7 +69,7 @@ const SignupPage = ({ setUser }) => {
     setIsLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/signup', {
+      const res = await axios.post(`${BASE_URL}/api/auth/signup`, {
         email,
         password,
       });

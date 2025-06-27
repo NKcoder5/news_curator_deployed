@@ -4,6 +4,8 @@ import axios from 'axios';
 import FeedbackModal from '../components/FeedbackModal';
 import '../styles/ArticlePage.css';
 
+const BASE_URL = 'https://news-curator-deployed.onrender.com';
+
 const ArticlePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,7 +34,7 @@ const ArticlePage = () => {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      await axios.post('http://localhost:5000/api/tracking/activity', {
+      await axios.post(`${BASE_URL}/api/tracking/activity`, {
         articleId: article.url,
         title: article.title,
         category: article.category || 'general',
@@ -93,7 +95,7 @@ const ArticlePage = () => {
       // Add authorization header if token exists
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
-      const response = await axios.post(`http://localhost:5000${endpoint}`, body, { headers });
+      const response = await axios.post(`${BASE_URL}${endpoint}`, body, { headers });
 
       switch (type) {
         case 'summary':
@@ -154,7 +156,7 @@ const ArticlePage = () => {
         try {
           const token = localStorage.getItem('token');
           await axios.post(
-            'http://localhost:5000/api/article-history/track-view',
+            `${BASE_URL}/api/article-history/track-view`,
             {
               articleId: article.url,
               title: article.title,
@@ -181,7 +183,7 @@ const ArticlePage = () => {
       if (!article) return;
       
       try {
-        const response = await axios.get(`http://localhost:5000/api/article-feedback/all/${encodeURIComponent(article.url)}`);
+        const response = await axios.get(`${BASE_URL}/api/article-feedback/all/${encodeURIComponent(article.url)}`);
         setArticleFeedbacks(response.data.data || []);
       } catch (error) {
         console.error('Error fetching article feedbacks:', error);
@@ -198,7 +200,7 @@ const ArticlePage = () => {
       try {
         const token = localStorage.getItem('token');
         await axios.post(
-          'http://localhost:5000/api/article-history/update-quiz',
+          `${BASE_URL}/api/article-history/update-quiz`,
           {
             articleId: article.url,
             score: score
@@ -231,7 +233,7 @@ const ArticlePage = () => {
 
       // Submit feedback to the backend
       await axios.post(
-        'http://localhost:5000/api/article-feedback/submit',
+        `${BASE_URL}/api/article-feedback/submit`,
         {
           articleId: article.url,
           feedback: userFeedback.feedback,

@@ -153,7 +153,7 @@ const LoginPage = ({ setUser }) => {
         <div className="newspaper-border"></div>
         <div className="login-header">
           <div className="masthead">
-            <h1 className="login-title">THE DAILY INSIGHT</h1>
+            <h1 className="login-title">PURE PRESS</h1>
             <div className="date-line">
               <span className="date">FRIDAY, APRIL 11, 2025</span>
               <span className="edition">MORNING EDITION</span>

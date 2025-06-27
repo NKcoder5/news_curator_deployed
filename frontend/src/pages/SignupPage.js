@@ -164,7 +164,7 @@ const SignupPage = ({ setUser }) => {
         <div className="newspaper-border"></div>
         <div className="signup-header">
           <div className="masthead">
-            <h1 className="signup-title">THE DAILY INSIGHT</h1>
+            <h1 className="signup-title">PURE PRESS</h1>
             <div className="date-line">
               <span className="date">FRIDAY, APRIL 11, 2025</span>
               <span className="edition">SUBSCRIPTION FORM</span>

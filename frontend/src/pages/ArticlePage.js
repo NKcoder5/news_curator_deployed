@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import FeedbackModal from '../components/FeedbackModal';
@@ -110,6 +110,8 @@ const ArticlePage = () => {
         case 'credibility':
           setCredibility(response.data);
           break;
+        default:
+          break;
       }
     } catch (err) {
       console.error(`Error in ${type} analysis:`, err);
@@ -194,26 +196,6 @@ const ArticlePage = () => {
 
     fetchArticleFeedbacks();
   }, [article]);
-
-  const handleQuizComplete = async (score) => {
-    if (isAuthenticated && article) {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.post(
-          `${BASE_URL}/api/article-history/update-quiz`,
-          {
-            articleId: article.url,
-            score: score
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        );
-      } catch (error) {
-        console.error('Error updating quiz attempt:', error);
-      }
-    }
-  };
 
   const handleShowFullFeedback = () => {
     setShowModal(true);

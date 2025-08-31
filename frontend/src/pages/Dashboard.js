@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import '../styles/Dashboard.css';
@@ -78,7 +78,6 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetchAllData();
     // Cleanup to prevent memory leaks
     return () => {
       setArticleHistory([]);

@@ -5,7 +5,6 @@ import '../styles/NewsCard.css';
 
 const NewsCard = ({ article }) => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
 
   const handleClick = () => {

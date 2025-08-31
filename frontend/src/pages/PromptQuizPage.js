@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import api from '../services/api';
 import '../styles/PromptQuizPage.css';
 
 const PromptQuizPage = () => {
-  const navigate = useNavigate();
   const [prompt, setPrompt] = useState('');
   const [quiz, setQuiz] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);

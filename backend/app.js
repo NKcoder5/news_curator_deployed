@@ -27,6 +27,7 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'http://localhost:3000',
   'https://news-curator-deployed-1.onrender.com', // Actual deployed frontend
+  'https://pure-press.netlify.app',
 ];
 app.use(cors({
   origin: function (origin, callback) {

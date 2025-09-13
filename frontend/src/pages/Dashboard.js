@@ -78,6 +78,8 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    fetchAllData();
+    
     // Cleanup to prevent memory leaks
     return () => {
       setArticleHistory([]);

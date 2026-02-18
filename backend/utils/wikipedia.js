@@ -10,11 +10,11 @@ async function fetchWikipediaContent(query, limit = 3) {
   try {
     // Wikipedia requires a User-Agent header
     const headers = {
-      'User-Agent': 'NewsCurator/1.0 (https://github.com/NKcoder5/news_curator_deployed)'
+      'User-Agent': 'NewsCurator/1.0 (contact: nandhakumar4115@gmail.com)'
     };
 
     // First, search for relevant articles
-    const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`;
+    const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json`;
     const searchResponse = await axios.get(searchUrl, { headers });
 
     if (!searchResponse.data.query || !searchResponse.data.query.search || searchResponse.data.query.search.length === 0) {
@@ -29,7 +29,7 @@ async function fetchWikipediaContent(query, limit = 3) {
     const articles = await Promise.all(
       searchResults.map(async (result) => {
         const pageId = result.pageid;
-        const contentUrl = `https://en.wikipedia.org/w/api.php?action=query&pageids=${pageId}&prop=extracts&exintro=1&explaintext=1&format=json&origin=*`;
+        const contentUrl = `https://en.wikipedia.org/w/api.php?action=query&pageids=${pageId}&prop=extracts&exintro=1&explaintext=1&format=json`;
 
         const contentResponse = await axios.get(contentUrl, { headers });
         const page = contentResponse.data.query.pages[pageId];

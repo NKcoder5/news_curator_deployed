@@ -4,7 +4,7 @@ import axios from 'axios';
 import FeedbackModal from '../components/FeedbackModal';
 import '../styles/ArticlePage.css';
 
-const BASE_URL = 'https://news-curator-deployed.onrender.com';
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const ArticlePage = () => {
   const location = useLocation();
@@ -91,7 +91,7 @@ const ArticlePage = () => {
 
       // Get the token from localStorage
       const token = localStorage.getItem('token');
-      
+
       // Add authorization header if token exists
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
@@ -183,7 +183,7 @@ const ArticlePage = () => {
   useEffect(() => {
     const fetchArticleFeedbacks = async () => {
       if (!article) return;
-      
+
       try {
         const response = await axios.get(`${BASE_URL}/api/article-feedback/all/${encodeURIComponent(article.url)}`);
         setArticleFeedbacks(response.data.data || []);
@@ -247,13 +247,13 @@ const ArticlePage = () => {
       alert('Please generate a detailed summary first before taking the quiz.');
       return;
     }
-    
+
     // Navigate to the quiz page with the detailed summary and article title
-    navigate('/quiz', { 
-      state: { 
+    navigate('/quiz', {
+      state: {
         detailedSummary,
         articleTitle: article.title
-      } 
+      }
     });
   };
 
@@ -317,9 +317,9 @@ const ArticlePage = () => {
           </span>
         </div>
         {article.urlToImage && (
-          <img 
+          <img
             className="article-image"
-            src={article.urlToImage} 
+            src={article.urlToImage}
             alt={article.title}
             onError={(e) => {
               e.target.onerror = null;
@@ -331,9 +331,9 @@ const ArticlePage = () => {
           <p>{article.description}</p>
         </div>
         <div className="article-actions">
-          <a 
-            href={article.url} 
-            target="_blank" 
+          <a
+            href={article.url}
+            target="_blank"
             rel="noopener noreferrer"
             className="feedback-button"
           >
@@ -354,14 +354,14 @@ const ArticlePage = () => {
             <>
               <p>{summary}</p>
               <div className="summary-actions">
-                <button 
+                <button
                   className="action-button"
                   onClick={handleDetailedSummary}
                   disabled={loadingStates.detailedSummary}
                 >
                   {loadingStates.detailedSummary ? 'Generating...' : 'Detailed Summary'}
                 </button>
-                <button 
+                <button
                   className="action-button"
                   onClick={handleQuizClick}
                   disabled={!detailedSummary}
@@ -390,7 +390,7 @@ const ArticlePage = () => {
             ) : error ? (
               <div className="error-message">
                 <p>{error}</p>
-                <button 
+                <button
                   className="feedback-button"
                   onClick={() => analyze('credibility')}
                 >
@@ -412,7 +412,7 @@ const ArticlePage = () => {
                 <p className="credibility-reasoning">{credibility.reasoning}</p>
               </div>
             ) : (
-              <button 
+              <button
                 className="feedback-button"
                 onClick={() => analyze('credibility')}
               >
@@ -431,7 +431,7 @@ const ArticlePage = () => {
             ) : error ? (
               <div className="error-message">
                 <p>{error}</p>
-                <button 
+                <button
                   className="feedback-button"
                   onClick={() => analyze('feedback')}
                 >
@@ -441,7 +441,7 @@ const ArticlePage = () => {
             ) : feedback ? (
               <div className="feedback-content">
                 <p>{feedback}</p>
-                <button 
+                <button
                   className="feedback-button"
                   onClick={handleShowFullFeedback}
                 >
@@ -449,7 +449,7 @@ const ArticlePage = () => {
                 </button>
               </div>
             ) : (
-              <button 
+              <button
                 className="feedback-button"
                 onClick={() => analyze('feedback')}
               >
@@ -466,9 +466,9 @@ const ArticlePage = () => {
       </div>
 
       {showModal && (
-        <FeedbackModal 
-          onSubmit={handleSubmitFeedback} 
-          onClose={handleCloseModal} 
+        <FeedbackModal
+          onSubmit={handleSubmitFeedback}
+          onClose={handleCloseModal}
         />
       )}
     </div>

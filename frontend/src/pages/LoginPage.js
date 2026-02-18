@@ -20,11 +20,11 @@ const LoginPage = ({ setUser }) => {
   useEffect(() => {
     // Start displaying container
     setAnimationStage(1);
-    
+
     // Create a sequence of animations with proper timing for newspaper unfolding effect
     const timer1 = setTimeout(() => setIsUnfolded(true), 800);
     const timer2 = setTimeout(() => setAnimationStage(2), 1800);
-    
+
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
@@ -41,7 +41,7 @@ const LoginPage = ({ setUser }) => {
     // Initial call and event listener
     handleResize();
     window.addEventListener('resize', handleResize);
-    
+
     // Clean up
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -76,7 +76,7 @@ const LoginPage = ({ setUser }) => {
   // Headlines for newspaper pages - reduced to ensure they fit
   const headlines = [
     "BREAKING NEWS",
-    "LOCAL UPDATES", 
+    "LOCAL UPDATES",
     "WORLD REPORT",
     "TECH TRENDS"
   ];
@@ -84,7 +84,7 @@ const LoginPage = ({ setUser }) => {
   return (
     <div className={`login-container stage-${animationStage}`}>
       <div className="paper-texture"></div>
-      
+
       <div className="background-grid">
         {/* Grid pattern for depth - reduced number for performance */}
         {Array.from({ length: 10 }).map((_, i) => (
@@ -94,7 +94,7 @@ const LoginPage = ({ setUser }) => {
           <div key={`v-${i}`} className="grid-line vertical" style={{ left: `${i * 10}%` }}></div>
         ))}
       </div>
-      
+
       <div className="login-background">
         {/* Large decorative newspaper */}
         <div className="decorative-newspaper">
@@ -103,7 +103,7 @@ const LoginPage = ({ setUser }) => {
           <div className="decorative-column center"></div>
           <div className="decorative-column right"></div>
         </div>
-        
+
         {/* Floating newspaper pages with headlines - positioned for better fit */}
         <div className="page-layer page-layer-1">
           <div className="page-content">
@@ -137,7 +137,7 @@ const LoginPage = ({ setUser }) => {
             <div className="page-text-line short"></div>
           </div>
         </div>
-        
+
         {/* Newspaper elements - positioned strategically to avoid overflow */}
         <div className="floating-element newspaper">📰</div>
         <div className="floating-element pen">🖋️</div>
@@ -155,7 +155,14 @@ const LoginPage = ({ setUser }) => {
           <div className="masthead">
             <h1 className="login-title">PURE PRESS</h1>
             <div className="date-line">
-              <span className="date">FRIDAY, APRIL 11, 2025</span>
+              <span className="date">
+                {new Date().toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                }).toUpperCase()}
+              </span>
               <span className="edition">MORNING EDITION</span>
             </div>
           </div>
@@ -243,7 +250,7 @@ const LoginPage = ({ setUser }) => {
             </div>
           </div>
         </form>
-        
+
         <div className="paper-fold"></div>
         <div className="paper-stamp">VERIFIED</div>
       </div>

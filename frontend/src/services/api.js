@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://news-curator-deployed.onrender.com/api',
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -34,7 +34,7 @@ api.interceptors.response.use(
   (error) => {
     console.error('API response error:', error.config?.url, error.response?.status);
     console.error('Error details:', error.response?.data || error.message);
-    
+
     if (error.response?.status === 401) {
       console.log('Unauthorized request, clearing token');
       // Clear token and redirect to login if unauthorized

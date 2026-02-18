@@ -21,11 +21,11 @@ const SignupPage = ({ setUser }) => {
   useEffect(() => {
     // Start displaying container
     setAnimationStage(1);
-    
+
     // Create a sequence of animations with proper timing for newspaper unfolding effect
     const timer1 = setTimeout(() => setIsUnfolded(true), 800);
     const timer2 = setTimeout(() => setAnimationStage(2), 1800);
-    
+
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
@@ -42,7 +42,7 @@ const SignupPage = ({ setUser }) => {
     // Initial call and event listener
     handleResize();
     window.addEventListener('resize', handleResize);
-    
+
     // Clean up
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -87,7 +87,7 @@ const SignupPage = ({ setUser }) => {
   // Headlines for newspaper pages - reduced to ensure they fit
   const headlines = [
     "SPECIAL EDITION",
-    "NEW SUBSCRIBER", 
+    "NEW SUBSCRIBER",
     "WELCOME ISSUE",
     "JOIN TODAY"
   ];
@@ -95,7 +95,7 @@ const SignupPage = ({ setUser }) => {
   return (
     <div className={`signup-container stage-${animationStage}`}>
       <div className="paper-texture"></div>
-      
+
       <div className="background-grid">
         {/* Grid pattern for depth - reduced number for performance */}
         {Array.from({ length: 10 }).map((_, i) => (
@@ -105,7 +105,7 @@ const SignupPage = ({ setUser }) => {
           <div key={`v-${i}`} className="grid-line vertical" style={{ left: `${i * 10}%` }}></div>
         ))}
       </div>
-      
+
       <div className="signup-background">
         {/* Large decorative newspaper */}
         <div className="decorative-newspaper">
@@ -114,7 +114,7 @@ const SignupPage = ({ setUser }) => {
           <div className="decorative-column center"></div>
           <div className="decorative-column right"></div>
         </div>
-        
+
         {/* Floating newspaper pages with headlines - positioned for better fit */}
         <div className="page-layer page-layer-1">
           <div className="page-content">
@@ -148,7 +148,7 @@ const SignupPage = ({ setUser }) => {
             <div className="page-text-line short"></div>
           </div>
         </div>
-        
+
         {/* Newspaper elements - positioned strategically to avoid overflow */}
         <div className="floating-element newspaper">📰</div>
         <div className="floating-element pen">🖋️</div>
@@ -166,7 +166,14 @@ const SignupPage = ({ setUser }) => {
           <div className="masthead">
             <h1 className="signup-title">PURE PRESS</h1>
             <div className="date-line">
-              <span className="date">FRIDAY, APRIL 11, 2025</span>
+              <span className="date">
+                {new Date().toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                }).toUpperCase()}
+              </span>
               <span className="edition">SUBSCRIPTION FORM</span>
             </div>
           </div>
@@ -312,7 +319,7 @@ const SignupPage = ({ setUser }) => {
             </div>
           </div>
         </form>
-        
+
         <div className="paper-fold"></div>
         <div className="paper-stamp">PREMIUM</div>
       </div>

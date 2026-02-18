@@ -8,27 +8,32 @@ const axios = require('axios');
  */
 async function fetchWikipediaContent(query, limit = 3) {
   try {
+    // Wikipedia requires a User-Agent header
+    const headers = {
+      'User-Agent': 'NewsCurator/1.0 (https://github.com/NKcoder5/news_curator_deployed)'
+    };
+
     // First, search for relevant articles
     const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`;
-    const searchResponse = await axios.get(searchUrl);
-    
+    const searchResponse = await axios.get(searchUrl, { headers });
+
     if (!searchResponse.data.query || !searchResponse.data.query.search || searchResponse.data.query.search.length === 0) {
       console.log('No Wikipedia articles found for query:', query);
       return [];
     }
-    
+
     // Get the top results
     const searchResults = searchResponse.data.query.search.slice(0, limit);
-    
+
     // Fetch full content for each article
     const articles = await Promise.all(
       searchResults.map(async (result) => {
         const pageId = result.pageid;
         const contentUrl = `https://en.wikipedia.org/w/api.php?action=query&pageids=${pageId}&prop=extracts&exintro=1&explaintext=1&format=json&origin=*`;
-        
-        const contentResponse = await axios.get(contentUrl);
+
+        const contentResponse = await axios.get(contentUrl, { headers });
         const page = contentResponse.data.query.pages[pageId];
-        
+
         return {
           title: page.title,
           content: page.extract,
@@ -38,7 +43,7 @@ async function fetchWikipediaContent(query, limit = 3) {
         };
       })
     );
-    
+
     return articles;
   } catch (error) {
     console.error('Error fetching Wikipedia content:', error.message);

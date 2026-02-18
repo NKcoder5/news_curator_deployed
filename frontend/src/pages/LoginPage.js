@@ -4,7 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, AlertCircle } from 'lucide-react';
 import '../styles/LoginPage.css';
 
-const BASE_URL = 'https://news-curator-deployed.onrender.com';
+const BASE_URL = process.env.REACT_APP_API_URL ||
+  (window.location.hostname.includes('onrender.com')
+    ? 'https://news-curator-deployed.onrender.com'
+    : 'http://localhost:5000');
 
 const LoginPage = ({ setUser }) => {
   const [email, setEmail] = useState('');

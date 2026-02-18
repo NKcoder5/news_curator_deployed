@@ -4,7 +4,10 @@ import axios from 'axios';
 import FeedbackModal from '../components/FeedbackModal';
 import '../styles/ArticlePage.css';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const BASE_URL = process.env.REACT_APP_API_URL ||
+  (window.location.hostname.includes('onrender.com')
+    ? 'https://news-curator-deployed.onrender.com'
+    : 'http://localhost:5000');
 
 const ArticlePage = () => {
   const location = useLocation();

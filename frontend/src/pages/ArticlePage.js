@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import FeedbackModal from '../components/FeedbackModal';
-import TrustReport from '../components/TrustReport';
 import '../styles/ArticlePage.css';
 
 const BASE_URL = process.env.REACT_APP_API_URL ||
@@ -81,12 +80,11 @@ const ArticlePage = () => {
           body = { article: content, userFeedback: 'None' };
           break;
         case 'credibility':
-          endpoint = '/api/ai/trust-analysis';
+          endpoint = '/api/ai/credibility';
           body = {
             title: article.title,
             content,
             source: article.source?.name || article.source || 'Unknown',
-            url: article.url,
           };
           break;
         default:
@@ -386,12 +384,11 @@ const ArticlePage = () => {
 
         <div className="right-cards">
           <div className="credibility-card">
-            <h3 className="credibility-title">Trust Analysis</h3>
+            <h3 className="credibility-title">Credibility Analysis</h3>
             {loadingStates.credibility ? (
               <div className="loading-state">
                 <div className="spinner"></div>
-                <p className="loading-text">Running trust analysis...</p>
-                <p className="loading-subtext">Checking source, headline, bias &amp; cross-source evidence</p>
+                <p className="loading-text">Analyzing credibility...</p>
               </div>
             ) : error ? (
               <div className="error-message">
@@ -404,13 +401,25 @@ const ArticlePage = () => {
                 </button>
               </div>
             ) : credibility ? (
-              <TrustReport report={credibility} />
+              <div className="credibility-content">
+                <div className="credibility-score">
+                  <div className="score-circle" style={{
+                    background: `conic-gradient(#4CAF50 ${credibility.score * 10}%, #f0f0f0 0)`
+                  }}>
+                    <div className="score-inner">
+                      <span>{credibility.score}</span>
+                      <span className="score-label">/10</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="credibility-reasoning">{credibility.reasoning}</p>
+              </div>
             ) : (
               <button
                 className="feedback-button"
                 onClick={() => analyze('credibility')}
               >
-                Analyze Trustworthiness
+                Check Credibility
               </button>
             )}
           </div>

@@ -7,7 +7,6 @@ const processFeedback = require('../agents/feedbackAgent');
 const generateDetailedSummary = require('../agents/detailedSummaryAgent');
 const generateQuiz = require('../agents/quizAgent');
 const generatePromptQuiz = require('../agents/promptQuizAgent');
-const { analyzeTrust } = require('../agents/trustAnalysisAgent');
 const auth = require('../middleware/auth');
 
 router.post('/summarize', async (req, res) => {
@@ -27,22 +26,6 @@ router.post('/credibility', async (req, res) => {
     res.json({ score, reasoning }); // Send flat { score, reasoning }
   } catch (err) {
     res.status(500).json({ error: 'Failed to check credibility.' });
-  }
-});
-
-// Full explainable trust analysis: source reputation + clickbait + bias +
-// cross-source claim verification, aggregated into a weighted trust score.
-router.post('/trust-analysis', async (req, res) => {
-  const { title, content, source, url } = req.body;
-  if (!title) {
-    return res.status(400).json({ error: 'Article title is required.' });
-  }
-  try {
-    const report = await analyzeTrust({ title, content, source, url });
-    res.json(report);
-  } catch (err) {
-    console.error('Trust analysis failed:', err);
-    res.status(500).json({ error: 'Failed to run trust analysis.' });
   }
 });
 

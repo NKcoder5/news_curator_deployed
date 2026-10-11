@@ -333,6 +333,15 @@
       },
       "scoreDrift": null,
       "overriddenAt": "2026-10-10"
+    },
+    "fact-check match": {
+      "chain": [
+        "gemini",
+        "nim",
+        "ollama"
+      ],
+      "reason": "routed to a hosted model by hand on 2026-10-11, like stance judgement: the task turns on reading a negation correctly (a review rating \"the video is genuine\" False makes \"the video is fake\" true) and on refusing same-topic reviews of a different claim",
+      "overriddenAt": "2026-10-11"
     }
   }
 }

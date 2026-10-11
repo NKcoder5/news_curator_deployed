@@ -324,6 +324,36 @@ const weighCorroboration = ({ independentSupport = 0, independentContradiction =
   };
 };
 
+/**
+ * Evidence from a fact-checking desk's published ruling on the same claim.
+ *
+ * Declared, like the corroboration rates, and only ever entered when a desk
+ * actually ruled. Finding NO ruling is not entered at all: the desks cover a
+ * small, viral-skewed share of claims, so their silence about a claim says
+ * almost nothing about it, and counting it would quietly reward obscurity.
+ */
+const weighFactCheck = (factCheck) => {
+  const outcome = {
+    debunked: 'ratedFalse', misleading: 'ratedMisleading', confirmed: 'ratedTrue'
+  }[factCheck?.status];
+  if (!outcome) return null;
+  const { declared } = loadTable();
+  const rates = declared.factCheck;
+  if (!rates) return null;
+  const lr = rates.givenFabricated[outcome] / rates.givenGenuine[outcome];
+  return {
+    decibans: round(10 * Math.log10(lr)),
+    likelihoodRatio: round(lr, 4),
+    outcome,
+    basis: rates.basis,
+    note: {
+      ratedFalse: 'A professional fact-checking desk examined this same claim and rated it false.',
+      ratedMisleading: 'A professional fact-checking desk examined this same claim and rated it misleading.',
+      ratedTrue: 'A professional fact-checking desk examined this same claim and rated it true.'
+    }[outcome]
+  };
+};
+
 const round = (value, places = 2) => {
   const factor = 10 ** places;
   return Math.round(value * factor) / factor;
@@ -336,14 +366,15 @@ const round = (value, places = 2) => {
  *            totalDecibans: number, ledger: Array, unmeasured: Array,
  *            declaredParameters: string[]}}
  */
-const assessProbability = ({ factorScores, sourceResult, provenance, evidence }) => {
+const assessProbability = ({ factorScores, sourceResult, provenance, evidence, factCheck }) => {
   const prior = priorFor({ sourceResult, provenance });
   const content = weighContentFactors(factorScores);
   const corroboration = weighCorroboration(evidence || {});
+  const ruling = weighFactCheck(factCheck);
 
   const { declared } = loadTable();
   const priorDecibans = probabilityToDecibans(prior.probability);
-  const totalDecibans = priorDecibans + content.totalDecibans + corroboration.decibans;
+  const totalDecibans = priorDecibans + content.totalDecibans + corroboration.decibans + (ruling ? ruling.decibans : 0);
 
   // No finite quantity of evidence of this kind justifies certainty, so the
   // reported probability is bounded. A system that prints 0.00 is claiming
@@ -382,7 +413,15 @@ const assessProbability = ({ factorScores, sourceResult, provenance, evidence })
       likelihoodRatio: corroboration.likelihoodRatio,
       detail: corroboration.note,
       basis: corroboration.basis
-    }
+    },
+    ...(ruling ? [{
+      step: 'fact-check',
+      label: 'Fact-checkers’ ruling',
+      decibans: ruling.decibans,
+      likelihoodRatio: ruling.likelihoodRatio,
+      detail: ruling.note,
+      basis: ruling.basis
+    }] : [])
   ];
 
   return {
@@ -404,6 +443,7 @@ module.exports = {
   priorFor,
   weighContentFactors,
   weighCorroboration,
+  weighFactCheck,
   probabilityToDecibans,
   decibansToProbability,
   _setTable

@@ -431,5 +431,6 @@ const searchCoverageBroadening = async (query, excludeSourceName = '', pageSize 
 };
 
 module.exports = {
-  INDEX_LAG_HOURS, fetchTopNews, searchNewsCoverage, searchGoogleNews, searchCoverageBroadening, SearchUnavailableError
+  INDEX_LAG_HOURS, fetchTopNews, searchNewsCoverage, searchGoogleNews, searchCoverageBroadening, SearchUnavailableError,
+  cached, withRetry, isNetworkError
 };

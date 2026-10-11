@@ -136,7 +136,7 @@ const looksHighImpact = (text) => HIGH_IMPACT_PATTERNS.some(pattern => pattern.t
  */
 const buildEvidenceLedger = ({
   claims = [], sourceResult = {}, transparencyResult = {}, manipulationResult = {}, title = '',
-  verificationStatus = 'unverified', premiseResult = null,
+  verificationStatus = 'unverified', premiseResult = null, factCheckResult = null,
   publishedAt = null, indexLagHours = INDEX_LAG_HOURS, domainAge = null
 }) => {
   // How old the story is, when the page told us. An unknown date is left
@@ -158,6 +158,10 @@ const buildEvidenceLedger = ({
       verdict: claim.verdict,
       independentSupport: forCount > againstCount ? forCount : 0,
       independentContradiction: againstCount > forCount ? againstCount : 0,
+      // What the outlets actually say, in their own words ("85 medals"), so the
+      // verdict can quote the conflicting fact instead of only counting it.
+      reportedAgainst: [...new Set((claim.contradictingEvidence || []).map(e => String(e.reported || '').trim()).filter(Boolean))],
+      reportedFor: [...new Set((claim.supportingEvidence || []).map(e => String(e.reported || '').trim()).filter(Boolean))],
       support,
       contradiction,
       highImpact: looksHighImpact(claim.claim)
@@ -203,8 +207,18 @@ const buildEvidenceLedger = ({
     // than to what happened.
     premiseContradictions: premiseResult?.contradictions || [],
     premiseStatus: premiseResult?.status || 'not-run',
+    // A professional fact-checking desk's published ruling on this same claim.
+    // Kept apart from the news count for the same reason as the premise check:
+    // a desk that investigated a viral rumour is not a newsroom reporting an
+    // event, and the rumours it rules on are the ones newsrooms never cover.
+    factCheckStatus: factCheckResult?.status || 'not-run',
+    factChecks: factCheckResult?.matches || [],
     independentSupport,
     independentContradiction,
+    // The contradicted claim's conflicting facts, as the outlets worded them.
+    reportedAgainst: (perClaim.reduce(
+      (most, c) => (c.independentContradiction > (most?.independentContradiction ?? 0) ? c : most), null
+    )?.reportedAgainst) || [],
     perClaim,
     mergeNotes: [...new Set(perClaim.flatMap(c => [...c.support.mergeNotes, ...c.contradiction.mergeNotes]))],
     rawSupportingArticles: perClaim.reduce((sum, c) => sum + c.support.itemCount, 0),
@@ -258,10 +272,10 @@ const decideVerdict = (ledger) => {
       // reads nothing else should still have both, and be correctly informed.
       // Everything below is for the reader who wants to see the working.
       call: spec.call,
-      oneLine: summarise(verdict, ledger),
+      oneLine: summarise(verdict, ledger, rule),
       rule,
       grounds: reasons,
-      confidence: confidenceFor(verdict, ledger)
+      confidence: confidenceFor(verdict, ledger, rule)
     };
   };
 
@@ -271,6 +285,51 @@ const decideVerdict = (ledger) => {
     return decide('satire', 'satirical-publisher', [
       'The publisher is a satirical outlet in our source database.'
     ]);
+  }
+
+  // R0b — A professional fact-checking desk has already ruled on this claim.
+  //
+  // This comes before the news rules because it answers what they cannot. A
+  // viral rumour — "all Saturdays are now bank holidays", "this video shows the
+  // Army chief dancing" — is never reported as news, so the news search finds
+  // nothing and could only say "cannot verify". The desks exist to investigate
+  // exactly these, and a desk's published ruling, matched to the same assertion
+  // the reader typed, is the strongest evidence this system has access to.
+  //
+  // One exception: a ruling can be overtaken by events. A rumour rated false in
+  // March can come true in June, and two or more independent outlets now
+  // reporting it as fact is a disagreement the reader should see rather than
+  // one this code should settle by picking a side.
+  const factCheckOvertaken = ledger.independentSupport >= 2
+    && ledger.independentSupport > ledger.independentContradiction;
+  const describeReview = (m) => {
+    const when = m.reviewedAt ? ` on ${m.reviewedAt}` : '';
+    // Found through the news search: a headline, not a structured ruling.
+    if (m.via === 'news-search') {
+      return `${m.publisher || 'A fact-checker'} reported${when}: "${String(m.claimReviewed || '').slice(0, 160)}".`;
+    }
+    const checked = m.claimReviewed ? ` "${String(m.claimReviewed).slice(0, 160)}"` : ' this claim';
+    const rating = m.rating && m.rating.length <= 40 ? m.rating : m.finding;
+    return `${m.publisher || m.site || 'A fact-checker'} reviewed${checked}${when} and rated it ${rating}.`;
+  };
+  if (['debunked', 'misleading'].includes(ledger.factCheckStatus) && ledger.factChecks.length > 0) {
+    if (factCheckOvertaken) {
+      return decide('unverified', 'fact-checkers-and-reporting-disagree', [
+        ...ledger.factChecks.slice(0, 2).map(describeReview),
+        `But ${ledger.independentSupport} independent outlets now report it as fact. A ruling can be overtaken by events, so this is left for the reader to weigh.`
+      ], 'Fact-checkers and current reporting disagree on this. Read both before sharing.');
+    }
+    const against = ledger.factChecks.filter(m => m.finding !== 'true');
+    const reasons = against.slice(0, 4).map(describeReview);
+    if (against.length > 4) reasons.push(`${against.length - 4} more ${against.length - 4 === 1 ? 'desk reached' : 'desks reached'} the same finding.`);
+    if (ledger.independentContradiction > 0) {
+      reasons.push(`Separately, ${ledger.independentContradiction} independent news ${ledger.independentContradiction === 1 ? 'outlet reports' : 'outlets report'} facts that conflict with it.`);
+    }
+    return ledger.factCheckStatus === 'debunked'
+      ? decide('false', 'rated-false-by-fact-checkers', reasons,
+        'Professional fact-checkers have investigated this and found it false. Do not share it.')
+      : decide('likely-false', 'rated-misleading-by-fact-checkers', reasons,
+        'Fact-checkers found this misleading: it twists or strips the context from something real. Do not share it as stated.');
   }
 
   // R1 — Contradicted by two or more independent sources. This is the only
@@ -306,6 +365,21 @@ const decideVerdict = (ledger) => {
       `A reference entry on ${first.entity} says otherwise: "${first.referenceStates}"`,
       'A story built on a premise that is wrong does not become true because no one has reported it.'
     ]);
+  }
+
+  // R2c — A fact-checking desk rated this same claim true, and no outlet
+  // contradicts it. Short of two independent newsrooms (R5 still applies when
+  // they exist), so stated as probably true.
+  if (ledger.factCheckStatus === 'confirmed' && ledger.factChecks.length > 0 && ledger.independentSupport < 2) {
+    return decide('likely-true', 'rated-true-by-fact-checkers', [
+      ...ledger.factChecks.slice(0, 3).map(describeReview),
+      ledger.independentSupport === 1
+        ? 'One independent outlet also reports the same facts.'
+        : 'No news outlet was found reporting it, which is common for claims that circulate only on social media.'
+    ], 'A fact-checking desk has examined this and found it true.');
+  }
+  if (ledger.factCheckStatus === 'confirmed' && ledger.factChecks.length > 0) {
+    grounds.push(...ledger.factChecks.slice(0, 2).map(describeReview));
   }
 
   // R3 — The verification check itself could not run. This must never be read
@@ -462,19 +536,50 @@ const applyProvenanceRelief = (decision, ledger) => {
  * reader takes away one line, this is the line, so it names the evidence rather
  * than describing the process.
  */
-const summarise = (verdict, ledger) => {
+const summarise = (verdict, ledger, rule = '') => {
   const sources = (n) => `${n} independent ${n === 1 ? 'outlet' : 'outlets'}`;
+  // "India Today, AFP Fact Check and PTI" — the desks by name, since a reader
+  // can look a named desk up and cannot look up "fact-checkers".
+  const desks = (list) => {
+    const names = [...new Set(list.map(m => m.publisher || m.site).filter(Boolean))];
+    if (names.length === 0) return 'a fact-checking desk';
+    const shown = names.slice(0, 3);
+    const rest = names.length - shown.length;
+    if (rest > 0) return `${shown.join(', ')} and ${rest} more`;
+    return shown.length === 1 ? shown[0] : `${shown.slice(0, -1).join(', ')} and ${shown[shown.length - 1]}`;
+  };
+  // The conflicting fact as the outlets worded it, when the judge quoted one.
+  // The fullest one wins: "TVK sweeps both seats" says more than "TVK rises".
+  const quote = (ledger.reportedAgainst || []).filter(q => q.length <= 80).sort((x, y) => y.length - x.length)[0];
+
+  if (rule === 'rated-false-by-fact-checkers') {
+    return `Rated false by ${desks(ledger.factChecks.filter(m => m.finding === 'false'))} after checking this exact claim.`;
+  }
+  if (rule === 'rated-misleading-by-fact-checkers') {
+    return `Fact-checkers (${desks(ledger.factChecks.filter(m => m.finding !== 'true'))}) found this misleading.`;
+  }
+  if (rule === 'rated-true-by-fact-checkers') {
+    return `Checked and rated true by ${desks(ledger.factChecks)}.`;
+  }
+  if (rule === 'fact-checkers-and-reporting-disagree') {
+    return `Fact-checkers rated this false, but ${sources(ledger.independentSupport)} now report it.`;
+  }
 
   switch (verdict) {
     case 'false':
-      return `${sources(ledger.independentContradiction)} report the opposite of what this says.`;
+      return quote
+        ? `${sources(ledger.independentContradiction)} report otherwise: “${quote}”.`
+        : `${sources(ledger.independentContradiction)} report the opposite of what this says.`;
     case 'likely-false':
       if (ledger.premiseContradictions?.length > 0) {
         return `A reference entry on ${ledger.premiseContradictions[0].entity} contradicts what this article states about them.`;
       }
-      return ledger.independentContradiction > 0
-        ? 'An independent outlet reports the opposite of what this says.'
-        : 'No outlet is reporting this, and it carries several marks of a fabricated story.';
+      if (ledger.independentContradiction > 0) {
+        return quote
+          ? `An independent outlet reports otherwise: “${quote}”.`
+          : 'An independent outlet reports the opposite of what this says.';
+      }
+      return 'No outlet is reporting this, and it carries several marks of a fabricated story.';
     case 'corroborated':
       return `Confirmed by ${sources(ledger.independentSupport)} reporting the same facts.`;
     case 'likely-true':
@@ -504,8 +609,16 @@ const summarise = (verdict, ledger) => {
  * never from the language model's own certainty, which is not measurable. The
  * value is deliberately capped below 1: the system does not claim certainty.
  */
-const confidenceFor = (verdict, ledger) => {
+const confidenceFor = (verdict, ledger, rule = '') => {
   const cap = (value) => Math.max(0.3, Math.min(0.95, Math.round(value * 100) / 100));
+  // A desk's investigation of the very claim is worth more than a headline
+  // count, and each further desk reaching the same finding adds to it.
+  if (rule === 'rated-false-by-fact-checkers' || rule === 'rated-misleading-by-fact-checkers') {
+    const desks = ledger.factChecks.filter(m => m.finding !== 'true').length;
+    const base = rule === 'rated-false-by-fact-checkers' ? 0.82 : 0.68;
+    return cap(base + 0.04 * Math.min(desks - 1, 3) + (ledger.independentContradiction > 0 ? 0.03 : 0));
+  }
+  if (rule === 'rated-true-by-fact-checkers') return cap(0.65 + 0.05 * Math.min(ledger.factChecks.length - 1, 2));
   switch (verdict) {
     case 'false':
       return cap(0.7 + 0.07 * Math.min(ledger.independentContradiction - 2, 3));

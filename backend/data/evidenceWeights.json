@@ -72,6 +72,26 @@
       "min": 0.002,
       "max": 0.98,
       "reason": "No finite quantity of evidence of this kind justifies certainty, and a reported 0 or 1 would be a claim the system cannot support."
+    },
+    "factCheck": {
+      "outcomes": [
+        "ratedFalse",
+        "ratedMisleading",
+        "ratedTrue"
+      ],
+      "givenGenuine": {
+        "ratedFalse": 0.005,
+        "ratedMisleading": 0.02,
+        "ratedTrue": 0.03
+      },
+      "givenFabricated": {
+        "ratedFalse": 0.3,
+        "ratedMisleading": 0.1,
+        "ratedTrue": 0.002
+      },
+      "basis": "declared",
+      "reason": "How often a claim draws each ruling from a professional desk, given that it is genuine or fabricated. A desk rating a genuine claim false is rare (the rulings are investigated, sourced and corrected when wrong), while a viral fabrication is the desks' main subject, so \"rated false\" carries a ratio of 60. Absence of a ruling is never entered: desks review a small share of claims.",
+      "measurableBy": "eval/benchmarkCheckAnything.js — the share of known-false and known-true claims for which a matched ruling is found"
     }
   },
   "method": "per-bin likelihood ratio, Jeffreys-smoothed, shrunk to the conservative end of a 95% interval, reported in decibans (10·log10 LR)",

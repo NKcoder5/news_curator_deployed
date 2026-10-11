@@ -16,6 +16,7 @@ const { verifyClaims, extractClaims } = require('./claimVerificationAgent');
 const { detectManipulation } = require('./manipulationAgent');
 const { assessTransparency } = require('./transparencyAgent');
 const { checkPremises } = require('./referenceCheck');
+const { checkFactCheckers } = require('./factCheckSearch');
 const { buildEvidenceLedger, decideVerdict, applyCeiling } = require('./verdictEngine');
 const { assessProbability } = require('./weightOfEvidence');
 const { detectLanguage } = require('../utils/language');
@@ -308,7 +309,7 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
 
   const [
     clickbaitResult, biasResult, manipulationResult,
-    transparencyResult, verificationResult, premiseResult
+    transparencyResult, verificationResult, premiseResult, factCheckResult
   ] = await Promise.all([
     timed('clickbait', () => analyzeClickbait(title, language)),
     timed('bias', () => analyzeBias(title, text, language)),
@@ -321,7 +322,14 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
     // an event no outlet reports, so the news channel correctly returns nothing
     // — while a reference work settles the premise in one lookup.
     timed('premises', () => checkPremises(title, text)
-      .catch(() => ({ status: 'error', checked: [], contradictions: [], explanation: 'The reference check could not run.' })))
+      .catch(() => ({ status: 'error', checked: [], contradictions: [], explanation: 'The reference check could not run.' }))),
+    // The third channel, beside the news search and the reference check: has a
+    // professional fact-checking desk already ruled on this claim? A viral
+    // rumour is never reported as news, so the news channel can only say
+    // "cannot verify" about it — while a desk may have investigated it days ago.
+    // It reuses the extracted claims, so it starts as soon as they exist.
+    claimsPromise.then(({ claims }) => timed('factChecks', () => checkFactCheckers(claims, { title, text })))
+      .catch(() => ({ status: 'error', matches: [], considered: 0, explanation: 'The fact-check search could not run.' }))
   ]);
 
   const verificationInformative = ['corroborated', 'contradicted'].includes(verificationResult.status);
@@ -358,6 +366,7 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
     claims: verificationResult.claims || [],
     verificationStatus: verificationResult.status,
     premiseResult,
+    factCheckResult,
     sourceResult,
     transparencyResult,
     manipulationResult,
@@ -387,7 +396,8 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
       independentSupport: evidenceLedger.independentSupport,
       independentContradiction: evidenceLedger.independentContradiction,
       verificationRan: evidenceLedger.verificationRan
-    }
+    },
+    factCheck: factCheckResult
   });
 
   // -------------------------------------------------------------------------
@@ -553,12 +563,32 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
         verdict: c.verdict,
         independentSupport: c.independentSupport,
         independentContradiction: c.independentContradiction,
+        // The facts each side reports, in the outlets' own words.
+        reportedFor: c.reportedFor,
+        reportedAgainst: c.reportedAgainst,
         sources: c.support.clusters.map(cluster => ({
           label: cluster.label,
           collapsedFrom: cluster.collapsedFrom,
           reliability: cluster.reliability,
           members: cluster.members
+        })),
+        contradictingSources: c.contradiction.clusters.map(cluster => ({
+          label: cluster.label,
+          collapsedFrom: cluster.collapsedFrom,
+          reliability: cluster.reliability,
+          members: cluster.members
         }))
+      }))
+    },
+    // What the fact-checking desks said, review by review, so the reader can
+    // open each ruling rather than take the verdict on trust.
+    factChecks: {
+      status: factCheckResult.status,
+      explanation: factCheckResult.explanation,
+      considered: factCheckResult.considered || 0,
+      matches: (factCheckResult.matches || []).map(m => ({
+        publisher: m.publisher, url: m.url, reviewedAt: m.reviewedAt,
+        claimReviewed: m.claimReviewed, rating: m.rating, finding: m.finding, why: m.why, via: m.via
       }))
     },
     degradedFactors,

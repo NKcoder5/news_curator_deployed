@@ -22,6 +22,7 @@
 //   node eval/robustnessSuite.js --id q-1,ta-3       chosen cases
 //   node eval/robustnessSuite.js --gap 8             seconds between cases
 //   node eval/robustnessSuite.js --out before        results file suffix
+//   node eval/robustnessSuite.js --suite heldout     the held-out cases
 //
 // Writes eval/results/robustness_<out>.{json,md}.
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
@@ -36,7 +37,10 @@ const outName = flag('--out', 'latest');
 const onlyCategory = flag('--category');
 const onlyIds = flag('--id') ? new Set(flag('--id').split(',')) : null;
 
-const suite = JSON.parse(fs.readFileSync(path.join(__dirname, 'suites', 'robustness_suite.json'), 'utf8'));
+// --suite heldout runs eval/suites/heldout_suite.json: cases written after the
+// system was tuned on the main suite, so its score is the honest one.
+const suiteName = flag('--suite', 'robustness');
+const suite = JSON.parse(fs.readFileSync(path.join(__dirname, 'suites', `${suiteName}_suite.json`), 'utf8'));
 const cases = suite.cases
   .filter(c => !onlyCategory || c.category === onlyCategory)
   .filter(c => !onlyIds || onlyIds.has(c.id));

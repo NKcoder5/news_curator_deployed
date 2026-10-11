@@ -1,11 +1,11 @@
 {
   "summary": {
-    "ranAt": "2026-10-11T16:39:35.593Z",
+    "ranAt": "2026-10-11T16:58:06.657Z",
     "overall": {
       "n": 55,
-      "right": 47,
+      "right": 53,
       "safe": 2,
-      "wrong": 6
+      "wrong": 0
     },
     "byCategory": {
       "plain": {
@@ -16,9 +16,9 @@
       },
       "question": {
         "n": 4,
-        "right": 3,
+        "right": 4,
         "safe": 0,
-        "wrong": 1
+        "wrong": 0
       },
       "hedged": {
         "n": 3,
@@ -28,15 +28,15 @@
       },
       "emotional forward": {
         "n": 3,
-        "right": 2,
+        "right": 3,
         "safe": 0,
-        "wrong": 1
+        "wrong": 0
       },
       "sarcasm": {
         "n": 1,
-        "right": 0,
+        "right": 1,
         "safe": 0,
-        "wrong": 1
+        "wrong": 0
       },
       "negation": {
         "n": 3,
@@ -58,9 +58,9 @@
       },
       "numbers and units": {
         "n": 3,
-        "right": 2,
+        "right": 3,
         "safe": 0,
-        "wrong": 1
+        "wrong": 0
       },
       "typos and lower case": {
         "n": 2,
@@ -70,9 +70,9 @@
       },
       "Tamil": {
         "n": 7,
-        "right": 6,
+        "right": 7,
         "safe": 0,
-        "wrong": 1
+        "wrong": 0
       },
       "Tanglish": {
         "n": 3,
@@ -112,9 +112,9 @@
       },
       "local news": {
         "n": 2,
-        "right": 1,
+        "right": 2,
         "safe": 0,
-        "wrong": 1
+        "wrong": 0
       },
       "viral rumour": {
         "n": 1,
@@ -157,7 +157,7 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "contradicted-by-multiple-independent-sources",
-      "detail": "4 independent outlets report otherwise: “85 medals”.",
+      "detail": "5 independent outlets report otherwise: “85-Medal Campaign”.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -177,7 +177,7 @@
           }
         ]
       },
-      "seconds": 8.494
+      "seconds": 9.412
     },
     {
       "id": "base-2",
@@ -199,14 +199,14 @@
         "english": "RBI raised the repo rate by 25 basis points to 5.50% in October 2026",
         "claims": [
           {
-            "claim": "RBI raised the repo rate by 25 basis points to 5.50% in October 2026.",
-            "time": "past",
+            "claim": "Reserve Bank of India raised the repo rate by 25 basis points to 5.50% in October 2026.",
+            "time": "now",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 7.765
+      "seconds": 11.501
     },
     {
       "id": "q-1",
@@ -216,7 +216,7 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "contradicted-by-multiple-independent-sources",
-      "detail": "6 independent outlets report otherwise: “RBI has not asked banks to stop disbursing ₹500 notes; viral claim is false”.",
+      "detail": "4 independent outlets report otherwise: “RBI has not asked banks to stop disbursing ₹500 notes; viral claim is false”.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -235,7 +235,7 @@
           }
         ]
       },
-      "seconds": 8.851
+      "seconds": 10.495
     },
     {
       "id": "q-2",
@@ -245,7 +245,7 @@
       "call": "REAL",
       "outcome": "right",
       "rule": "corroborated-by-multiple-independent-sources",
-      "detail": "Confirmed by 6 independent outlets reporting the same facts.",
+      "detail": "Confirmed by 4 independent outlets reporting the same facts.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -257,32 +257,43 @@
         "english": "Did TVK win the Dharapuram and Madurantakam bypolls?",
         "claims": [
           {
-            "claim": "TVK won the Dharapuram bypoll.",
-            "time": "past",
-            "kind": "event",
-            "checkable": true
-          },
-          {
-            "claim": "TVK won the Madurantakam bypoll.",
+            "claim": "TVK won the Dharapuram and Madurantakam bypolls.",
             "time": "past",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 16.07
+      "seconds": 10.599
     },
     {
       "id": "q-3",
       "category": "question",
       "input": "Did India win 84 medals at the Asian Games 2026?",
       "expected": "FAKE",
-      "call": "REFUSED",
-      "outcome": "wrong",
-      "rule": null,
-      "detail": "This asks a question but not about anything specific enough to look up. Ask about a named person, place, event or figure.",
-      "readAs": null,
-      "seconds": 1.856
+      "call": "FAKE",
+      "outcome": "right",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "detail": "5 independent outlets report otherwise: “85 medals”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Did India win 84 medals at the Asian Games 2026?",
+        "claims": [
+          {
+            "claim": "India won 84 medals at the Asian Games 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 11.243
     },
     {
       "id": "q-4",
@@ -296,9 +307,9 @@
       "call": "REFUSED",
       "outcome": "right",
       "rule": null,
-      "detail": "This is a question about a future prediction regarding tax rules without specifying the country, government, or exact changes.",
+      "detail": "The claim is a forward-looking question about future plans, which cannot be verified before they are announced or implemented.",
       "readAs": null,
-      "seconds": 1.56
+      "seconds": 2.498
     },
     {
       "id": "hedge-1",
@@ -308,7 +319,7 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "rated-false-by-fact-checkers",
-      "detail": "Rated false by CyberPeace Foundation, THE WEEK and News18 after checking this exact claim.",
+      "detail": "Rated false by CyberPeace Foundation after checking this exact claim.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -320,14 +331,14 @@
         "english": "I heard that PM Modi resigned today. Is that correct?",
         "claims": [
           {
-            "claim": "Prime Minister Narendra Modi resigned from his post today.",
+            "claim": "Prime Minister Narendra Modi resigned on October 11, 2026.",
             "time": "now",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 8.249
+      "seconds": 15.38
     },
     {
       "id": "hedge-2",
@@ -337,7 +348,7 @@
       "call": "REAL",
       "outcome": "right",
       "rule": "corroborated-by-multiple-independent-sources",
-      "detail": "Confirmed by 3 independent outlets reporting the same facts.",
+      "detail": "Confirmed by 11 independent outlets reporting the same facts.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -349,14 +360,14 @@
         "english": "My friend says the RBI raised the repo rate to 5.5% this month",
         "claims": [
           {
-            "claim": "The Reserve Bank of India raised the repo rate to 5.5% this month",
+            "claim": "The Reserve Bank of India raised the repo rate to 5.5% in October 2026.",
             "time": "now",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 7.576
+      "seconds": 8.468
     },
     {
       "id": "hedge-3",
@@ -366,7 +377,7 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "contradicted-by-one-independent-source",
-      "detail": "An independent outlet reports the opposite of what this says.",
+      "detail": "An independent outlet reports otherwise: “Vijay Kedia Wants LTCG Tax To Be Abolished”.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -378,14 +389,14 @@
         "english": "Apparently income tax has been abolished in India from this year",
         "claims": [
           {
-            "claim": "Income tax has been abolished in India starting from the year 2026.",
+            "claim": "Income tax has been abolished in India in 2026.",
             "time": "now",
-            "kind": "standing_fact",
+            "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 10.934
+      "seconds": 9.105
     },
     {
       "id": "tone-1",
@@ -395,7 +406,7 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "rated-false-by-fact-checkers",
-      "detail": "Rated false by THE WEEK and News18 after checking this exact claim.",
+      "detail": "Rated false by CyberPeace Foundation, THE WEEK and News18 after checking this exact claim.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -416,19 +427,37 @@
           }
         ]
       },
-      "seconds": 12.908
+      "seconds": 13.746
     },
     {
       "id": "tone-2",
       "category": "emotional forward",
       "input": "Forwarded as received: Government gazette declares ALL Saturdays as bank holidays from November 2026. Please share in all groups!!",
       "expected": "FAKE",
-      "call": "REFUSED",
-      "outcome": "wrong",
-      "rule": null,
-      "detail": "This does not name anyone, anywhere or any figure, so there is nothing specific to look up.",
-      "readAs": null,
-      "seconds": 2.265
+      "call": "FAKE",
+      "outcome": "right",
+      "rule": "rated-false-by-fact-checkers",
+      "detail": "Rated false by The Quint, Hindustan Times, Newschecker and 1 more after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "urgent",
+          "celebratory"
+        ],
+        "english": "Forwarded as received: Government gazette declares ALL Saturdays as bank holidays from November 2026. Please share in all groups!!",
+        "claims": [
+          {
+            "claim": "The government gazette declares all Saturdays as bank holidays starting from November 2026.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 38.77
     },
     {
       "id": "tone-3",
@@ -438,7 +467,7 @@
       "call": "REAL",
       "outcome": "right",
       "rule": "corroborated-by-multiple-independent-sources",
-      "detail": "Confirmed by 5 independent outlets reporting the same facts.",
+      "detail": "Confirmed by 4 independent outlets reporting the same facts.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -458,7 +487,7 @@
           }
         ]
       },
-      "seconds": 13.725
+      "seconds": 13.243
     },
     {
       "id": "sarcasm-1",
@@ -466,10 +495,10 @@
       "input": "Oh sure, and Elon Musk bought Reliance Jio this week too 🙄",
       "expected": "FAKE",
       "note": "The embedded claim is false; checking it is the useful answer.",
-      "call": "CANNOT VERIFY",
-      "outcome": "wrong",
-      "rule": "no-independent-coverage",
-      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "call": "FAKE",
+      "outcome": "right",
+      "rule": "contradicted-by-current-coverage",
+      "detail": "No outlet reports this, and this week's news says otherwise: “Ambani's Jio Platforms plans to launch IPO on October 21, sources say” (Reuters).",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -481,14 +510,14 @@
         "english": "Oh sure, and Elon Musk bought Reliance Jio this week too",
         "claims": [
           {
-            "claim": "Elon Musk bought Reliance Jio this week.",
+            "claim": "Elon Musk bought Reliance Jio.",
             "time": "now",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 11.259
+      "seconds": 12.223
     },
     {
       "id": "neg-1",
@@ -498,7 +527,7 @@
       "call": "REAL",
       "outcome": "right",
       "rule": "corroborated-by-multiple-independent-sources",
-      "detail": "Confirmed by 4 independent outlets reporting the same facts.",
+      "detail": "Confirmed by 7 independent outlets reporting the same facts.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -517,7 +546,7 @@
           }
         ]
       },
-      "seconds": 10.006
+      "seconds": 9.464
     },
     {
       "id": "neg-2",
@@ -527,7 +556,7 @@
       "call": "REAL",
       "outcome": "right",
       "rule": "rated-true-by-fact-checkers",
-      "detail": "Checked and rated true by CyberPeace Foundation, THE WEEK and News18.",
+      "detail": "Checked and rated true by CyberPeace Foundation and THE WEEK.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -539,14 +568,14 @@
         "english": "PM Modi has not resigned",
         "claims": [
           {
-            "claim": "Narendra Modi has not resigned",
+            "claim": "Prime Minister Narendra Modi has not resigned.",
             "time": "now",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 9.154
+      "seconds": 9.087
     },
     {
       "id": "neg-3",
@@ -555,8 +584,8 @@
       "expected": "FAKE",
       "call": "FAKE",
       "outcome": "right",
-      "rule": "contradicted-by-current-coverage",
-      "detail": "No outlet reports this, and this week's news says otherwise: “India’s central bank hikes rates for the first time since 2023 as inflation risks build” (CNBC).",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "detail": "7 independent outlets report otherwise: “RBI raises repo rate by 25 basis points to 5.50%”.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -569,13 +598,13 @@
         "claims": [
           {
             "claim": "The Reserve Bank of India did not change the repo rate in October 2026.",
-            "time": "past",
+            "time": "now",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 26.782
+      "seconds": 10.436
     },
     {
       "id": "opinion-1",
@@ -592,19 +621,20 @@
         "romanized": false,
         "speechAct": "assertion",
         "tone": [
-          "celebratory"
+          "celebratory",
+          "emotional"
         ],
         "english": "Vijay's TVK is unstoppable — it won both the Dharapuram and Madurantakam bypolls",
         "claims": [
           {
-            "claim": "Vijay's TVK won both the Dharapuram and Madurantakam bypolls.",
+            "claim": "TVK won both the Dharapuram and Madurantakam bypolls.",
             "time": "past",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 12.457
+      "seconds": 12.481
     },
     {
       "id": "opinion-2",
@@ -617,9 +647,9 @@
       "call": "REFUSED",
       "outcome": "safe",
       "rule": null,
-      "detail": "The message expresses a subjective political opinion rather than a verifiable factual claim.",
+      "detail": "The message expresses a subjective opinion about a political figure's performance rather than asserting verifiable factual claims.",
       "readAs": null,
-      "seconds": 1.283
+      "seconds": 1.498
     },
     {
       "id": "multi-1",
@@ -633,7 +663,7 @@
       "call": "PARTLY FALSE",
       "outcome": "right",
       "rule": "claims-partly-false",
-      "detail": "Partly false: some of this is confirmed, but on “The Reserve Bank of India cut the repo rate by 50 basis points this month” outlets report “RBI MPC Hikes Repo Rate To 5.50 Per Cent”.",
+      "detail": "Partly false: some of this is confirmed, but on “The Reserve Bank of India cut the repo rate by 50 basis points this month” outlets report “raises repo rate by 25 basis points”.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -658,7 +688,7 @@
           }
         ]
       },
-      "seconds": 12.196
+      "seconds": 15.507
     },
     {
       "id": "multi-2",
@@ -668,14 +698,15 @@
       "call": "REAL",
       "outcome": "right",
       "rule": "corroborated-by-multiple-independent-sources",
-      "detail": "Confirmed by 4 independent outlets reporting the same facts.",
+      "detail": "Confirmed by 11 independent outlets reporting the same facts.",
       "readAs": {
         "language": "en",
         "languageName": "English",
         "romanized": false,
         "speechAct": "assertion",
         "tone": [
-          "neutral"
+          "neutral",
+          "celebratory"
         ],
         "english": "The RBI raised the repo rate to 5.50% and India won 85 medals at the Asian Games 2026",
         "claims": [
@@ -693,17 +724,17 @@
           }
         ]
       },
-      "seconds": 13.167
+      "seconds": 11.25
     },
     {
       "id": "unit-1",
       "category": "numbers and units",
       "input": "RBI hiked the repo rate by a quarter percentage point to 5.5%",
       "expected": "REAL",
-      "call": "CANNOT VERIFY",
-      "outcome": "wrong",
-      "rule": "no-independent-coverage",
-      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "detail": "Confirmed by 11 independent outlets reporting the same facts.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -722,7 +753,7 @@
           }
         ]
       },
-      "seconds": 8.52
+      "seconds": 6.321
     },
     {
       "id": "unit-2",
@@ -732,15 +763,15 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "contradicted-by-multiple-independent-sources",
-      "detail": "9 independent outlets report otherwise: “85-Medal Campaign”.",
+      "detail": "9 independent outlets report otherwise: “85 Medal Winners From India”.",
       "readAs": {
         "language": "en",
         "languageName": "English",
         "romanized": false,
         "speechAct": "assertion",
         "tone": [
-          "neutral",
-          "celebratory"
+          "celebratory",
+          "neutral"
         ],
         "english": "India won more than 100 medals at the Asian Games 2026",
         "claims": [
@@ -752,7 +783,7 @@
           }
         ]
       },
-      "seconds": 8.705
+      "seconds": 7.085
     },
     {
       "id": "unit-3",
@@ -769,20 +800,20 @@
         "romanized": false,
         "speechAct": "assertion",
         "tone": [
-          "neutral",
-          "celebratory"
+          "celebratory",
+          "neutral"
         ],
         "english": "India crossed 80 medals at the Asian Games 2026",
         "claims": [
           {
             "claim": "India crossed 80 medals at the Asian Games 2026.",
-            "time": "now",
+            "time": "past",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 32.442
+      "seconds": 8.452
     },
     {
       "id": "typo-1",
@@ -792,7 +823,7 @@
       "call": "REAL",
       "outcome": "right",
       "rule": "corroborated-by-multiple-independent-sources",
-      "detail": "Confirmed by 10 independent outlets reporting the same facts.",
+      "detail": "Confirmed by 11 independent outlets reporting the same facts.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -804,14 +835,14 @@
         "english": "rbi increased repo rate to 5.5 percent",
         "claims": [
           {
-            "claim": "RBI increased the repo rate to 5.5 percent.",
+            "claim": "The Reserve Bank of India increased the repo rate to 5.5 percent.",
             "time": "now",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 8.885
+      "seconds": 8.978
     },
     {
       "id": "typo-2",
@@ -821,7 +852,7 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "contradicted-by-multiple-independent-sources",
-      "detail": "4 independent outlets report otherwise: “85-Medal Campaign”.",
+      "detail": "4 independent outlets report otherwise: “85 medals”.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -831,17 +862,17 @@
           "celebratory",
           "neutral"
         ],
-        "english": "India won 84 medals in Asian Games 2026",
+        "english": "indai won 84 medels in asian games 2026",
         "claims": [
           {
-            "claim": "India won 84 medals in Asian Games 2026.",
+            "claim": "India won 84 medals at the Asian Games 2026.",
             "time": "past",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 9.688
+      "seconds": 14.19
     },
     {
       "id": "ta-1",
@@ -851,15 +882,15 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "contradicted-by-multiple-independent-sources",
-      "detail": "4 independent outlets report otherwise: “85-Medal Campaign”.",
+      "detail": "4 independent outlets report otherwise: “85 medals”.",
       "readAs": {
         "language": "ta",
         "languageName": "Tamil",
         "romanized": false,
         "speechAct": "assertion",
         "tone": [
-          "celebratory",
-          "neutral"
+          "neutral",
+          "celebratory"
         ],
         "english": "India won 84 medals at the Asian Games 2026",
         "claims": [
@@ -871,7 +902,7 @@
           }
         ]
       },
-      "seconds": 20.649
+      "seconds": 14.869
     },
     {
       "id": "ta-2",
@@ -891,7 +922,7 @@
           "celebratory",
           "neutral"
         ],
-        "english": "India won 85 medals at the Asian Games 2026",
+        "english": "India won 85 medals at the 2026 Asian Games",
         "claims": [
           {
             "claim": "India won 85 medals at the Asian Games 2026.",
@@ -901,7 +932,7 @@
           }
         ]
       },
-      "seconds": 20.074
+      "seconds": 12.287
     },
     {
       "id": "ta-3",
@@ -911,7 +942,7 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "rated-false-by-fact-checkers",
-      "detail": "Rated false by CyberPeace Foundation after checking this exact claim.",
+      "detail": "Rated false by vishvasnews.com and CyberPeace Foundation after checking this exact claim.",
       "readAs": {
         "language": "ta",
         "languageName": "Tamil",
@@ -919,9 +950,9 @@
         "speechAct": "assertion",
         "tone": [
           "neutral",
-          "urgent"
+          "alarmist"
         ],
-        "english": "Prime Minister Modi resigned from his post today.",
+        "english": "Prime Minister Modi resigned from his post today",
         "claims": [
           {
             "claim": "Prime Minister Narendra Modi resigned from his post today.",
@@ -931,7 +962,7 @@
           }
         ]
       },
-      "seconds": 16.952
+      "seconds": 20.28
     },
     {
       "id": "ta-4",
@@ -953,14 +984,14 @@
         "english": "Prime Minister Narendra Modi inaugurated projects worth Rs. 13,000 crore in Chennai.",
         "claims": [
           {
-            "claim": "Prime Minister Narendra Modi inaugurated projects worth 13,000 crore rupees in Chennai.",
+            "claim": "Prime Minister Narendra Modi inaugurated projects worth 13000 crore rupees in Chennai.",
             "time": "past",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 13.382
+      "seconds": 12.803
     },
     {
       "id": "ta-5",
@@ -977,8 +1008,8 @@
         "romanized": false,
         "speechAct": "assertion",
         "tone": [
-          "celebratory",
-          "neutral"
+          "neutral",
+          "celebratory"
         ],
         "english": "By-election: TVK wins in Dharapuram and Madurantakam constituencies",
         "claims": [
@@ -990,7 +1021,7 @@
           }
         ]
       },
-      "seconds": 11.877
+      "seconds": 10.101
     },
     {
       "id": "ta-6",
@@ -1000,7 +1031,7 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "contradicted-by-multiple-independent-sources",
-      "detail": "2 independent outlets report otherwise: “Ruling TVK Wins Both Seats”.",
+      "detail": "9 independent outlets report otherwise: “Party Surges Ahead In Dharapuram And Madurantakam Bypolls”.",
       "readAs": {
         "language": "ta",
         "languageName": "Tamil",
@@ -1009,29 +1040,46 @@
         "tone": [
           "neutral"
         ],
-        "english": "TVK lost in both constituencies in the by-election.",
+        "english": "TVK lost both constituencies in the by-elections.",
         "claims": [
           {
-            "claim": "TVK lost in both constituencies in the by-election.",
+            "claim": "TVK lost both constituencies in the by-elections.",
             "time": "past",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 29.1
+      "seconds": 18.099
     },
     {
       "id": "ta-7",
       "category": "Tamil",
       "input": "நவம்பர் முதல் அனைத்து சனிக்கிழமைகளும் வங்கி விடுமுறை என மத்திய அரசு அறிவிப்பு",
       "expected": "FAKE",
-      "call": "REFUSED",
-      "outcome": "wrong",
-      "rule": null,
-      "detail": "This does not name anyone, anywhere or any figure, so there is nothing specific to look up.",
-      "readAs": null,
-      "seconds": 1.343
+      "call": "FAKE",
+      "outcome": "right",
+      "rule": "rated-false-by-fact-checkers",
+      "detail": "Rated false by The Quint, Livemint, Newschecker and 1 more after checking this exact claim.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Central Government announces all Saturdays as bank holidays from November.",
+        "claims": [
+          {
+            "claim": "The Central Government announced that all Saturdays will be bank holidays starting from November.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 18.207
     },
     {
       "id": "tl-1",
@@ -1041,7 +1089,7 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "rated-false-by-fact-checkers",
-      "detail": "Rated false by CyberPeace Foundation and THE WEEK after checking this exact claim.",
+      "detail": "Rated false by CyberPeace Foundation, THE WEEK and News18 after checking this exact claim.",
       "readAs": {
         "language": "ta",
         "languageName": "Tamil",
@@ -1050,7 +1098,7 @@
         "tone": [
           "neutral"
         ],
-        "english": "It is coming on WhatsApp that Modi resigned from the Prime Minister post, is this true?",
+        "english": "It comes on WhatsApp that Modi has resigned from the PM post, is this true?",
         "claims": [
           {
             "claim": "Narendra Modi resigned from the Prime Minister post.",
@@ -1060,7 +1108,7 @@
           }
         ]
       },
-      "seconds": 14.665
+      "seconds": 13.261
     },
     {
       "id": "tl-2",
@@ -1077,10 +1125,9 @@
         "romanized": true,
         "speechAct": "assertion",
         "tone": [
-          "celebratory",
-          "emotional"
+          "celebratory"
         ],
-        "english": "TVK won both the Dharapuram and Madurantakam by-elections",
+        "english": "TVK won both the Dharapuram and Madurantakam by-elections.",
         "claims": [
           {
             "claim": "TVK won both the Dharapuram and Madurantakam by-elections.",
@@ -1090,7 +1137,7 @@
           }
         ]
       },
-      "seconds": 9.684
+      "seconds": 11.111
     },
     {
       "id": "tl-3",
@@ -1100,17 +1147,16 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "contradicted-by-multiple-independent-sources",
-      "detail": "4 independent outlets report otherwise: “85-Medal Campaign”.",
+      "detail": "4 independent outlets report otherwise: “85 medals”.",
       "readAs": {
         "language": "ta",
         "languageName": "Tamil",
         "romanized": true,
         "speechAct": "assertion",
         "tone": [
-          "neutral",
           "celebratory"
         ],
-        "english": "India won 84 medals in the 2026 Asian Games",
+        "english": "India won 84 medals in the Asian Games 2026",
         "claims": [
           {
             "claim": "India won 84 medals at the Asian Games 2026.",
@@ -1120,7 +1166,7 @@
           }
         ]
       },
-      "seconds": 9.752
+      "seconds": 9.883
     },
     {
       "id": "hi-1",
@@ -1130,26 +1176,27 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "rated-false-by-fact-checkers",
-      "detail": "Rated false by CyberPeace Foundation, THE WEEK and News18 after checking this exact claim.",
+      "detail": "Rated false by CyberPeace Foundation after checking this exact claim.",
       "readAs": {
         "language": "hi",
         "languageName": "Hindi",
         "romanized": false,
         "speechAct": "assertion",
         "tone": [
-          "neutral"
+          "alarmist",
+          "urgent"
         ],
         "english": "Prime Minister Modi has resigned today.",
         "claims": [
           {
-            "claim": "Narendra Modi resigned from his position as Prime Minister of India today.",
+            "claim": "Prime Minister Narendra Modi resigned today.",
             "time": "now",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 15.492
+      "seconds": 12.887
     },
     {
       "id": "hi-2",
@@ -1159,7 +1206,7 @@
       "call": "REAL",
       "outcome": "right",
       "rule": "corroborated-by-multiple-independent-sources",
-      "detail": "Confirmed by 10 independent outlets reporting the same facts.",
+      "detail": "Confirmed by 11 independent outlets reporting the same facts.",
       "readAs": {
         "language": "hi",
         "languageName": "Hindi",
@@ -1168,7 +1215,7 @@
         "tone": [
           "neutral"
         ],
-        "english": "RBI has increased the repo rate by 25 basis points to 5.50%.",
+        "english": "RBI increased the repo rate by 25 basis points to 5.50%",
         "claims": [
           {
             "claim": "The Reserve Bank of India increased the repo rate by 25 basis points to 5.50%.",
@@ -1178,7 +1225,7 @@
           }
         ]
       },
-      "seconds": 11.073
+      "seconds": 11.385
     },
     {
       "id": "hi-3",
@@ -1187,8 +1234,8 @@
       "expected": "FAKE",
       "call": "FAKE",
       "outcome": "right",
-      "rule": "rated-false-by-fact-checkers",
-      "detail": "Rated false by The Quint, BOOM Fact Check and Alt News after checking this exact claim.",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "detail": "4 independent outlets report otherwise: “Govt busts fake claim on RBI withdrawing Rs 500 notes from ATMs by March 2026”.",
       "readAs": {
         "language": "hi",
         "languageName": "Hindi",
@@ -1208,7 +1255,7 @@
           }
         ]
       },
-      "seconds": 12.569
+      "seconds": 10.765
     },
     {
       "id": "old-1",
@@ -1219,27 +1266,27 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "old-news-presented-as-new",
-      "detail": "This is old news: the latest report of it found is from 2026-04-18, not now.",
+      "detail": "This is old news: the latest report of it found is from 2024-03-11, not now.",
       "readAs": {
         "language": "en",
         "languageName": "English",
         "romanized": false,
         "speechAct": "assertion",
         "tone": [
-          "urgent",
-          "neutral"
+          "alarmist",
+          "urgent"
         ],
         "english": "PM Modi announces that 500 and 1000 rupee notes will be invalid from midnight tonight",
         "claims": [
           {
-            "claim": "Narendra Modi announced that 500 and 1000 rupee notes will be invalid from midnight.",
+            "claim": "Narendra Modi announced that 500 and 1000 rupee notes will be invalid from midnight",
             "time": "now",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 9.974
+      "seconds": 13.239
     },
     {
       "id": "old-2",
@@ -1249,26 +1296,27 @@
       "call": "REAL",
       "outcome": "right",
       "rule": "corroborated-by-multiple-independent-sources",
-      "detail": "Confirmed by 6 independent outlets reporting the same facts.",
+      "detail": "Confirmed by 5 independent outlets reporting the same facts.",
       "readAs": {
         "language": "en",
         "languageName": "English",
         "romanized": false,
         "speechAct": "assertion",
         "tone": [
-          "neutral"
+          "neutral",
+          "celebratory"
         ],
         "english": "India won the Cricket World Cup in 2011",
         "claims": [
           {
-            "claim": "India won the Cricket World Cup in 2011.",
+            "claim": "India won the Cricket World Cup in 2011",
             "time": "past",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 13.422
+      "seconds": 8.699
     },
     {
       "id": "fact-1",
@@ -1297,7 +1345,7 @@
           }
         ]
       },
-      "seconds": 6.301
+      "seconds": 22.747
     },
     {
       "id": "fact-2",
@@ -1326,7 +1374,7 @@
           }
         ]
       },
-      "seconds": 9.885
+      "seconds": 8.667
     },
     {
       "id": "fact-3",
@@ -1335,15 +1383,16 @@
       "expected": "FAKE",
       "call": "FAKE",
       "outcome": "right",
-      "rule": "contradicted-by-one-independent-source",
-      "detail": "An independent outlet reports otherwise: “5G claims 'complete rubbish'”.",
+      "rule": "rated-false-by-fact-checkers",
+      "detail": "Rated false by Full Fact after checking this exact claim.",
       "readAs": {
         "language": "en",
         "languageName": "English",
         "romanized": false,
         "speechAct": "assertion",
         "tone": [
-          "alarmist"
+          "alarmist",
+          "neutral"
         ],
         "english": "5G towers spread coronavirus",
         "claims": [
@@ -1355,7 +1404,7 @@
           }
         ]
       },
-      "seconds": 12.837
+      "seconds": 11.132
     },
     {
       "id": "fact-4",
@@ -1365,7 +1414,7 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "contradicted-by-multiple-independent-sources",
-      "detail": "5 independent outlets report otherwise: “No, You Can’t See the Great Wall of China from Space”.",
+      "detail": "4 independent outlets report otherwise: “it’s not the Great Wall astronauts see from space”.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -1384,7 +1433,7 @@
           }
         ]
       },
-      "seconds": 9.274
+      "seconds": 9.513
     },
     {
       "id": "fact-5",
@@ -1406,14 +1455,14 @@
         "english": "Narendra Modi is the Prime Minister of India",
         "claims": [
           {
-            "claim": "Narendra Modi is the Prime Minister of India.",
+            "claim": "Narendra Modi is the Prime Minister of India",
             "time": "timeless",
             "kind": "standing_fact",
             "checkable": true
           }
         ]
       },
-      "seconds": 6.584
+      "seconds": 9.923
     },
     {
       "id": "quote-1",
@@ -1435,32 +1484,31 @@
         "english": "Rahul Gandhi said 'Not the India we want' while attacking PM Modi and Amit Shah over the Delhi protest",
         "claims": [
           {
-            "claim": "Rahul Gandhi said 'Not the India we want' while attacking Narendra Modi and Amit Shah over the Delhi protest.",
+            "claim": "Rahul Gandhi said 'Not the India we want' while attacking Prime Minister Narendra Modi and Home Minister Amit Shah over the Delhi protest.",
             "time": "past",
             "kind": "quote",
             "checkable": true
           }
         ]
       },
-      "seconds": 12.83
+      "seconds": 16.234
     },
     {
       "id": "local-1",
       "category": "local news",
       "input": "A female elephant stuck in mud at Gunderipallam dam near Erode was rescued",
       "expected": "REAL",
-      "call": "CANNOT VERIFY",
-      "outcome": "wrong",
-      "rule": "no-independent-coverage",
-      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-one-independent-source",
+      "detail": "One independent outlet reports the same facts.",
       "readAs": {
         "language": "en",
         "languageName": "English",
         "romanized": false,
         "speechAct": "assertion",
         "tone": [
-          "neutral",
-          "celebratory"
+          "neutral"
         ],
         "english": "A female elephant stuck in mud at Gunderipallam dam near Erode was rescued",
         "claims": [
@@ -1472,7 +1520,7 @@
           }
         ]
       },
-      "seconds": 12.409
+      "seconds": 6.919
     },
     {
       "id": "local-2",
@@ -1501,7 +1549,7 @@
           }
         ]
       },
-      "seconds": 8.935
+      "seconds": 10.858
     },
     {
       "id": "rumour-1",
@@ -1511,7 +1559,7 @@
       "call": "FAKE",
       "outcome": "right",
       "rule": "rated-false-by-fact-checkers",
-      "detail": "Rated false by India Today, AFP Fact Check, PTI and 3 more after checking this exact claim.",
+      "detail": "Rated false by India Today, AFP Fact Check, FACTLY and 5 more after checking this exact claim.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -1523,14 +1571,14 @@
         "english": "Video shows Army chief General Dhiraj Seth dancing with an Army major's wife",
         "claims": [
           {
-            "claim": "A video shows Army Chief General Dhiraj Seth dancing with an Army major's wife.",
+            "claim": "General Dhiraj Seth is dancing with an Army major's wife in a video.",
             "time": "now",
             "kind": "event",
             "checkable": true
           }
         ]
       },
-      "seconds": 12.263
+      "seconds": 11.785
     },
     {
       "id": "future-1",
@@ -1544,9 +1592,9 @@
       "call": "REFUSED",
       "outcome": "safe",
       "rule": null,
-      "detail": "This claim is a prediction about a future event that has not yet occurred, so it cannot be fact-checked against historical records.",
+      "detail": "This is a prediction about a future economic event that has not happened yet and cannot be verified today.",
       "readAs": null,
-      "seconds": 1.411
+      "seconds": 1.406
     },
     {
       "id": "vague-1",
@@ -1556,9 +1604,9 @@
       "call": "REFUSED",
       "outcome": "right",
       "rule": null,
-      "detail": "The message contains a vague statement without specifying who 'they' are or what 'the truth' refers to, making it impossible to check.",
+      "detail": "The message contains no specific factual claims, names, or events to check, only a vague assertion that a truth is being hidden.",
       "readAs": null,
-      "seconds": 1.572
+      "seconds": 1.284
     },
     {
       "id": "vague-2",
@@ -1568,9 +1616,9 @@
       "call": "REFUSED",
       "outcome": "right",
       "rule": null,
-      "detail": "The claim is too vague and does not name a specific person, organization, place, or event to verify.",
+      "detail": "The message is a vague prediction without any specific event, person, or organization mentioned, making it impossible to fact-check.",
       "readAs": null,
-      "seconds": 1.49
+      "seconds": 1.198
     },
     {
       "id": "long-1",
@@ -1580,7 +1628,7 @@
       "call": "REAL",
       "outcome": "right",
       "rule": "corroborated-by-multiple-independent-sources",
-      "detail": "Confirmed by 11 independent outlets reporting the same facts.",
+      "detail": "Confirmed by 12 independent outlets reporting the same facts.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -1605,7 +1653,7 @@
           }
         ]
       },
-      "seconds": 12.684
+      "seconds": 11.16
     },
     {
       "id": "long-2",
@@ -1618,8 +1666,8 @@
       "note": "Invented. Nothing reports it; schools are open.",
       "call": "FAKE",
       "outcome": "right",
-      "rule": "absent-from-heavy-coverage",
-      "detail": "13 outlets covered Health Minister Tamil Nadu this week, and none reports this.",
+      "rule": "uncorroborated-high-impact-with-risk-signals",
+      "detail": "No outlet is reporting this, and it carries several marks of a fabricated story.",
       "readAs": {
         "language": "en",
         "languageName": "English",
@@ -1633,19 +1681,19 @@
         "claims": [
           {
             "claim": "The Tamil Nadu government announced that all government schools in the state will remain closed for one month from October 15 due to a new virus outbreak.",
-            "time": "future",
+            "time": "now",
             "kind": "event",
-            "checkable": false
+            "checkable": true
           },
           {
-            "claim": "The Health Minister stated that more than 2,000 children have been admitted to hospitals across Chennai, Madurai and Coimbatore in the past week.",
+            "claim": "The Tamil Nadu Health Minister stated that more than 2,000 children have been admitted to hospitals across Chennai, Madurai and Coimbatore in the past week.",
             "time": "past",
-            "kind": "event",
+            "kind": "quote",
             "checkable": true
           }
         ]
       },
-      "seconds": 18.043
+      "seconds": 12.438
     },
     {
       "id": "url-1",
@@ -1658,7 +1706,7 @@
       "rule": "corroborated-by-multiple-independent-sources",
       "detail": "Confirmed by 8 independent outlets reporting the same facts.",
       "readAs": null,
-      "seconds": 17.117
+      "seconds": 19.347
     }
   ]
 }

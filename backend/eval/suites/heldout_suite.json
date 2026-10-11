@@ -1,0 +1,32 @@
+{
+  "about": "Held-out cases, written after the robustness suite had been used to fix the system and run once before any change was made against them. New topics from the week of 2026-10-11 and new phrasings. Labels checked by hand against published reporting.",
+  "cases": [
+    { "id": "h-1", "category": "plain", "input": "RBI removed Paytm Payments Bank from its list of scheduled banks", "expected": "REAL" },
+    { "id": "h-2", "category": "reversed outcome", "input": "RBI added Paytm Payments Bank back to its list of scheduled banks this week", "expected": "FAKE", "alsoAcceptable": ["CANNOT VERIFY"] },
+    { "id": "h-3", "category": "Tamil", "input": "பேடிஎம் பேமென்ட்ஸ் வங்கியை ரிசர்வ் வங்கி தனது பட்டியலில் இருந்து நீக்கியது", "expected": "REAL" },
+    { "id": "h-4", "category": "question", "input": "Is Jio Platforms planning an IPO this month?", "expected": "REAL" },
+    { "id": "h-5", "category": "reversed outcome", "input": "Jio Platforms has called off its IPO", "expected": "FAKE", "alsoAcceptable": ["CANNOT VERIFY"] },
+    { "id": "h-6", "category": "plain", "input": "Income tax officials searched the Mumbai offices of Prime Focus", "expected": "REAL" },
+    { "id": "h-7", "category": "Hinglish", "input": "Prime Focus ke Mumbai office par income tax ka raid hua", "expected": "REAL" },
+    { "id": "h-8", "category": "wrong figure", "input": "Prime Focus shares jumped 20% after the income tax raids", "expected": "FAKE", "alsoAcceptable": ["CANNOT VERIFY"] },
+    { "id": "h-9", "category": "local news", "input": "Coimbatore district police seized drugs, gutkha and weapons in a special drive", "expected": "REAL" },
+    { "id": "h-10", "category": "local news", "input": "Villagers in rural Madurai went without power for 18 hours", "expected": "REAL" },
+    { "id": "h-11", "category": "emotional forward", "input": "⚠️⚠️ Madurai will have NO electricity for one full week from tomorrow!!! Forward to everyone", "expected": "FAKE", "alsoAcceptable": ["CANNOT VERIFY"] },
+    { "id": "h-12", "category": "plain", "input": "Harmanpreet Kaur has stepped down as India captain", "expected": "REAL" },
+    { "id": "h-13", "category": "Tanglish question", "input": "Harmanpreet innum India captain ah continue panraanga la?", "expected": "FAKE", "alsoAcceptable": ["CANNOT VERIFY"] },
+    { "id": "h-14", "category": "plain", "input": "Delhi Police detained Dhruv Rathee ahead of the CJP protest", "expected": "REAL" },
+    { "id": "h-15", "category": "exaggeration", "input": "Dhruv Rathee was arrested and sent to jail for 14 days", "expected": "FAKE", "alsoAcceptable": ["CANNOT VERIFY"] },
+    { "id": "h-16", "category": "Hindi", "input": "प्रधानमंत्री मोदी ने चेन्नई में 13,000 करोड़ रुपये की परियोजनाओं की शुरुआत की", "expected": "REAL" },
+    { "id": "h-17", "category": "Hindi", "input": "भारत ने एशियाई खेल 2026 में 100 से ज्यादा पदक जीते", "expected": "FAKE" },
+    { "id": "h-18", "category": "sarcasm about a true event", "input": "Oh wow, RBI actually raised the repo rate? Who could have seen that coming 🙄", "expected": "REAL" },
+    { "id": "h-19", "category": "stable fact or myth", "input": "The 2026 Asian Games were held in Chennai", "expected": "FAKE" },
+    { "id": "h-20", "category": "stable fact or myth", "input": "The 2026 Asian Games were held in Aichi-Nagoya, Japan", "expected": "REAL" },
+    { "id": "h-21", "category": "stable fact or myth", "input": "Drinking cow urine cures cancer", "expected": "FAKE" },
+    { "id": "h-22", "category": "stable fact or myth", "input": "Chennai is the capital of Tamil Nadu", "expected": "REAL" },
+    { "id": "h-23", "category": "old news recirculated", "input": "Chandrayaan-3 lands on the Moon today, India becomes first country to reach the south pole", "expected": "FAKE" },
+    { "id": "h-24", "category": "unverifiable local", "input": "A new bakery opened on Gandhi Road in Erode yesterday", "expected": "CANNOT VERIFY", "alsoAcceptable": ["REFUSED"], "note": "Plausible, minor and unreported: calling it FAKE would be wrong." },
+    { "id": "h-25", "category": "vague or unfalsifiable", "input": "Big changes are coming for all bank customers, be careful", "expected": "REFUSED", "alsoAcceptable": ["CANNOT VERIFY"] },
+    { "id": "h-26", "category": "mixed language", "input": "TVK Dharapuram bypoll la win pannanga, and RBI repo rate 5.5% aachu", "expected": "REAL" },
+    { "id": "h-27", "category": "true claim with an invented one", "input": "PM Modi launched ₹13,000 crore projects in Chennai and also announced free petrol for all college students", "expected": "PARTLY FALSE", "alsoAcceptable": ["CANNOT VERIFY", "FAKE"], "note": "The classic packaging: a true claim carrying an invented one. REAL would be wrong." }
+  ]
+}

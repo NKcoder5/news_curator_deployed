@@ -255,7 +255,13 @@ const buildPlainLanguage = ({
  * @param {Object} article - { title, content, source, url }
  * @returns {Promise<Object>} structured trust report
  */
-const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgress, onChannel, provenance, modality, publishedAt }) => {
+const analyzeTrust = async ({
+  title, content, source, url, textCoverage, onProgress, onChannel, provenance, modality, publishedAt,
+  // From the input-understanding step (Check Anything): the claims already
+  // read out of the message in English, the message in English for the
+  // reference check, and the reading itself for the report.
+  preparedClaims = null, evidenceText = null, understanding = null
+}) => {
   // Whether we are reading the article or the feed's two-line summary of it.
   // Checks that need the body of the piece cannot be reported as findings
   // about the piece when all we have is the summary.
@@ -346,10 +352,12 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
   // A failure here is carried, not swallowed. Returning a bare [] would be
   // indistinguishable from "this article makes no checkable claim", which is a
   // finding rather than an outage.
-  const claimsPromise = timed('claimExtraction', () => extractClaims(title, text, 2, language).then(
-    claims => ({ claims, failed: false }),
-    () => ({ claims: [], failed: true })
-  ));
+  const claimsPromise = timed('claimExtraction', () => (Array.isArray(preparedClaims)
+    ? Promise.resolve({ claims: preparedClaims, failed: false })
+    : extractClaims(title, text, 2, language).then(
+      claims => ({ claims, failed: false }),
+      () => ({ claims: [], failed: true })
+    )));
 
   const [
     clickbaitResult, biasResult, manipulationResult,
@@ -365,7 +373,7 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
     // structurally cannot. "Prime Minister Rahul Gandhi announced X" describes
     // an event no outlet reports, so the news channel correctly returns nothing
     // — while a reference work settles the premise in one lookup.
-    timed('premises', () => checkPremises(title, text)
+    timed('premises', () => checkPremises(evidenceText ? evidenceText.slice(0, 140) : title, evidenceText || text)
       .catch(() => ({ status: 'error', checked: [], contradictions: [], explanation: 'The reference check could not run.' }))),
     // The third channel, beside the news search and the reference check: has a
     // professional fact-checking desk already ruled on this claim? A viral
@@ -631,6 +639,17 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
         }))
       }))
     },
+    // How the message was read: language, what kind of message it is, and the
+    // claims checked. Absent for articles, which go through the extractor.
+    understanding: understanding ? {
+      language: understanding.language,
+      languageName: understanding.languageName,
+      romanized: understanding.romanized,
+      speechAct: understanding.speechAct,
+      tone: understanding.tone,
+      english: understanding.english,
+      claims: understanding.claims.map(c => ({ claim: c.claim, time: c.time, kind: c.kind, checkable: c.checkable }))
+    } : null,
     // This week's coverage of the subject, and what of it bears on the claim.
     currentCoverage: {
       status: currentCoverageResult.status,
@@ -649,6 +668,9 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
       checked: (premiseResult.checked || []).map(c => ({ entity: c.entity, reference: c.reference || null })),
       contradictions: (premiseResult.contradictions || []).map(c => ({
         entity: c.entity, articleStates: c.articleStates, referenceStates: c.referenceStates, reference: c.reference || null
+      })),
+      confirmations: (premiseResult.confirmations || []).map(c => ({
+        entity: c.entity, referenceStates: c.referenceStates, reference: c.reference || null
       }))
     },
     // What the fact-checking desks said, review by review, so the reader can

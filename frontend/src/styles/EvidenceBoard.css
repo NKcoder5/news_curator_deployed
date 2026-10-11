@@ -328,3 +328,57 @@
 @media (max-width: 520px) {
   .plain-answer-row { grid-template-columns: 1fr; gap: 0.15rem; }
 }
+
+.eb-quote {
+  margin: 0.6rem 0 0;
+  padding: 0.5rem 0.7rem;
+  background: var(--paper);
+  border-left: 3px solid var(--trust-high);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.eb-quote a { color: var(--accent); font-weight: 700; }
+
+/* How the message was read: language, kind of message, claims checked. */
+.read-as {
+  margin-top: 1.2rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper-card);
+}
+
+.read-as h4 {
+  margin: 0 0 0.5rem;
+  font-family: var(--headline-font);
+  font-size: 1.02rem;
+  color: var(--ink);
+}
+
+.read-as-facts { margin: 0; display: grid; gap: 0.3rem; }
+.read-as-facts > div { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: 0.6rem; font-size: 0.9rem; }
+.read-as-facts dt {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-muted);
+  padding-top: 0.15rem;
+}
+.read-as-facts dd { margin: 0; color: var(--ink-body); overflow-wrap: anywhere; }
+
+.read-as-label {
+  margin: 0.7rem 0 0.25rem;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-muted);
+}
+
+.read-as-claims { margin: 0; padding-left: 1.2rem; font-size: 0.92rem; line-height: 1.5; }
+.read-as-claims li { margin: 0.2rem 0; }
+.read-as-chip {
+  margin-left: 0.5rem; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 0.05rem 0.35rem; border: 1px solid currentColor; white-space: nowrap;
+}
+.read-as-against { color: var(--trust-low); }
+.read-as-for { color: var(--trust-high); }
+
+.read-as-answer { margin: 0.7rem 0 0; font-size: 0.95rem; color: var(--ink); }
+
+@media (max-width: 520px) {
+  .read-as-facts > div { grid-template-columns: 1fr; gap: 0.1rem; }
+}

@@ -1,0 +1,81 @@
+{
+  "about": "How Check Anything copes with the ways real people phrase things. Each case is labelled from published reporting checked by hand on 2026-10-11. 'expected' is the right answer; anything in 'alsoAcceptable' is a safe answer (an abstention or refusal that does not mislead). REAL for a false claim or FAKE for a true one is a wrong answer.",
+  "cases": [
+    { "id": "base-1", "category": "plain", "input": "India won 84 medals at the Asian Games 2026", "expected": "FAKE" },
+    { "id": "base-2", "category": "plain", "input": "RBI raised the repo rate by 25 basis points to 5.50% in October 2026", "expected": "REAL" },
+
+    { "id": "q-1", "category": "question", "input": "Is it true that RBI has banned 500 rupee notes?", "expected": "FAKE" },
+    { "id": "q-2", "category": "question", "input": "Did TVK win the Dharapuram and Madurantakam bypolls?", "expected": "REAL" },
+    { "id": "q-3", "category": "question", "input": "Did India win 84 medals at the Asian Games 2026?", "expected": "FAKE" },
+    { "id": "q-4", "category": "question", "input": "Is the government planning to change the tax rules next year?", "expected": "REFUSED", "alsoAcceptable": ["CANNOT VERIFY", "NOT A FACTUAL CLAIM"] },
+
+    { "id": "hedge-1", "category": "hedged", "input": "I heard that PM Modi resigned today. Is that correct?", "expected": "FAKE" },
+    { "id": "hedge-2", "category": "hedged", "input": "My friend says the RBI raised the repo rate to 5.5% this month", "expected": "REAL" },
+    { "id": "hedge-3", "category": "hedged", "input": "Apparently income tax has been abolished in India from this year", "expected": "FAKE" },
+
+    { "id": "tone-1", "category": "emotional forward", "input": "🚨🚨 BREAKING!!! MODI JI RESIGNED AS PM TODAY!!! SHARE BEFORE THEY DELETE IT 🙏🙏", "expected": "FAKE" },
+    { "id": "tone-2", "category": "emotional forward", "input": "Forwarded as received: Government gazette declares ALL Saturdays as bank holidays from November 2026. Please share in all groups!!", "expected": "FAKE" },
+    { "id": "tone-3", "category": "emotional forward", "input": "PROUD MOMENT 🇮🇳🇮🇳 India finishes Asian Games 2026 with 85 medals!!! Jai Hind", "expected": "REAL" },
+
+    { "id": "sarcasm-1", "category": "sarcasm", "input": "Oh sure, and Elon Musk bought Reliance Jio this week too 🙄", "expected": "FAKE", "note": "The embedded claim is false; checking it is the useful answer." },
+
+    { "id": "neg-1", "category": "negation", "input": "TVK did not lose the 2026 bypolls", "expected": "REAL" },
+    { "id": "neg-2", "category": "negation", "input": "PM Modi has not resigned", "expected": "REAL" },
+    { "id": "neg-3", "category": "negation", "input": "The RBI did not change the repo rate in October 2026", "expected": "FAKE" },
+
+    { "id": "opinion-1", "category": "opinion with fact", "input": "Vijay's TVK is unstoppable — it won both the Dharapuram and Madurantakam bypolls", "expected": "REAL" },
+    { "id": "opinion-2", "category": "opinion with fact", "input": "Vijay is the best Chief Minister Tamil Nadu has ever had", "expected": "NOT A FACTUAL CLAIM", "alsoAcceptable": ["REFUSED"] },
+
+    { "id": "multi-1", "category": "several claims", "input": "India won 85 medals at the Asian Games 2026, and the RBI cut the repo rate by 50 basis points this month", "expected": "PARTLY FALSE", "alsoAcceptable": ["FAKE"], "note": "One true, one false. Calling the whole message REAL would be wrong." },
+    { "id": "multi-2", "category": "several claims", "input": "The RBI raised the repo rate to 5.50% and India won 85 medals at the Asian Games 2026", "expected": "REAL" },
+
+    { "id": "unit-1", "category": "numbers and units", "input": "RBI hiked the repo rate by a quarter percentage point to 5.5%", "expected": "REAL" },
+    { "id": "unit-2", "category": "numbers and units", "input": "India won more than 100 medals at the Asian Games 2026", "expected": "FAKE" },
+    { "id": "unit-3", "category": "numbers and units", "input": "India crossed 80 medals at the Asian Games 2026", "expected": "REAL" },
+
+    { "id": "typo-1", "category": "typos and lower case", "input": "rbi incresed repo rate to 5.5 percent", "expected": "REAL" },
+    { "id": "typo-2", "category": "typos and lower case", "input": "indai won 84 medels in asian games 2026", "expected": "FAKE" },
+
+    { "id": "ta-1", "category": "Tamil", "input": "இந்தியா ஆசிய விளையாட்டுப் போட்டி 2026-ல் 84 பதக்கங்கள் வென்றது", "expected": "FAKE" },
+    { "id": "ta-2", "category": "Tamil", "input": "ஆசிய விளையாட்டுப் போட்டி 2026-ல் இந்தியா 85 பதக்கங்கள் வென்றது", "expected": "REAL" },
+    { "id": "ta-3", "category": "Tamil", "input": "பிரதமர் மோடி இன்று பதவியை ராஜினாமா செய்தார்", "expected": "FAKE" },
+    { "id": "ta-4", "category": "Tamil", "input": "சென்னையில் பிரதமர் மோடி ரூ.13,000 கோடி மதிப்பிலான திட்டங்களை தொடங்கி வைத்தார்", "expected": "REAL" },
+    { "id": "ta-5", "category": "Tamil", "input": "இடைத்தேர்தல்: தாராபுரம், மதுராந்தகம் தொகுதிகளில் தவெக வெற்றி", "expected": "REAL" },
+    { "id": "ta-6", "category": "Tamil", "input": "இடைத்தேர்தலில் தவெக இரண்டு தொகுதிகளிலும் தோல்வி அடைந்தது", "expected": "FAKE" },
+    { "id": "ta-7", "category": "Tamil", "input": "நவம்பர் முதல் அனைத்து சனிக்கிழமைகளும் வங்கி விடுமுறை என மத்திய அரசு அறிவிப்பு", "expected": "FAKE" },
+
+    { "id": "tl-1", "category": "Tanglish", "input": "Modi PM post resign pannitaru nu WhatsApp la varudhu, idhu unmaya?", "expected": "FAKE" },
+    { "id": "tl-2", "category": "Tanglish", "input": "TVK Dharapuram, Madurantakam rendu bypoll layum jeichiduchu", "expected": "REAL" },
+    { "id": "tl-3", "category": "Tanglish", "input": "India Asian Games 2026 la 84 medal vaangiruku", "expected": "FAKE" },
+
+    { "id": "hi-1", "category": "Hindi", "input": "प्रधानमंत्री मोदी ने आज इस्तीफा दे दिया", "expected": "FAKE" },
+    { "id": "hi-2", "category": "Hindi", "input": "आरबीआई ने रेपो रेट 25 बेसिस पॉइंट बढ़ाकर 5.50% कर दिया", "expected": "REAL" },
+    { "id": "hi-3", "category": "Hindi", "input": "आरबीआई ने 500 रुपये के नोट बंद कर दिए", "expected": "FAKE" },
+
+    { "id": "old-1", "category": "old news recirculated", "input": "PM Modi announces that 500 and 1000 rupee notes will be invalid from midnight tonight", "expected": "FAKE", "note": "Demonetisation was November 2016; as news today it is false." },
+    { "id": "old-2", "category": "historical fact", "input": "India won the Cricket World Cup in 2011", "expected": "REAL" },
+
+    { "id": "fact-1", "category": "stable fact or myth", "input": "Bengaluru is the capital of Karnataka", "expected": "REAL" },
+    { "id": "fact-2", "category": "stable fact or myth", "input": "Chennai is the capital of Karnataka", "expected": "FAKE" },
+    { "id": "fact-3", "category": "stable fact or myth", "input": "5G towers spread coronavirus", "expected": "FAKE" },
+    { "id": "fact-4", "category": "stable fact or myth", "input": "The Great Wall of China is visible from space with the naked eye", "expected": "FAKE" },
+    { "id": "fact-5", "category": "stable fact or myth", "input": "Narendra Modi is the Prime Minister of India", "expected": "REAL" },
+
+    { "id": "quote-1", "category": "quote", "input": "Rahul Gandhi said 'Not the India we want' while attacking PM Modi and Amit Shah over the Delhi protest", "expected": "REAL" },
+
+    { "id": "local-1", "category": "local news", "input": "A female elephant stuck in mud at Gunderipallam dam near Erode was rescued", "expected": "REAL" },
+    { "id": "local-2", "category": "local news", "input": "Coimbatore police sealed 61 shops and arrested 40 people in a crackdown on banned tobacco", "expected": "REAL" },
+
+    { "id": "rumour-1", "category": "viral rumour", "input": "Video shows Army chief General Dhiraj Seth dancing with an Army major's wife", "expected": "FAKE" },
+
+    { "id": "future-1", "category": "prediction", "input": "RBI will cut the repo rate in December 2026", "expected": "NOT A FACTUAL CLAIM", "alsoAcceptable": ["REFUSED", "CANNOT VERIFY"] },
+
+    { "id": "vague-1", "category": "vague or unfalsifiable", "input": "They are hiding the truth from all of us, wake up", "expected": "REFUSED" },
+    { "id": "vague-2", "category": "vague or unfalsifiable", "input": "Something big is going to happen soon", "expected": "REFUSED" },
+
+    { "id": "long-1", "category": "long text", "input": "The Reserve Bank of India on Wednesday raised its key repo rate by 25 basis points to 5.50%, its first increase in nearly four years, as inflation broadened across categories. The Monetary Policy Committee also shifted its stance to calibrated tightening. Economists had expected the move after inflation stayed above the target band for several months.", "expected": "REAL" },
+    { "id": "long-2", "category": "long text", "input": "Chennai, Oct 10: The Tamil Nadu government has announced that all government schools in the state will remain closed for one month from October 15 because of a new virus outbreak. The Health Minister told reporters that more than 2,000 children have been admitted to hospitals across Chennai, Madurai and Coimbatore in the past week. Parents have been asked to keep children indoors.", "expected": "FAKE", "alsoAcceptable": ["CANNOT VERIFY"], "note": "Invented. Nothing reports it; schools are open." },
+
+    { "id": "url-1", "category": "link", "input": "https://www.bbc.com/sport/cricket/articles/cx30epm27g71o", "expected": "REAL", "isUrl": true }
+  ]
+}

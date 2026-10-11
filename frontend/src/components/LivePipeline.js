@@ -20,7 +20,9 @@ export const PIPELINE = [
 
 const seconds = (ms) => `${(ms / 1000).toFixed(1)} s`;
 
-const LivePipeline = ({ stage, channels, finished, elapsedMs }) => {
+const SPEECH = { question: 'a question', hedged: 'something passed on', sarcasm: 'sarcasm', opinion: 'an opinion with a claim in it', mixed: 'a mixed message', assertion: 'a statement' };
+
+const LivePipeline = ({ stage, understood, channels, finished, elapsedMs }) => {
   const [open, setOpen] = useState(false);
   const doneCount = PIPELINE.filter((step) => {
     const c = channels[step.id];
@@ -52,6 +54,14 @@ const LivePipeline = ({ stage, channels, finished, elapsedMs }) => {
           {stage.id === 'read'
             ? `Read ${stage.modality === 'article' ? 'the article' : stage.modality === 'video' ? 'the video transcript' : stage.modality === 'image' ? 'the screenshot' : 'the text'}${stage.title ? `: “${stage.title.slice(0, 90)}${stage.title.length > 90 ? '…' : ''}”` : ''}`
             : `${stage.name}…`}
+        </p>
+      )}
+      {understood && (
+        <p className="pipeline-stage">
+          Read as {SPEECH[understood.speechAct] || 'a statement'}
+          {understood.languageName && understood.languageName !== 'English'
+            ? ` in ${understood.languageName}${understood.romanized ? ' (typed in English letters)' : ''}` : ''}
+          {understood.claims?.length ? ` — checking: ${understood.claims.map((c) => `“${c}”`).join(' and ')}` : ''}
         </p>
       )}
       <ol className="pipeline-steps">

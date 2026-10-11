@@ -969,3 +969,8 @@
   display: block;
   height: 100%;
 }
+
+.verdict-oneline-local {
+  font-size: 1rem;
+  color: var(--ink);
+}

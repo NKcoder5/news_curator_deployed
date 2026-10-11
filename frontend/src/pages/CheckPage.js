@@ -98,6 +98,7 @@ const CheckPage = () => {
   const [report, setReport] = useState(null);
   // The live view of the check: what was read, and each channel's finding.
   const [stage, setStage] = useState(null);
+  const [understood, setUnderstood] = useState(null);
   const [channels, setChannels] = useState({});
   const [elapsedMs, setElapsedMs] = useState(0);
   const [streamed, setStreamed] = useState(false);
@@ -109,6 +110,7 @@ const CheckPage = () => {
     setRefusal(null);
     setError('');
     setStage(null);
+    setUnderstood(null);
     setChannels({});
     setStreamed(false);
   };
@@ -124,7 +126,10 @@ const CheckPage = () => {
 
   const onStreamEvent = (event) => {
     setStreamed(true);
-    if (event.type === 'stage') setStage(event);
+    if (event.type === 'stage') {
+      if (event.id === 'understood') setUnderstood(event);
+      else setStage(event);
+    }
     if (event.type === 'channel') {
       // The four writing checks share one line, counted as they land.
       const id = event.group || event.id;
@@ -199,6 +204,7 @@ const CheckPage = () => {
       // as useful as a verdict and is shown as its own result, not as an error.
       if (data && (data.checkable === false || data.canRetryWith)) {
         setRefusal({
+          readAs: data.understanding || null,
           reason: data.error,
           missing: data.missing || [],
           canRetryWith: data.canRetryWith || []
@@ -346,6 +352,16 @@ const CheckPage = () => {
       {refusal && (
         <section className="check-refusal">
           <h2>Nothing to check</h2>
+          {refusal.readAs && (
+            <p className="check-missing">
+              We read this as {refusal.readAs.speechAct === 'opinion' ? 'an opinion'
+                : refusal.readAs.speechAct === 'prediction' ? 'a prediction'
+                : refusal.readAs.speechAct === 'exhortation' ? 'a call to action'
+                : refusal.readAs.speechAct === 'question' ? 'a question'
+                : 'a statement'}
+              {refusal.readAs.languageName && refusal.readAs.languageName !== 'English' ? ` in ${refusal.readAs.languageName}` : ''}.
+            </p>
+          )}
           <p>{refusal.reason}</p>
           {refusal.missing.length > 0 && (
             <p className="check-missing">
@@ -363,7 +379,7 @@ const CheckPage = () => {
       {/* The check as it runs, folded to one line once the verdict is in. */}
       {(loading || report) && streamed && (
         <div ref={pipelineRef}>
-          <LivePipeline stage={stage} channels={channels} finished={Boolean(report)} elapsedMs={elapsedMs} />
+          <LivePipeline stage={stage} understood={understood} channels={channels} finished={Boolean(report)} elapsedMs={elapsedMs} />
         </div>
       )}
 

@@ -239,7 +239,7 @@ Read carefully: a headline about the same people or event is NOT automatically "
 
 Before you mark "disagree", ask whether the claim and the headline could BOTH be true. "PM visited Chennai in May" and "Chief Minister met the PM in Delhi in May" can both be true, so that headline is "unrelated", not "disagree".
 
-Numbers matter. If the claim gives a figure and a headline about the same event gives a different figure for the same thing, the two cannot both be true and the headline is "disagree": the claim says "India won 84 medals" and the headline says "India signs off with 85 medals". A part-way figure (medals won on one day, an early count) is not the same thing as a final total, so it is "unrelated". The same amount written in different units is the same figure, not a different one: Rs 5 crore is Rs 50 million, 1 lakh is 100,000, 2.5 billion is 2,500 million. Convert before comparing.
+Numbers matter. If the claim gives a figure and a headline about the same event gives a different figure for the same thing, the two cannot both be true and the headline is "disagree": the claim says "India won 84 medals" and the headline says "India signs off with 85 medals". A part-way figure (medals won on one day, an early count) is not the same thing as a final total, so it is "unrelated". The same amount written in different units is the same figure, not a different one: Rs 5 crore is Rs 50 million, 1 lakh is 100,000, 2.5 billion is 2,500 million. Convert before comparing. A bound is not a figure: "crossed 80 medals", "more than 80", "over 80" or "nearly 90" agrees with a headline giving 85, because 85 satisfies it; "more than 100 medals" disagrees with 85.
 
 Return a JSON object with these keys:
 - "items": an array with one object per headline: {"n": <headline number>, "same_event": true or false, "both_can_be_true": true or false, "stance": "agree" | "disagree" | "unrelated", "reported": "<the exact words in the headline that state the fact the claim is about, such as \"85 medals\" or \"TVK sweeps both seats\"; empty if the headline does not state it>"}.
@@ -549,11 +549,16 @@ const verifyClaims = async (title, content, sourceName, preExtractedClaims = nul
     // — search, wait, judge, wait, then the same again for the next claim —
     // which made verification the slowest factor in the pipeline at ~28s.
     // The model gateway still caps how many calls are actually in flight.
-    const results = await Promise.all(claims.map(async ({ claim, headline, keywords, keywordsEn }) => {
+    const results = await Promise.all(claims.map(async ({ claim, headline, keywords, keywordsEn, time, kind }) => {
       const { articles: coverage, searchFailed } = await gatherCoverage({ claim, headline, keywords, keywordsEn, sourceName, language });
+      // The time frame and kind the reader's message gave the claim, when it
+      // was read by the understanding step: the verdict needs them to tell old
+      // news passed off as new, and a standing fact, from an ordinary event.
+      const framing = { time: time || null, kind: kind || null };
       if (searchFailed) {
         return {
           claim,
+          ...framing,
           verdict: 'undetermined',
           failed: true,
           supportingEvidence: [],
@@ -564,6 +569,7 @@ const verifyClaims = async (title, content, sourceName, preExtractedClaims = nul
       if (coverage.length === 0) {
         return {
           claim,
+          ...framing,
           verdict: 'no-coverage',
           supportingEvidence: [],
           contradictingEvidence: [],
@@ -571,7 +577,7 @@ const verifyClaims = async (title, content, sourceName, preExtractedClaims = nul
         };
       }
       const judgement = await judgeClaim(claim, coverage);
-      return { claim, ...judgement };
+      return { claim, ...framing, ...judgement };
     }));
 
     // If not one claim could actually be checked, the article has not been

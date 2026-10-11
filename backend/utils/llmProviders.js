@@ -108,8 +108,19 @@ const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 //
 // The "-latest" alias is kept as the backup because it follows Google's current
 // recommendation and so should outlive any specific version number.
+// Each model has its own daily quota on the free tier — measured 2026-10-11:
+// gemini-3.1-flash-lite 500 a day, gemini-flash-latest 20 — so listing
+// several multiplies what one key can do in a day. A day of benchmarks spent
+// the first model's 500 and every judgement fell through to slower providers;
+// the gateway now moves to the next model on this list instead, and skips a
+// model whose daily quota is spent until it resets (utils/nvidiaNimApi.js).
+// Lite models first: they answer in about 1.5 s against 2-9 s for the others.
 const GEMINI_MODELS = [
   process.env.GEMINI_MODEL_NAME || 'gemini-3.1-flash-lite',
+  'gemini-3.5-flash-lite',
+  'gemini-flash-lite-latest',
+  'gemini-3.5-flash',
+  'gemini-3.6-flash',
   'gemini-flash-latest'
 ];
 

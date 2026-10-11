@@ -70,6 +70,25 @@ const VERDICT_CLASSES = {
     ceiling: 3.5,
     advice: 'The evidence points against this story. Treat it as false unless it is confirmed elsewhere.'
   },
+  // Several claims, and the evidence splits: at least one confirmed, at least
+  // one contradicted. One verdict for the whole message would be wrong either
+  // way, and "true" would be the dangerous one.
+  mixed: {
+    label: 'Partly true, partly false',
+    call: 'PARTLY FALSE',
+    level: 'likely-false',
+    ceiling: 3.5,
+    advice: 'Part of this is true and part is not. Do not share it as it stands.'
+  },
+  // It happened — but not now. The coverage that confirms it is weeks or
+  // years old, and the message presents it as today's news.
+  outdated: {
+    label: 'Old news, shared as new',
+    call: 'FAKE',
+    level: 'likely-false',
+    ceiling: 3.0,
+    advice: 'This is old news being passed off as new. Check the date before sharing.'
+  },
   unverified: {
     label: 'Not confirmed',
     call: 'CANNOT VERIFY',
@@ -120,6 +139,9 @@ const HIGH_IMPACT_PATTERNS = [
   /\bpandemic\b/i, /\boutbreak\b/i, /\brecall(s|ed)?\b/i, /\bcollapse[sd]?\b/i
 ];
 
+/** How old the newest confirming report may be before "now" reads as old news. */
+const STALE_AFTER_DAYS = 21;
+
 const looksHighImpact = (text) => HIGH_IMPACT_PATTERNS.some(pattern => pattern.test(String(text || '')));
 
 /**
@@ -153,10 +175,24 @@ const buildEvidenceLedger = ({
     // outlets counts; an even split counts for neither and stays unconfirmed.
     const forCount = support.independentCount;
     const againstCount = contradiction.independentCount;
+    // Old news passed off as new. The reader's message presents the claim as
+    // happening now, and every dated report confirming it is weeks old: the
+    // event is real and the framing is false. "Modi announces 500 and 1000
+    // notes invalid from midnight tonight" is confirmed by the coverage of
+    // November 2016, which is exactly why it must not count as confirmation.
+    const supportDates = (claim.supportingEvidence || [])
+      .map(e => Date.parse(e.publishedAt)).filter(Number.isFinite);
+    const newestSupport = supportDates.length ? Math.max(...supportDates) : null;
+    const stale = claim.time === 'now' && forCount > againstCount && newestSupport !== null
+      && Date.now() - newestSupport > STALE_AFTER_DAYS * 86400000;
     return {
       claim: claim.claim,
       verdict: claim.verdict,
-      independentSupport: forCount > againstCount ? forCount : 0,
+      time: claim.time || null,
+      kind: claim.kind || null,
+      stale,
+      newestSupport: newestSupport ? new Date(newestSupport).toISOString() : null,
+      independentSupport: forCount > againstCount && !stale ? forCount : 0,
       independentContradiction: againstCount > forCount ? againstCount : 0,
       // What the outlets actually say, in their own words ("85 medals"), so the
       // verdict can quote the conflicting fact instead of only counting it.
@@ -217,6 +253,15 @@ const buildEvidenceLedger = ({
     // record of stable facts, so it speaks to the article's premises rather
     // than to what happened.
     premiseContradictions: premiseResult?.contradictions || [],
+    // A reference entry stating the same standing fact. Used only for claims
+    // about standing or past facts, where an encyclopedia is the right witness
+    // — never for today's events, which it cannot have recorded.
+    premiseConfirmations: premiseResult?.confirmations || [],
+    referenceCanConfirm: perClaim.some(c => c.kind === 'standing_fact' || c.time === 'timeless' || c.time === 'past'),
+    staleClaims: perClaim.filter(c => c.stale).map(c => ({ claim: c.claim, newestSupport: c.newestSupport })),
+    confirmedClaims: perClaim.filter(c => c.independentSupport > 0).map(c => c.claim),
+    contradictedClaims: perClaim.filter(c => c.independentContradiction > 0)
+      .map(c => ({ claim: c.claim, reported: c.reportedAgainst.filter(q => q.length <= 80).sort((x, y) => y.length - x.length)[0] || null })),
     premiseStatus: premiseResult?.status || 'not-run',
     // A professional fact-checking desk's published ruling on this same claim.
     // Kept apart from the news count for the same reason as the premise check:
@@ -348,6 +393,16 @@ const decideVerdict = (ledger) => {
         'Fact-checkers found this misleading: it twists or strips the context from something real. Do not share it as stated.');
   }
 
+  // R0c — Several claims, and the evidence splits between them: one confirmed
+  // by independent outlets, another contradicted. Neither "true" nor "false"
+  // describes the message, and calling it true would be the harmful error.
+  if (ledger.confirmedClaims.length > 0 && ledger.contradictedClaims.length > 0) {
+    return decide('mixed', 'claims-partly-false', [
+      ...ledger.confirmedClaims.slice(0, 2).map(c => `Confirmed by independent outlets: ${c}`),
+      ...ledger.contradictedClaims.slice(0, 2).map(c => `Contradicted by independent outlets: ${c.claim}${c.reported ? ` They report: "${c.reported}".` : ''}`)
+    ]);
+  }
+
   // R1 — Contradicted by two or more independent sources. This is the only
   // route to a flat "False": one outlet disagreeing can be the outlet that is
   // wrong, two independent ones rarely are.
@@ -456,6 +511,17 @@ const decideVerdict = (ledger) => {
     grounds.push(`This page presents itself as ${ledger.impersonates} but is not published on any address ${ledger.impersonates} uses. The events are confirmed elsewhere; this copy of them is not from ${ledger.impersonates}.`);
   }
 
+  // R4b — The event is real, but it is not news: the message presents it as
+  // happening now, and the reports confirming it are weeks or years old.
+  if (ledger.staleClaims.length > 0 && ledger.independentSupport === 0 && ledger.independentContradiction === 0) {
+    const first = ledger.staleClaims[0];
+    const when = first.newestSupport ? first.newestSupport.slice(0, 10) : 'long ago';
+    return decide('outdated', 'old-news-presented-as-new', [
+      `Outlets did report this — but the most recent report found is from ${when}.`,
+      'The message presents it as happening now. Old news shared as new is one of the commonest forms of misinformation.'
+    ]);
+  }
+
   // R5 — Corroborated by two or more independent sources.
   if (ledger.independentSupport >= 2) {
     grounds.push(`${ledger.independentSupport} independent sources report the same facts.`);
@@ -479,6 +545,18 @@ const decideVerdict = (ledger) => {
       grounds.push('That source does not have a strong factual-reporting record, so the confirmation is weak.');
     }
     return decide('likely-true', 'corroborated-by-one-independent-source', grounds);
+  }
+
+  // R6a — A standing or past fact, which no newsroom reports this week
+  // because it is not news, and which a reference entry states. "Bengaluru is
+  // the capital of Karnataka" has no corroborating coverage and needs none.
+  if (ledger.independentSupport === 0 && ledger.independentContradiction === 0
+    && ledger.referenceCanConfirm && ledger.premiseConfirmations.length > 0) {
+    const first = ledger.premiseConfirmations[0];
+    return decide('likely-true', 'confirmed-by-reference', [
+      `A reference entry on ${first.entity} states it: "${first.referenceStates}"`,
+      'This is a standing fact rather than news, so a reference work, not a newsroom, is the right witness.'
+    ], 'A reference work confirms this standing fact.');
   }
 
   // R6b — The news search found nothing about the event, but this week's
@@ -610,6 +688,21 @@ const summarise = (verdict, ledger, rule = '') => {
   if (rule === 'rated-true-by-fact-checkers') {
     return `Checked and rated true by ${desks(ledger.factChecks)}.`;
   }
+  if (rule === 'claims-partly-false') {
+    const wrong = (ledger.contradictedClaims || [])[0];
+    return wrong?.reported
+      ? `Partly false: some of this is confirmed, but on “${wrong.claim.replace(/\.$/, '')}” outlets report “${wrong.reported}”.`
+      : 'Partly false: some of this is confirmed by independent outlets and some is contradicted.';
+  }
+  if (rule === 'old-news-presented-as-new') {
+    const first = (ledger.staleClaims || [])[0];
+    return `This is old news: the latest report of it found is from ${first?.newestSupport ? first.newestSupport.slice(0, 10) : 'long ago'}, not now.`;
+  }
+  if (rule === 'confirmed-by-reference') {
+    const first = (ledger.premiseConfirmations || [])[0];
+    const says = String(first?.referenceStates || '');
+    return `The encyclopedia entry on ${first?.entity} confirms it: “${says.length > 140 ? `${says.slice(0, 137)}…` : says}”`;
+  }
   if (rule === 'contradicted-by-current-coverage') {
     const h = (ledger.presupposingFalse || [])[0];
     return h
@@ -683,6 +776,9 @@ const confidenceFor = (verdict, ledger, rule = '') => {
   }
   if (rule === 'rated-true-by-fact-checkers') return cap(0.65 + 0.05 * Math.min(ledger.factChecks.length - 1, 2));
   if (rule === 'contradicted-by-current-coverage') return cap(0.62 + 0.05 * Math.min(ledger.presupposedAgainst - 2, 3));
+  if (rule === 'claims-partly-false') return cap(0.75);
+  if (rule === 'old-news-presented-as-new') return cap(0.7);
+  if (rule === 'confirmed-by-reference') return cap(0.7);
   if (rule === 'absent-from-heavy-coverage') return cap(0.58);
   switch (verdict) {
     case 'false':

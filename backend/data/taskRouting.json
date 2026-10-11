@@ -360,6 +360,24 @@
       ],
       "reason": "routed to a hosted model by hand on 2026-10-11: on a Tamil message about TVK winning both by-elections, the local model translated \"தவெக\" (TVK) as \"DMK\", and the mistranslated claim was contradicted by every outlet reporting the result",
       "overriddenAt": "2026-10-11"
+    },
+    "input understanding": {
+      "chain": [
+        "gemini",
+        "nim",
+        "ollama"
+      ],
+      "reason": "routed to a hosted model by hand on 2026-10-11: reading Tamil, Hindi and romanised Tamil (\"resign pannitaru\"), questions, hedges and sarcasm into English claims is beyond the local 8B model, which already mistranslated தவெக (TVK) as DMK",
+      "overriddenAt": "2026-10-11"
+    },
+    "verdict translation": {
+      "chain": [
+        "gemini",
+        "nim",
+        "ollama"
+      ],
+      "reason": "routed to a hosted model by hand on 2026-10-11: translating the verdict into Tamil or Hindi for the reader",
+      "overriddenAt": "2026-10-11"
     }
   }
 }

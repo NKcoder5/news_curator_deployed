@@ -31,7 +31,10 @@ const RULE_CHANNEL = {
   'no-independent-coverage': 'news',
   'contradicted-by-current-coverage': 'week',
   'absent-from-heavy-coverage': 'week',
-  'premise-contradicted-by-reference': 'reference'
+  'premise-contradicted-by-reference': 'reference',
+  'claims-partly-false': 'news',
+  'old-news-presented-as-new': 'news',
+  'confirmed-by-reference': 'reference'
 };
 
 // What decided it, in a few words, for the line under the verdict.
@@ -54,7 +57,10 @@ export const RULE_LABELS = {
   'verification-unavailable': 'Search could not run',
   'satirical-publisher': 'Satirical publisher',
   'no-checkable-claims': 'No factual claim',
-  'no-checkable-claims-poor-record-publisher': 'Nothing checkable, poor-record publisher'
+  'no-checkable-claims-poor-record-publisher': 'Nothing checkable, poor-record publisher',
+  'claims-partly-false': 'One claim confirmed, another contradicted',
+  'old-news-presented-as-new': 'Old news shared as new',
+  'confirmed-by-reference': 'A reference work confirms it'
 };
 
 const STATUS_TEXT = {
@@ -250,12 +256,22 @@ const WeekPanel = ({ week, decided, newsFound }) => {
 const ReferencePanel = ({ premise, decided }) => {
   if (!premise) return null;
   const contradictions = premise.contradictions || [];
+  const confirmations = premise.confirmations || [];
   const status = contradictions.length > 0 ? 'against'
+    : confirmations.length > 0 ? 'for'
     : premise.status === 'consistent' ? 'clear'
     : premise.status === 'error' ? 'unavailable'
     : 'none';
   return (
     <Panel id="reference" title="Reference facts" status={status} decided={decided} summary={premise.explanation}>
+      {contradictions.length === 0 && confirmations.map((c, i) => (
+        <p key={`c${i}`} className="eb-quote">
+          {c.reference?.url
+            ? <a href={c.reference.url} target="_blank" rel="noopener noreferrer">{c.reference.title || c.entity}</a>
+            : (c.reference?.title || c.entity)}
+          : “{c.referenceStates}”
+        </p>
+      ))}
       {contradictions.map((c, i) => (
         <div key={i} className="eb-versus">
           <div className="eb-versus-side">

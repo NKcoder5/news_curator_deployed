@@ -62,6 +62,22 @@ const releaseSlot = (provider) => {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// A model whose DAILY quota is spent is skipped until the quota resets, which
+// for Google is midnight Pacific time (08:00 UTC). Retrying it with back-off,
+// as a per-minute limit deserves, only adds seconds to every call for the rest
+// of the day: measured, one check took 170 s that way.
+const exhaustedUntil = new Map();
+const nextQuotaReset = () => {
+  const reset = new Date();
+  reset.setUTCHours(8, 0, 0, 0);
+  if (reset.getTime() <= Date.now()) reset.setUTCDate(reset.getUTCDate() + 1);
+  return reset.getTime();
+};
+const isDailyQuota = (error) => (error.response?.data?.error?.details || [])
+  .some(detail => (detail.violations || []).some(v => /PerDay/i.test(String(v.quotaId || ''))));
+const modelKey = (provider, model) => `${provider.name}:${model}`;
+const isExhausted = (provider, model) => (exhaustedUntil.get(modelKey(provider, model)) || 0) > Date.now();
+
 /**
  * Send a prompt to the language model.
  *
@@ -112,6 +128,7 @@ const callNimApi = async (prompt, options = {}) => {
       let preferredRetired = false;
 
       for (const model of models) {
+        if (isExhausted(provider, model)) continue;
         for (let attempt = 0; attempt <= MAX_RATE_LIMIT_RETRIES; attempt++) {
           try {
             await acquireSlot(provider);
@@ -140,6 +157,12 @@ const callNimApi = async (prompt, options = {}) => {
               // Never retried, and never silently swallowed: a bad key must be
               // fixed, not worked around.
               console.error(`${provider.label}: credentials rejected (${status}).`);
+              break;
+            }
+
+            if (isRateLimited(status) && isDailyQuota(error)) {
+              exhaustedUntil.set(modelKey(provider, model), nextQuotaReset());
+              console.warn(`${provider.label}: "${model}" has used its daily quota — skipping it until the quota resets.`);
               break;
             }
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import EvidenceBoard, { RULE_LABELS } from './EvidenceBoard';
+import ReadAs from './ReadAs';
 import '../styles/TrustReport.css';
 
 const LEVEL_COLORS = {
@@ -15,6 +16,8 @@ const LEVEL_COLORS = {
   'unverified': '#8a6d3b',
   'satire': '#6b5b95',
   'likely-false': '#c9862b',
+  mixed: '#c9862b',
+  outdated: '#c9862b',
   'false': '#a63c3c'
 };
 
@@ -363,6 +366,13 @@ const TrustReport = ({ report, evidenceFirst = false }) => {
       <div className={`verdict-card verdict-${report.verdictLevel || 'unverified'}`}>
         <div className="verdict-call" style={{ color }}>{report.call || report.verdict}</div>
         {report.oneLine && <p className="verdict-oneline">{report.oneLine}</p>}
+        {/* The same reason in the reader's language, for a message written in it. */}
+        {evidenceFirst && report.oneLineLocal?.oneLine && (
+          <p className="verdict-oneline verdict-oneline-local" lang={report.understanding?.language}>
+            {report.oneLineLocal.call && <strong>{report.oneLineLocal.call}: </strong>}
+            {report.oneLineLocal.oneLine}
+          </p>
+        )}
         {evidenceFirst && report.decision && (
           <div className="verdict-basis">
             {RULE_LABELS[report.decision.rule] && (
@@ -380,6 +390,7 @@ const TrustReport = ({ report, evidenceFirst = false }) => {
         )}
       </div>
 
+      {evidenceFirst && <ReadAs understanding={report.understanding} call={report.call} perClaim={report.evidence?.perClaim} />}
       {evidenceFirst && <EvidenceBoard report={report} />}
 
       <div className="tier-buttons">

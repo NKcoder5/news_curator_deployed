@@ -169,6 +169,8 @@ const checkPremises = async (title, content) => {
     }));
 
     const contradictions = results.filter(r => r.contradicts);
+    const confirmations = results.filter(r => r.supports && !r.contradicts)
+      .map(r => ({ entity: r.entity, reference: r.reference, referenceStates: r.referenceSupports }));
     const failures = results.filter(r => r.failed);
 
     // A judgement that could not run is not a judgement that found nothing.
@@ -190,6 +192,7 @@ const checkPremises = async (title, content) => {
       status: contradictions.length ? 'contradicted' : 'consistent',
       checked: results,
       contradictions,
+      confirmations,
       partialFailure: failures.length > 0,
       explanation: contradictions.length
         ? `A reference entry contradicts what this article states about ${contradictions.map(c => c.entity).join(' and ')}.`
@@ -236,7 +239,9 @@ Return a JSON object with these keys:
 - "both_can_be_true": true when the article's statement and the entry could both be true of the same ${entity} at once, false only when accepting one means rejecting the other. Being born in one place and having ancestors from another can both be true; holding an office and never having held it cannot.
 - "asserted_by": "article" when the article states the fact in its own voice, "quoted" when it is only something a person interviewed or quoted in the article says.
 - "article_states": what the article says about ${entity}, in one short sentence.
-- "reference_states": the conflicting sentence copied exactly from the encyclopedia entry, or an empty string when there is no conflict.`;
+- "reference_states": the conflicting sentence copied exactly from the encyclopedia entry, or an empty string when there is no conflict.
+- "supports": true when the entry is about the same ${entity} and directly states the same fact the article asserts about it (the same office, capital, date, title or result), false otherwise. Mentioning the subject is not support; stating the fact is.
+- "reference_supports": the sentence that states it, copied exactly from the entry, or an empty string.`;
 
   try {
     // The hosted model this task is routed to reasons in prose before it
@@ -274,8 +279,14 @@ Return a JSON object with these keys:
     // birth in Chicago are both true, and a bystander's remark is not something
     // the report asserts. An accusation now needs statements that cannot both
     // hold, made in the article's own voice.
+    // Support needs the same grounding as contradiction: the sentence quoted
+    // must actually be in the entry.
+    const supportQuote = String(result?.reference_supports || '').trim();
+    const supportGrounded = Boolean(result?.supports) && supportQuote.length > 10
+      && String(reference.content).toLowerCase().includes(supportQuote.slice(0, 40).toLowerCase());
     if (result && (result.both_can_be_true !== false || result.asserted_by === 'quoted')) {
-      return { contradicts: false, compatible: result.both_can_be_true !== false,
+      return { contradicts: false, supports: supportGrounded && result.contradicts !== true, referenceSupports: supportGrounded ? supportQuote : '',
+        compatible: result.both_can_be_true !== false,
         quotedOnly: result.asserted_by === 'quoted',
         articleStates: String(result.article_states || ''), referenceStates: '' };
     }

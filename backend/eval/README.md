@@ -55,3 +55,29 @@ with a small live-news study (`--config full+verify` on current articles).
 
 Each article uses 2 LLM calls (clickbait + bias); the baseline uses 1.
 At the default 30 requests/min budget, 100 articles ≈ 8-10 minutes per config.
+
+## Check Anything against a plain language model
+
+`eval/benchmarkCheckAnything.js` puts 22 claims about October 2026, each
+labelled from published reporting, to two systems:
+
+- **Plain model:** the same hosted model the pipeline uses (Gemini
+  flash-lite), asked zero-shot with today's date and nothing to read.
+- **Check Anything:** the full path, which is ingest, the input gate, the four
+  evidence channels (news reporting, fact-checkers, this week's coverage of the
+  subject, reference facts) and the verdict rules.
+
+The claims cover the ways a false claim differs from a true one: a wrong
+figure, a reversed outcome, a viral rumour fact-checkers have ruled on, an
+invented event about a heavily covered subject, and a false premise. True
+reporting from the same week, national and local, is included.
+
+```bash
+cd backend
+node eval/benchmarkCheckAnything.js            # both systems, ~9 minutes
+node eval/benchmarkCheckAnything.js --gap 10   # more spacing if the model is rate limited
+```
+
+Results go to `eval/results/checkAnything_benchmark.{json,md}`. The claims
+concern current events, so the labels hold for the weeks after they were
+written. To re-run later, refresh the claims from that week's news.

@@ -34,7 +34,26 @@ const STOPWORDS = new Set([
 // Spellings of the same thing that headlines use interchangeably. Without these
 // "TVK lost the 2026 bye elections" shared nothing but "2026" with "TN
 // bye-polls: TVK wins Dharapuram", and correct coverage was thrown away.
-const normalise = (text) => String(text || '')
+//
+// A body named in full is also named by its initials, because headlines use
+// the short form: "The Reserve Bank of India hiked the repo rate" shared no
+// name with "RBI raises repo rate by 25 basis points" and five confirming
+// outlets were thrown away. Each run of capitalised words gains its initials
+// (Reserve Bank of India → RBI, Bharatiya Janata Party → BJP, Tamilaga Vettri
+// Kazhagam → TVK), and a decimal loses its trailing zeros (5.50 → 5.5).
+const LEADING_ARTICLE = /^(?:The|A|An)$/;
+const withInitials = (text) => {
+  const initials = [];
+  const runs = text.match(/(?:\p{Lu}[\p{L}\p{M}]+)(?:\s+(?:of|and|for|the)?\s*\p{Lu}[\p{L}\p{M}]+)+/gu) || [];
+  for (const run of runs) {
+    const words = run.split(/\s+/).filter(w => /^\p{Lu}/u.test(w) && !LEADING_ARTICLE.test(w));
+    if (words.length >= 2 && words.length <= 6) initials.push(words.map(w => w[0]).join(''));
+  }
+  return initials.length ? `${text} ${initials.join(' ')}` : text;
+};
+
+const normalise = (text) => withInitials(String(text || ''))
+  .replace(/(\d+)\.(\d*?)0+(?!\d)/g, (m, whole, decimals) => (decimals ? `${whole}.${decimals}` : whole))
   .replace(/\b(?:bye|by)[\s-]?(?:elections?|polls?)\b|\bbyelections?\b|\bbypolls?\b/gi, 'bypoll')
   .replace(/\b(?:assembly|general|lok sabha)[\s-]?polls?\b/gi, 'election')
   .replace(/\btamil\s?nadu\b/gi, 'Tamilnadu');

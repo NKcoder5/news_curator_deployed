@@ -37,11 +37,16 @@ const norm = (text) => String(text || '').toLowerCase().replace(/[‘’“”"'
 /** The subjects to read coverage of: what the extractor named, once each. */
 const subjectsFor = (claims = []) => {
   const subjects = [];
-  for (const c of claims.slice(0, 2)) {
-    const subject = String(c.subject || '').replace(/[^\p{L}\p{N}\s.&-]/gu, ' ').replace(/\s+/g, ' ').trim();
+  // A claim about two parties — "Elon Musk bought Reliance Jio" — is ruled
+  // out by either one's week: Jio's coverage says it is planning its own IPO.
+  // So each claim's second subject is read too, after every claim's first.
+  const add = (raw) => {
+    const subject = String(raw || '').replace(/[^\p{L}\p{N}\s.&-]/gu, ' ').replace(/\s+/g, ' ').trim();
     if (subject && subject.split(' ').length <= 5 && !subjects.some(s => norm(s) === norm(subject))) subjects.push(subject);
-  }
-  return subjects;
+  };
+  for (const c of claims.slice(0, 2)) add(c.subject);
+  for (const c of claims.slice(0, 2)) add(c.otherSubject);
+  return subjects.slice(0, 3);
 };
 
 const judge = async (claimText, headlines) => {
@@ -70,7 +75,7 @@ ${lines}
 Return a JSON object: {"event_scale": "dominant" | "minor", "claimed_when": "this_week" | "earlier" | "future" | "ongoing" | "unclear", "items": [{"n": <headline number>, "reports_event": true or false, "presupposes_false": true or false, "reported": "<exact words or empty>"}]}`;
 
   return callNimApiJson(prompt, {
-    maxTokens: 1600, temperature: 0, requiredKeys: ['items', 'event_scale'], label: 'current coverage'
+    maxTokens: 2400, temperature: 0, requiredKeys: ['items', 'event_scale'], label: 'current coverage'
   });
 };
 
@@ -94,17 +99,25 @@ const checkCurrentCoverage = async (claims = []) => {
 
   // One subject is enough when it is the claim's own; the second claim's
   // subject is read only if the first returns little.
-  let headlines = [];
-  let subject = subjects[0];
-  for (const s of subjects) {
-    try {
-      headlines = await searchGoogleNews(`${s} when:${WINDOW}`, '', MAX_HEADLINES, 'en');
-    } catch (_) {
-      return empty('error', 'This week\'s coverage could not be read just now.');
-    }
-    subject = s;
-    if (headlines.length >= 8) break;
+  // Every subject's week is read, in parallel, and the headlines interleaved
+  // so that no one subject crowds out another.
+  const batches = await Promise.allSettled(subjects.map(s => searchGoogleNews(`${s} when:${WINDOW}`, '', MAX_HEADLINES, 'en')));
+  if (batches.every(b => b.status === 'rejected')) {
+    return empty('error', 'This week\'s coverage could not be read just now.');
   }
+  const lists = batches.map(b => (b.status === 'fulfilled' ? b.value : []));
+  const seenTitles = new Set();
+  let headlines = [];
+  for (let i = 0; i < MAX_HEADLINES; i++) {
+    for (const list of lists) {
+      const h = list[i];
+      if (!h || seenTitles.has(norm(h.title))) continue;
+      seenTitles.add(norm(h.title));
+      headlines.push(h);
+    }
+  }
+  headlines = headlines.slice(0, MAX_HEADLINES + 8);
+  const subject = subjects.filter((s, i) => lists[i].length > 0).join(' and ') || subjects[0];
 
   const outlets = new Set(headlines.map(h => h.source.toLowerCase()));
   if (headlines.length < 8 || outlets.size < 4) {

@@ -117,3 +117,12 @@ test('the reason given distinguishes unmatchable from unmatched', () => {
     [{ source: 'Somewhere', title: 'Wildfire prompts evacuation in California', description: '' }]);
   assert.match(anchored.note, /not being about this claim/i);
 });
+
+test('a body named in full matches its initials, and 5.50 matches 5.5', () => {
+  const claim = 'The Reserve Bank of India hiked the repo rate by a quarter percentage point to 5.5%.';
+  assert.strictEqual(isRelevant(claim, { title: 'RBI raises repo rate by 25 basis points to 5.50%' }).relevant, true);
+  assert.strictEqual(isRelevant('Tamilaga Vettri Kazhagam won both bypolls', { title: 'TVK wins Dharapuram and Madurantakam bypolls' }).relevant, true);
+  // Initials do not loosen the rule for a claim that names nothing.
+  assert.strictEqual(isRelevant('A secret chemical leak forced the overnight evacuation of three districts',
+    { title: 'Chemical leak forces overnight evacuation in Ohio' }).relevant, false);
+});

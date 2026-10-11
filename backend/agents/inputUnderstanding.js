@@ -46,7 +46,7 @@ const buildPrompt = (text) => {
   const today = new Date().toISOString().slice(0, 10);
   return `You read a message someone wants fact-checked and work out exactly what it asserts. The message may be in any language or a mix of languages — Tamil, Hindi, English, or Tamil or Hindi typed in English letters ("resign pannitaru", "istifa de diya") — and it may be a question, sarcastic, a forward in capitals with emoji, hedged ("I heard", "apparently", "my friend says"), opinion mixed with fact, or several claims at once.
 
-Today is ${today}.
+Today is ${today}. Judge every date against today, not against what you remember: events dated in 2026 up to today have already happened, and the user is asking about them.
 
 Message:
 """
@@ -59,13 +59,14 @@ Return a JSON object with these keys:
 - "speech_act": "assertion", "question", "hedged" (passes on what others say), "sarcasm" (mocks a claim or says the opposite of what it means), "opinion", "exhortation" (tells the reader to do something and states no fact), "prediction" (about the future), or "mixed".
 - "tone": a list of one to three of "neutral", "alarmist", "emotional", "celebratory", "sarcastic", "angry", "urgent".
 - "english": the whole message in plain English, without emoji. Copy it if it is already English.
-- "claims": up to 3 factual claims the message makes or asks about, most important first. Each is an object with:
+- "claims": up to 3 factual claims the message makes or asks about, most important first. List only facts the message asserts or asks about, not facts an opinion merely takes for granted: "Vijay is the best Chief Minister Tamil Nadu has ever had" asserts an opinion and no fact, so it has no claims, while "TVK is unstoppable — it won both bypolls" asserts that TVK won both bypolls. Each is an object with:
   - "claim": one neutral, declarative English sentence. Spell names in full and in their usual English form ("Modi ji" → "Narendra Modi", "தவெக" → "TVK"; keep abbreviations such as TVK, DMK, RBI). For a question, the proposition asked about ("Did India win 84 medals?" → "India won 84 medals at the Asian Games 2026."). For a hedge, the claim being passed on, not the hedge. For sarcasm, the literal claim being mocked ("Oh sure, and Musk bought Jio too" → "Elon Musk bought Reliance Jio."). Keep negation exactly as stated ("TVK did not lose" stays negative). Keep every figure, place and date the message gives, and add none it does not.
-  - "time": "now" if presented as happening today or this week, "past" for an earlier event, "timeless" for a standing fact, "future" for something that has not happened.
-  - "kind": "event", "figure", "quote", "standing_fact", "prediction" or "opinion".
+  - "time": "now" if presented as happening today or this week, "past" for an earlier event, "timeless" for a standing fact, "future" only for a forecast of something that has not happened ("RBI will cut rates in December"). An announcement or decision reported as made, even one that takes effect later ("gazette declares holidays from November", "notes invalid from midnight"), is "now": the claim is that the announcement was made.
+  - "kind": "event", "figure", "quote", "standing_fact", "prediction" (a forecast, not a reported decision) or "opinion".
   - "checkable": true only if it names a specific person, organisation, place, event or figure, so that news reports or a reference work could confirm or refute it. Opinions, predictions and vague statements are false.
   - "headline": the claim as a short English news headline.
   - "subject": the specific person, organisation, event or thing it is about, in 1 to 4 English words a news search would use — not a whole country on its own.
+  - "other_subject": a second person, organisation or thing the claim is about, in the same form, or an empty string ("Elon Musk bought Reliance Jio": subject "Elon Musk", other_subject "Reliance Jio").
   - "search_keywords": 3 or 4 distinctive words in the message's own language and script.
   - "search_keywords_en": 3 or 4 distinctive English words, names first.
 - "not_checkable_reason": if no claim is checkable, one plain sentence to the user saying why; otherwise an empty string.`;
@@ -112,11 +113,18 @@ const understandInput = async (text) => {
         claim,
         headline: c.headline ? String(c.headline).slice(0, 160) : null,
         subject: c.subject ? String(c.subject).slice(0, 60) : null,
+        otherSubject: c.other_subject ? String(c.other_subject).slice(0, 60) : null,
         keywords,
         keywordsEn,
         time: TIMES.has(c.time) ? c.time : 'past',
         kind: KINDS.has(c.kind) ? c.kind : 'event',
-        checkable: Boolean(c.checkable) && named && !['prediction', 'opinion'].includes(c.kind) && c.time !== 'future'
+        // The model's own "checkable" is advisory. It has marked a claim about
+        // the 2026 Asian Games uncheckable because, from its training, 2026
+        // had not happened yet. A named factual claim goes to the evidence; if
+        // nothing bears on it the verdict says so, which is safe. Only
+        // opinions and forecasts are held back.
+        checkable: named && !['prediction', 'opinion'].includes(c.kind)
+          && (Boolean(c.checkable) || ['event', 'figure', 'quote', 'standing_fact'].includes(c.kind))
       };
     });
 

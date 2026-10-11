@@ -99,14 +99,116 @@ Return at most ${maxClaims} claims. If the article contains no checkable claims,
 /**
  * Step 2: judge one claim against headlines/descriptions from other outlets.
  */
+const norm = (text) => String(text || '').toLowerCase().replace(/[‘’“”"']/g, '').replace(/\s+/g, ' ').trim();
+
+/** How many headlines the stance judgement reads. */
+const JUDGED_HEADLINES = 12;
+
+// The kinds of quantity a claim states: "84 medals", "84-medal", "8 wickets",
+// "5,000 crore". The unit word is what a headline must share to report the same
+// quantity; the number is what decides whether it agrees.
+const QUANTITY = /(\d[\d,.]*)\s*-?\s*(?:per\s*cent|percent|%|([\p{L}]{3,}))/giu;
+const quantityUnits = (text) => {
+  const units = new Set();
+  for (const m of String(text || '').matchAll(QUANTITY)) {
+    if (/^(?:19|20)\d{2}$/.test(m[1])) continue;   // a year, not a quantity
+    const unit = (m[2] || 'percent').toLowerCase().replace(/s$/, '');
+    units.add(unit);
+  }
+  return units;
+};
+
+/**
+ * The figure the coverage reports for the claim's quantity when it differs from
+ * the claim's own: for "India won 84 medals", the "85" in "India's 85-medal
+ * campaign". The most frequent such figure is returned, with its unit.
+ */
+const competingFigure = (claim, articles) => {
+  const own = new Map();   // unit -> the claim's number for it
+  for (const m of String(claim || '').matchAll(QUANTITY)) {
+    if (/^(?:19|20)\d{2}$/.test(m[1])) continue;
+    own.set((m[2] || 'percent').toLowerCase().replace(/s$/, ''), m[1].replace(/,/g, ''));
+  }
+  if (!own.size) return null;
+  const counts = new Map();
+  for (const a of articles) {
+    for (const m of String(a.title || '').matchAll(QUANTITY)) {
+      const unit = (m[2] || 'percent').toLowerCase().replace(/s$/, '');
+      const value = m[1].replace(/,/g, '').replace(/\.$/, '');
+      if (!own.has(unit) || value === own.get(unit) || /^(?:19|20)\d{2}$/.test(value)) continue;
+      const key = `${value}|${unit}`;
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+  }
+  // Frequency alone picked the wrong figure: four headlines about the Army's own
+  // "20 medals" outnumbered the reports of India's 85. A figure close to the
+  // claimed one is far likelier to be the same quantity, so closeness weighs in.
+  const closeness = (value, unit) => {
+    const mine = Number(own.get(unit)); const theirs = Number(value);
+    if (!Number.isFinite(mine) || !Number.isFinite(theirs) || mine === 0) return 0;
+    return 1 - Math.min(1, Math.abs(theirs - mine) / Math.abs(mine));
+  };
+  return [...counts.entries()]
+    .map(([key, n]) => { const [value, unit] = key.split('|'); return { value, unit, weight: n * (1 + 2 * closeness(value, unit)) }; })
+    .sort((x, y) => y.weight - x.weight)
+    .slice(0, 2)
+    .map(({ value, unit }) => ({ value, unit: unit === 'percent' ? 'per cent' : `${unit}s`, raw: unit }));
+};
+
+/**
+ * Order retrieved headlines by how useful they are for judging this claim.
+ *
+ * Results from five searches used to be interleaved, so each search had about
+ * two of the places that get judged. For "India won 84 medals at the Asian
+ * Games 2026" the headlines that settle it ("India's 85-medal campaign",
+ * "India signs off with 85 medals") sat fourth and seventh in their lists and
+ * were cut, and the claim came back CANNOT VERIFY instead of FAKE.
+ *
+ * Score: distinctive terms shared with the claim, plus a large bonus when the
+ * headline states a quantity of the same kind as the claim does (any "N
+ * medals" for a medal-count claim), because that is the headline that can
+ * confirm or refute the figure. Ties keep the search order.
+ */
+const rankForClaim = (claim, articles) => {
+  const claimTerms = distinctiveTerms(claim);
+  const units = quantityUnits(claim);
+  const claimValues = new Map();
+  for (const m of String(claim || '').matchAll(QUANTITY)) {
+    if (/^(?:19|20)\d{2}$/.test(m[1])) continue;
+    claimValues.set((m[2] || 'percent').toLowerCase().replace(/s$/, ''), m[1].replace(/,/g, ''));
+  }
+  return articles
+    .map((a, index) => {
+      const text = `${a.title || ''} ${a.description || ''}`;
+      const terms = distinctiveTerms(text);
+      let score = [...claimTerms].filter(t => terms.has(t)).length;
+      if (units.size) {
+        const theirs = quantityUnits(text);
+        if ([...units].some(u => theirs.has(u))) score += 4;
+        // A figure near the claimed one is most likely the same quantity.
+        const near = [...String(text).matchAll(QUANTITY)].some(m => {
+          const unit = (m[2] || 'percent').toLowerCase().replace(/s$/, '');
+          const v = Number(m[1].replace(/,/g, '').replace(/\.$/, ''));
+          const c = Number(claimValues.get(unit));
+          return Number.isFinite(v) && Number.isFinite(c) && c !== 0 && Math.abs(v - c) / Math.abs(c) <= 0.5;
+        });
+        if (near) score += 3;
+      }
+      return { a, index, score };
+    })
+    .sort((x, y) => y.score - x.score || x.index - y.index)
+    .map(x => x.a);
+};
+
 const judgeClaim = async (claim, coverage) => {
+  let reportedByItem = new Map();
   // Six items, not ten, and a tighter budget each. The failure this addresses
   // scaled with the amount there was to walk through: eight items at 300
   // characters invited the model to narrate its way through every one of them
   // and run out of reply budget before answering. Corroboration needs two
   // independent outlets, so six candidates is ample.
   const evidenceText = coverage
-    .slice(0, 8)
+    .slice(0, JUDGED_HEADLINES)
     .map((a, i) => `[${i + 1}] ${a.source}: "${a.title}" — ${a.description}`.slice(0, 220))
     .join('\n');
 
@@ -130,8 +232,10 @@ Read carefully: a headline about the same people or event is NOT automatically "
 
 Before you mark "disagree", ask whether the claim and the headline could BOTH be true. "PM visited Chennai in May" and "Chief Minister met the PM in Delhi in May" can both be true, so that headline is "unrelated", not "disagree".
 
+Numbers matter. If the claim gives a figure and a headline about the same event gives a different figure for the same thing, the two cannot both be true and the headline is "disagree": the claim says "India won 84 medals" and the headline says "India signs off with 85 medals". A part-way figure (medals won on one day, an early count) is not the same thing as a final total, so it is "unrelated".
+
 Return a JSON object with these keys:
-- "items": an array with one object per headline: {"n": <headline number>, "same_event": true or false, "both_can_be_true": true or false, "stance": "agree" | "disagree" | "unrelated"}.
+- "items": an array with one object per headline: {"n": <headline number>, "same_event": true or false, "both_can_be_true": true or false, "stance": "agree" | "disagree" | "unrelated", "reported": "<the exact words in the headline that state the fact the claim is about, such as \"85 medals\" or \"TVK sweeps both seats\"; empty if the headline does not state it>"}.
 - "explanation": one sentence saying what the headlines report compared with the claim.`;
 
   // A model that could not be reached, or whose reply could not be parsed,
@@ -142,7 +246,7 @@ Return a JSON object with these keys:
   let result;
   try {
     result = await callNimApiJson(prompt, {
-      maxTokens: 700,
+      maxTokens: 1400,
       // A judgement must not change between two runs on the same headlines; at
       // the default temperature the same claim came back REAL once and FAKE once.
       temperature: 0,
@@ -167,9 +271,19 @@ Return a JSON object with these keys:
     result.supporting_indices = result.items
       .filter(it => stance(it) === 'agree' && it.same_event !== false)
       .map(it => Number(it.n));
+    // A contradiction has to be found in the headline itself: the words the
+    // model quotes as what the outlet reports must actually be there. A quote
+    // that is not in the headline is the model's own invention, not evidence.
+    const inHeadline = (it) => {
+      const quoted = norm(it.reported);
+      if (!quoted) return true;
+      const item = coverage[Number(it.n) - 1];
+      return Boolean(item) && norm(item.title + ' ' + (item.description || '')).includes(quoted);
+    };
     result.contradicting_indices = result.items
-      .filter(it => stance(it) === 'disagree' && it.same_event === true && it.both_can_be_true === false)
+      .filter(it => stance(it) === 'disagree' && it.same_event === true && it.both_can_be_true === false && inHeadline(it))
       .map(it => Number(it.n));
+    reportedByItem = new Map(result.items.map(it => [Number(it.n), String(it.reported || '').trim()]));
     result.verdict = result.contradicting_indices.length > result.supporting_indices.length
       ? 'contradicted'
       : result.supporting_indices.length > 0 ? 'supported'
@@ -189,7 +303,7 @@ Return a JSON object with these keys:
 
   const pick = (indices) =>
     (Array.isArray(indices) ? indices : [])
-      .map(n => coverage[Number(n) - 1])
+      .map(n => coverage[Number(n) - 1] && { ...coverage[Number(n) - 1], reported: reportedByItem.get(Number(n)) || '' })
       .filter(Boolean)
       // `description` travels with the evidence because wire syndication is
       // detected from the agency credit in the headline or standfirst — see
@@ -201,6 +315,7 @@ Return a JSON object with these keys:
         description: a.description || '',
         url: a.url,
         publishedAt: a.publishedAt,
+        reported: a.reported || '',
         reliability: getSourceReputation(a.source, a.url).score
       }));
 
@@ -284,7 +399,21 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, sourceNam
   // Namibia", so the extractor writes each claim the way a headline would and
   // that phrasing is searched alongside the claim sentence.
   const asQuery = (text) => String(text || '').replace(/[.!?"]+$/g, '').split(/\s+/).slice(0, 14).join(' ');
-  const phrasings = [...new Set([asQuery(headline), asQuery(claim)].filter(Boolean))];
+  // A claim with a figure in it is also searched without the figure. Searched
+  // with "84", "India won 84 medals at the Asian Games" found nothing that gave
+  // a total, and the eight outlets reporting 85 medals were never judged; the
+  // claim came back CANNOT VERIFY instead of FAKE. Years are kept: they say
+  // which event, not what is disputed.
+  const withoutFigures = (text) => String(text || '')
+    .replace(/(?:₹|rs\.?\s*)?(?<![\p{L}\p{N}])\d[\d,.]*(?:\s*(?:per\s*cent|percent|%|crore|lakh|million|billion))?/giu,
+      m => (/^(?:19|20)\d{2}[.,]?$/.test(m.trim()) ? m : ' '))
+    .replace(/(^|\s)-+/g, ' ').replace(/\s+/g, ' ').trim();
+  const hasFigure = (text) => /\d/.test(String(text || '').replace(/(?<!\d)(?:19|20)\d{2}(?!\d)/g, ''));
+  const phrasings = [...new Set([
+    asQuery(headline),
+    asQuery(claim),
+    hasFigure(claim) ? asQuery(withoutFigures(claim)) : ''
+  ].filter(Boolean))];
   const claimBatch = Promise.all(phrasings.map(q => searchGoogleNews(q, sourceName, 8, 'en')
     .then(articles => ({ articles }))
     .catch(() => ({ articles: [], failed: true }))))
@@ -306,14 +435,29 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, sourceNam
   for (let i = 0; lists.some(l => i < l.length); i++) {
     for (const l of lists) if (i < l.length) interleaved.push(l[i]);
   }
-  for (const article of interleaved) {
-    const key = article.url || `${article.source}|${article.title}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    merged.push(article);
-  }
+  const addAll = (articles) => {
+    for (const article of articles) {
+      const key = article.url || `${article.source}|${article.title}`;
+      const titleKey = String(article.title || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+      if (seen.has(key) || seen.has(titleKey)) continue;
+      seen.add(key);
+      seen.add(titleKey);
+      merged.push(article);
+    }
+  };
+  addAll(interleaved);
+
+  // When the coverage states a different figure for the same quantity — the
+  // claim says 84 medals, a headline says 85 — that figure is searched for
+  // directly, so every outlet reporting it is found and judged, not only the
+  // one the general search happened to return.
+  const competing = competingFigure(claim, merged) || [];
+  const probes = await Promise.all(competing.map(c =>
+    searchGoogleNews(`${c.value} ${c.unit} ${withoutFigures(claim)}`.split(/\s+/).slice(0, 14).join(' '), sourceName, 8, 'en')
+      .catch(() => [])));
+  for (const found of probes) addAll(found.map(a => ({ ...a, foundIn: 'en' })));
   return {
-    articles: merged.slice(0, 10),
+    articles: rankForClaim(claim, merged).slice(0, JUDGED_HEADLINES),
     searchFailed: batches.every(b => b.failed) && (fromClaim.failed || fromClaim.lists.every(l => l.length === 0))
   };
 };

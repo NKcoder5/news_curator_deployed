@@ -72,6 +72,37 @@ const FACTOR_LABELS = {
 // announcing it made the page count "7 of 6".
 const REPORTED_STEPS = new Set(Object.keys(FACTOR_LABELS));
 
+// The evidence channels, announced to a caller watching the check live (the
+// Check Anything page). Each reports what it found in one line, the moment it
+// lands, so the reader watches the evidence arrive rather than a spinner.
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+const CHANNELS = {
+  claimExtraction: {
+    name: 'Reading out the claims',
+    summary: ({ claims = [], failed }) => (failed ? 'The claims could not be read out.'
+      : claims.length ? `${plural(claims.length, 'checkable claim', 'checkable claims')}: “${claims[0].claim}”`
+      : 'No specific factual claim found.')
+  },
+  verification: {
+    name: 'Searching news coverage',
+    summary: (r) => {
+      const claims = r.claims || [];
+      const count = (key) => claims.reduce((n, c) => n + (c[key] || []).length, 0);
+      if (r.status === 'error') return 'The news search could not run.';
+      if (r.status === 'contradicted') return `${plural(count('contradictingEvidence'), 'report', 'reports')} found that say otherwise.`;
+      if (r.status === 'corroborated') return `${plural(count('supportingEvidence'), 'report', 'reports')} found that say the same.`;
+      return 'No outlet reports this event.';
+    }
+  },
+  factChecks: { name: 'Asking the fact-checkers', summary: (r) => r.explanation },
+  currentCoverage: { name: 'Reading this week’s news on the subject', summary: (r) => r.explanation },
+  premises: { name: 'Checking reference facts', summary: (r) => r.explanation },
+  clickbait: { name: 'Reading how it is written', group: 'writing' },
+  bias: { name: 'Reading how it is written', group: 'writing' },
+  manipulation: { name: 'Reading how it is written', group: 'writing' },
+  transparency: { name: 'Reading how it is written', group: 'writing' }
+};
+
 const WEIGHTS = {
   sourceReputation: 0.15,
   clickbait: 0.10,
@@ -224,7 +255,7 @@ const buildPlainLanguage = ({
  * @param {Object} article - { title, content, source, url }
  * @returns {Promise<Object>} structured trust report
  */
-const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgress, provenance, modality, publishedAt }) => {
+const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgress, onChannel, provenance, modality, publishedAt }) => {
   // Whether we are reading the article or the feed's two-line summary of it.
   // Checks that need the body of the piece cannot be reported as findings
   // about the piece when all we have is the summary.
@@ -241,6 +272,18 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
       if (typeof onProgress === 'function' && REPORTED_STEPS.has(name)) {
         try {
           onProgress({ id: name, name: FACTOR_LABELS[name], ms: Date.now() - started });
+        } catch (_) { /* a broken listener must never fail the analysis */ }
+      }
+      if (typeof onChannel === 'function' && CHANNELS[name]) {
+        try {
+          const channel = CHANNELS[name];
+          onChannel({
+            id: name,
+            name: channel.name,
+            group: channel.group || null,
+            ms: Date.now() - started,
+            summary: channel.summary ? String(channel.summary(result) || '') : null
+          });
         } catch (_) { /* a broken listener must never fail the analysis */ }
       }
       return result;
@@ -598,6 +641,15 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
       counted: evidenceLedger.currentCoverageOutcome,
       presupposingFalse: (currentCoverageResult.presupposingFalse || []).slice(0, 6),
       reporting: (currentCoverageResult.reporting || []).slice(0, 6)
+    },
+    // The encyclopedia check of the claim's named subjects.
+    premiseCheck: {
+      status: premiseResult.status,
+      explanation: premiseResult.explanation,
+      checked: (premiseResult.checked || []).map(c => ({ entity: c.entity, reference: c.reference || null })),
+      contradictions: (premiseResult.contradictions || []).map(c => ({
+        entity: c.entity, articleStates: c.articleStates, referenceStates: c.referenceStates, reference: c.reference || null
+      }))
     },
     // What the fact-checking desks said, review by review, so the reader can
     // open each ruling rather than take the verdict on trust.

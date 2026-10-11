@@ -128,6 +128,8 @@ const assessCheckability = (text, title = '') => {
     words.forEach((word, index) => {
       const clean = word.replace(/[^\p{L}\p{N}\p{M}]/gu, '');
       if (!clean || /\d/.test(clean) || clean.length < 3 || STOPWORDS.has(clean.toLowerCase())) return;
+      // "share this before they delete it": an opener is not a name, in any case.
+      if (index === 0 && SENTENCE_OPENERS.has(clean.toLowerCase())) return;
       if ((index === 0 && /^\p{Lu}/u.test(clean)) || /^\p{Lu}{2,}$/u.test(clean) || (lowerCase && index === 0)) {
         if (!anchors.names.includes(clean)) anchors.names.push(clean);
       }

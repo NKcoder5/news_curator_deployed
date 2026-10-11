@@ -267,11 +267,29 @@ router.post('/trust-analysis', async (req, res) => {
 //   { text }         - a pasted message or caption
 //   { imageBase64 }  - a screenshot, read with OCR
 // plus optional { account } and { languageHint } for the screenshot case.
-router.post('/analyze-content', async (req, res) => {
-  const { url, text, imageBase64, account, languageHint } = req.body || {};
+// A refusal or a fault, carried with the status and body the JSON route sends
+// and the stream reports.
+class ContentCheckError extends Error {
+  constructor(status, payload) {
+    super(payload.error);
+    this.status = status;
+    this.payload = payload;
+  }
+}
+
+/**
+ * Ingest whatever was sent, gate it, and run the full check.
+ *
+ * Shared by the JSON route and the streamed one, so the two cannot drift.
+ * `onStage` hears what was read; `onChannel` hears each evidence channel
+ * land, with its one-line finding.
+ */
+const runContentCheck = async (requestBody, { onStage, onChannel } = {}) => {
+  const { url, text, imageBase64, account, languageHint } = requestBody || {};
+  const stage = (event) => { try { onStage?.(event); } catch (_) { /* listener faults never fail a check */ } };
 
   if (!url && !text && !imageBase64) {
-    return res.status(400).json({ error: 'Send a link, some text, or a screenshot to check.' });
+    throw new ContentCheckError(400, { error: 'Send a link, some text, or a screenshot to check.' });
   }
 
   try {
@@ -280,13 +298,14 @@ router.post('/analyze-content', async (req, res) => {
 
     if (imageBase64) {
       const buffer = Buffer.from(String(imageBase64).replace(/^data:image\/\w+;base64,/, ''), 'base64');
-      if (buffer.length === 0) return res.status(400).json({ error: 'That image could not be decoded.' });
-      if (buffer.length > 8 * 1024 * 1024) return res.status(413).json({ error: 'That image is too large. Send one under 8 MB.' });
+      if (buffer.length === 0) throw new ContentCheckError(400, { error: 'That image could not be decoded.' });
+      if (buffer.length > 8 * 1024 * 1024) throw new ContentCheckError(413, { error: 'That image is too large. Send one under 8 MB.' });
+      stage({ id: 'ocr', name: 'Reading the text out of the screenshot' });
 
       const packs = ['eng', packForLanguage(languageHint)].filter(Boolean);
       ocrResult = await readImageText(buffer, [...new Set(packs)]);
       if (!ocrResult.text || ocrResult.text.length < 40) {
-        return res.status(422).json({
+        throw new ContentCheckError(422, {
           error: 'We could not read enough text from that screenshot. Try a sharper image, or paste the text instead.',
           readText: ocrResult.text || ''
         });
@@ -295,6 +314,7 @@ router.post('/analyze-content', async (req, res) => {
     } else if (!url) {
       ingested = await ingestSocialContent({ text, account });
     } else {
+      stage({ id: 'fetch', name: 'Opening the link' });
       // A platform link is read by the social ingester; anything else is an
       // ordinary web page and goes to the article reader.
       ingested = await ingestSocialContent({ url, account });
@@ -327,7 +347,7 @@ router.post('/analyze-content', async (req, res) => {
     // make the input usable.
     const checkability = assessCheckability(ingested.content, ingested.title);
     if (!checkability.checkable) {
-      return res.status(422).json({
+      throw new ContentCheckError(422, {
         error: checkability.reason,
         checkable: false,
         kind: checkability.kind,
@@ -335,6 +355,15 @@ router.post('/analyze-content', async (req, res) => {
         readText: ocrResult ? { chars: ocrResult.text.length, confidence: ocrResult.confidence } : null
       });
     }
+
+    stage({
+      id: 'read',
+      name: 'Read',
+      title: ingested.title,
+      modality: ingested.modality || 'text',
+      source: ingested.source || null,
+      chars: String(ingested.content || '').length
+    });
 
     const report = await analyzeTrust({
       title: ingested.title,
@@ -344,40 +373,81 @@ router.post('/analyze-content', async (req, res) => {
       provenance: ingested.provenance,
       modality: ingested.modality,
       publishedAt: ingested.publishedAt || null,
-      textCoverage: 'full'
+      textCoverage: 'full',
+      onChannel
     });
 
-    res.json({
+    return {
       ...report,
       ingestNotes: ingested.ingestNotes,
       readText: ocrResult ? { chars: ocrResult.text.length, confidence: ocrResult.confidence, languages: ocrResult.languages } : null,
       cached: false
-    });
+    };
   } catch (err) {
+    if (err instanceof ContentCheckError) throw err;
     // A platform that refuses to be read is not a server fault, and the message
     // tells the reader exactly what to do instead.
     if (err.code === 'PLATFORM_UNREADABLE') {
-      return res.status(422).json({ error: err.message, platform: err.platform, canRetryWith: ['text', 'screenshot'] });
+      throw new ContentCheckError(422, { error: err.message, platform: err.platform, canRetryWith: ['text', 'screenshot'] });
     }
     if (err.code === 'OCR_UNAVAILABLE' || err.code === 'OCR_FAILED') {
-      return res.status(503).json({ error: err.message });
+      throw new ContentCheckError(503, { error: err.message });
     }
     // A link we cannot parse is a bad request; a site that refuses automated
     // reading is a condition upstream of us. Reporting either as 500 says the
     // server broke, which is both untrue and unhelpful to whoever is reading
     // the logs.
     if (err.code === 'BAD_URL') {
-      return res.status(400).json({ error: err.message });
+      throw new ContentCheckError(400, { error: err.message });
     }
     // A host that does not resolve, a page that is not an article, a body too
     // short to check: each is a fact about the link, and each already carries
     // a message written for the reader. Only an unrecognised fault is a 500.
     if (err.code === 'FETCH_BLOCKED' || err.code === 'FETCH_FAILED') {
-      return res.status(422).json({ error: err.message, canRetryWith: ['text', 'screenshot'] });
+      throw new ContentCheckError(422, { error: err.message, canRetryWith: ['text', 'screenshot'] });
     }
     console.error('Content analysis failed:', err.message);
-    res.status(500).json({ error: err.message || 'Failed to analyse that content.' });
+    throw new ContentCheckError(500, { error: err.message || 'Failed to analyse that content.' });
   }
+};
+
+router.post('/analyze-content', async (req, res) => {
+  try {
+    res.json(await runContentCheck(req.body));
+  } catch (err) {
+    res.status(err.status || 500).json(err.payload || { error: 'Failed to analyse that content.' });
+  }
+});
+
+// The same check, streamed: what was read, then each evidence channel as it
+// lands with its one-line finding, then the report. Newline-delimited JSON,
+// for the same reason as the article stream below — the input is POSTed.
+router.post('/analyze-content/stream', async (req, res) => {
+  res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders?.();
+
+  let closed = false;
+  res.on('close', () => { closed = true; });
+  const emit = (event) => {
+    if (closed || res.writableEnded) return;
+    res.write(JSON.stringify(event) + '\n');
+  };
+
+  try {
+    emit({ type: 'start' });
+    const report = await runContentCheck(req.body, {
+      onStage: (event) => emit({ type: 'stage', ...event }),
+      onChannel: (event) => emit({ type: 'channel', ...event })
+    });
+    emit({ type: 'report', report });
+  } catch (err) {
+    // A refusal travels with its status so the page can show it as a refusal,
+    // not as a fault.
+    emit({ type: 'error', status: err.status || 500, ...(err.payload || { error: 'Failed to analyse that content.' }) });
+  }
+  res.end();
 });
 
 // The same analysis, streamed.

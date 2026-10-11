@@ -86,3 +86,8 @@ test('a one-sentence claim may open with its subject', () => {
   // A single-sentence exhortation still names nothing.
   assert.strictEqual(assessCheckability('Share this message with all your friends and family members now').checkable, false);
 });
+
+test('a lower-case exhortation is not read as naming its first word', () => {
+  assert.strictEqual(assessCheckability('share this before they delete it').checkable, false);
+  assert.strictEqual(assessCheckability('tvk lost 2026 bye elections').checkable, true);
+});

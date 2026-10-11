@@ -932,3 +932,40 @@
 @media (max-width: 480px) {
   .verdict-call { font-size: 1.7rem; }
 }
+
+/* What decided the verdict, and how sure it is — shown on the Check page,
+   where the reader came to test a claim and wants the basis at once. */
+.verdict-basis {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem 1.6rem;
+  flex-wrap: wrap;
+  margin-top: 0.8rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--rule-strong);
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+}
+
+.verdict-decided strong,
+.verdict-confidence strong { color: var(--ink); }
+
+.verdict-confidence {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.verdict-confidence-track {
+  display: inline-block;
+  width: 7rem;
+  height: 0.45rem;
+  background: var(--paper-sunken);
+  border: 1px solid var(--rule-strong);
+}
+
+.verdict-confidence-track span {
+  display: block;
+  height: 100%;
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import EvidenceBoard, { RULE_LABELS } from './EvidenceBoard';
 import '../styles/TrustReport.css';
 
 const LEVEL_COLORS = {
@@ -329,7 +330,13 @@ const FactorDetail = ({ factor }) => {
   }
 };
 
-const TrustReport = ({ report }) => {
+/**
+ * @param {Object}  props.report
+ * @param {boolean} [props.evidenceFirst] - lay the evidence out under the
+ *   verdict instead of behind a button. The Check page does: someone pasting
+ *   a claim to test it wants the proof, and an examiner asks for it first.
+ */
+const TrustReport = ({ report, evidenceFirst = false }) => {
   const [expanded, setExpanded] = useState(null);
   const [showWorking, setShowWorking] = useState(false);
   // Three tiers, because most readers want the answer and nothing else. The
@@ -356,7 +363,24 @@ const TrustReport = ({ report }) => {
       <div className={`verdict-card verdict-${report.verdictLevel || 'unverified'}`}>
         <div className="verdict-call" style={{ color }}>{report.call || report.verdict}</div>
         {report.oneLine && <p className="verdict-oneline">{report.oneLine}</p>}
+        {evidenceFirst && report.decision && (
+          <div className="verdict-basis">
+            {RULE_LABELS[report.decision.rule] && (
+              <span className="verdict-decided">Decided by: <strong>{RULE_LABELS[report.decision.rule]}</strong></span>
+            )}
+            {typeof report.decision.confidence === 'number' && (
+              <span className="verdict-confidence">
+                Confidence <strong>{Math.round(report.decision.confidence * 100)}%</strong>
+                <span className="verdict-confidence-track" aria-hidden="true">
+                  <span style={{ width: `${Math.round(report.decision.confidence * 100)}%`, background: color }} />
+                </span>
+              </span>
+            )}
+          </div>
+        )}
       </div>
+
+      {evidenceFirst && <EvidenceBoard report={report} />}
 
       <div className="tier-buttons">
         <button className="tier-toggle" onClick={() => setShowProof(!showProof)} aria-expanded={showProof}>

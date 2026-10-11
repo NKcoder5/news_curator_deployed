@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Link2, ClipboardType, Image as ImageIcon } from 'lucide-react';
 import api from '../services/api';
 import TrustReport from '../components/TrustReport';
+import LivePipeline from '../components/LivePipeline';
 import '../styles/CheckPage.css';
 
 /**
@@ -30,6 +31,56 @@ const MODES = [
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 
+/**
+ * Run the check over the streamed endpoint, reporting each event as it lands.
+ *
+ * Returns the report, or null when streaming is unavailable (an old browser, a
+ * buffering proxy, an expired session) so the caller can fall back to the
+ * plain endpoint. A refusal or fault arrives as an event and is thrown in the
+ * same shape an axios error has, so one handler serves both routes.
+ */
+const streamContentCheck = async (body, onEvent) => {
+  if (typeof fetch !== 'function' || typeof TextDecoder === 'undefined') return null;
+  const token = localStorage.getItem('token');
+  let response;
+  try {
+    response = await fetch(`${api.defaults.baseURL}/ai/analyze-content/stream`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify(body)
+    });
+  } catch (_) {
+    return null;
+  }
+  if (!response.ok || !response.body) return null;
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let newline;
+    while ((newline = buffer.indexOf('\n')) >= 0) {
+      const line = buffer.slice(0, newline).trim();
+      buffer = buffer.slice(newline + 1);
+      if (!line) continue;
+      let event;
+      try { event = JSON.parse(line); } catch (_) { continue; }
+      if (event.type === 'report') return event.report;
+      if (event.type === 'error') {
+        const { type, status, ...data } = event;
+        const error = new Error(data.error || 'The check failed.');
+        error.response = { status, data };
+        throw error;
+      }
+      onEvent(event);
+    }
+  }
+  throw new Error('The check ended without a result.');
+};
+
 const CheckPage = () => {
   // A video or social link pasted into the feed's link box is redirected here,
   // arriving prefilled so the reader does not have to paste it twice.
@@ -44,6 +95,11 @@ const CheckPage = () => {
 
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState(null);
+  // The live view of the check: what was read, and each channel's finding.
+  const [stage, setStage] = useState(null);
+  const [channels, setChannels] = useState({});
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const [streamed, setStreamed] = useState(false);
   const [refusal, setRefusal] = useState(null);
   const [error, setError] = useState('');
 
@@ -51,6 +107,36 @@ const CheckPage = () => {
     setReport(null);
     setRefusal(null);
     setError('');
+    setStage(null);
+    setChannels({});
+    setStreamed(false);
+  };
+
+  // Bring the live check into view the moment it starts, since it opens
+  // below the form and would otherwise run unseen.
+  const pipelineRef = useRef(null);
+  useEffect(() => {
+    if (loading && streamed && pipelineRef.current?.scrollIntoView) {
+      pipelineRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [loading, streamed]);
+
+  const onStreamEvent = (event) => {
+    setStreamed(true);
+    if (event.type === 'stage') setStage(event);
+    if (event.type === 'channel') {
+      // The four writing checks share one line, counted as they land.
+      const id = event.group || event.id;
+      setChannels((current) => {
+        const previous = current[id];
+        return {
+          ...current,
+          [id]: event.group
+            ? { count: (previous?.count || 0) + 1, ms: Math.max(previous?.ms || 0, event.ms || 0) }
+            : { summary: event.summary, ms: event.ms, count: 1 }
+        };
+      });
+    }
   };
 
   const chooseMode = (id) => {
@@ -95,9 +181,16 @@ const CheckPage = () => {
 
     reset();
     setLoading(true);
+    const started = Date.now();
     try {
-      const response = await api.post('/ai/analyze-content', payload());
-      setReport(response.data);
+      const streamedReport = await streamContentCheck(payload(), onStreamEvent);
+      if (streamedReport) {
+        setReport(streamedReport);
+      } else {
+        const response = await api.post('/ai/analyze-content', payload());
+        setReport(response.data);
+      }
+      setElapsedMs(Date.now() - started);
     } catch (err) {
       const data = err.response?.data;
       // A refusal is not a failure. The backend declines input that asserts
@@ -223,7 +316,7 @@ const CheckPage = () => {
             </div>
             <div className="check-verdict check-verdict--fake">
               <dt>Fake</dt>
-              <dd>Independent reporting contradicts it, or a premise of it is false.</dd>
+              <dd>Outlets report otherwise, fact-checkers have rated it false, this week’s news rules it out, or a premise of it is false.</dd>
             </div>
             <div className="check-verdict check-verdict--unknown">
               <dt>Cannot verify</dt>
@@ -266,9 +359,16 @@ const CheckPage = () => {
         </section>
       )}
 
+      {/* The check as it runs, folded to one line once the verdict is in. */}
+      {(loading || report) && streamed && (
+        <div ref={pipelineRef}>
+          <LivePipeline stage={stage} channels={channels} finished={Boolean(report)} elapsedMs={elapsedMs} />
+        </div>
+      )}
+
       {report && (
         <section className="check-result">
-          <TrustReport report={report} />
+          <TrustReport report={report} evidenceFirst />
         </section>
       )}
     </div>

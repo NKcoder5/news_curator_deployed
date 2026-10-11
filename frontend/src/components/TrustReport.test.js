@@ -54,3 +54,40 @@ test('a writing check that accuses still says so', () => {
   openWorking();
   expect(screen.getByText(/strongly suggests it is made up/i)).toBeInTheDocument();
 });
+
+// A viral rumour the desks have ruled on. The Check page lays the evidence out
+// at once, and marks the channel the verdict rule acted on.
+const debunked = {
+  call: 'FAKE',
+  oneLine: 'Rated false by The Quint and Newschecker after checking this exact claim.',
+  verdict: 'False',
+  verdictLevel: 'false',
+  decision: { grounds: [], rule: 'rated-false-by-fact-checkers', confidence: 0.93 },
+  factors: [{ id: 'verification', detail: { status: 'unverified', claims: [] } }],
+  quality: null,
+  evidence: { perClaim: [] },
+  factChecks: {
+    status: 'debunked',
+    explanation: 'Rated false by 2 fact-checking desks: The Quint, Newschecker.',
+    matches: [
+      { publisher: 'The Quint', rating: 'False', finding: 'false', reviewedAt: '2026-10-05', claimReviewed: 'Every Saturday declared a bank holiday.', url: 'https://example.test/q', via: 'claimreview' },
+      { publisher: 'Newschecker', rating: null, finding: 'false', reviewedAt: '2026-10-05', claimReviewed: 'Viral gazette is fake', url: 'https://example.test/n', via: 'news-search' }
+    ]
+  },
+  currentCoverage: { status: 'silent', subject: 'bank holidays', explanation: 'Neither mentions nor rules out the claim.', presupposingFalse: [], reporting: [] },
+  premiseCheck: { status: 'no-entities', explanation: 'Nothing to look up.', contradictions: [] }
+};
+
+test('the Check page shows the evidence board and what decided the verdict', () => {
+  render(<TrustReport report={debunked} evidenceFirst />);
+  expect(screen.getByText(/decided by/i)).toBeInTheDocument();
+  expect(screen.getByText('93%')).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Fact-checkers' })).toBeInTheDocument();
+  expect(screen.getAllByText(/this decided the verdict/i)).toHaveLength(1);
+  expect(screen.getAllByRole('link', { name: /read the fact-check/i })).toHaveLength(2);
+});
+
+test('the article page keeps the evidence behind its button', () => {
+  render(<TrustReport report={debunked} />);
+  expect(screen.queryByText(/this decided the verdict/i)).not.toBeInTheDocument();
+});

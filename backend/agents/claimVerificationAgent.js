@@ -52,7 +52,7 @@ Content: ${(content || '').slice(0, 2000)}
 Return a JSON object with one key, "claims": an array of at most ${maxClaims} entries, empty when the article contains nothing checkable. Each entry has:
 - "claim": the factual claim in one sentence.
 - "headline": the same claim written as a short English news headline, the way a newspaper reporting it would phrase it (for "UAE lost to Namibia" write "Namibia beat UAE").
-- "subject": the main person, organisation, place or thing the claim is about, in 1 to 4 English words a news search would use ("Narendra Modi", "income tax India", "Virat Kohli", "RBI").
+- "subject": the specific person, organisation, event or thing the claim is about, in 1 to 4 English words a news search would use, specific enough that news found for it is about this subject ("Narendra Modi", "income tax India", "Asian Games India", "Virat Kohli", "RBI") — not a whole country on its own.
 ${keywordFields}
 Do not split one statement into a trivial part and its real point: for "UAE lost to Namibia" give one claim about who won or lost, not a separate claim that the match took place.
 Return at most ${maxClaims} claims. If the article contains no checkable claims, return an empty array.${isForeign ? `\nWrite "claim" in English so the verdict can be explained to the reader, but keep "search_keywords" in ${language.name}.` : ''}`;

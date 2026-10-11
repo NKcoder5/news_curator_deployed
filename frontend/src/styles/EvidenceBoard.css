@@ -1,0 +1,257 @@
+/* ============================================================================
+   The evidence board — one panel per evidence channel, under the verdict.
+
+   Built from the house newsprint primitives: aged-paper panels, hairline
+   rules, Playfair headings. Status is carried by a coloured top rule and a
+   small label, never by colour alone, so it reads in greyscale print too.
+   ========================================================================= */
+
+.evidence-board {
+  margin-top: 1.4rem;
+}
+
+.eb-title {
+  font-family: var(--headline-font);
+  font-size: 1.25rem;
+  margin: 0 0 0.8rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid var(--ink);
+  color: var(--ink);
+}
+
+.eb-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.eb-panel {
+  background: var(--paper-aged);
+  border: 1px solid var(--rule-strong);
+  border-top: 4px solid var(--trust-unknown);
+  padding: 0.85rem 1rem 1rem;
+  min-width: 0;
+}
+
+.eb-panel.eb-against { border-top-color: var(--trust-low); }
+.eb-panel.eb-for { border-top-color: var(--trust-high); }
+.eb-panel.eb-mixed { border-top-color: var(--trust-caution); }
+.eb-panel.eb-clear { border-top-color: var(--trust-good); }
+
+.eb-panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.eb-panel-head h4 {
+  margin: 0;
+  font-family: var(--headline-font);
+  font-size: 1.02rem;
+  color: var(--ink);
+}
+
+.eb-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.45rem;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+
+.eb-status-against { color: var(--trust-low); background: var(--trust-low-soft); }
+.eb-status-for { color: var(--trust-high); background: var(--trust-high-soft); }
+.eb-status-mixed { color: var(--trust-caution); background: var(--trust-caution-soft); }
+.eb-status-clear { color: var(--trust-good); background: var(--trust-good-soft); }
+.eb-status-none,
+.eb-status-unavailable { color: var(--ink-muted); background: var(--trust-unknown-soft); }
+
+.eb-decided {
+  margin: 0.45rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.eb-decided::before {
+  content: '▶ ';
+  font-size: 0.65rem;
+}
+
+.eb-summary {
+  margin: 0.5rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--ink-body);
+}
+
+.eb-meta {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+/* "This says" against "Outlets report" — the conflict, side by side. */
+.eb-versus {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 0.7rem;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+}
+
+.eb-versus-side {
+  padding: 0.55rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.eb-versus-side + .eb-versus-side { border-left: 1px solid var(--rule-strong); }
+
+.eb-versus-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.eb-versus-label a { color: inherit; }
+
+.eb-versus-text {
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.eb-versus-reported .eb-versus-text { font-weight: 700; }
+
+.eb-claim + .eb-claim { margin-top: 0.8rem; }
+
+.eb-list {
+  list-style: none;
+  margin: 0.65rem 0 0;
+  padding: 0;
+}
+
+.eb-item {
+  display: flex;
+  gap: 0.55rem;
+  align-items: baseline;
+  padding: 0.4rem 0;
+  border-top: 1px solid var(--rule);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.eb-item a {
+  color: var(--ink-body);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.eb-item a:hover { text-decoration: underline; }
+
+.eb-item-tag {
+  flex: none;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  min-width: 6.6rem;
+}
+
+.eb-item-against .eb-item-tag { color: var(--trust-low); }
+.eb-item-for .eb-item-tag { color: var(--trust-high); }
+
+.eb-mark {
+  background: var(--trust-caution-soft);
+  color: var(--ink);
+  padding: 0 0.12rem;
+  font-weight: 700;
+}
+
+/* Fact-check rulings as cards: who ruled, what they ruled, and the link. */
+.eb-cards {
+  list-style: none;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.eb-card {
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-left: 4px solid var(--trust-unknown);
+  padding: 0.55rem 0.7rem;
+}
+
+.eb-card-false,
+.eb-card-misleading { border-left-color: var(--trust-low); }
+.eb-card-true { border-left-color: var(--trust-high); }
+
+.eb-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.eb-card-publisher {
+  font-family: var(--headline-font);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.eb-rating {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.eb-rating-false,
+.eb-rating-misleading { color: var(--trust-low); }
+.eb-rating-true { color: var(--trust-high); }
+
+.eb-card-claim {
+  margin: 0.3rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.eb-card-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+}
+
+.eb-card-foot a { color: var(--accent); }
+
+@media (max-width: 860px) {
+  .eb-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 520px) {
+  .eb-versus { grid-template-columns: 1fr; }
+  .eb-versus-side + .eb-versus-side { border-left: 0; border-top: 1px solid var(--rule-strong); }
+  .eb-item { flex-direction: column; gap: 0.1rem; }
+}

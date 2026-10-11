@@ -314,6 +314,24 @@ const main = async () => {
   }
 
   const out = path.join(__dirname, '..', 'data', 'taskRouting.json');
+
+  // Routes set by hand carry `overriddenAt` and a reason recording the live
+  // failure that forced them — "TVK sweeps both seats" read as agreeing with
+  // "TVK lost". A fixed-input benchmark cannot see that failure, so a rewrite
+  // would quietly undo the fix. They are carried over, and named, unless
+  // --reset-overrides is given.
+  if (!args.includes('--reset-overrides') && fs.existsSync(out)) {
+    try {
+      const previous = JSON.parse(fs.readFileSync(out, 'utf8'));
+      for (const [name, entry] of Object.entries(previous.tasks || {})) {
+        if (entry && entry.overriddenAt) {
+          table.tasks[name] = { ...entry, measured: results[name] || entry.measured };
+          console.log(`  ${name.padEnd(18)} -> ${entry.chain[0].padEnd(7)}  (kept: set by hand on ${entry.overriddenAt})`);
+        }
+      }
+    } catch (_) { /* an unreadable table has nothing to carry over */ }
+  }
+
   if (WRITE) {
     fs.writeFileSync(out, JSON.stringify(table, null, 2));
     console.log(`\nWritten to ${path.relative(process.cwd(), out)}`);

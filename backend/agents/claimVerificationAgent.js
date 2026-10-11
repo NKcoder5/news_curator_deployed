@@ -62,7 +62,12 @@ Return at most ${maxClaims} claims. If the article contains no checkable claims,
   // article asserts nothing another outlet could check. The same article came
   // back REAL on one run and NOT A FACTUAL CLAIM on the next because of it.
   // Temperature 0: the same text must yield the same claims, or the verdict changes from run to run.
-  const result = await callNimApiJson(prompt, { maxTokens: 800, temperature: 0, requiredKeys: ['claims'], allowArray: true, label: 'claim extraction' });
+  // Text in another language goes to its own route. The local model rendered
+  // the Tamil "தவெக" (TVK) as "DMK", and the claim it extracted — "the DMK won
+  // in Dharapuram" — was then rightly contradicted by every outlet reporting
+  // TVK's win: a true message called FAKE through a mistranslation.
+  const label = isForeign ? 'claim extraction (non-English)' : 'claim extraction';
+  const result = await callNimApiJson(prompt, { maxTokens: 800, temperature: 0, requiredKeys: ['claims'], allowArray: true, label });
 
   // Some models return the array directly rather than wrapping it. That is a
   // usable answer, not a malformed one.

@@ -351,6 +351,15 @@
       ],
       "reason": "routed to a hosted model by hand on 2026-10-11: the task is an inference about what a dated headline takes for granted (\"PM Modi inaugurates projects\" two days after a claimed resignation), which the stance judgement already showed the local model gets wrong",
       "overriddenAt": "2026-10-11"
+    },
+    "claim extraction (non-English)": {
+      "chain": [
+        "gemini",
+        "nim",
+        "ollama"
+      ],
+      "reason": "routed to a hosted model by hand on 2026-10-11: on a Tamil message about TVK winning both by-elections, the local model translated \"தவெக\" (TVK) as \"DMK\", and the mistranslated claim was contradicted by every outlet reporting the result",
+      "overriddenAt": "2026-10-11"
     }
   }
 }

@@ -13,6 +13,7 @@ const { extractArticle } = require('../utils/articleExtractor');
 const { ingestSocialContent } = require('../utils/socialIngest');
 const { readImageText, packForLanguage } = require('../utils/ocr');
 const { assessCheckability } = require('../agents/checkability');
+const { askPlainModel } = require('../agents/plainModelBaseline');
 const { resolveArticleText, limitText, TEXT_BUDGET, fingerprintText } = require('../utils/articleText');
 const TrustReportCache = require('../models/TrustReportCache');
 const SummaryCache = require('../models/SummaryCache');
@@ -417,6 +418,15 @@ router.post('/analyze-content', async (req, res) => {
   } catch (err) {
     res.status(err.status || 500).json(err.payload || { error: 'Failed to analyse that content.' });
   }
+});
+
+// What a plain language model says about the same text, with nothing to read.
+// Shown beside the verdict on request, so the difference evidence makes is
+// visible rather than asserted. See agents/plainModelBaseline.js.
+router.post('/plain-answer', async (req, res) => {
+  const text = String(req.body?.text || '').trim();
+  if (!text) return res.status(400).json({ error: 'Send the text to ask about.' });
+  res.json(await askPlainModel(text));
 });
 
 // The same check, streamed: what was read, then each evidence channel as it

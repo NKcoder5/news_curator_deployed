@@ -4,6 +4,7 @@ import { Link2, ClipboardType, Image as ImageIcon } from 'lucide-react';
 import api from '../services/api';
 import TrustReport from '../components/TrustReport';
 import LivePipeline from '../components/LivePipeline';
+import PlainAnswer from '../components/PlainAnswer';
 import '../styles/CheckPage.css';
 
 /**
@@ -369,6 +370,15 @@ const CheckPage = () => {
       {report && (
         <section className="check-result">
           <TrustReport report={report} evidenceFirst />
+          <PlainAnswer
+            question={mode === 'text' ? text.trim() : report.evidence?.perClaim?.[0]?.claim}
+            ourCall={report.call}
+            sourceCount={
+              (report.factChecks?.matches?.length || 0)
+              + (report.evidence?.perClaim || []).reduce((n, c) => n + (c.independentSupport || 0) + (c.independentContradiction || 0), 0)
+              + (report.currentCoverage?.counted ? (report.currentCoverage.presupposingFalse || []).length : 0)
+            }
+          />
         </section>
       )}
     </div>

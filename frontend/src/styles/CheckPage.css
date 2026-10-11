@@ -407,6 +407,8 @@
 
 @media (max-width: 640px) {
   .check-page .check-modes { gap: 0.85rem; }
+  .check-page .check-result { padding: 1rem 0.85rem; }
+  .check-page .pipeline { padding: 0.85rem 0.9rem; }
   .check-page .check-form,
   .check-aside { padding: 1.1rem 1.2rem; }
 }

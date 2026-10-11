@@ -342,6 +342,15 @@
       ],
       "reason": "routed to a hosted model by hand on 2026-10-11, like stance judgement: the task turns on reading a negation correctly (a review rating \"the video is genuine\" False makes \"the video is fake\" true) and on refusing same-topic reviews of a different claim",
       "overriddenAt": "2026-10-11"
+    },
+    "current coverage": {
+      "chain": [
+        "gemini",
+        "nim",
+        "ollama"
+      ],
+      "reason": "routed to a hosted model by hand on 2026-10-11: the task is an inference about what a dated headline takes for granted (\"PM Modi inaugurates projects\" two days after a claimed resignation), which the stance judgement already showed the local model gets wrong",
+      "overriddenAt": "2026-10-11"
     }
   }
 }

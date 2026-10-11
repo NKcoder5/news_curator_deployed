@@ -366,15 +366,32 @@ const round = (value, places = 2) => {
  *            totalDecibans: number, ledger: Array, unmeasured: Array,
  *            declaredParameters: string[]}}
  */
-const assessProbability = ({ factorScores, sourceResult, provenance, evidence, factCheck }) => {
+/** This week's coverage of the subject: an implicit contradiction, or a telling absence. */
+const weighCurrentCoverage = (outcome) => {
+  const { declared } = loadTable();
+  const rates = declared.currentCoverage;
+  if (!outcome || !rates || !rates.givenGenuine[outcome]) return null;
+  const lr = rates.givenFabricated[outcome] / rates.givenGenuine[outcome];
+  return {
+    decibans: round(10 * Math.log10(lr)),
+    likelihoodRatio: round(lr, 4),
+    basis: rates.basis,
+    note: outcome === 'presupposedFalse'
+      ? 'This week\'s coverage of the subject could not be true if the claim were.'
+      : 'An event that would have dominated a heavily covered subject\'s week appears nowhere in it.'
+  };
+};
+
+const assessProbability = ({ factorScores, sourceResult, provenance, evidence, factCheck, currentCoverage }) => {
   const prior = priorFor({ sourceResult, provenance });
   const content = weighContentFactors(factorScores);
   const corroboration = weighCorroboration(evidence || {});
   const ruling = weighFactCheck(factCheck);
+  const week = weighCurrentCoverage(currentCoverage);
 
   const { declared } = loadTable();
   const priorDecibans = probabilityToDecibans(prior.probability);
-  const totalDecibans = priorDecibans + content.totalDecibans + corroboration.decibans + (ruling ? ruling.decibans : 0);
+  const totalDecibans = priorDecibans + content.totalDecibans + corroboration.decibans + (ruling ? ruling.decibans : 0) + (week ? week.decibans : 0);
 
   // No finite quantity of evidence of this kind justifies certainty, so the
   // reported probability is bounded. A system that prints 0.00 is claiming
@@ -421,6 +438,14 @@ const assessProbability = ({ factorScores, sourceResult, provenance, evidence, f
       likelihoodRatio: ruling.likelihoodRatio,
       detail: ruling.note,
       basis: ruling.basis
+    }] : []),
+    ...(week ? [{
+      step: 'current-coverage',
+      label: 'This week\'s coverage of the subject',
+      decibans: week.decibans,
+      likelihoodRatio: week.likelihoodRatio,
+      detail: week.note,
+      basis: week.basis
     }] : [])
   ];
 
@@ -444,6 +469,7 @@ module.exports = {
   weighContentFactors,
   weighCorroboration,
   weighFactCheck,
+  weighCurrentCoverage,
   probabilityToDecibans,
   decibansToProbability,
   _setTable

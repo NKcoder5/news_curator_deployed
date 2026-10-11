@@ -52,6 +52,7 @@ Content: ${(content || '').slice(0, 2000)}
 Return a JSON object with one key, "claims": an array of at most ${maxClaims} entries, empty when the article contains nothing checkable. Each entry has:
 - "claim": the factual claim in one sentence.
 - "headline": the same claim written as a short English news headline, the way a newspaper reporting it would phrase it (for "UAE lost to Namibia" write "Namibia beat UAE").
+- "subject": the main person, organisation, place or thing the claim is about, in 1 to 4 English words a news search would use ("Narendra Modi", "income tax India", "Virat Kohli", "RBI").
 ${keywordFields}
 Do not split one statement into a trivial part and its real point: for "UAE lost to Namibia" give one claim about who won or lost, not a separate claim that the match took place.
 Return at most ${maxClaims} claims. If the article contains no checkable claims, return an empty array.${isForeign ? `\nWrite "claim" in English so the verdict can be explained to the reader, but keep "search_keywords" in ${language.name}.` : ''}`;
@@ -61,7 +62,7 @@ Return at most ${maxClaims} claims. If the article contains no checkable claims,
   // article asserts nothing another outlet could check. The same article came
   // back REAL on one run and NOT A FACTUAL CLAIM on the next because of it.
   // Temperature 0: the same text must yield the same claims, or the verdict changes from run to run.
-  const result = await callNimApiJson(prompt, { maxTokens: 700, temperature: 0, requiredKeys: ['claims'], allowArray: true, label: 'claim extraction' });
+  const result = await callNimApiJson(prompt, { maxTokens: 800, temperature: 0, requiredKeys: ['claims'], allowArray: true, label: 'claim extraction' });
 
   // Some models return the array directly rather than wrapping it. That is a
   // usable answer, not a malformed one.
@@ -90,6 +91,7 @@ Return at most ${maxClaims} claims. If the article contains no checkable claims,
         keywords,
         keywordsEn: c.search_keywords_en ? String(c.search_keywords_en) : null,
         headline: c.headline ? String(c.headline).slice(0, 160) : null,
+        subject: c.subject ? String(c.subject).slice(0, 60) : null,
         keywordsDerived: !given
       };
     })

@@ -79,3 +79,10 @@ test('a sentence-initial capital is not mistaken for a name', () => {
     'Everyone knows what is really going on here. Nobody wants to talk about it openly in public.');
   assert.strictEqual(verdict.checkable, false);
 });
+
+test('a one-sentence claim may open with its subject', () => {
+  // Refused before as naming no one: "India" was skipped as a sentence-initial capital.
+  assert.strictEqual(assessCheckability('India has banned cricket nationwide from this week').checkable, true);
+  // A single-sentence exhortation still names nothing.
+  assert.strictEqual(assessCheckability('Share this message with all your friends and family members now').checkable, false);
+});

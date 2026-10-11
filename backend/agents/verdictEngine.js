@@ -136,7 +136,7 @@ const looksHighImpact = (text) => HIGH_IMPACT_PATTERNS.some(pattern => pattern.t
  */
 const buildEvidenceLedger = ({
   claims = [], sourceResult = {}, transparencyResult = {}, manipulationResult = {}, title = '',
-  verificationStatus = 'unverified', premiseResult = null, factCheckResult = null,
+  verificationStatus = 'unverified', premiseResult = null, factCheckResult = null, currentCoverageResult = null,
   publishedAt = null, indexLagHours = INDEX_LAG_HOURS, domainAge = null
 }) => {
   // How old the story is, when the page told us. An unknown date is left
@@ -182,6 +182,17 @@ const buildEvidenceLedger = ({
   const independentSupport = best('independentSupport');
   const independentContradiction = best('independentContradiction');
 
+  // This week's coverage of the subject. Only consulted when the news search
+  // found nothing either way: when outlets report or contradict the event
+  // itself, that is the better evidence and this is not needed.
+  const presupposition = analyseIndependence(currentCoverageResult?.presupposingFalse || []);
+  const newsSilent = independentSupport === 0 && independentContradiction === 0;
+  const currentCoverageOutcome = !newsSilent ? null
+    : currentCoverageResult?.status === 'presupposed-false' && presupposition.independentCount >= 2 ? 'presupposedFalse'
+    : currentCoverageResult?.status === 'absent'
+      && currentCoverageResult.headlinesRead >= 12 && currentCoverageResult.outletsRead >= 5 ? 'absentFromHeavyCoverage'
+    : null;
+
   // The index cannot have seen this story yet, and it found nothing. Those two
   // facts together mean the corroboration check has no information to give,
   // which is the same position as a check that could not run at all.
@@ -213,6 +224,11 @@ const buildEvidenceLedger = ({
     // event, and the rumours it rules on are the ones newsrooms never cover.
     factCheckStatus: factCheckResult?.status || 'not-run',
     factChecks: factCheckResult?.matches || [],
+    currentCoverageOutcome,
+    currentCoverageSubject: currentCoverageResult?.subject || null,
+    currentCoverageRead: { headlines: currentCoverageResult?.headlinesRead || 0, outlets: currentCoverageResult?.outletsRead || 0 },
+    presupposedAgainst: presupposition.independentCount,
+    presupposingFalse: currentCoverageResult?.presupposingFalse || [],
     independentSupport,
     independentContradiction,
     // The contradicted claim's conflicting facts, as the outlets worded them.
@@ -465,6 +481,39 @@ const decideVerdict = (ledger) => {
     return decide('likely-true', 'corroborated-by-one-independent-source', grounds);
   }
 
+  // R6b — The news search found nothing about the event, but this week's
+  // coverage of its subject carries on in a way that could not be true if the
+  // event had happened: "PM Modi launches projects in Chennai" on the day he
+  // supposedly resigned. Each such headline is quoted and dated, and two
+  // independent outlets are required, as for any contradiction.
+  //
+  // Probably false rather than false: the contradiction is inferred from what
+  // a headline takes for granted, not stated by it.
+  if (ledger.currentCoverageOutcome === 'presupposedFalse') {
+    const shown = ledger.presupposingFalse.slice(0, 3)
+      .map(h => `${h.source}${h.publishedAt ? ` (${h.publishedAt.slice(0, 10)})` : ''}: "${h.title}"`);
+    return decide('likely-false', 'contradicted-by-current-coverage', [
+      'No outlet reports this event.',
+      `Meanwhile ${ledger.presupposedAgainst} independent outlets report things this week that could not be happening if it were true:`,
+      ...shown,
+      'A real event of this kind would have changed that coverage; it has not.'
+    ], 'Current reporting about this subject is incompatible with the claim. Treat it as false.');
+  }
+
+  // R6c — The weaker form: an event that would have dominated a week's
+  // coverage of a subject covered every day, and a week of that coverage does
+  // not mention it. Tightly guarded — the event must be one that would have
+  // been the biggest story about its subject, claimed within the window read,
+  // and the subject must have drawn at least twelve headlines from five
+  // outlets — because an ordinary event going unmentioned means nothing.
+  if (ledger.currentCoverageOutcome === 'absentFromHeavyCoverage') {
+    return decide('likely-false', 'absent-from-heavy-coverage', [
+      'No outlet reports this event.',
+      `${ledger.currentCoverageRead.outlets} outlets published ${ledger.currentCoverageRead.headlines} headlines about ${ledger.currentCoverageSubject} this week, and none mentions it.`,
+      'Had it happened, it would have been the biggest story about this subject. Its absence from all of them is strong evidence it did not.'
+    ], 'A story this big would be everywhere. It is nowhere, so treat it as false unless an outlet confirms it.');
+  }
+
   // R7 — Nothing corroborates it, and the article carries the marks of
   // engineered content. Stated as likely false rather than merely unverified:
   // a consequential event that no other outlet reports, published by an outlet
@@ -561,6 +610,15 @@ const summarise = (verdict, ledger, rule = '') => {
   if (rule === 'rated-true-by-fact-checkers') {
     return `Checked and rated true by ${desks(ledger.factChecks)}.`;
   }
+  if (rule === 'contradicted-by-current-coverage') {
+    const h = (ledger.presupposingFalse || [])[0];
+    return h
+      ? `No outlet reports this, and this week's news says otherwise: “${h.reported}” (${h.source}).`
+      : 'No outlet reports this, and this week\'s news about the subject says otherwise.';
+  }
+  if (rule === 'absent-from-heavy-coverage') {
+    return `${ledger.currentCoverageRead.outlets} outlets covered ${ledger.currentCoverageSubject} this week, and none reports this.`;
+  }
   if (rule === 'fact-checkers-and-reporting-disagree') {
     return `Fact-checkers rated this false, but ${sources(ledger.independentSupport)} now report it.`;
   }
@@ -572,7 +630,12 @@ const summarise = (verdict, ledger, rule = '') => {
         : `${sources(ledger.independentContradiction)} report the opposite of what this says.`;
     case 'likely-false':
       if (ledger.premiseContradictions?.length > 0) {
-        return `A reference entry on ${ledger.premiseContradictions[0].entity} contradicts what this article states about them.`;
+        const premise = ledger.premiseContradictions[0];
+        const says = String(premise.referenceStates || '').trim();
+        const source = premise.reference?.title ? `The encyclopedia entry “${premise.reference.title}”` : `The encyclopedia entry on ${premise.entity}`;
+        return says
+          ? `${source} says otherwise: “${says.length > 140 ? `${says.slice(0, 137)}…` : says}”`
+          : `${source} contradicts what this says.`;
       }
       if (ledger.independentContradiction > 0) {
         return quote
@@ -619,6 +682,8 @@ const confidenceFor = (verdict, ledger, rule = '') => {
     return cap(base + 0.04 * Math.min(desks - 1, 3) + (ledger.independentContradiction > 0 ? 0.03 : 0));
   }
   if (rule === 'rated-true-by-fact-checkers') return cap(0.65 + 0.05 * Math.min(ledger.factChecks.length - 1, 2));
+  if (rule === 'contradicted-by-current-coverage') return cap(0.62 + 0.05 * Math.min(ledger.presupposedAgainst - 2, 3));
+  if (rule === 'absent-from-heavy-coverage') return cap(0.58);
   switch (verdict) {
     case 'false':
       return cap(0.7 + 0.07 * Math.min(ledger.independentContradiction - 2, 3));

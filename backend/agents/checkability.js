@@ -45,6 +45,18 @@ const MONTHS = /\b(january|february|march|april|may|june|july|august|september|o
 const OPINION_MARKERS = /\b(i think|i believe|i feel|in my opinion|should|ought to|must be|disgusting|beautiful|terrible|wonderful|best|worst|amazing|pathetic|hate|love)\b/i;
 
 // Pure exhortation. Characteristic of forwarded messages, and asserts nothing.
+// Words that open a sentence without naming anyone. A one-sentence claim's
+// first word is otherwise counted when capitalised (see below), so these are
+// the openers that must not be.
+const SENTENCE_OPENERS = new Set([
+  'wake', 'share', 'please', 'forward', 'breaking', 'urgent', 'attention', 'alert', 'beware',
+  'note', 'read', 'watch', 'look', 'listen', 'everyone', 'friends', 'dear', 'today', 'tomorrow',
+  'yesterday', 'now', 'just', 'people', 'someone', 'everybody', 'nobody', 'they', 'we', 'you',
+  'he', 'she', 'there', 'here', 'why', 'how', 'what', 'when', 'where', 'who', 'did', 'does',
+  'will', 'can', 'could', 'should', 'would', 'must', 'many', 'some', 'every', 'all', 'no', 'big',
+  'shocking', 'viral', 'new', 'latest', 'finally', 'officially', 'reportedly'
+]);
+
 const EXHORTATION = /\b(share this|forward this|wake up|spread the word|do not let them|before (it is|it's) too late|tell everyone|pass it on)\b/i;
 
 /**
@@ -120,6 +132,22 @@ const assessCheckability = (text, title = '') => {
         if (!anchors.names.includes(clean)) anchors.names.push(clean);
       }
     });
+  }
+  // A typed one-line claim very often opens with its subject: "India has
+  // banned cricket nationwide from this week" was refused as naming no one,
+  // because a sentence's first word is skipped above. In a single sentence
+  // the first word is counted after all, unless it is a word that opens
+  // sentences without naming anything. A forwarded message of several
+  // sentences keeps the strict rule — "Wake up. They are hiding…" is what
+  // that rule exists for.
+  const sentences = combined.split(/(?<=[.!?])\s+/).filter(Boolean);
+  if (!short && sentences.length === 1) {
+    const first = (words[0] || '').replace(/[^\p{L}\p{N}\p{M}]/gu, '');
+    if (/^\p{Lu}/u.test(first) && first.length > 2 && !/\d/.test(first)
+      && !STOPWORDS.has(first.toLowerCase()) && !SENTENCE_OPENERS.has(first.toLowerCase())
+      && !anchors.names.includes(first)) {
+      anchors.names.push(first);
+    }
   }
   const anchorCount = anchors.names.length + anchors.numbers.length + anchors.dates.length;
 

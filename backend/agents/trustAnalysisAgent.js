@@ -17,6 +17,7 @@ const { detectManipulation } = require('./manipulationAgent');
 const { assessTransparency } = require('./transparencyAgent');
 const { checkPremises } = require('./referenceCheck');
 const { checkFactCheckers } = require('./factCheckSearch');
+const { checkCurrentCoverage } = require('./currentCoverage');
 const { buildEvidenceLedger, decideVerdict, applyCeiling } = require('./verdictEngine');
 const { assessProbability } = require('./weightOfEvidence');
 const { detectLanguage } = require('../utils/language');
@@ -309,7 +310,7 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
 
   const [
     clickbaitResult, biasResult, manipulationResult,
-    transparencyResult, verificationResult, premiseResult, factCheckResult
+    transparencyResult, verificationResult, premiseResult, factCheckResult, currentCoverageResult
   ] = await Promise.all([
     timed('clickbait', () => analyzeClickbait(title, language)),
     timed('bias', () => analyzeBias(title, text, language)),
@@ -329,7 +330,12 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
     // "cannot verify" about it — while a desk may have investigated it days ago.
     // It reuses the extracted claims, so it starts as soon as they exist.
     claimsPromise.then(({ claims }) => timed('factChecks', () => checkFactCheckers(claims, { title, text })))
-      .catch(() => ({ status: 'error', matches: [], considered: 0, explanation: 'The fact-check search could not run.' }))
+      .catch(() => ({ status: 'error', matches: [], considered: 0, explanation: 'The fact-check search could not run.' })),
+    // The fourth: what this week's coverage of the claim's subject takes for
+    // granted. An invented event about a heavily covered subject is
+    // contradicted, implicitly, by everything else reported about it.
+    claimsPromise.then(({ claims }) => timed('currentCoverage', () => checkCurrentCoverage(claims)))
+      .catch(() => ({ status: 'error', presupposingFalse: [], reporting: [], explanation: 'This week\'s coverage could not be read.' }))
   ]);
 
   const verificationInformative = ['corroborated', 'contradicted'].includes(verificationResult.status);
@@ -367,6 +373,7 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
     verificationStatus: verificationResult.status,
     premiseResult,
     factCheckResult,
+    currentCoverageResult,
     sourceResult,
     transparencyResult,
     manipulationResult,
@@ -397,7 +404,8 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
       independentContradiction: evidenceLedger.independentContradiction,
       verificationRan: evidenceLedger.verificationRan
     },
-    factCheck: factCheckResult
+    factCheck: factCheckResult,
+    currentCoverage: evidenceLedger.currentCoverageOutcome
   });
 
   // -------------------------------------------------------------------------
@@ -579,6 +587,17 @@ const analyzeTrust = async ({ title, content, source, url, textCoverage, onProgr
           members: cluster.members
         }))
       }))
+    },
+    // This week's coverage of the subject, and what of it bears on the claim.
+    currentCoverage: {
+      status: currentCoverageResult.status,
+      subject: currentCoverageResult.subject || null,
+      explanation: currentCoverageResult.explanation,
+      headlinesRead: currentCoverageResult.headlinesRead || 0,
+      outletsRead: currentCoverageResult.outletsRead || 0,
+      counted: evidenceLedger.currentCoverageOutcome,
+      presupposingFalse: (currentCoverageResult.presupposingFalse || []).slice(0, 6),
+      reporting: (currentCoverageResult.reporting || []).slice(0, 6)
     },
     // What the fact-checking desks said, review by review, so the reader can
     // open each ruling rather than take the verdict on trust.

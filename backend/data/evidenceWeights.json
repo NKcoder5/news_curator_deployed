@@ -92,6 +92,23 @@
       "basis": "declared",
       "reason": "How often a claim draws each ruling from a professional desk, given that it is genuine or fabricated. A desk rating a genuine claim false is rare (the rulings are investigated, sourced and corrected when wrong), while a viral fabrication is the desks' main subject, so \"rated false\" carries a ratio of 60. Absence of a ruling is never entered: desks review a small share of claims.",
       "measurableBy": "eval/benchmarkCheckAnything.js — the share of known-false and known-true claims for which a matched ruling is found"
+    },
+    "currentCoverage": {
+      "outcomes": [
+        "presupposedFalse",
+        "absentFromHeavyCoverage"
+      ],
+      "givenGenuine": {
+        "presupposedFalse": 0.01,
+        "absentFromHeavyCoverage": 0.03
+      },
+      "givenFabricated": {
+        "presupposedFalse": 0.2,
+        "absentFromHeavyCoverage": 0.25
+      },
+      "basis": "declared",
+      "reason": "Entered only when the news search found the event neither reported nor contradicted. Two independent outlets reporting, this week, things that could not be happening if a claim were true is rare for a genuine claim; the absence rule is guarded to events that would dominate a heavily covered subject, and still weighs less.",
+      "measurableBy": "eval/benchmarkCheckAnything.js — the rate at which each outcome fires on known-true and known-false claims"
     }
   },
   "method": "per-bin likelihood ratio, Jeffreys-smoothed, shrunk to the conservative end of a 95% interval, reported in decibans (10·log10 LR)",

@@ -234,7 +234,7 @@ Read carefully: a headline about the same people or event is NOT automatically "
 
 Before you mark "disagree", ask whether the claim and the headline could BOTH be true. "PM visited Chennai in May" and "Chief Minister met the PM in Delhi in May" can both be true, so that headline is "unrelated", not "disagree".
 
-Numbers matter. If the claim gives a figure and a headline about the same event gives a different figure for the same thing, the two cannot both be true and the headline is "disagree": the claim says "India won 84 medals" and the headline says "India signs off with 85 medals". A part-way figure (medals won on one day, an early count) is not the same thing as a final total, so it is "unrelated".
+Numbers matter. If the claim gives a figure and a headline about the same event gives a different figure for the same thing, the two cannot both be true and the headline is "disagree": the claim says "India won 84 medals" and the headline says "India signs off with 85 medals". A part-way figure (medals won on one day, an early count) is not the same thing as a final total, so it is "unrelated". The same amount written in different units is the same figure, not a different one: Rs 5 crore is Rs 50 million, 1 lakh is 100,000, 2.5 billion is 2,500 million. Convert before comparing.
 
 Return a JSON object with these keys:
 - "items": an array with one object per headline: {"n": <headline number>, "same_event": true or false, "both_can_be_true": true or false, "stance": "agree" | "disagree" | "unrelated", "reported": "<the exact words in the headline that state the fact the claim is about, such as \"85 medals\" or \"TVK sweeps both seats\"; empty if the headline does not state it>"}.

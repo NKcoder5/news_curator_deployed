@@ -390,7 +390,35 @@ const hasRequiredKeys = (value, requiredKeys, allowArray) => {
   return requiredKeys.every(key => value[key] !== undefined);
 };
 
+// Judgements asked at temperature 0 are remembered for half an hour.
+//
+// The same prompt at temperature 0 is meant to get the same answer, so asking
+// again only spends quota. It mattered on the benchmark: run back to back, the
+// checks drew Gemini's rate limit (429), the judgements fell through to a
+// weaker model, and one of them read "Rs 5 crore" and "Rs 50 million" as
+// different figures. A demo repeats the same claims, and a repeated check now
+// asks no model anything.
+const JUDGEMENT_TTL_MS = 30 * 60 * 1000;
+const judgementCache = new Map();
+const judgementKey = (label, prompt) =>
+  `${label}|${require('crypto').createHash('sha1').update(prompt).digest('hex')}`;
+
 const callNimApiJson = async (prompt, options = {}) => {
+  const cacheable = options.temperature === 0;
+  const key = cacheable ? judgementKey(options.label || 'model call', prompt) : null;
+  if (cacheable) {
+    const hit = judgementCache.get(key);
+    if (hit && Date.now() - hit.at < JUDGEMENT_TTL_MS) return structuredClone(hit.value);
+  }
+  const value = await callNimApiJsonUncached(prompt, options);
+  if (cacheable) {
+    judgementCache.set(key, { at: Date.now(), value: structuredClone(value) });
+    if (judgementCache.size > 500) judgementCache.delete(judgementCache.keys().next().value);
+  }
+  return value;
+};
+
+const callNimApiJsonUncached = async (prompt, options = {}) => {
   const baseTokens = options.maxTokens || 800;
   const requiredKeys = options.requiredKeys || [];
   const allowArray = Boolean(options.allowArray);

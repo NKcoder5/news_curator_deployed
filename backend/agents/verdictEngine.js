@@ -159,6 +159,7 @@ const looksHighImpact = (text) => HIGH_IMPACT_PATTERNS.some(pattern => pattern.t
 const buildEvidenceLedger = ({
   claims = [], sourceResult = {}, transparencyResult = {}, manipulationResult = {}, title = '',
   verificationStatus = 'unverified', premiseResult = null, factCheckResult = null, currentCoverageResult = null,
+  unconfirmedClaimResult = null,
   publishedAt = null, indexLagHours = INDEX_LAG_HOURS, domainAge = null
 }) => {
   // How old the story is, when the page told us. An unknown date is left
@@ -167,6 +168,16 @@ const buildEvidenceLedger = ({
   const ageMs = publishedAt ? Date.now() - new Date(publishedAt).getTime() : NaN;
   const articleAgeHours = Number.isFinite(ageMs) && ageMs >= 0 ? ageMs / 3600000 : null;
   const perClaim = claims.map(claim => {
+    // A claim about something happening now can only be contradicted by
+    // reports from now. "A week-long power cut in Madurai from tomorrow" was
+    // "contradicted" by a February report of a one-day shutdown: a different
+    // occurrence, which a judge model let through as the same event.
+    const recentEnough = (e) => !e.publishedAt || !Number.isFinite(Date.parse(e.publishedAt))
+      || Date.now() - Date.parse(e.publishedAt) <= STALE_AFTER_DAYS * 86400000;
+    const contradicting = claim.time === 'now'
+      ? (claim.contradictingEvidence || []).filter(recentEnough)
+      : (claim.contradictingEvidence || []);
+    claim = { ...claim, contradictingEvidence: contradicting };
     const support = analyseIndependence(claim.supportingEvidence || []);
     const contradiction = analyseIndependence(claim.contradictingEvidence || []);
     // Evidence for and against one claim is weighed against itself. One outlet
@@ -270,6 +281,24 @@ const buildEvidenceLedger = ({
     factCheckStatus: factCheckResult?.status || 'not-run',
     factChecks: factCheckResult?.matches || [],
     currentCoverageOutcome,
+    // An unreported claim riding with a confirmed one, and what this week's
+    // coverage of its subject says about it.
+    unconfirmedClaim: unconfirmedClaimResult ? (() => {
+      const week = unconfirmedClaimResult.week || {};
+      const ruledOut = analyseIndependence(week.presupposingFalse || []).independentCount;
+      const outcome = ruledOut >= 2 ? 'presupposedFalse'
+        : week.status === 'absent' && week.headlinesRead >= 12 && week.outletsRead >= 5 ? 'absentFromHeavyCoverage'
+        : 'unreported';
+      return {
+        claim: unconfirmedClaimResult.claim,
+        confirmedClaim: unconfirmedClaimResult.confirmedClaim,
+        outcome,
+        subject: week.subject || null,
+        headlinesRead: week.headlinesRead || 0,
+        outletsRead: week.outletsRead || 0,
+        evidence: (week.presupposingFalse || []).slice(0, 3)
+      };
+    })() : null,
     currentCoverageSubject: currentCoverageResult?.subject || null,
     currentCoverageRead: { headlines: currentCoverageResult?.headlinesRead || 0, outlets: currentCoverageResult?.outletsRead || 0 },
     presupposedAgainst: presupposition.independentCount,
@@ -522,6 +551,30 @@ const decideVerdict = (ledger) => {
     ]);
   }
 
+  // R4c — A confirmed claim carrying an unreported one. The confirmation is
+  // real, but it is for part of the message only, and the message is what
+  // gets shared. If this week's coverage of the unreported claim's subject
+  // rules it out, or never mentions an event that would have dominated it,
+  // the message is partly false; otherwise it is only partly confirmed.
+  // Never plain REAL: that would lend the added claim the true one's credit.
+  if (ledger.unconfirmedClaim && ledger.independentSupport > 0 && ledger.independentContradiction === 0) {
+    const u = ledger.unconfirmedClaim;
+    if (u.outcome !== 'unreported') {
+      return decide('mixed', 'true-claim-carrying-a-false-one', [
+        `Confirmed by independent outlets: ${u.confirmedClaim}`,
+        u.outcome === 'presupposedFalse'
+          ? `Not reported anywhere, and this week's news rules it out: ${u.claim}`
+          : `Not reported anywhere: ${u.claim} — though ${u.outletsRead} outlets covered ${u.subject} this week.`,
+        ...u.evidence.map(h => `${h.source}: "${h.title}"`)
+      ], 'A true claim is being used to carry a false one. Do not share this message.');
+    }
+    return decide('unverified', 'only-partly-confirmed', [
+      `Confirmed by independent outlets: ${u.confirmedClaim}`,
+      `Not reported by any outlet found: ${u.claim}`,
+      'The confirmed part does not vouch for the rest of the message.'
+    ], 'Part of this is confirmed and part is not. Share only what is confirmed.');
+  }
+
   // R5 — Corroborated by two or more independent sources.
   if (ledger.independentSupport >= 2) {
     grounds.push(`${ledger.independentSupport} independent sources report the same facts.`);
@@ -688,6 +741,14 @@ const summarise = (verdict, ledger, rule = '') => {
   if (rule === 'rated-true-by-fact-checkers') {
     return `Checked and rated true by ${desks(ledger.factChecks)}.`;
   }
+  if (rule === 'true-claim-carrying-a-false-one') {
+    const u = ledger.unconfirmedClaim;
+    return `Partly false: “${u.confirmedClaim.replace(/\.$/, '')}” is confirmed, but “${u.claim.replace(/\.$/, '')}” appears nowhere in this week's news.`;
+  }
+  if (rule === 'only-partly-confirmed') {
+    const u = ledger.unconfirmedClaim;
+    return `Only partly confirmed: “${u.confirmedClaim.replace(/\.$/, '')}” is reported, but nothing supports “${u.claim.replace(/\.$/, '')}”.`;
+  }
   if (rule === 'claims-partly-false') {
     const wrong = (ledger.contradictedClaims || [])[0];
     return wrong?.reported
@@ -777,6 +838,8 @@ const confidenceFor = (verdict, ledger, rule = '') => {
   if (rule === 'rated-true-by-fact-checkers') return cap(0.65 + 0.05 * Math.min(ledger.factChecks.length - 1, 2));
   if (rule === 'contradicted-by-current-coverage') return cap(0.62 + 0.05 * Math.min(ledger.presupposedAgainst - 2, 3));
   if (rule === 'claims-partly-false') return cap(0.75);
+  if (rule === 'true-claim-carrying-a-false-one') return cap(0.65);
+  if (rule === 'only-partly-confirmed') return cap(0.5);
   if (rule === 'old-news-presented-as-new') return cap(0.7);
   if (rule === 'confirmed-by-reference') return cap(0.7);
   if (rule === 'absent-from-heavy-coverage') return cap(0.58);

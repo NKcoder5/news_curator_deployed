@@ -63,13 +63,15 @@ const releaseSlot = (provider) => {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // A model whose DAILY quota is spent is skipped until the quota resets, which
-// for Google is midnight Pacific time (08:00 UTC). Retrying it with back-off,
+// for Google is midnight Pacific time (07:00 UTC in summer time, 08:00 in
+// winter; 07:00 is used, and a quota not yet reset is simply marked again
+// after one refused call). Retrying it with back-off,
 // as a per-minute limit deserves, only adds seconds to every call for the rest
 // of the day: measured, one check took 170 s that way.
 const exhaustedUntil = new Map();
 const nextQuotaReset = () => {
   const reset = new Date();
-  reset.setUTCHours(8, 0, 0, 0);
+  reset.setUTCHours(7, 0, 0, 0);
   if (reset.getTime() <= Date.now()) reset.setUTCDate(reset.getUTCDate() + 1);
   return reset.getTime();
 };

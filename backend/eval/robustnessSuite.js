@@ -45,9 +45,17 @@ const cases = suite.cases
   .filter(c => !onlyCategory || c.category === onlyCategory)
   .filter(c => !onlyIds || onlyIds.has(c.id));
 
+// Four outcomes, because they are not equally bad. A verdict the other way
+// misleads; declining to answer only fails to help.
+//   right   — the expected answer
+//   safe    — an answer listed as acceptable for that case
+//   missed  — an abstention or refusal where a verdict was due
+//   wrong   — a verdict, and the wrong one
+const ABSTENTIONS = new Set(['CANNOT VERIFY', 'REFUSED', 'NOT A FACTUAL CLAIM', 'ERROR']);
 const outcomeOf = (c, call) => {
   if (call === c.expected) return 'right';
   if ((c.alsoAcceptable || []).includes(call)) return 'safe';
+  if (ABSTENTIONS.has(call)) return 'missed';
   return 'wrong';
 };
 
@@ -73,7 +81,7 @@ const outcomeOf = (c, call) => {
     }
     const row = { ...c, call, outcome: outcomeOf(c, call), rule, detail, readAs, seconds: (Date.now() - started) / 1000 };
     rows.push(row);
-    const mark = { right: '✓', safe: '~', wrong: '✗' }[row.outcome];
+    const mark = { right: '✓', safe: '~', missed: '○', wrong: '✗' }[row.outcome];
     console.log(`${mark} ${c.id.padEnd(10)} ${c.category.padEnd(22)} expected ${c.expected.padEnd(19)} got ${call.padEnd(19)} ${row.seconds.toFixed(1)}s  ${detail.slice(0, 80)}`);
     await new Promise(resolve => setTimeout(resolve, gapSeconds * 1000));
   }
@@ -82,6 +90,7 @@ const outcomeOf = (c, call) => {
     n: list.length,
     right: list.filter(r => r.outcome === 'right').length,
     safe: list.filter(r => r.outcome === 'safe').length,
+    missed: list.filter(r => r.outcome === 'missed').length,
     wrong: list.filter(r => r.outcome === 'wrong').length
   });
   const categories = [...new Set(rows.map(r => r.category))];
@@ -97,13 +106,13 @@ const outcomeOf = (c, call) => {
   const md = [
     `# Robustness suite (${outName})`,
     '',
-    `Run ${summary.ranAt.slice(0, 16).replace('T', ' ')} UTC. ${summary.overall.right}/${summary.overall.n} right, ${summary.overall.safe} safe abstentions, ${summary.overall.wrong} wrong.`,
+    `Run ${summary.ranAt.slice(0, 16).replace('T', ' ')} UTC. ${summary.overall.right}/${summary.overall.n} right, ${summary.overall.safe} acceptable, ${summary.overall.missed} missed (no verdict where one was due), ${summary.overall.wrong} wrong (a verdict the wrong way).`,
     '',
-    '| Category | Cases | Right | Safe | Wrong |',
-    '|---|---|---|---|---|',
+    '| Category | Cases | Right | Acceptable | Missed | Wrong |',
+    '|---|---|---|---|---|---|',
     ...categories.map(cat => {
       const t = summary.byCategory[cat];
-      return `| ${cat} | ${t.n} | ${t.right} | ${t.safe} | ${t.wrong} |`;
+      return `| ${cat} | ${t.n} | ${t.right} | ${t.safe} | ${t.missed} | ${t.wrong} |`;
     }),
     '',
     '| Id | Input | Expected | Got | Decided by |',
@@ -114,10 +123,10 @@ const outcomeOf = (c, call) => {
   fs.writeFileSync(path.join(outDir, `robustness_${outName}.md`), md);
 
   const o = summary.overall;
-  console.log(`\n${o.right}/${o.n} right, ${o.safe} safe, ${o.wrong} wrong`);
+  console.log(`\n${o.right}/${o.n} right, ${o.safe} safe, ${o.missed} missed, ${o.wrong} wrong`);
   for (const cat of categories) {
     const t = summary.byCategory[cat];
-    console.log(`  ${cat.padEnd(24)} ${t.right}/${t.n}${t.wrong ? `  (${t.wrong} wrong)` : ''}`);
+    console.log(`  ${cat.padEnd(24)} ${t.right}/${t.n}${t.missed ? `  (${t.missed} missed)` : ''}${t.wrong ? `  (${t.wrong} wrong)` : ''}`);
   }
   process.exit(0);
 })();

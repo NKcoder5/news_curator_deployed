@@ -64,3 +64,31 @@ test('a reference entry cannot confirm today\'s news', () => {
   ));
   assert.notStrictEqual(decision.call, 'REAL');
 });
+
+const twoClaims = (week) => ledgerFor([
+  { claim: 'Narendra Modi launched projects worth Rs 13,000 crore in Chennai.', verdict: 'supported', time: 'now',
+    supportingEvidence: [outlet('DD News', 'PM launches Rs 13,000 crore projects in Chennai'), outlet('NDTV', 'Modi unveils projects worth over Rs 13,000 crore')], contradictingEvidence: [] },
+  { claim: 'Narendra Modi announced free petrol for all college students.', verdict: 'no-coverage', time: 'now', supportingEvidence: [], contradictingEvidence: [] }
+], { unconfirmedClaimResult: { claim: 'Narendra Modi announced free petrol for all college students.', confirmedClaim: 'Narendra Modi launched projects worth Rs 13,000 crore in Chennai.', week } });
+
+test('a true claim carrying one the week\'s heavy coverage never mentions is PARTLY FALSE, not REAL', () => {
+  const decision = decideVerdict(twoClaims({ status: 'absent', subject: 'Narendra Modi', headlinesRead: 20, outletsRead: 9, presupposingFalse: [] }));
+  assert.strictEqual(decision.call, 'PARTLY FALSE');
+  assert.strictEqual(decision.rule, 'true-claim-carrying-a-false-one');
+  assert.match(decision.oneLine, /free petrol/);
+});
+
+test('a true claim carrying one nothing bears on is only partly confirmed, never REAL', () => {
+  const decision = decideVerdict(twoClaims({ status: 'silent', subject: 'Narendra Modi', headlinesRead: 20, outletsRead: 9, presupposingFalse: [] }));
+  assert.strictEqual(decision.call, 'CANNOT VERIFY');
+  assert.strictEqual(decision.rule, 'only-partly-confirmed');
+});
+
+test('a claim about now is not contradicted by months-old reports of a different occurrence', () => {
+  const decision = decideVerdict(ledgerFor([
+    { claim: 'A week-long power cut in Madurai from tomorrow has been announced.', verdict: 'contradicted', time: 'now', supportingEvidence: [],
+      contradictingEvidence: [outlet('The Hindu', 'Power shut down in Madurai on Thursday (Feb. 13)', '2026-02-11T06:00:00Z', 'Power shut down in Madurai on Thursday'),
+        outlet('DT Next', 'Madurai: power supply to be suspended on February 13', '2026-02-10T06:00:00Z', 'power supply to be suspended')] }
+  ]));
+  assert.notStrictEqual(decision.rule, 'contradicted-by-multiple-independent-sources');
+});

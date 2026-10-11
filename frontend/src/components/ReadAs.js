@@ -38,7 +38,7 @@ const ReadAs = ({ understanding, call, perClaim = [] }) => {
     if (!match) return null;
     if (match.independentContradiction > 0) return { text: 'Contradicted', cls: 'against' };
     if (match.independentSupport > 0) return { text: 'Confirmed', cls: 'for' };
-    return null;
+    return { text: 'Not reported', cls: 'none' };
   };
 
   return (

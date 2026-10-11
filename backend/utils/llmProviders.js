@@ -124,10 +124,30 @@ const GEMINI_MODELS = [
   'gemini-flash-latest'
 ];
 
+// Free-tier quotas are per Google Cloud project, so a second key from another
+// project — each team member can make one in a minute — adds a full day's
+// quota for every model. GEMINI_EXTRA_KEYS takes more keys, comma-separated,
+// beside GEMINI_API_KEY. Each key's models appear to the gateway
+// as their own entries ("gemini-3.5-flash-lite#1" is that model on the second
+// key), so a spent quota on one key moves the call to the next key rather
+// than to a slower provider.
+// The main key switches Gemini on or off; extra keys only add to it, so a test
+// that blanks GEMINI_API_KEY still runs without the hosted model.
+const geminiKeys = () => (process.env.GEMINI_API_KEY
+  ? [process.env.GEMINI_API_KEY, ...String(process.env.GEMINI_EXTRA_KEYS || '').split(',')]
+  : []).map(k => String(k).trim()).filter(Boolean);
+const splitModel = (entry) => {
+  const [model, index] = String(entry).split('#');
+  return { model, key: geminiKeys()[Number(index) || 0] };
+};
+
 const gemini = {
   name: 'gemini',
   label: 'Google Gemini',
-  models: [...new Set(GEMINI_MODELS)],
+  get models() {
+    const models = [...new Set(GEMINI_MODELS)];
+    return geminiKeys().flatMap((_, k) => models.map(m => (k === 0 ? m : `${m}#${k}`)));
+  },
   // Gemini does not degrade the same way. Six identical calls, all valid:
   //     parallelism 2 -> 37.5s wall
   //     parallelism 3 ->  7.9s wall
@@ -135,11 +155,12 @@ const gemini = {
   // Two was throttling the pipeline nearly five-fold. Six lets every factor in
   // an analysis run at once.
   concurrency: 6,
-  isConfigured: () => Boolean(process.env.GEMINI_API_KEY),
+  isConfigured: () => geminiKeys().length > 0,
   missingKeyMessage:
     'GEMINI_API_KEY is not set. Add it to your backend .env file to use Gemini.',
 
-  async send({ model, prompt, maxTokens, temperature, topP, timeout, json }) {
+  async send({ model: entry, prompt, maxTokens, temperature, topP, timeout, json }) {
+    const { model, key } = splitModel(entry);
     const response = await axios.post(
       `${GEMINI_BASE}/${model}:generateContent`,
       {
@@ -157,7 +178,7 @@ const gemini = {
         headers: {
           'Content-Type': 'application/json',
           // Header auth, so the key never appears in a URL or a log line.
-          'x-goog-api-key': process.env.GEMINI_API_KEY
+          'x-goog-api-key': key
         },
         timeout
       }

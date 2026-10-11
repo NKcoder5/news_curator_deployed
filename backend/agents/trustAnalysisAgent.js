@@ -389,6 +389,25 @@ const analyzeTrust = async ({
       .catch(() => ({ status: 'error', presupposingFalse: [], reporting: [], explanation: 'This week\'s coverage could not be read.' }))
   ]);
 
+  // A true claim can carry an invented one: "Modi launched ₹13,000 crore of
+  // projects in Chennai and announced free petrol for all students" was
+  // confirmed by nine outlets on the strength of its first half. When a
+  // message's claims split into confirmed and unreported, the unreported one
+  // gets its own reading of this week's coverage, so the verdict can tell an
+  // added fabrication from a detail nobody bothered to report.
+  let unconfirmedClaimResult = null;
+  if (Array.isArray(preparedClaims) && preparedClaims.length > 1) {
+    const judged = verificationResult.claims || [];
+    const confirmed = judged.filter(c => c.verdict === 'supported');
+    const unreported = preparedClaims.filter(p => judged.some(c => c.claim === p.claim && ['no-coverage', 'unverified'].includes(c.verdict)));
+    if (confirmed.length > 0 && unreported.length > 0) {
+      const target = unreported[0];
+      const week = await timed('unconfirmedClaim', () => checkCurrentCoverage([target]))
+        .catch(() => null);
+      unconfirmedClaimResult = { claim: target.claim, confirmedClaim: confirmed[0].claim, week };
+    }
+  }
+
   const verificationInformative = ['corroborated', 'contradicted'].includes(verificationResult.status);
 
   // When a factor stands down, say precisely why — "not counted" alone leaves
@@ -425,6 +444,7 @@ const analyzeTrust = async ({
     premiseResult,
     factCheckResult,
     currentCoverageResult,
+    unconfirmedClaimResult,
     sourceResult,
     transparencyResult,
     manipulationResult,
@@ -617,6 +637,8 @@ const analyzeTrust = async ({
       stateOnlySupport: evidenceLedger.stateOnlySupport,
       // Why several retrieved articles counted as one source.
       independenceNotes: evidenceLedger.mergeNotes,
+      // A claim nothing reports, carried by one that is confirmed.
+      unconfirmedClaim: evidenceLedger.unconfirmedClaim,
       perClaim: evidenceLedger.perClaim.map(c => ({
         claim: c.claim,
         verdict: c.verdict,

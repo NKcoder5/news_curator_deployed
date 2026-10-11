@@ -34,7 +34,9 @@ const RULE_CHANNEL = {
   'premise-contradicted-by-reference': 'reference',
   'claims-partly-false': 'news',
   'old-news-presented-as-new': 'news',
-  'confirmed-by-reference': 'reference'
+  'confirmed-by-reference': 'reference',
+  'true-claim-carrying-a-false-one': 'news',
+  'only-partly-confirmed': 'news'
 };
 
 // What decided it, in a few words, for the line under the verdict.
@@ -60,7 +62,9 @@ export const RULE_LABELS = {
   'no-checkable-claims-poor-record-publisher': 'Nothing checkable, poor-record publisher',
   'claims-partly-false': 'One claim confirmed, another contradicted',
   'old-news-presented-as-new': 'Old news shared as new',
-  'confirmed-by-reference': 'A reference work confirms it'
+  'confirmed-by-reference': 'A reference work confirms it',
+  'true-claim-carrying-a-false-one': 'A true claim carrying a false one',
+  'only-partly-confirmed': 'Only part of it is confirmed'
 };
 
 const STATUS_TEXT = {

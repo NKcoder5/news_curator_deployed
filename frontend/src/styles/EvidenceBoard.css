@@ -382,3 +382,4 @@
 @media (max-width: 520px) {
   .read-as-facts > div { grid-template-columns: 1fr; gap: 0.1rem; }
 }
+.read-as-none { color: var(--ink-muted); }

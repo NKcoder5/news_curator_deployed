@@ -1,0 +1,85 @@
+# Render Blueprint for Pure Press: the API as a web service and the web app as a
+# static site. Create it from the dashboard with New > Blueprint, pointing at this
+# repository; Render then asks for every variable marked `sync: false`.
+#
+# The names below are the service names, and a service's name is its address:
+#   API      https://news-curator-deployed.onrender.com
+#   web app  https://news-curator-deployed-1.onrender.com
+# The API address is the one the web app falls back to when it is opened on any
+# *.onrender.com host (frontend/src/services/api.js). The web app's address is
+# the one the repository's history records as the deployed frontend (the entry
+# removed from the CORS list in commit 1ee5d38). The list in app.js today names
+# only the API's own address, which a browser never sends as the origin of a call
+# to that API, so the web app's address is allowed here through CORS_ORIGINS,
+# which needs no code change. If the web app has another name, change the value
+# of CORS_ORIGINS to match it, or the browser refuses every call.
+#
+# Plans are free tier. The API sleeps after fifteen idle minutes and takes about
+# a minute to wake, which is why `healthCheckPath` matters for deploys and why
+# the first request after a quiet spell is slow.
+services:
+  - type: web
+    name: news-curator-deployed
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: node app.js
+    # Answers without touching the database; see app.js.
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      # The web app's address, so the browser may call this API (app.js).
+      - key: CORS_ORIGINS
+        value: https://news-curator-deployed-1.onrender.com
+      # Required. MongoDB Atlas connection string.
+      - key: MONGO_URI
+        sync: false
+      # Required. Generated once on first creation; changing it later signs
+      # every reader out.
+      - key: JWT_SECRET
+        generateValue: true
+      # At least one language model provider; Gemini is the hosted default.
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_EXTRA_KEYS
+        sync: false
+      - key: NIM_API_KEY
+        sync: false
+      # NewsAPI: the home feed, and the second place coverage is searched.
+      - key: NEWS_API_KEY
+        sync: false
+      # Only if the evaluation scripts are run against this deployment.
+      - key: INTERNAL_API_KEY
+        sync: false
+
+  - type: web
+    name: news-curator-deployed-1
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: build
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      # REACT_APP_API_URL is deliberately not set: on an onrender.com address the
+      # app already calls the API above, and setting it breaks the pages that
+      # expect a different shape of the value (frontend/.env.example).
+    routes:
+      # A refresh or a shared link to /check or /article must open the app, not
+      # a 404, because those paths exist only in the browser.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      # Hashed bundle files never change under the same name.
+      - path: /static/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      # The page that names the current bundle must be fetched fresh.
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache

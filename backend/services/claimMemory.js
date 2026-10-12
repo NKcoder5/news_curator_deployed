@@ -164,40 +164,72 @@ const fileClaim = async (claimText, signature, { origin, subject }) => {
   return { record, created, variants: variants.slice(0, 5) };
 };
 
-/**
- * Store one finished check.
- *
- * @returns {Promise<Object|null>} what the memory knew before this check, for
- *   the page ("checked before", "a variant of …"), or null when the database is
- *   not connected (tests, evaluation scripts) or there was nothing to store.
- */
-const recordCheck = async ({ report, understanding = null, ledgerInput, modelCalls = [], messageText = '', trigger = 'user', modality = 'text', recheckOf = null }) => {
-  if (!connected() || !ledgerInput || !(ledgerInput.claims || []).length) return null;
+const subjectIn = (understanding, claim) => (understanding?.claims || []).find(c => c.claim === claim)?.subject
+  || (understanding?.checkableClaims || []).find(c => c.claim === claim)?.subject || null;
 
-  const now = new Date();
-  const origin = trigger === 'eval' ? 'eval' : 'user';
-  const single = ledgerInput.claims.length === 1;
-  const perClaimReport = report.evidence?.perClaim || [];
-  const subjectFor = (claim) => (understanding?.claims || []).find(c => c.claim === claim)?.subject
-    || (understanding?.checkableClaims || []).find(c => c.claim === claim)?.subject || null;
+/**
+ * What the memory knows about these claims, read without writing anything.
+ *
+ * Only the claims are needed, not the verdict, so a check runs this beside its
+ * evidence channels instead of after them. Measured: with ambiguous matches,
+ * filing a claim asks a model up to three times, one after another, and that
+ * used to sit between the verdict and the reader.
+ *
+ * @param {Object} args
+ * @param {string[]} args.claims - the claim sentences, in the order checked
+ * @returns {Promise<Object|null>} a plan for prepareRecord, or null when the
+ *   database is not connected
+ */
+const lookupClaims = async ({ claims = [], understanding = null, trigger = 'user', recheckOf = null }) => {
+  if (!connected() || !claims.length) return null;
+  const origin = trigger === 'recheck' ? 'recheck' : trigger === 'eval' ? 'eval' : 'user';
 
   // A re-check is filed under the record it was run for, whatever wording
   // the claim comes back in, so the record's history does not fork.
   const recheckRecord = recheckOf && mongoose.isValidObjectId(recheckOf) ? await ClaimRecord.findById(recheckOf) : null;
 
-  const filed = [];
-  for (const [index, c] of ledgerInput.claims.entries()) {
-    const signature = signatureOf(c.claim);
-    if (!signature.entities.length && !signature.numbers.length && !(index === 0 && recheckRecord)) continue;   // names nothing; not filed
-    const { record, created, variants } = index === 0 && recheckRecord
+  const entries = await Promise.all(claims.map(async (claim, index) => {
+    const signature = signatureOf(claim);
+    const forRecheck = index === 0 && recheckRecord;
+    if (!signature.entities.length && !signature.numbers.length && !forRecheck) return { claim, skip: true };   // names nothing; not filed
+    const { record, created, variants } = forRecheck
       ? { record: recheckRecord, created: false, variants: [] }
-      : await fileClaim(c.claim, signature, { origin: trigger === 'recheck' ? 'recheck' : origin, subject: subjectFor(c.claim) });
-    const status = statusOf(perClaimReport.find(x => x.claim === c.claim));
-    const call = single ? report.call : STATUS_CALL[status];
+      : await fileClaim(claim, signature, { origin, subject: subjectIn(understanding, claim) });
     const previous = !created && record.current?.assessmentId
       ? { call: record.current.call, oneLine: record.current.oneLine, at: record.current.at, assessmentId: record.current.assessmentId }
       : null;
-    filed.push({ claim: c.claim, record, created, variants, status, call, previous });
+    // The evidence a changed verdict will be compared with, read now so the
+    // comparison costs nothing once the verdict is in.
+    const prior = previous && claims.length === 1
+      ? await ClaimAssessment.findById(previous.assessmentId).select('evidence versions').lean()
+      : null;
+    return { claim, record, created, variants, previous, prior };
+  }));
+  return { claims, entries };
+};
+
+/**
+ * What a finished check adds to the memory, worked out without writing it.
+ *
+ * @param {Object|null} plan - from lookupClaims, for the same claims
+ * @returns {{memory: Object, write: Function}|null} `memory` is what the page
+ *   shows ("checked before", "a variant of …"), exactly as it will be stored;
+ *   `write` stores it. Null when there is nothing to store.
+ */
+const prepareRecord = (plan, { report, understanding = null, ledgerInput, modelCalls = [], messageText = '', trigger = 'user', modality = 'text' }) => {
+  if (!plan || !ledgerInput || !(ledgerInput.claims || []).length) return null;
+
+  const now = new Date();
+  const single = ledgerInput.claims.length === 1;
+  const perClaimReport = report.evidence?.perClaim || [];
+
+  // The ledger's claims, in its order, each with what the lookup found.
+  const filed = [];
+  for (const c of ledgerInput.claims) {
+    const entry = plan.entries.find(e => e.claim === c.claim);
+    if (!entry || entry.skip) continue;
+    const status = statusOf(perClaimReport.find(x => x.claim === c.claim));
+    filed.push({ ...entry, status, call: single ? report.call : STATUS_CALL[status] });
   }
   if (!filed.length) return null;
 
@@ -205,77 +237,35 @@ const recordCheck = async ({ report, understanding = null, ledgerInput, modelCal
   // changed, from the difference between the evidence then and now.
   const lead = filed[0];
   const evidence = evidenceSnapshot(report);
-  let changeReason = null;
-  if (single && lead.previous && lead.previous.call !== lead.call) {
-    const prev = await ClaimAssessment.findById(lead.previous.assessmentId).select('evidence versions').lean();
-    changeReason = describeChange({
+  const changeReason = single && lead.previous && lead.previous.call !== lead.call
+    ? describeChange({
       prevCall: lead.previous.call, call: lead.call, trigger,
-      prevEvidence: prev?.evidence || [], evidence, prevEngine: prev?.versions?.engine || null
-    });
-  }
+      prevEvidence: lead.prior?.evidence || [], evidence, prevEngine: lead.prior?.versions?.engine || null
+    })
+    : null;
 
-  // Records must exist before the assessment can point at them.
-  for (const f of filed) if (f.created) await f.record.save();
+  // The id is chosen here, so the page can link the record before it is written.
+  const assessmentId = new mongoose.Types.ObjectId();
+  const currentFor = (f) => ({ call: f.call, status: f.status, rule: single ? report.decision?.rule : 'per-claim',
+    oneLine: single ? report.oneLine : null, at: now, assessmentId });
 
-  const assessment = await ClaimAssessment.create({
-    claimIds: filed.map(f => f.record._id),
-    asOf: new Date(ledgerInput.asOf || Date.now()),
-    trigger,
-    messageHash: messageText ? fingerprint(messageText) : null,
-    language: understanding?.language || null,
-    speechAct: understanding?.speechAct || null,
-    modality,
-    call: report.call,
-    verdict: report.verdictClass || report.decision?.verdict,
-    rule: report.decision?.rule,
-    confidence: report.decision?.confidence,
-    oneLine: report.oneLine,
-    perClaim: filed.map(f => {
-      const entry = perClaimReport.find(x => x.claim === f.claim) || {};
-      return { claimId: f.record._id, claim: f.claim, status: f.status, call: f.call,
-        independentSupport: entry.independentSupport || 0, independentContradiction: entry.independentContradiction || 0 };
-    }),
-    evidence,
-    ledgerInput,
-    versions: { schema: report.schemaVersion, engine: ENGINE_VERSION, routing: routingVersion(), models: modelCalls.slice(0, 60) },
-    supersedes: single && lead.previous ? lead.previous.assessmentId : undefined,
-    changeReason
-  });
+  // When a re-check is next due, as the write will book it.
+  const recheckDue = (f) => {
+    const plain = typeof f.record.toObject === 'function' ? f.record.toObject() : f.record;
+    const probe = { origin: plain.origin, recheck: plain.recheck ? { ...plain.recheck } : {} };
+    bookRecheck(probe, f.call, trigger, now.getTime());
+    return probe.recheck?.due || null;
+  };
 
-  for (const f of filed) {
-    const r = f.record;
-    r.timesSeen = (r.timesSeen || 0) + 1;
-    r.lastSeenAt = now;
-    r.phrasings = [...(r.phrasings || []), { text: f.claim, language: understanding?.language || 'en', at: now }].slice(-20);
-    if (understanding?.language && !r.languages.includes(understanding.language)) r.languages.push(understanding.language);
-    const subject = subjectFor(f.claim);
-    if (subject && !r.subjects.includes(subject)) r.subjects.push(subject);
-    r.current = { call: f.call, status: f.status, rule: single ? report.decision?.rule : 'per-claim',
-      oneLine: single ? report.oneLine : null, at: now, assessmentId: assessment._id };
-    bookRecheck(r, f.call, trigger, now.getTime());
-    for (const v of f.variants) {
-      if (!r.variants.some(x => String(x.claimId) === String(v.record._id))) {
-        r.variants.push({ claimId: v.record._id, claim: v.record.claim, differences: v.differences, at: now });
-        r.variants = r.variants.slice(-20);
-      }
-      if (!v.record.variants.some(x => String(x.claimId) === String(r._id))) {
-        v.record.variants.push({ claimId: r._id, claim: r.claim, differences: v.differences, at: now });
-        v.record.variants = v.record.variants.slice(-20);
-        await v.record.save();
-      }
-    }
-    await r.save();
-  }
-
-  return {
-    assessmentId: String(assessment._id),
+  const memory = {
+    assessmentId: String(assessmentId),
     claims: filed.map(f => ({
       claimId: String(f.record._id),
       claim: f.record.claim,
-      timesSeen: f.record.timesSeen,
+      timesSeen: (f.record.timesSeen || 0) + 1,
       firstSeenAt: f.record.firstSeenAt,
       previous: f.previous ? { call: f.previous.call, oneLine: f.previous.oneLine, at: f.previous.at } : null,
-      recheckDue: f.record.recheck?.due || null,
+      recheckDue: recheckDue(f),
       variants: f.variants.map(v => ({
         claimId: String(v.record._id), claim: v.record.claim, differences: v.differences,
         call: v.record.current?.call || null, at: v.record.current?.at || null
@@ -283,7 +273,120 @@ const recordCheck = async ({ report, understanding = null, ledgerInput, modelCal
     })),
     changeReason
   };
+
+  const write = async () => {
+    // Records must exist before the assessment can point at them. Another
+    // check of the same new claim may have filed it in the meantime; then
+    // this one is filed under that record rather than failing.
+    for (const f of filed) {
+      if (!f.created) continue;
+      try {
+        await f.record.save();
+      } catch (err) {
+        if (err.code !== 11000) throw err;
+        const existing = await ClaimRecord.findOne({ key: f.record.key });
+        if (!existing) throw err;
+        f.record = existing;
+        f.created = false;
+      }
+    }
+
+    await ClaimAssessment.create({
+      _id: assessmentId,
+      claimIds: filed.map(f => f.record._id),
+      asOf: new Date(ledgerInput.asOf || Date.now()),
+      trigger,
+      messageHash: messageText ? fingerprint(messageText) : null,
+      language: understanding?.language || null,
+      speechAct: understanding?.speechAct || null,
+      modality,
+      call: report.call,
+      verdict: report.verdictClass || report.decision?.verdict,
+      rule: report.decision?.rule,
+      confidence: report.decision?.confidence,
+      oneLine: report.oneLine,
+      perClaim: filed.map(f => {
+        const entry = perClaimReport.find(x => x.claim === f.claim) || {};
+        return { claimId: f.record._id, claim: f.claim, status: f.status, call: f.call,
+          independentSupport: entry.independentSupport || 0, independentContradiction: entry.independentContradiction || 0 };
+      }),
+      evidence,
+      ledgerInput,
+      versions: { schema: report.schemaVersion, engine: ENGINE_VERSION, routing: routingVersion(), models: modelCalls.slice(0, 60) },
+      supersedes: single && lead.previous ? lead.previous.assessmentId : undefined,
+      changeReason
+    });
+
+    for (const f of filed) {
+      // Read again just before it is changed: the check took seconds, and
+      // another check of the same claim may have been filed meanwhile.
+      const r = f.created ? f.record : (await ClaimRecord.findById(f.record._id)) || f.record;
+      r.timesSeen = (r.timesSeen || 0) + 1;
+      r.lastSeenAt = now;
+      r.phrasings = [...(r.phrasings || []), { text: f.claim, language: understanding?.language || 'en', at: now }].slice(-20);
+      if (understanding?.language && !r.languages.includes(understanding.language)) r.languages.push(understanding.language);
+      const subject = subjectIn(understanding, f.claim);
+      if (subject && !r.subjects.includes(subject)) r.subjects.push(subject);
+      r.current = currentFor(f);
+      bookRecheck(r, f.call, trigger, now.getTime());
+      for (const v of f.variants) {
+        if (!r.variants.some(x => String(x.claimId) === String(v.record._id))) {
+          r.variants.push({ claimId: v.record._id, claim: v.record.claim, differences: v.differences, at: now });
+          r.variants = r.variants.slice(-20);
+        }
+        const other = (await ClaimRecord.findById(v.record._id)) || v.record;
+        if (!other.variants.some(x => String(x.claimId) === String(r._id))) {
+          other.variants.push({ claimId: r._id, claim: r.claim, differences: v.differences, at: now });
+          other.variants = other.variants.slice(-20);
+          await other.save();
+        }
+      }
+      await r.save();
+    }
+  };
+
+  return { memory, write, recordIds: filed.map(f => String(f.record._id)), assessmentId: String(assessmentId) };
 };
+
+/**
+ * Store one finished check, all at once: the lookup, then the write.
+ *
+ * Check Anything does the two apart — the lookup beside the evidence channels,
+ * the write after the reader has the answer — and this is the same work in one
+ * call, for callers that do not need that.
+ *
+ * @returns {Promise<Object|null>} what the memory knew before this check, for
+ *   the page ("checked before", "a variant of …"), or null when the database is
+ *   not connected (tests, evaluation scripts) or there was nothing to store.
+ */
+const recordCheck = async ({ report, understanding = null, ledgerInput, modelCalls = [], messageText = '', trigger = 'user', modality = 'text', recheckOf = null }) => {
+  if (!connected() || !ledgerInput || !(ledgerInput.claims || []).length) return null;
+  const plan = await lookupClaims({ claims: ledgerInput.claims.map(c => c.claim), understanding, trigger, recheckOf });
+  const prepared = prepareRecord(plan, { report, understanding, ledgerInput, modelCalls, messageText, trigger, modality });
+  if (!prepared) return null;
+  await prepared.write();
+  return prepared.memory;
+};
+
+/**
+ * Is a stored verdict still the latest on its claims? True when every record
+ * still points at that assessment: no re-check and no other check of the same
+ * claim has been filed since.
+ *
+ * @returns {Promise<Array|null>} the records' times seen, or null when not current
+ */
+const stillCurrent = async (recordIds = [], assessmentId) => {
+  if (!connected() || !recordIds.length || !mongoose.isValidObjectId(assessmentId)) return null;
+  const records = await ClaimRecord.find({ _id: { $in: recordIds } }).select('timesSeen current.assessmentId').lean();
+  if (records.length !== recordIds.length) return null;
+  if (!records.every(r => String(r.current?.assessmentId) === String(assessmentId))) return null;
+  return recordIds.map(id => records.find(r => String(r._id) === String(id)).timesSeen || 0);
+};
+
+/** Count a claim asked about again and answered from a check minutes old. */
+const noteSeenAgain = (recordIds = []) => (connected() && recordIds.length
+  ? ClaimRecord.updateMany({ _id: { $in: recordIds } }, { $inc: { timesSeen: 1 }, $set: { lastSeenAt: new Date() } })
+  : Promise.resolve(null));
 
 /**
  * Reach a stored verdict again from its recorded inputs.
@@ -342,4 +445,7 @@ const claimHistory = async (id) => {
   };
 };
 
-module.exports = { recordCheck, replayAssessment, evidenceSnapshot, fingerprint, claimHistory, describeChange, bookRecheck, ENGINE_VERSION, RECHECK_HOURS };
+module.exports = {
+  recordCheck, lookupClaims, prepareRecord, stillCurrent, noteSeenAgain,
+  replayAssessment, evidenceSnapshot, fingerprint, claimHistory, describeChange, bookRecheck, ENGINE_VERSION, RECHECK_HOURS
+};

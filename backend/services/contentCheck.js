@@ -4,18 +4,103 @@
 // screenshot), gate it, and run the full check. The JSON route, the streamed
 // route and the evaluation suites all call this, so what is measured is
 // exactly what the page does.
-const { analyzeTrust } = require('../agents/trustAnalysisAgent');
+const crypto = require('crypto');
+const { analyzeTrust, startMessageChecks } = require('../agents/trustAnalysisAgent');
 const { extractArticle } = require('../utils/articleExtractor');
 const { ingestSocialContent } = require('../utils/socialIngest');
 const { readImageText, packForLanguage } = require('../utils/ocr');
 const { assessCheckability } = require('../agents/checkability');
 const { limitText, TEXT_BUDGET } = require('../utils/articleText');
 const { understandInput } = require('../agents/inputUnderstanding');
-const { recordCheck } = require('./claimMemory');
+const { lookupClaims, prepareRecord, stillCurrent, noteSeenAgain, ENGINE_VERSION } = require('./claimMemory');
 const { explainDecision } = require('./decisionExplainer');
 const { trackRecordFor } = require('./ruleReliability');
 const { runWithContext, currentContext } = require('../utils/runContext');
 const { translateVerdict } = require('../agents/verdictTranslation');
+
+// How long the evidence channels of a reader's check have to land. Measured on
+// 12 Oct the slowest channel landed 8.8 s after the claims were known (the
+// reference check on NVIDIA NIM), the others within 5.5 s; a busy provider has
+// held a check for 25-50 s. A channel still out at 15 s is reported as not
+// read in time and counts as absent (agents/trustAnalysisAgent.js, UNREAD).
+// Re-checks have no reader waiting and wait for everything.
+const EVIDENCE_DEADLINE_MS = 15000;
+
+// The claim memory's lookup runs beside the evidence; if it is still out this
+// long after the verdict, the answer goes without the "checked before" panel
+// and the check is filed when the lookup finishes.
+const MEMORY_GRACE_MS = 1500;
+
+/* ---------------------------------------------------------------------------
+   Checked minutes ago
+
+   The same message sent again soon after — a forward pasted by several
+   readers, a reader asking twice — is answered from the check just made,
+   marked `cached` with its age, instead of spending another 6-12 s and the
+   same quota to reach the same evidence.
+
+   Kept short, twenty minutes, because claims about "now" are time-sensitive:
+   a result declared at noon is not in the 11:50 coverage. And kept narrow:
+   only the identical message (same text, source, link and kind), because the
+   stored report quotes the message — its first line, the sentences the
+   writing checks flagged, its English reading — and must never be shown to a
+   reader who did not send it; and the writing checks, which can decide a
+   verdict (verdictEngine R7), read the wording. Served only while its claim
+   records still point at the check it came from (no re-check, no later check
+   of the same claim since) and the verdict engine is the same version; only
+   to readers, never to a re-check or an evaluation run; only from a complete
+   check, with every channel read.
+--------------------------------------------------------------------------- */
+const RECENT_TTL_MS = 20 * 60 * 1000;
+const RECENT_MAX = 200;
+const recentChecks = new Map();
+
+// Spacing is not a different message; capitals are, since the writing checks
+// read a forward in capitals as shouting.
+const requestKey = (ingested) => crypto.createHash('sha256').update(JSON.stringify([
+  ingested.modality || 'text', ingested.source || null, ingested.url || null, ingested.publishedAt || null,
+  String(ingested.title || '').replace(/\s+/g, ' ').trim(),
+  String(ingested.content || '').replace(/\s+/g, ' ').trim()
+])).digest('hex');
+
+const isComplete = (report) => (report.unreadChannels || []).length === 0
+  && (report.degradedFactors || []).length === 0
+  && report.decision?.rule !== 'verification-unavailable'
+  && ![report.factChecks?.status, report.currentCoverage?.status, report.premiseCheck?.status].includes('error');
+
+const rememberCheck = (key, result, stored) => {
+  recentChecks.delete(key);
+  recentChecks.set(key, { at: Date.now(), engine: ENGINE_VERSION, ...stored, result: structuredClone(result) });
+  while (recentChecks.size > RECENT_MAX) recentChecks.delete(recentChecks.keys().next().value);
+};
+
+/** The check this same message had minutes ago, if it is still the claim's latest. */
+const recentCheck = async (key) => {
+  const hit = recentChecks.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.at >= RECENT_TTL_MS || hit.engine !== ENGINE_VERSION) {
+    recentChecks.delete(key);
+    return null;
+  }
+  const timesSeen = await stillCurrent(hit.recordIds, hit.assessmentId);
+  if (!timesSeen) {
+    recentChecks.delete(key);
+    return null;
+  }
+  noteSeenAgain(hit.recordIds).catch(err => console.warn('Claim memory: could not count a repeat:', err.message));
+  const result = structuredClone(hit.result);
+  if (result.memory) {
+    result.memory.claims = (result.memory.claims || []).map((c, i) => ({ ...c, timesSeen: (timesSeen[i] || 0) + 1 }));
+  }
+  return { ...result, cached: true, checkedAt: new Date(hit.at).toISOString(), ageSeconds: Math.round((Date.now() - hit.at) / 1000) };
+};
+
+/** Settles with the promise's value, or with `fallback` after `ms`. */
+const within = (promise, ms, fallback) => {
+  let timer;
+  return Promise.race([promise, new Promise(resolve => { timer = setTimeout(() => resolve(fallback), Math.max(0, ms)); })])
+    .finally(() => clearTimeout(timer));
+};
 
 // What each kind of message that asserts nothing checkable is told.
 const NOT_CHECKABLE = {
@@ -107,12 +192,28 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
     // make the input usable.
     const checkability = assessCheckability(ingested.content, ingested.title);
 
+    // The same message, checked minutes ago, for a reader.
+    const key = trigger === 'user' ? requestKey(ingested) : null;
+    if (key) {
+      const recent = await recentCheck(key).catch(() => null);
+      if (recent) {
+        stage({ id: 'cached', name: 'Checked a few minutes ago', checkedAt: recent.checkedAt, ageSeconds: recent.ageSeconds });
+        return {
+          ...recent,
+          ingestNotes: ingested.ingestNotes,
+          readText: ocrResult ? { chars: ocrResult.text.length, confidence: ocrResult.confidence, languages: ocrResult.languages } : null
+        };
+      }
+    }
+
     // A message someone typed or forwarded is read for what it asserts before
     // the gate decides. The regular-expression gate alone refused every
     // question, and could not see past a hedge, sarcasm, Tanglish or a forward
     // in capitals; this reading can. Articles and transcripts keep the
     // ordinary path. If the reading fails, the gate below decides as before.
     let understanding = null;
+    let early = null;
+    const factorText = limitText(ingested.content, TEXT_BUDGET.factors);
     // Too short for the gate is not too short to read: "indai won 84 medels in
     // asian games 2026" is 39 characters, one under the gate's minimum, and a
     // Tamil headline is often three words. Only a scrap is skipped.
@@ -120,6 +221,10 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
     const readable = String(ingested.content || '').trim().length >= 12 && words >= 3;
     if (['text', 'image'].includes(ingested.modality || 'text') && (checkability.kind !== 'too-short' || readable)) {
       stage({ id: 'understanding', name: 'Working out what the message claims' });
+      // How the message is written, and what a reference work says about the
+      // names in it, do not wait for the reading (trustAnalysisAgent's
+      // startMessageChecks). A message refused below leaves them unused.
+      early = startMessageChecks({ title: ingested.title, content: factorText });
       understanding = await understandInput(ingested.content);
     }
 
@@ -163,10 +268,18 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
       chars: String(ingested.content || '').length
     });
 
+    // What the claim memory already knows about these claims — checked before,
+    // a variant of an earlier claim — is looked up beside the evidence, since
+    // it needs only the claims. A failure is logged and the check goes on.
+    const lookup = (claims) => lookupClaims({ claims, understanding, trigger, recheckOf })
+      .catch(err => { console.warn('Claim memory: could not look these claims up:', err.message); return null; });
+    let planPromise = understanding ? lookup(understanding.checkableClaims.map(c => c.claim)) : null;
+
     let ledgerInput = null;
+    const deadlineMs = trigger === 'recheck' ? null : EVIDENCE_DEADLINE_MS;
     const report = await analyzeTrust({
       title: ingested.title,
-      content: limitText(ingested.content, TEXT_BUDGET.factors),
+      content: factorText,
       source: ingested.source,
       url: ingested.url,
       provenance: ingested.provenance,
@@ -177,7 +290,9 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
       preparedClaims: understanding ? understanding.checkableClaims : null,
       evidenceText: understanding && understanding.language !== 'en' ? understanding.english : null,
       understanding,
-      onLedgerInput: (input) => { ledgerInput = input; }
+      onLedgerInput: (input) => { ledgerInput = input; },
+      early,
+      deadlineMs
     });
 
     // The one-line reason in the reader's own language, for a message written
@@ -187,19 +302,30 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
       : null;
 
     // Kept as a record: the claim, its evidence and the inputs the verdict
-    // was reached from (services/claimMemory.js). What the memory already knew
-    // — checked before, a variant of an earlier claim — comes back for the page.
-    // A failure here is logged and ignored: the reader's answer never waits on it.
-    let memory = null;
-    try {
-      memory = await recordCheck({
-        report, understanding, ledgerInput,
-        modelCalls: currentContext()?.calls || [],
-        messageText: ingested.content, trigger, recheckOf, modality: ingested.modality || 'text'
-      });
-    } catch (err) {
-      console.warn('Claim memory: could not record this check:', err.message);
-    }
+    // was reached from (services/claimMemory.js). The page gets what the
+    // memory knew now; the record is written after the answer has gone, and a
+    // failure there is logged, never shown: the reader's answer does not wait
+    // on a database write.
+    if (!planPromise && ledgerInput) planPromise = lookup((ledgerInput.claims || []).map(c => c.claim));
+    const recordArgs = {
+      report, understanding, ledgerInput,
+      modelCalls: currentContext()?.calls || [],
+      messageText: ingested.content, trigger, modality: ingested.modality || 'text'
+    };
+    const prepare = (plan) => {
+      try {
+        return prepareRecord(plan, recordArgs);
+      } catch (err) {
+        console.warn('Claim memory: could not record this check:', err.message);
+        return null;
+      }
+    };
+    const LATE = Symbol('late');
+    const plan = !planPromise ? null
+      : deadlineMs ? await within(planPromise, MEMORY_GRACE_MS, LATE)
+      : await planPromise;
+    const prepared = plan === LATE ? null : prepare(plan);
+    const memory = prepared ? prepared.memory : null;
 
     // What decided the verdict and what would change it, found by running the
     // same rules again with evidence taken away or added (services/
@@ -214,7 +340,7 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
       console.warn('Decision explainer failed:', err.message);
     }
 
-    return {
+    const result = {
       ...report,
       oneLineLocal: localLine,
       memory,
@@ -226,6 +352,21 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
       readText: ocrResult ? { chars: ocrResult.text.length, confidence: ocrResult.confidence, languages: ocrResult.languages } : null,
       cached: false
     };
+
+    // The write, after the answer. A lookup that was still out is waited for
+    // here, off the reader's time, and the check is filed all the same.
+    const filing = prepared ? Promise.resolve(prepared)
+      : plan === LATE ? planPromise.then(prepare)
+      : Promise.resolve(null);
+    filing
+      .then(async (p) => {
+        if (!p) return;
+        await p.write();
+        if (key && isComplete(result) && result.memory) rememberCheck(key, result, { recordIds: p.recordIds, assessmentId: p.assessmentId });
+      })
+      .catch(err => console.warn('Claim memory: could not record this check:', err.message));
+
+    return result;
   } catch (err) {
     if (err instanceof ContentCheckError) throw err;
     // A platform that refuses to be read is not a server fault, and the message

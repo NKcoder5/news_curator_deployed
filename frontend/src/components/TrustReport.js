@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import EvidenceBoard, { RULE_LABELS } from './EvidenceBoard';
 import ReadAs from './ReadAs';
+import ClaimRecord from './ClaimRecord';
 import '../styles/TrustReport.css';
 
 const LEVEL_COLORS = {
@@ -391,6 +392,7 @@ const TrustReport = ({ report, evidenceFirst = false }) => {
       </div>
 
       {evidenceFirst && <ReadAs understanding={report.understanding} call={report.call} perClaim={report.evidence?.perClaim} />}
+      {evidenceFirst && <ClaimRecord memory={report.memory} call={report.call} />}
       {evidenceFirst && <EvidenceBoard report={report} />}
 
       <div className="tier-buttons">

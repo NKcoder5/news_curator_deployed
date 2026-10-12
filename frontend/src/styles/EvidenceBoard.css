@@ -383,3 +383,24 @@
   .read-as-facts > div { grid-template-columns: 1fr; gap: 0.1rem; }
 }
 .read-as-none { color: var(--ink-muted); }
+
+/* The claim record: what was concluded before about these claims. */
+.claim-record {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--rule-strong);
+  border-left: 4px solid var(--accent);
+  background: var(--paper-card);
+}
+.claim-record h4 { margin: 0 0 0.4rem; font-family: var(--headline-font); font-size: 1.02rem; color: var(--ink); }
+.claim-record-note, .claim-record-line { margin: 0.3rem 0 0; font-size: 0.9rem; line-height: 1.5; color: var(--ink-body); }
+.claim-record-claim { margin: 0.4rem 0 0; font-size: 0.92rem; font-style: italic; color: var(--ink-soft); }
+.claim-record-item + .claim-record-item { margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid var(--rule); }
+.claim-record-call { font-weight: 700; font-family: var(--headline-font); }
+.claim-record-call.call-against { color: var(--trust-low); }
+.claim-record-call.call-for { color: var(--trust-high); }
+.claim-record-call.call-none { color: #8a6d3b; }
+.claim-record-tag {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent);
+}
+.claim-record-change { margin: 0.5rem 0 0; font-size: 0.88rem; font-weight: 700; color: var(--ink); }

@@ -57,16 +57,30 @@ const NEGATION = /\b(?:not|no|never|didn't|did not|doesn't|does not|hasn't|has n
 // not win", so it is a variant of "TVK won" (the opposite claim about the same
 // thing), and "TVK did not lose" is the same claim as "TVK won".
 const ANTONYM = { lose: 'win', fall: 'rise', cut: 'raise', lower: 'raise', reduce: 'raise', decrease: 'increase', reject: 'accept' };
-const SYNONYM = { hike: 'raise', hiked: 'raise', hikes: 'raise' };
+const SYNONYM = {
+  hike: 'raise', hiked: 'raise', hikes: 'raise',
+  acquire: 'buy', acquired: 'buy', acquires: 'buy', acquisition: 'buy', purchased: 'buy', purchase: 'buy'
+};
+
+// Phrases headlines use interchangeably, reduced before the words are read:
+// a by-election is a bypoll, stepping down is resigning.
+const normalisePhrases = (text) => String(text || '')
+  .replace(/\b(?:bye|by)[\s-]?(?:elections?|polls?)\b|\bbyelections?\b|\bbypolls?\b/gi, 'bypoll')
+  .replace(/\bstep(?:s|ped|ping)?\s+down\b/gi, 'resign')
+  .replace(/\bquit\b/gi, 'resign');
 const STOP = new Set([...NOT_NAMES, 'as', 'be', 'been', 'being', 'will', 'would', 'could', 'should', 'may', 'might',
   'can', 'about', 'into', 'over', 'after', 'before', 'than', 'then', 'also', 'his', 'her', 'their', 'our', 'your',
   'which', 'while', 'claim', 'claims', 'reported', 'report', 'news', 'today', 'yesterday', 'tomorrow', 'week',
   'month', 'year', 'now', 'just', 'very', 'more', 'most', 'some', 'any', 'other', 'such', 'only', 'own', 'same',
   'so', 'too', 'up', 'down', 'out', 'off', 'again', 'once', 'he', 'him', 'she', 'them', 'his', 'who', 'whom', 'whose']);
 
+// A people's adjective names the same thing as the country.
+const DEMONYM = { indian: 'india', pakistani: 'pakistan', chinese: 'china', american: 'america', british: 'britain' };
+
 const stem = (w) => {
   const t = String(w).toLowerCase();
   if (LEMMA[t]) return LEMMA[t];
+  if (DEMONYM[t]) return DEMONYM[t];
   if (t.length > 4 && t.endsWith('ies')) return t.slice(0, -3) + 'y';
   if (t.length > 3 && t.endsWith('s') && !t.endsWith('ss')) return t.slice(0, -1);
   return t;
@@ -129,7 +143,7 @@ const readEntities = (text) => {
  * @returns {{entities: string[], numbers: Array, years: string[], terms: string[], negated: boolean, key: string}}
  */
 const signatureOf = (claim) => {
-  const text = String(claim || '');
+  const text = normalisePhrases(claim);
   const entities = readEntities(text).sort();
   const { numbers, years } = readNumbers(text);
   numbers.sort((a, b) => (a.unit + a.value).localeCompare(b.unit + b.value));
@@ -182,7 +196,8 @@ const compareSignatures = (a, b) => {
   const sharedName = sharedCount > 0;
   const words = jaccard(a.terms, b.terms);
   const score = Math.round((0.6 * names + 0.4 * words) * 100) / 100;
-  if (!sharedName || names < 0.5 || words < 0.34) return { relation: 'different', differences: [], score };
+  // Different people, organisations or places: different claims, whatever the wording.
+  if (!sharedName || names < 0.5) return { relation: 'different', differences: [], score };
 
   const differences = [];
   const unitsA = new Map(a.numbers.map(n => [n.unit, n.value]));
@@ -207,7 +222,12 @@ const compareSignatures = (a, b) => {
   if (differences.length) {
     return names >= 0.6 && words >= 0.4 ? { relation: 'variant', differences, score } : { relation: 'different', differences: [], score };
   }
-  return names >= 0.6 && words >= 0.5 ? { relation: 'same', differences: [], score } : { relation: 'different', differences: [], score };
+  if (names >= 0.6 && words >= 0.5) return { relation: 'same', differences: [], score };
+  // The names agree and every figure, date and polarity agrees, but the
+  // wording differs too much to say: "Elon Musk bought Reliance Jio" against
+  // "Reliance Jio was taken over by Elon Musk". Left as different here; the
+  // caller may ask a model to settle it (services/claimMemory.js).
+  return { relation: 'different', differences: [], score, ambiguous: true };
 };
 
 module.exports = { signatureOf, compareSignatures, readNumbers, readEntities };

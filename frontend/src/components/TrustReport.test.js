@@ -91,3 +91,25 @@ test('the article page keeps the evidence behind its button', () => {
   render(<TrustReport report={debunked} />);
   expect(screen.queryByText(/this decided the verdict/i)).not.toBeInTheDocument();
 });
+
+test('the claim record shows a claim checked before and a variant with its difference', () => {
+  const report = {
+    ...debunked,
+    call: 'FAKE',
+    memory: {
+      assessmentId: 'a1',
+      changeReason: null,
+      claims: [{
+        claimId: 'c1', claim: 'India won 84 medals at the 2026 Asian Games.', timesSeen: 3,
+        firstSeenAt: '2026-10-12T07:32:00Z',
+        previous: { call: 'FAKE', oneLine: '3 outlets report otherwise', at: '2026-10-12T07:40:00Z' },
+        variants: [{ claimId: 'c2', claim: 'India won 85 medals at the Asian Games 2026.', differences: ['figure: 84 medal vs 85 medal'], call: 'REAL', at: '2026-10-12T07:45:00Z' }]
+      }]
+    }
+  };
+  render(<TrustReport report={report} evidenceFirst />);
+  expect(screen.getByRole('region', { name: 'Claim record' })).toBeInTheDocument();
+  expect(screen.getByText(/3 times/)).toBeInTheDocument();
+  expect(screen.getByText(/Variant checked before/i)).toBeInTheDocument();
+  expect(screen.getByText(/figure: 84 medal vs 85 medal/)).toBeInTheDocument();
+});

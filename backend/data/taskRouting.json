@@ -378,6 +378,15 @@
       ],
       "reason": "routed to a hosted model by hand on 2026-10-11: translating the verdict into Tamil or Hindi for the reader",
       "overriddenAt": "2026-10-11"
+    },
+    "claim matching": {
+      "chain": [
+        "gemini",
+        "nim",
+        "ollama"
+      ],
+      "reason": "set by hand on 2026-10-12: deciding whether two differently worded claims are the same is a judgement of meaning, routed with the other judgements",
+      "overriddenAt": "2026-10-12"
     }
   }
 }

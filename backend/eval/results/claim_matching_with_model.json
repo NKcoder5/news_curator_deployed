@@ -1,0 +1,337 @@
+{
+  "ranAt": "2026-10-12T07:38:56.604Z",
+  "summary": {
+    "pairs": 34,
+    "exact": 34,
+    "falseMerges": 0,
+    "falseLinks": 0,
+    "sameRecall": "11/11",
+    "variantRecall": "8/8",
+    "differentKeptApart": "15/15",
+    "modelConsulted": 5
+  },
+  "rows": [
+    {
+      "a": "India won 84 medals at the Asian Games 2026.",
+      "b": "India won 84 medals at the 2026 Asian Games.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 1,
+      "askedModel": false
+    },
+    {
+      "a": "Narendra Modi resigned as Prime Minister today.",
+      "b": "PM Modi resigned today.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 0.76,
+      "askedModel": false
+    },
+    {
+      "a": "The Reserve Bank of India raised the repo rate by 25 basis points to 5.5%.",
+      "b": "RBI raised the repo rate by 25 basis points to 5.50%.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 0.8,
+      "askedModel": false
+    },
+    {
+      "a": "Virat Kohli denied claims that he took Rs 5 crore to visit the ashram.",
+      "b": "Virat Kohli denied claims he took Rs 50 million to visit the ashram.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 1,
+      "askedModel": false
+    },
+    {
+      "a": "TVK won both the Dharapuram and Madurantakam bypolls.",
+      "b": "TVK won the Dharapuram and Madurantakam by-elections.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 0.87,
+      "askedModel": false
+    },
+    {
+      "a": "Income tax has been abolished in India.",
+      "b": "India has abolished income tax.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 0.63,
+      "askedModel": false
+    },
+    {
+      "a": "All Saturdays have been declared bank holidays for public sector banks from November 2026.",
+      "b": "The government declared all Saturdays as bank holidays from November 2026.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 0.84,
+      "askedModel": false
+    },
+    {
+      "a": "Elon Musk bought Reliance Jio.",
+      "b": "Reliance Jio was acquired by Elon Musk.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 1,
+      "askedModel": false
+    },
+    {
+      "a": "Harmanpreet Kaur stepped down as India captain.",
+      "b": "Harmanpreet Kaur resigned as captain of the Indian team.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 0.87,
+      "askedModel": false
+    },
+    {
+      "a": "The RBI removed Paytm Payments Bank from its list of scheduled banks.",
+      "b": "Paytm Payments Bank was removed from the RBI's list of scheduled banks.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 1,
+      "askedModel": false
+    },
+    {
+      "a": "India won 84 medals at the Asian Games 2026.",
+      "b": "India won 85 medals at the Asian Games 2026.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "figure: 84 medal vs 85 medal"
+      ],
+      "score": 1,
+      "askedModel": false
+    },
+    {
+      "a": "India won 84 medals at the Asian Games 2026.",
+      "b": "India won 84 medals at the Asian Games 2022.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "date: 2026 vs 2022"
+      ],
+      "score": 1,
+      "askedModel": false
+    },
+    {
+      "a": "TVK lost the 2026 bypolls.",
+      "b": "TVK won the 2026 bypolls.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "one says the opposite of the other"
+      ],
+      "score": 1,
+      "askedModel": false
+    },
+    {
+      "a": "RBI raised the repo rate by 25 basis points.",
+      "b": "RBI raised the repo rate by 50 basis points.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "figure: 25 basis point vs 50 basis point"
+      ],
+      "score": 1,
+      "askedModel": false
+    },
+    {
+      "a": "Prime Focus shares fell 8% after the income tax raids.",
+      "b": "Prime Focus shares fell 20% after the income tax raids.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "figure: 8 percent vs 20 percent"
+      ],
+      "score": 1,
+      "askedModel": false
+    },
+    {
+      "a": "Narendra Modi launched projects worth Rs 13,000 crore in Chennai.",
+      "b": "Narendra Modi launched projects worth Rs 1,300 crore in Chennai.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "figure: 130000000000 rupee vs 13000000000 rupee"
+      ],
+      "score": 1,
+      "askedModel": false
+    },
+    {
+      "a": "Narendra Modi resigned as Prime Minister.",
+      "b": "Narendra Modi did not resign as Prime Minister.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "one says the opposite of the other"
+      ],
+      "score": 1,
+      "askedModel": false
+    },
+    {
+      "a": "Petrol price was cut by Rs 50 per litre across India.",
+      "b": "Petrol price was cut by Rs 2 per litre across India.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "figure: 50 rupee vs 2 rupee"
+      ],
+      "score": 1,
+      "askedModel": false
+    },
+    {
+      "a": "India won 84 medals at the Asian Games 2026.",
+      "b": "India won 84 medals at the Commonwealth Games 2026.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.7,
+      "askedModel": true
+    },
+    {
+      "a": "Narendra Modi resigned as Prime Minister today.",
+      "b": "Narendra Modi launched projects worth Rs 13,000 crore in Chennai.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.4,
+      "askedModel": false
+    },
+    {
+      "a": "RBI raised the repo rate to 5.5%.",
+      "b": "RBI removed Paytm Payments Bank from the list of scheduled banks.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.36,
+      "askedModel": false
+    },
+    {
+      "a": "TVK won the Dharapuram bypoll.",
+      "b": "DMK won the Dharapuram bypoll.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.6,
+      "askedModel": false
+    },
+    {
+      "a": "Virat Kohli announced his retirement from all forms of cricket.",
+      "b": "Virat Kohli denied claims he took Rs 5 crore to visit an ashram.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.6,
+      "askedModel": false
+    },
+    {
+      "a": "Income tax has been abolished in India.",
+      "b": "India's CBDT updated Form 161 for income tax penalty waivers.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.22,
+      "askedModel": false
+    },
+    {
+      "a": "Elon Musk bought Reliance Jio.",
+      "b": "Elon Musk bought Twitter.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.64,
+      "askedModel": false
+    },
+    {
+      "a": "Chennai is the capital of Tamil Nadu.",
+      "b": "Chennai is the capital of Karnataka.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.55,
+      "askedModel": false
+    },
+    {
+      "a": "India won the Cricket World Cup in 2011.",
+      "b": "India won the hockey gold medal at the Asian Games 2026.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.21,
+      "askedModel": false
+    },
+    {
+      "a": "Narendra Modi visited Chennai on 11 October 2026.",
+      "b": "Narendra Modi visited Delhi on 11 October 2026.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.7,
+      "askedModel": true
+    },
+    {
+      "a": "A video shows the Army chief dancing with a major's wife.",
+      "b": "The Army chief inaugurated a new military academy.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.6,
+      "askedModel": true
+    },
+    {
+      "a": "Reliance Jio plans an IPO on October 21.",
+      "b": "Reliance Industries reported quarterly profits on October 21.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.15,
+      "askedModel": false
+    },
+    {
+      "a": "Elon Musk bought Twitter.",
+      "b": "Elon Musk acquired Reliance Jio.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.64,
+      "askedModel": false
+    },
+    {
+      "a": "Harmanpreet Kaur resigned as India captain.",
+      "b": "Harmanpreet Kaur was appointed India captain.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.73,
+      "askedModel": true
+    },
+    {
+      "a": "TVK won the Dharapuram by-election.",
+      "b": "TVK won the Madurantakam bypoll.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0.6,
+      "askedModel": false
+    },
+    {
+      "a": "Reliance Jio was taken over by Elon Musk.",
+      "b": "Elon Musk bought Reliance Jio.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 0.6,
+      "askedModel": true
+    }
+  ]
+}

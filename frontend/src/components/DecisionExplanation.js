@@ -13,11 +13,15 @@ const Call = ({ call }) => <span className={`claim-record-call call-${CALL_CLASS
 
 const DecisionExplanation = ({ explanation }) => {
   if (!explanation || !Array.isArray(explanation.decisive)) return null;
-  const { decisive, restsOn, fromAbsence, verdict, wouldChange = [] } = explanation;
+  const { decisive, restsOn, restsOnChannels = [], fromAbsence, verdict, wouldChange = [] } = explanation;
   const deciding = decisive.filter((d) => d.decisive);
   // When the answer stands with every line of evidence removed, saying each
-  // one 'would still' give it is true and tells the reader nothing.
-  const standing = fromAbsence ? [] : decisive.filter((d) => !d.decisive);
+  // one 'would still' give it is true and tells the reader nothing; and the
+  // lines it rests on are named once, above, rather than again here.
+  const named = new Set(restsOn >= 2 ? restsOnChannels.map((c) => c.channel) : []);
+  const standing = fromAbsence ? [] : decisive.filter((d) => !d.decisive && !named.has(d.channel));
+  const andList = (items) => (items.length <= 1 ? items.join('')
+    : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`);
   if (decisive.length === 0 && wouldChange.length === 0) return null;
 
   return (
@@ -25,7 +29,9 @@ const DecisionExplanation = ({ explanation }) => {
       <h4>What decided it</h4>
       {restsOn >= 2 && (
         <p className="claim-record-line">
-          It rests on <strong>{restsOn} separate lines of evidence</strong>: each, on its own, gives the same answer.
+          It rests on <strong>{restsOn} separate lines of evidence</strong>
+          {restsOnChannels.length === restsOn ? ` — ${andList(restsOnChannels.map((c) => c.label))} — ` : ': '}
+          each of which, on its own, gives the same answer.
         </p>
       )}
       {deciding.map((d) => (
@@ -67,19 +73,19 @@ const DecisionExplanation = ({ explanation }) => {
  */
 export const TrackRecord = ({ record }) => {
   if (!record) {
-    return <span className="verdict-confidence">Track record: <strong>none yet</strong> — no test message has ended at this rule.</span>;
+    return <span className="verdict-track">Track record: <strong>none yet</strong> — no test message has ended at this rule.</span>;
   }
   const pct = (x) => `${Math.round(x * 100)}%`;
   if (record.abstains) {
     return (
-      <span className="verdict-confidence" title={`95% range ${pct(record.low)}–${pct(record.high)}`}>
+      <span className="verdict-track" title={`95% range ${pct(record.low)}–${pct(record.high)}`}>
         Track record: ended here in <strong>{record.n} test {record.n === 1 ? 'message' : 'messages'}</strong>
         {record.missed > 0 ? `; ${record.missed} had an answer the evidence did not reach` : '; none had an answer it missed'}
       </span>
     );
   }
   return (
-    <span className="verdict-confidence">
+    <span className="verdict-track">
       Track record: right in <strong>{record.right} of {record.n}</strong> test {record.n === 1 ? 'message' : 'messages'}
       <span className="verdict-range"> (95% range {pct(record.low)}–{pct(record.high)})</span>
     </span>

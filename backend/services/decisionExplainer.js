@@ -85,13 +85,15 @@ const explainDecision = (ledgerInput) => {
   const withoutAll = outcome(bare);
   const fromAbsence = withoutAll.call === base.call;
 
-  // How many separate channels each, on its own with the others removed,
-  // would still reach the same answer.
-  const restsOn = fromAbsence ? 0 : present.filter(ch => {
+  // The channels each of which, on its own with the others removed, would
+  // still reach the same answer — named, so the reader can see which.
+  const sufficient = fromAbsence ? [] : present.filter(ch => {
     const alone = clone(ledgerInput);
     present.filter(o => o.id !== ch.id).forEach(o => o.remove(alone));
     return outcome(alone).call === base.call;
-  }).length;
+  });
+  const restsOn = sufficient.length;
+  const restsOnChannels = sufficient.map(ch => ({ channel: ch.id, label: ch.label }));
 
   // The smallest hypothetical evidence that would change the answer. Each
   // step is kept: against three contradicting outlets, three confirming ones
@@ -128,7 +130,7 @@ const explainDecision = (ledgerInput) => {
     }
   }
 
-  return { verdict: base, decisive, restsOn, withoutAll, fromAbsence, wouldChange };
+  return { verdict: base, decisive, restsOn, restsOnChannels, withoutAll, fromAbsence, wouldChange };
 };
 
 module.exports = { explainDecision };

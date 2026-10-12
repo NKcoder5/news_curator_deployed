@@ -408,6 +408,7 @@
 .decision-subhead { display: block; margin: 0.7rem 0 0.15rem; }
 .decision-changes { margin: 0.15rem 0 0; padding-left: 1.15rem; font-size: 0.9rem; line-height: 1.55; color: var(--ink-body); }
 .verdict-range { color: var(--ink-muted); }
+.verdict-track strong { color: var(--ink); }
 .claim-record-recheck { margin-top: 0.6rem; font-style: italic; }
 .claim-history { margin-top: 0.35rem; }
 .claim-history-toggle {

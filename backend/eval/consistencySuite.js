@@ -62,6 +62,7 @@ const suite = JSON.parse(fs.readFileSync(path.join(__dirname, 'suites', 'consist
 const claims = suite.claims.filter(c => !onlyIds || onlyIds.has(c.id)).slice(0, limit);
 const jsonFile = resultsFile(`consistency_${outName}.json`);
 const rowKey = (r) => `${r.claimId}|${r.style}`;
+let checks = 0;   // live checks made by this run, for eval/runDay5.js's budget
 
 /** The claim records a phrasing was filed under: from the report, or found by the message's fingerprint. */
 const filedUnder = async (result, input) => {
@@ -99,6 +100,7 @@ const summarise = (rows, stoppedBecause) => {
     memory: withMemory ? `on (database ${dbName})` : 'off',
     complete: !stoppedBecause && finished.length === claims.length,
     stoppedBecause: stoppedBecause || null,
+    checksThisRun: checks,
     claims: claims.length,
     claimsFinished: finished.length,
     identicalCalls: `${finished.filter(p => p.identical).length}/${finished.length}`,
@@ -170,7 +172,6 @@ const cleanUp = async (rows) => {
   const rows = [...kept];
   if (kept.length) console.log(`Resuming: ${kept.length} phrasings kept from the earlier run.`);
   const guard = quotaGuard();
-  let checks = 0;
   let stoppedBecause = null;
 
   outer:

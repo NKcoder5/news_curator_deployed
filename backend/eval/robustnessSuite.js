@@ -57,6 +57,7 @@ const cases = suite.cases
   .slice(0, limit);
 
 const jsonFile = resultsFile(`robustness_${outName}.json`);
+let checks = 0;   // live checks made by this run, for eval/runDay5.js's budget
 
 const tally = (list) => ({
   n: list.length,
@@ -73,6 +74,7 @@ const save = (rows, stoppedBecause) => {
     suite: suiteName,
     complete: !stoppedBecause && rows.length === cases.length,
     stoppedBecause: stoppedBecause || null,
+    checksThisRun: checks,
     cases: cases.length,
     overall: tally(rows),
     byCategory: Object.fromEntries(categories.map(cat => [cat, tally(rows.filter(r => r.category === cat))])),
@@ -108,7 +110,6 @@ const save = (rows, stoppedBecause) => {
   const rows = [...kept];
   if (kept.length) console.log(`Resuming: ${kept.length} cases kept from the earlier run.`);
   const guard = quotaGuard();
-  let checks = 0;
   let stoppedBecause = null;
 
   for (const c of cases) {

@@ -37,6 +37,23 @@ const LANGUAGE_NAMES = {
   mr: 'Marathi', gu: 'Gujarati', pa: 'Punjabi', ur: 'Urdu', or: 'Odia'
 };
 
+// A claim the message presents as today's news is about now, whatever the
+// model says. Measured: "Chandrayaan-3 lands on the Moon today" came back as
+// a past event dated today, so the check for old news passed off as new
+// (agents/verdictEngine.js) never ran and the verdict was PARTLY FALSE.
+const TODAY_WORDS = /\b(?:today|tonight|this (?:morning|evening|afternoon)|just now|right now|breaking)\b|இன்று|இப்போது|आज|अभी/i;
+const presentedAsNow = (claim, message, kind = 'event') => {
+  const today = new Date().toISOString().slice(0, 10);
+  if (TODAY_WORDS.test(claim) || claim.includes(today)) return true;
+  // The message says "today" and the claim is an event without a year of its
+  // own: the model dropped the word, not the framing. A standing fact the
+  // message mentions alongside ("India is the first country to land near the
+  // south pole") stays what it is.
+  return kind === 'event' && TODAY_WORDS.test(message)
+    && /\b(?:lands|landed|launche[sd]|wins|won|announce[sd]|declare[sd]|resigns|resigned|dies|died|passe[sd] away|arrested|sworn in)\b/i.test(claim)
+    && !/\b(?:19|20)\d{2}\b/.test(claim);
+};
+
 // Keywords arrive as a string or as a list, sometimes comma-separated; the
 // search wants plain words.
 const asWords = (value) => (Array.isArray(value) ? value.join(' ') : String(value || ''))
@@ -61,7 +78,7 @@ Return a JSON object with these keys:
 - "english": the whole message in plain English, without emoji. Copy it if it is already English.
 - "claims": up to 3 factual claims the message makes or asks about, most important first. List only what the message asserts or asks about, never the background it takes for granted: a person's job or title ("General Dhiraj Seth is the Army chief"), that an organisation exists, or that an event took place when the message is about what happened at it. Those are not claims the message makes, and checking them separately would confirm the background while the real claim is false. Likewise an opinion merely takes facts for granted: "Vijay is the best Chief Minister Tamil Nadu has ever had" asserts an opinion and no fact, so it has no claims, while "TVK is unstoppable — it won both bypolls" asserts that TVK won both bypolls. Each is an object with:
   - "claim": one neutral, declarative English sentence. Spell names in full and in their usual English form ("Modi ji" → "Narendra Modi", "தவெக" → "TVK"; keep abbreviations such as TVK, DMK, RBI). For a question, the proposition asked about ("Did India win 84 medals?" → "India won 84 medals at the Asian Games 2026."). For a hedge, the claim being passed on, not the hedge. For sarcasm, the literal claim being mocked ("Oh sure, and Musk bought Jio too" → "Elon Musk bought Reliance Jio."). Keep negation exactly as stated ("TVK did not lose" stays negative). Keep every figure, place and date the message gives, and add none it does not.
-  - "time": "now" if presented as happening today or this week, "past" for an earlier event, "timeless" for a standing fact, "future" only for a forecast of something that has not happened ("RBI will cut rates in December"). An announcement or decision reported as made, even one that takes effect later ("gazette declares holidays from November", "notes invalid from midnight"), is "now": the claim is that the announcement was made.
+  - "time": "now" if presented as happening today or this week — even when the event itself happened long ago ("Chandrayaan-3 lands on the Moon today" is "now": the message presents it as today's news, and that is what must be checked). Keep "today" as the word "today" in the claim; do not replace it with a date, "past" for an earlier event, "timeless" for a standing fact, "future" only for a forecast of something that has not happened ("RBI will cut rates in December"). An announcement or decision reported as made, even one that takes effect later ("gazette declares holidays from November", "notes invalid from midnight"), is "now": the claim is that the announcement was made.
   - "kind": "event", "figure", "quote", "standing_fact", "prediction" (a forecast, not a reported decision) or "opinion". A message that states as settled that an authority or organisation will do something soon — a power cut in Madurai from tomorrow, banks shut from Monday, notes invalid from midnight — is claiming the decision has been announced: write the claim as that announcement ("A week-long power cut in Madurai from tomorrow has been announced"), with time "now" and kind "event". Only a forecast of an outcome nobody has yet decided ("RBI will cut rates in December", "petrol prices will rise") is a "prediction".
   - "checkable": true only if it names a specific person, organisation, place, event or figure, so that news reports or a reference work could confirm or refute it. Opinions, predictions and vague statements are false.
   - "headline": the claim as a short English news headline.
@@ -116,7 +133,7 @@ const understandInput = async (text) => {
         otherSubject: c.other_subject ? String(c.other_subject).slice(0, 60) : null,
         keywords,
         keywordsEn,
-        time: TIMES.has(c.time) ? c.time : 'past',
+        time: presentedAsNow(claim, body, c.kind) && c.time !== 'future' ? 'now' : (TIMES.has(c.time) ? c.time : 'past'),
         kind: KINDS.has(c.kind) ? c.kind : 'event',
         // The model's own "checkable" is advisory. It has marked a claim about
         // the 2026 Asian Games uncheckable because, from its training, 2026
@@ -141,4 +158,4 @@ const understandInput = async (text) => {
   };
 };
 
-module.exports = { understandInput, LANGUAGE_NAMES };
+module.exports = { understandInput, LANGUAGE_NAMES, presentedAsNow };

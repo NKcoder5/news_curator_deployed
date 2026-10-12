@@ -194,18 +194,25 @@ const buildEvidenceLedger = ({
     // read as disagreeing used to outrank four confirming the same claim,
     // because contradiction is checked first. The side with more independent
     // outlets counts; an even split counts for neither and stays unconfirmed.
-    const forCount = support.independentCount;
     const againstCount = contradiction.independentCount;
     // Old news passed off as new. The reader's message presents the claim as
     // happening now, and every dated report confirming it is weeks old: the
     // event is real and the framing is false. "Modi announces 500 and 1000
     // notes invalid from midnight tonight" is confirmed by the coverage of
     // November 2016, which is exactly why it must not count as confirmation.
+    //
+    // Old coverage is not support for a claim about now at all: it shows the
+    // event happened then. It used to count as support until it outnumbered
+    // the contradiction, so two fresh reports contradicting a "now" claim
+    // confirmed by two old ones made an even split and cancelled both — more
+    // evidence against turned FAKE into CANNOT VERIFY (found by the
+    // monotonicity sweep in test/verdictMonotonicity.test.js).
     const supportDates = (claim.supportingEvidence || [])
       .map(e => Date.parse(e.publishedAt)).filter(Number.isFinite);
     const newestSupport = supportDates.length ? Math.max(...supportDates) : null;
-    const stale = claim.time === 'now' && forCount > againstCount && newestSupport !== null
+    const stale = claim.time === 'now' && support.independentCount > 0 && newestSupport !== null
       && asOf - newestSupport > STALE_AFTER_DAYS * 86400000;
+    const forCount = stale ? 0 : support.independentCount;
     return {
       claim: claim.claim,
       verdict: claim.verdict,
@@ -213,7 +220,7 @@ const buildEvidenceLedger = ({
       kind: claim.kind || null,
       stale,
       newestSupport: newestSupport ? new Date(newestSupport).toISOString() : null,
-      independentSupport: forCount > againstCount && !stale ? forCount : 0,
+      independentSupport: forCount > againstCount ? forCount : 0,
       independentContradiction: againstCount > forCount ? againstCount : 0,
       // What the outlets actually say, in their own words ("85 medals"), so the
       // verdict can quote the conflicting fact instead of only counting it.
@@ -320,7 +327,11 @@ const buildEvidenceLedger = ({
     // Measured: on the Army-chief deepfake, eleven outlets reporting "the video
     // is AI-generated" were judged as supporting the claim, and the ruling of
     // seven fact-checkers was set aside as overtaken.
-    supportBeyondDebunks: Math.max(0, ...perClaim.map(c => analyseIndependence(
+    // Old coverage cannot overtake a ruling either: found by the decision
+    // explainer, a fact-checker's "false" added to old news passed off as new
+    // turned FAKE into CANNOT VERIFY, because the 2022 reports of the event
+    // were counted as reporting that had overtaken the ruling.
+    supportBeyondDebunks: Math.max(0, ...perClaim.filter(c => !c.stale).map(c => analyseIndependence(
       (claims.find(x => x.claim === c.claim)?.supportingEvidence || []).filter(e => !DEBUNK_WORDS.test(`${e.title || ''} ${e.reported || ''}`))
     ).independentCount)),
     // The contradicted claim's conflicting facts, as the outlets worded them.
@@ -422,6 +433,17 @@ const decideVerdict = (ledger) => {
   };
   if (['debunked', 'misleading'].includes(ledger.factCheckStatus) && ledger.factChecks.length > 0) {
     if (factCheckOvertaken) {
+      // The ruling is set aside, not reversed: the verdict is what the other
+      // evidence says, held at CANNOT VERIFY only when that would be REAL. A
+      // ruling of "false" can therefore never make a verdict less false. It
+      // used to return CANNOT VERIFY outright, so adding a fact-checker's
+      // "false" to a claim the encyclopedia already contradicted turned FAKE
+      // into CANNOT VERIFY (found by the decision explainer, and 84 such cases
+      // by test/verdictMonotonicity.test.js).
+      const withoutRuling = decideVerdict({ ...ledger, factCheckStatus: 'none', factChecks: [] });
+      if (withoutRuling.call !== 'REAL' && withoutRuling.call !== 'CANNOT VERIFY') {
+        return { ...withoutRuling, grounds: [...withoutRuling.grounds, ...ledger.factChecks.slice(0, 2).map(describeReview)] };
+      }
       return decide('unverified', 'fact-checkers-and-reporting-disagree', [
         ...ledger.factChecks.slice(0, 2).map(describeReview),
         `But ${ledger.independentSupport} independent outlets now report it as fact. A ruling can be overtaken by events, so this is left for the reader to weigh.`

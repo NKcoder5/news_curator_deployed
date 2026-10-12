@@ -4,7 +4,7 @@
     "title": "Pure Press API",
     "version": "1.0.0",
     "summary": "Evidence-based checking of news and viral messages.",
-    "description": "The API behind Pure Press. Its centre is **Check Anything**: send a link, a pasted message or a screenshot and get back a call (REAL, FAKE, PARTLY FALSE, CANNOT VERIFY, NOT A FACTUAL CLAIM or SATIRE), the one-sentence reason, the rule that decided it, the evidence it rests on and what would change it.\n\nThe verdict is reached by fixed rules from recorded evidence (`backend/agents/verdictEngine.js`), not by a language model's opinion, so every field below that explains a verdict was computed from the same inputs the verdict was.\n\n**Authentication.** Accounts sign in with `POST /api/auth/login` and send the returned token as `Authorization: Bearer <token>`. Tokens last 24 hours. The analysis endpoints under `/api/ai` spend scarce news and model quota, so they need a signed-in reader (or, for the evaluation scripts, the `x-internal-key` header). The claims registry under `/api/claims` is public and read-only.\n\n**Errors** are JSON objects with an `error` message written for the reader; some carry a machine-readable `code` or extra fields, documented per operation.\n\n**Streaming.** `POST /api/ai/analyze-content/stream` and `POST /api/ai/trust-analysis/stream` answer with newline-delimited JSON (`application/x-ndjson`): one JSON object per line, each with a `type`. Read them with `fetch()` and a stream reader; `EventSource` cannot be used because the input is POSTed.\n\nOperations marked `x-pending-merge` are being added by another workstream and are documented ahead of their merge.",
+    "description": "The API behind Pure Press. Its centre is **Check Anything**: send a link, a pasted message or a screenshot and get back a call (REAL, FAKE, PARTLY FALSE, CANNOT VERIFY, NOT A FACTUAL CLAIM or SATIRE), the one-sentence reason, the rule that decided it, the evidence it rests on and what would change it.\n\nThe verdict is reached by fixed rules from recorded evidence (`backend/agents/verdictEngine.js`), not by a language model's opinion, so every field below that explains a verdict was computed from the same inputs the verdict was.\n\n**Authentication.** Accounts sign in with `POST /api/auth/login` and send the returned token as `Authorization: Bearer <token>`. Tokens last 24 hours. The analysis endpoints under `/api/ai` spend scarce news and model quota, so they need a signed-in reader (or, for the evaluation scripts, the `x-internal-key` header). The claims registry under `/api/claims` is public and read-only.\n\n**Errors** are JSON objects with an `error` message written for the reader; some carry a machine-readable `code` or extra fields, documented per operation.\n\n**Streaming.** `POST /api/ai/analyze-content/stream` and `POST /api/ai/trust-analysis/stream` answer with newline-delimited JSON (`application/x-ndjson`): one JSON object per line, each with a `type`. Read them with `fetch()` and a stream reader; `EventSource` cannot be used because the input is POSTed.",
     "contact": {
       "name": "Pure Press",
       "url": "https://github.com/NKcoder5/news_curator_deployed"
@@ -757,7 +757,6 @@
         "operationId": "listClaims",
         "summary": "Search and page through every claim checked",
         "description": "Newest first by default. Every word in `q` must appear in the claim, one of the ways it has been worded, or its subject. Pages are cut by position, not offset, so a claim checked while paging cannot shift rows between pages; pass `nextCursor` back as `cursor` for the next page. Claims filed by the evaluation scripts are never listed. Responses are cacheable for 60 seconds.",
-        "x-pending-merge": true,
         "parameters": [
           { "name": "q", "in": "query", "description": "Words to search for.", "schema": { "type": "string", "maxLength": 100 } },
           {
@@ -792,7 +791,6 @@
         "operationId": "trendingClaims",
         "summary": "The claims readers checked most in the last seven days",
         "description": "Counted from the stored checks, so a claim checked ten times today outranks one checked a hundred times last year. Re-checks by the scheduler and evaluation runs are not counted.",
-        "x-pending-merge": true,
         "parameters": [{ "$ref": "#/components/parameters/RegistryLimit10" }],
         "responses": {
           "200": {
@@ -811,7 +809,6 @@
         "operationId": "changedVerdicts",
         "summary": "Verdicts that changed, and why",
         "description": "The latest checks whose verdict differs from the one before, newest first, each with the reason in terms of the evidence that appeared or disappeared.",
-        "x-pending-merge": true,
         "parameters": [{ "$ref": "#/components/parameters/RegistryLimit10" }],
         "responses": {
           "200": {
@@ -829,7 +826,6 @@
         "tags": ["Claims registry"],
         "operationId": "registryStats",
         "summary": "Headline numbers for the registry",
-        "x-pending-merge": true,
         "responses": {
           "200": {
             "description": "Totals.",
@@ -846,7 +842,6 @@
         "operationId": "getClaim",
         "summary": "One claim's permanent page",
         "description": "The claim, its latest verdict and the evidence it rests on, the rule that decided it with that rule's measured record, every verdict reached on it, and related wordings that have their own page. Contains no message text and nothing that identifies a reader.",
-        "x-pending-merge": true,
         "parameters": [{ "$ref": "#/components/parameters/ClaimId" }],
         "responses": {
           "200": {

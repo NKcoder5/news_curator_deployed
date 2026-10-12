@@ -1,6 +1,6 @@
 {
   "summary": {
-    "ranAt": "2026-10-11T15:50:54.561Z",
+    "ranAt": "2026-10-12T08:18:00.807Z",
     "plainModel": "gemini-3.1-flash-lite, zero-shot, temperature 0",
     "claims": 22,
     "plain": {
@@ -10,10 +10,10 @@
       "accuracy": 0.5909090909090909
     },
     "ours": {
-      "right": 22,
-      "abstained": 0,
+      "right": 21,
+      "abstained": 1,
       "wrong": 0,
-      "accuracy": 1
+      "accuracy": 0.9545454545454546
     },
     "byKind": {
       "figure": {
@@ -29,7 +29,7 @@
       "outcome": {
         "n": 2,
         "plain": 1,
-        "ours": 2
+        "ours": 1
       },
       "rumour": {
         "n": 3,
@@ -47,7 +47,7 @@
         "ours": 2
       }
     },
-    "medianSecondsOurs": 11.9
+    "medianSecondsOurs": 25.8
   },
   "rows": [
     {
@@ -59,14 +59,14 @@
         "call": "FAKE",
         "reason": "The 2026 Asian Games are scheduled to take place in Aichi-Nagoya, Japan, from September 19 to October 4, 2026, and the final medal tally for India has not been officially recorded as 84.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 6019
+        "ms": 8664
       },
       "ours": {
         "call": "FAKE",
-        "reason": "4 independent outlets report otherwise: “85 medals”.",
+        "reason": "3 independent outlets report otherwise: “85 Medals”.",
         "rule": "contradicted-by-multiple-independent-sources",
-        "confidence": 0.84,
-        "ms": 19432
+        "confidence": 0.77,
+        "ms": 22055
       }
     },
     {
@@ -76,16 +76,16 @@
       "basis": "85 medals",
       "plain": {
         "call": "CANNOT VERIFY",
-        "reason": "The 2026 Asian Games are scheduled to take place in Aichi-Nagoya, Japan, from September 19 to October 4, 2026, and while the event has concluded, official final medal counts for all nations are subject to verification against official records.",
+        "reason": "The 2026 Asian Games are scheduled to take place in Aichi-Nagoya, Japan, from September 19 to October 4, 2026, and while the event has concluded, official final medal tallies for all nations are subject to verification against official records.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 3579
+        "ms": 6272
       },
       "ours": {
         "call": "FAKE",
-        "reason": "4 independent outlets report otherwise: “85 medals”.",
+        "reason": "3 independent outlets report otherwise: “85 Medals”.",
         "rule": "contradicted-by-multiple-independent-sources",
-        "confidence": 0.84,
-        "ms": 14509
+        "confidence": 0.77,
+        "ms": 22075
       }
     },
     {
@@ -95,16 +95,16 @@
       "basis": "DD India fact sheet",
       "plain": {
         "call": "FAKE",
-        "reason": "The 2026 Asian Games are scheduled to take place in Aichi-Nagoya, Japan, from September 19 to October 4, 2026, and the event has already concluded, with India finishing with a total of 107 medals, not 85.",
+        "reason": "The 2026 Asian Games are scheduled to take place in Aichi-Nagoya, Japan, from September 19 to October 4, 2026, and India's final medal count for that event is not 85.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 5082
+        "ms": 4025
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 3 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 4 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
-        "confidence": 0.84,
-        "ms": 22291
+        "confidence": 0.9,
+        "ms": 34205
       }
     },
     {
@@ -114,16 +114,16 @@
       "basis": "TVK won both seats",
       "plain": {
         "call": "CANNOT VERIFY",
-        "reason": "There is no widely recognized political entity or specific 2026 bye-election result for an entity referred to as 'TVK' as of October 2026.",
+        "reason": "There is no widely recognized political entity or specific 2026 bye-election result involving an entity named 'TVK' as of October 2026.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 3436
+        "ms": 18365
       },
       "ours": {
         "call": "FAKE",
-        "reason": "5 independent outlets report otherwise: “TVK wins Dharapuram and Madurantakam by-elections”.",
+        "reason": "7 independent outlets report otherwise: “TVK wins Dharapuram and Madurantakam by-elections”.",
         "rule": "contradicted-by-multiple-independent-sources",
         "confidence": 0.91,
-        "ms": 9260
+        "ms": 25832
       }
     },
     {
@@ -133,16 +133,16 @@
       "basis": "TVK sweeps both seats",
       "plain": {
         "call": "CANNOT VERIFY",
-        "reason": "As of October 11, 2026, there is no widely reported information confirming the results of 2026 bye-elections involving a party named TVK.",
+        "reason": "As of October 12, 2026, there is no widely reported information confirming the results of 2026 bye-elections for a party or entity referred to as 'TVK'.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 5187
+        "ms": 12693
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 5 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 6 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.95,
-        "ms": 6871
+        "ms": 15576
       }
     },
     {
@@ -152,16 +152,16 @@
       "basis": "RBI raised the rate by 25 bps",
       "plain": {
         "call": "FAKE",
-        "reason": "There have been no reports of the Reserve Bank of India cutting the repo rate by 50 basis points during the week of October 11, 2026.",
+        "reason": "There have been no reports of the Reserve Bank of India cutting the repo rate by 50 basis points during the week of October 12, 2026.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 5101
+        "ms": 15079
       },
       "ours": {
-        "call": "FAKE",
-        "reason": "7 independent outlets report otherwise: “likely to raise repo rate by 25 points”.",
-        "rule": "contradicted-by-multiple-independent-sources",
-        "confidence": 0.91,
-        "ms": 8995
+        "call": "CANNOT VERIFY",
+        "reason": "No other outlet is reporting this, so nothing supports it either way.",
+        "rule": "no-independent-coverage",
+        "confidence": 0.5,
+        "ms": 27863
       }
     },
     {
@@ -171,16 +171,16 @@
       "basis": "The Hindu, Reuters",
       "plain": {
         "call": "FAKE",
-        "reason": "As of October 2026, the Reserve Bank of India's repo rate is not 5.50%, and there has been no recent announcement matching this specific rate hike.",
+        "reason": "As of October 2026, the Reserve Bank of India's repo rate is not 5.50%, and there has been no recent policy announcement matching that specific increase.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 5021
+        "ms": 13651
       },
       "ours": {
         "call": "REAL",
         "reason": "Confirmed by 11 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.95,
-        "ms": 12135
+        "ms": 34624
       }
     },
     {
@@ -192,14 +192,14 @@
         "call": "FAKE",
         "reason": "As of October 2026, there has been no official government gazette notification declaring all Saturdays as bank holidays for public sector banks starting in November 2026.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 4491
+        "ms": 18654
       },
       "ours": {
         "call": "FAKE",
-        "reason": "Rated false by The Quint, Newschecker, Livemint and 1 more after checking this exact claim.",
+        "reason": "Rated false by The Quint, FACTLY, Newschecker and 2 more after checking this exact claim.",
         "rule": "rated-false-by-fact-checkers",
         "confidence": 0.95,
-        "ms": 16285
+        "ms": 22513
       }
     },
     {
@@ -209,16 +209,16 @@
       "basis": "AFP, PTI, India Today, Factly: AI-generated",
       "plain": {
         "call": "FAKE",
-        "reason": "Fact-checkers and official sources have confirmed that the viral video claiming to show General Dhiraj Seth dancing with an Army major's wife is misleading and misidentified the individuals involved.",
+        "reason": "Fact-checkers and official sources have confirmed that the viral video claiming to show General Dhiraj Seth dancing with an Army major's wife is misleading and does not depict the Army chief.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 2997
+        "ms": 14630
       },
       "ours": {
         "call": "FAKE",
-        "reason": "Rated false by India Today, AFP Fact Check, PTI and 3 more after checking this exact claim.",
+        "reason": "Rated false by India Today, AFP Fact Check, FACTLY and 2 more after checking this exact claim.",
         "rule": "rated-false-by-fact-checkers",
         "confidence": 0.95,
-        "ms": 12982
+        "ms": 20322
       }
     },
     {
@@ -230,14 +230,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 872
+        "ms": 1818
       },
       "ours": {
         "call": "FAKE",
-        "reason": "Rated false by The Quint, BOOM Fact Check, Alt News and 2 more after checking this exact claim.",
+        "reason": "Rated false by The Quint, BOOM Fact Check, Alt News and 1 more after checking this exact claim.",
         "rule": "rated-false-by-fact-checkers",
         "confidence": 0.95,
-        "ms": 12857
+        "ms": 15177
       }
     },
     {
@@ -247,16 +247,16 @@
       "basis": "PM Modi launched projects in Chennai today",
       "plain": {
         "call": "FAKE",
-        "reason": "There are no credible reports or official announcements indicating that Prime Minister Narendra Modi resigned on October 11, 2026.",
+        "reason": "There are no credible reports or official announcements indicating that Prime Minister Narendra Modi resigned on October 12, 2026.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 4309
+        "ms": 14907
       },
       "ours": {
         "call": "FAKE",
-        "reason": "Rated false by vishvasnews.com, CyberPeace Foundation, THE WEEK and 1 more after checking this exact claim.",
+        "reason": "Rated false by CyberPeace Foundation, The Week and News18 after checking this exact claim.",
         "rule": "rated-false-by-fact-checkers",
-        "confidence": 0.95,
-        "ms": 10964
+        "confidence": 0.93,
+        "ms": 15982
       }
     },
     {
@@ -268,14 +268,14 @@
         "call": "FAKE",
         "reason": "There has been no official legislation or government announcement abolishing income tax in India as of October 2026.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 2651
+        "ms": 7756
       },
       "ours": {
         "call": "FAKE",
-        "reason": "2 independent outlets report otherwise: “India Income Tax Compliance: October 2026 Deadlines”.",
+        "reason": "6 independent outlets report otherwise: “Vijay Kedia Wants LTCG Tax To Be Abolished”.",
         "rule": "contradicted-by-multiple-independent-sources",
-        "confidence": 0.7,
-        "ms": 10035
+        "confidence": 0.91,
+        "ms": 27393
       }
     },
     {
@@ -287,14 +287,14 @@
         "call": "FAKE",
         "reason": "There have been no credible reports or official announcements confirming that Elon Musk has acquired Reliance Jio.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 2666
+        "ms": 8728
       },
       "ours": {
         "call": "FAKE",
         "reason": "No outlet reports this, and this week's news says otherwise: “Ambani's Jio Platforms plans to launch IPO on October 21” (Reuters).",
         "rule": "contradicted-by-current-coverage",
         "confidence": 0.77,
-        "ms": 12422
+        "ms": 29066
       }
     },
     {
@@ -304,16 +304,16 @@
       "basis": "Pichai announced EmbeddingGemma 2 as CEO",
       "plain": {
         "call": "FAKE",
-        "reason": "As of October 11, 2026, there have been no credible reports or official announcements regarding Sundar Pichai resigning as CEO of Google.",
+        "reason": "As of October 12, 2026, there have been no credible reports or official announcements regarding Sundar Pichai resigning as CEO of Google.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 2772
+        "ms": 13159
       },
       "ours": {
         "call": "FAKE",
-        "reason": "The encyclopedia entry “Sundar Pichai” says otherwise: “Pichai Sundararajan (born June 10, 1972), better known as Sundar Pichai, is an Indian–American business executive who has been the CEO of…”",
-        "rule": "premise-contradicted-by-reference",
-        "confidence": 0.55,
-        "ms": 10553
+        "reason": "6 independent outlets report otherwise: “Calls grow for Sundar Pichai to step down”.",
+        "rule": "contradicted-by-multiple-independent-sources",
+        "confidence": 0.91,
+        "ms": 29901
       }
     },
     {
@@ -323,16 +323,16 @@
       "basis": "Narendra Modi is Prime Minister",
       "plain": {
         "call": "FAKE",
-        "reason": "As of October 11, 2026, Narendra Modi remains the Prime Minister of India, and Rahul Gandhi does not hold that office.",
+        "reason": "As of October 12, 2026, Narendra Modi is the Prime Minister of India, and Rahul Gandhi does not hold that office.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 3652
+        "ms": 13036
       },
       "ours": {
         "call": "FAKE",
-        "reason": "4 independent outlets report otherwise: “Can Rahul Gandhi lead India?”.",
+        "reason": "7 independent outlets report otherwise: “Rahul Gandhi's 2029 PM Dream”.",
         "rule": "contradicted-by-multiple-independent-sources",
-        "confidence": 0.84,
-        "ms": 10655
+        "confidence": 0.91,
+        "ms": 19667
       }
     },
     {
@@ -344,14 +344,14 @@
         "call": "FAKE",
         "reason": "The capital of Karnataka is Bengaluru, while Chennai is the capital of the state of Tamil Nadu.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 5150
+        "ms": 24637
       },
       "ours": {
         "call": "FAKE",
         "reason": "The encyclopedia entry “Karnataka” says otherwise: “The capital of the state, Bengaluru, is known as the Silicon Valley of India, for its immense contributi”",
-        "rule": "contradicted-by-one-independent-source",
-        "confidence": 0.62,
-        "ms": 11882
+        "rule": "premise-contradicted-by-reference",
+        "confidence": 0.55,
+        "ms": 19931
       }
     },
     {
@@ -361,16 +361,16 @@
       "basis": "DD News, News On AIR, NDTV",
       "plain": {
         "call": "FAKE",
-        "reason": "Prime Minister Narendra Modi launched projects worth Rs 31,400 crore in Chennai on May 26, 2022, but there is no record of a launch of projects worth exactly Rs 13,000 crore in Chennai on or near October 11, 2026.",
+        "reason": "While Prime Minister Modi has visited Chennai for various project inaugurations, there is no record of a specific event on or immediately preceding October 12, 2026, involving projects worth exactly Rs 13,000 crore.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 3921
+        "ms": 7407
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 10 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 12 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.95,
-        "ms": 9643
+        "ms": 27452
       }
     },
     {
@@ -380,16 +380,16 @@
       "basis": "DD News",
       "plain": {
         "call": "FAKE",
-        "reason": "There is no official record of the Income Tax Department launching a website called 'Kar Saathi'; the official portal for tax filing in India is the e-Filing portal.",
+        "reason": "There is no official record of the Income Tax Department launching a website called 'Kar Saathi' for tax filing; the official portal remains the e-Filing website.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 2585
+        "ms": 15287
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 5 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 7 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.95,
-        "ms": 11151
+        "ms": 29798
       }
     },
     {
@@ -399,16 +399,16 @@
       "basis": "ThePrint, Hindustan Times, The Indian Express",
       "plain": {
         "call": "REAL",
-        "reason": "Virat Kohli publicly clarified on social media that reports claiming he paid Rs 5 crore to visit Premanand Maharaj are false and baseless.",
+        "reason": "Virat Kohli publicly clarified on social media that reports claiming he paid or received money to visit the ashram were false and baseless.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 2801
+        "ms": 9049
       },
       "ours": {
         "call": "REAL",
         "reason": "Confirmed by 12 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.95,
-        "ms": 12697
+        "ms": 28983
       }
     },
     {
@@ -420,14 +420,14 @@
         "call": "REAL",
         "reason": "In October 2024, actor and politician Vijay, as the leader of the Tamilaga Vettri Kazhagam, urged the Union government to release the pending Samagra Shiksha funds for Tamil Nadu.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 2242
+        "ms": 12529
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 2 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 3 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
-        "confidence": 0.78,
-        "ms": 11210
+        "confidence": 0.84,
+        "ms": 27746
       }
     },
     {
@@ -437,16 +437,16 @@
       "basis": "The Hindu",
       "plain": {
         "call": "FAKE",
-        "reason": "The Madurai Corporation launched its 'Complete Streets' policy in 2021, not in 2026.",
+        "reason": "The Madurai Corporation launched its Complete Street Policy in 2022, not in 2026.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 1541
+        "ms": 18053
       },
       "ours": {
         "call": "REAL",
         "reason": "One independent outlet reports the same facts.",
         "rule": "corroborated-by-one-independent-source",
         "confidence": 0.6,
-        "ms": 8922
+        "ms": 22428
       }
     },
     {
@@ -458,14 +458,14 @@
         "call": "REAL",
         "reason": "This incident was widely reported in Indian news media in October 2026, detailing a case where a couple allegedly cheated a Coimbatore pawnbroker of Rs 76 lakh using fake gold.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 7300
+        "ms": 13643
       },
       "ours": {
         "call": "REAL",
         "reason": "One independent outlet reports the same facts.",
         "rule": "corroborated-by-one-independent-source",
         "confidence": 0.6,
-        "ms": 17291
+        "ms": 20582
       }
     }
   ]

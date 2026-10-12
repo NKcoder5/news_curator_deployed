@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-12T07:50:56.047Z",
+  "generatedAt": "2026-10-12T09:38:22.480Z",
   "note": "Per-rule record on labelled test messages. Robustness-suite cases were written while the system was tuned, so rates that rest on them are optimistic; heldOut counts only the held-out suite and the benchmark.",
   "sources": [
     {
@@ -9,80 +9,60 @@
       "writtenDuringTuning": true
     },
     {
-      "file": "robustness_heldout.json",
-      "ranAt": "2026-10-11T17:17:36.994Z",
+      "file": "robustness_heldout_final.json",
+      "ranAt": "2026-10-12T08:02:16.834Z",
       "cases": 27,
       "writtenDuringTuning": false
     },
     {
       "file": "checkAnything_benchmark.json",
-      "ranAt": "2026-10-11T15:50:54.561Z",
+      "ranAt": "2026-10-12T08:18:00.807Z",
       "cases": 22,
       "writtenDuringTuning": false
     }
   ],
   "totalCases": 104,
   "rules": {
-    "absent-from-heavy-coverage": {
-      "n": 1,
+    "claims-partly-false": {
+      "n": 2,
       "right": 1,
       "missed": 0,
-      "wrong": 0,
-      "rate": 1,
-      "low": 0.207,
-      "high": 1,
+      "wrong": 1,
+      "rate": 0.5,
+      "low": 0.095,
+      "high": 0.905,
       "abstains": false,
       "calls": {
-        "FAKE": 1
+        "PARTLY FALSE": 2
       },
       "heldOut": {
         "n": 1,
-        "right": 1
+        "right": 0
       },
       "cases": [
+        "robustness:multi-1",
         "heldout:h-23"
       ]
     },
-    "claims-partly-false": {
-      "n": 1,
-      "right": 1,
+    "confirmed-by-reference": {
+      "n": 2,
+      "right": 2,
       "missed": 0,
       "wrong": 0,
       "rate": 1,
-      "low": 0.207,
+      "low": 0.342,
       "high": 1,
       "abstains": false,
       "calls": {
-        "PARTLY FALSE": 1
+        "REAL": 2
       },
       "heldOut": {
         "n": 0,
         "right": 0
       },
       "cases": [
-        "robustness:multi-1"
-      ]
-    },
-    "confirmed-by-reference": {
-      "n": 3,
-      "right": 3,
-      "missed": 0,
-      "wrong": 0,
-      "rate": 1,
-      "low": 0.438,
-      "high": 1,
-      "abstains": false,
-      "calls": {
-        "REAL": 3
-      },
-      "heldOut": {
-        "n": 1,
-        "right": 1
-      },
-      "cases": [
         "robustness:fact-1",
-        "robustness:fact-5",
-        "heldout:h-22"
+        "robustness:fact-5"
       ]
     },
     "contradicted-by-current-coverage": {
@@ -108,20 +88,20 @@
       ]
     },
     "contradicted-by-multiple-independent-sources": {
-      "n": 23,
-      "right": 23,
+      "n": 22,
+      "right": 22,
       "missed": 0,
       "wrong": 0,
       "rate": 1,
-      "low": 0.857,
+      "low": 0.851,
       "high": 1,
       "abstains": false,
       "calls": {
-        "FAKE": 23
+        "FAKE": 22
       },
       "heldOut": {
-        "n": 13,
-        "right": 13
+        "n": 12,
+        "right": 12
       },
       "cases": [
         "robustness:base-1",
@@ -140,12 +120,11 @@
         "heldout:h-13",
         "heldout:h-15",
         "heldout:h-17",
-        "heldout:h-19",
         "benchmark:b-1",
         "benchmark:b-2",
         "benchmark:b-4",
-        "benchmark:b-6",
         "benchmark:b-12",
+        "benchmark:b-14",
         "benchmark:b-15"
       ]
     },
@@ -167,23 +146,23 @@
       },
       "cases": [
         "robustness:fact-2",
-        "benchmark:b-16"
+        "heldout:h-19"
       ]
     },
     "corroborated-by-multiple-independent-sources": {
-      "n": 39,
+      "n": 38,
       "right": 38,
       "missed": 0,
-      "wrong": 1,
-      "rate": 0.974,
-      "low": 0.868,
-      "high": 0.995,
+      "wrong": 0,
+      "rate": 1,
+      "low": 0.908,
+      "high": 1,
       "abstains": false,
       "calls": {
-        "REAL": 39
+        "REAL": 38
       },
       "heldOut": {
-        "n": 20,
+        "n": 19,
         "right": 19
       },
       "cases": [
@@ -211,14 +190,13 @@
         "heldout:h-4",
         "heldout:h-6",
         "heldout:h-7",
-        "heldout:h-10",
         "heldout:h-12",
         "heldout:h-14",
         "heldout:h-16",
         "heldout:h-18",
         "heldout:h-20",
+        "heldout:h-22",
         "heldout:h-26",
-        "heldout:h-27",
         "benchmark:b-3",
         "benchmark:b-5",
         "benchmark:b-7",
@@ -229,25 +207,26 @@
       ]
     },
     "corroborated-by-one-independent-source": {
-      "n": 5,
-      "right": 5,
+      "n": 6,
+      "right": 6,
       "missed": 0,
       "wrong": 0,
       "rate": 1,
-      "low": 0.566,
+      "low": 0.61,
       "high": 1,
       "abstains": false,
       "calls": {
-        "REAL": 5
+        "REAL": 6
       },
       "heldOut": {
-        "n": 2,
-        "right": 2
+        "n": 3,
+        "right": 3
       },
       "cases": [
         "robustness:quote-1",
         "robustness:local-1",
         "robustness:local-2",
+        "heldout:h-10",
         "benchmark:b-21",
         "benchmark:b-22"
       ]
@@ -273,24 +252,26 @@
       ]
     },
     "no-independent-coverage": {
-      "n": 2,
-      "right": 1,
-      "missed": 1,
+      "n": 4,
+      "right": 2,
+      "missed": 2,
       "wrong": 0,
       "rate": 0.5,
-      "low": 0.095,
-      "high": 0.905,
+      "low": 0.15,
+      "high": 0.85,
       "abstains": true,
       "calls": {
-        "CANNOT VERIFY": 2
+        "CANNOT VERIFY": 4
       },
       "heldOut": {
-        "n": 2,
-        "right": 1
+        "n": 4,
+        "right": 2
       },
       "cases": [
         "heldout:h-9",
-        "heldout:h-24"
+        "heldout:h-11",
+        "heldout:h-24",
+        "benchmark:b-6"
       ]
     },
     "premise-contradicted-by-reference": {
@@ -310,24 +291,24 @@
         "right": 1
       },
       "cases": [
-        "benchmark:b-14"
+        "benchmark:b-16"
       ]
     },
     "rated-false-by-fact-checkers": {
-      "n": 13,
-      "right": 13,
+      "n": 14,
+      "right": 14,
       "missed": 0,
       "wrong": 0,
       "rate": 1,
-      "low": 0.772,
+      "low": 0.785,
       "high": 1,
       "abstains": false,
       "calls": {
-        "FAKE": 13
+        "FAKE": 14
       },
       "heldOut": {
-        "n": 4,
-        "right": 4
+        "n": 5,
+        "right": 5
       },
       "cases": [
         "robustness:q-1",
@@ -339,6 +320,7 @@
         "robustness:hi-1",
         "robustness:hi-3",
         "robustness:fact-3",
+        "heldout:h-21",
         "benchmark:b-8",
         "benchmark:b-9",
         "benchmark:b-10",
@@ -365,25 +347,44 @@
         "robustness:old-1"
       ]
     },
-    "uncorroborated-high-impact-with-risk-signals": {
-      "n": 2,
-      "right": 2,
+    "true-claim-carrying-a-false-one": {
+      "n": 1,
+      "right": 1,
       "missed": 0,
       "wrong": 0,
       "rate": 1,
-      "low": 0.342,
+      "low": 0.207,
       "high": 1,
       "abstains": false,
       "calls": {
-        "FAKE": 2
+        "PARTLY FALSE": 1
       },
       "heldOut": {
         "n": 1,
         "right": 1
       },
       "cases": [
-        "robustness:long-2",
-        "heldout:h-21"
+        "heldout:h-27"
+      ]
+    },
+    "uncorroborated-high-impact-with-risk-signals": {
+      "n": 1,
+      "right": 1,
+      "missed": 0,
+      "wrong": 0,
+      "rate": 1,
+      "low": 0.207,
+      "high": 1,
+      "abstains": false,
+      "calls": {
+        "FAKE": 1
+      },
+      "heldOut": {
+        "n": 0,
+        "right": 0
+      },
+      "cases": [
+        "robustness:long-2"
       ]
     }
   }

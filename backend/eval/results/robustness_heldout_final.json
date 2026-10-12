@@ -1,0 +1,957 @@
+{
+  "summary": {
+    "ranAt": "2026-10-12T08:02:16.834Z",
+    "overall": {
+      "n": 27,
+      "right": 24,
+      "safe": 1,
+      "missed": 1,
+      "wrong": 1
+    },
+    "byCategory": {
+      "plain": {
+        "n": 4,
+        "right": 4,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "reversed outcome": {
+        "n": 2,
+        "right": 2,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "Tamil": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "question": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "Hinglish": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "wrong figure": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "local news": {
+        "n": 2,
+        "right": 1,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 0
+      },
+      "emotional forward": {
+        "n": 1,
+        "right": 0,
+        "safe": 1,
+        "missed": 0,
+        "wrong": 0
+      },
+      "Tanglish question": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "exaggeration": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "Hindi": {
+        "n": 2,
+        "right": 2,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "sarcasm about a true event": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "stable fact or myth": {
+        "n": 4,
+        "right": 4,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "old news recirculated": {
+        "n": 1,
+        "right": 0,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 1
+      },
+      "unverifiable local": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "vague or unfalsifiable": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "mixed language": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "true claim with an invented one": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": "h-1",
+      "category": "plain",
+      "input": "RBI removed Paytm Payments Bank from its list of scheduled banks",
+      "expected": "REAL",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "detail": "Confirmed by 5 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "RBI removed Paytm Payments Bank from its list of scheduled banks",
+        "claims": [
+          {
+            "claim": "The Reserve Bank of India removed Paytm Payments Bank from its list of scheduled banks.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 36.406
+    },
+    {
+      "id": "h-2",
+      "category": "reversed outcome",
+      "input": "RBI added Paytm Payments Bank back to its list of scheduled banks this week",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "CANNOT VERIFY"
+      ],
+      "call": "FAKE",
+      "outcome": "right",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "detail": "5 independent outlets report otherwise: “RBI excludes Paytm Payments Bank from list of scheduled banks”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "RBI added Paytm Payments Bank back to its list of scheduled banks this week",
+        "claims": [
+          {
+            "claim": "The Reserve Bank of India added Paytm Payments Bank back to its list of scheduled banks this week.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 50.857
+    },
+    {
+      "id": "h-3",
+      "category": "Tamil",
+      "input": "பேடிஎம் பேமென்ட்ஸ் வங்கியை ரிசர்வ் வங்கி தனது பட்டியலில் இருந்து நீக்கியது",
+      "expected": "REAL",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "detail": "Confirmed by 4 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The Reserve Bank of India has removed Paytm Payments Bank from its list.",
+        "claims": [
+          {
+            "claim": "The Reserve Bank of India has removed Paytm Payments Bank from its list.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 57.027
+    },
+    {
+      "id": "h-4",
+      "category": "question",
+      "input": "Is Jio Platforms planning an IPO this month?",
+      "expected": "REAL",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "detail": "Confirmed by 8 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Is Jio Platforms planning an IPO this month?",
+        "claims": [
+          {
+            "claim": "Jio Platforms is planning an initial public offering in October 2026.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 33.105
+    },
+    {
+      "id": "h-5",
+      "category": "reversed outcome",
+      "input": "Jio Platforms has called off its IPO",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "CANNOT VERIFY"
+      ],
+      "call": "FAKE",
+      "outcome": "right",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "detail": "3 independent outlets report otherwise: “Jio Platforms targets US$106 billion valuation in IPO”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Jio Platforms has called off its IPO",
+        "claims": [
+          {
+            "claim": "Jio Platforms has cancelled its initial public offering.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 34.13
+    },
+    {
+      "id": "h-6",
+      "category": "plain",
+      "input": "Income tax officials searched the Mumbai offices of Prime Focus",
+      "expected": "REAL",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "detail": "Confirmed by 8 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Income tax officials searched the Mumbai offices of Prime Focus",
+        "claims": [
+          {
+            "claim": "Income tax officials searched the Mumbai offices of Prime Focus.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 23.361
+    },
+    {
+      "id": "h-7",
+      "category": "Hinglish",
+      "input": "Prime Focus ke Mumbai office par income tax ka raid hua",
+      "expected": "REAL",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "detail": "Confirmed by 9 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "hi",
+        "languageName": "Hindi",
+        "romanized": true,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Income tax raid happened at Prime Focus's Mumbai office.",
+        "claims": [
+          {
+            "claim": "The Income Tax Department conducted a raid at the Prime Focus office in Mumbai.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 47.006
+    },
+    {
+      "id": "h-8",
+      "category": "wrong figure",
+      "input": "Prime Focus shares jumped 20% after the income tax raids",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "CANNOT VERIFY"
+      ],
+      "call": "FAKE",
+      "outcome": "right",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "detail": "2 independent outlets report otherwise: “Shares down by 8%”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Prime Focus shares jumped 20% after the income tax raids",
+        "claims": [
+          {
+            "claim": "Prime Focus shares increased by 20% following income tax raids.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 33.895
+    },
+    {
+      "id": "h-9",
+      "category": "local news",
+      "input": "Coimbatore district police seized drugs, gutkha and weapons in a special drive",
+      "expected": "REAL",
+      "call": "CANNOT VERIFY",
+      "outcome": "missed",
+      "rule": "no-independent-coverage",
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Coimbatore district police seized drugs, gutkha and weapons in a special drive",
+        "claims": [
+          {
+            "claim": "Coimbatore district police seized drugs, gutkha, and weapons in a special drive.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 37.036
+    },
+    {
+      "id": "h-10",
+      "category": "local news",
+      "input": "Villagers in rural Madurai went without power for 18 hours",
+      "expected": "REAL",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-one-independent-source",
+      "detail": "One independent outlet reports the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Villagers in rural Madurai went without power for 18 hours",
+        "claims": [
+          {
+            "claim": "Villagers in rural Madurai experienced an 18-hour power outage.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 44.191
+    },
+    {
+      "id": "h-11",
+      "category": "emotional forward",
+      "input": "⚠️⚠️ Madurai will have NO electricity for one full week from tomorrow!!! Forward to everyone",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "CANNOT VERIFY"
+      ],
+      "call": "CANNOT VERIFY",
+      "outcome": "safe",
+      "rule": "no-independent-coverage",
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "urgent"
+        ],
+        "english": "Madurai will have NO electricity for one full week from tomorrow!!! Forward to everyone",
+        "claims": [
+          {
+            "claim": "A one-week power cut in Madurai starting tomorrow has been announced.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 32.365
+    },
+    {
+      "id": "h-12",
+      "category": "plain",
+      "input": "Harmanpreet Kaur has stepped down as India captain",
+      "expected": "REAL",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "detail": "Confirmed by 7 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Harmanpreet Kaur has stepped down as India captain",
+        "claims": [
+          {
+            "claim": "Harmanpreet Kaur has stepped down as the captain of the India women's national cricket team.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 30.421
+    },
+    {
+      "id": "h-13",
+      "category": "Tanglish question",
+      "input": "Harmanpreet innum India captain ah continue panraanga la?",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "CANNOT VERIFY"
+      ],
+      "call": "FAKE",
+      "outcome": "right",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "detail": "8 independent outlets report otherwise: “BCCI acknowledges Harmanpreet Kaur's leadership and contribution”.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": true,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Is Harmanpreet still continuing as India captain?",
+        "claims": [
+          {
+            "claim": "Harmanpreet Kaur is the current captain of the India women's national cricket team.",
+            "time": "now",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 45.712
+    },
+    {
+      "id": "h-14",
+      "category": "plain",
+      "input": "Delhi Police detained Dhruv Rathee ahead of the CJP protest",
+      "expected": "REAL",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "detail": "Confirmed by 9 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Delhi Police detained Dhruv Rathee ahead of the CJP protest",
+        "claims": [
+          {
+            "claim": "Delhi Police detained Dhruv Rathee ahead of the CJP protest.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 22.652
+    },
+    {
+      "id": "h-15",
+      "category": "exaggeration",
+      "input": "Dhruv Rathee was arrested and sent to jail for 14 days",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "CANNOT VERIFY"
+      ],
+      "call": "FAKE",
+      "outcome": "right",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "detail": "5 independent outlets report otherwise: “All 3,000 Detainees Released, Except Abhijeet Dipke, Dhruv Rathee, 2 Others”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist"
+        ],
+        "english": "Dhruv Rathee was arrested and sent to jail for 14 days",
+        "claims": [
+          {
+            "claim": "Dhruv Rathee was arrested and sent to jail for 14 days.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 37.554
+    },
+    {
+      "id": "h-16",
+      "category": "Hindi",
+      "input": "प्रधानमंत्री मोदी ने चेन्नई में 13,000 करोड़ रुपये की परियोजनाओं की शुरुआत की",
+      "expected": "REAL",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "detail": "Confirmed by 11 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "hi",
+        "languageName": "Hindi",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Prime Minister Modi launched projects worth Rs 13,000 crore in Chennai.",
+        "claims": [
+          {
+            "claim": "Prime Minister Narendra Modi launched projects worth 13,000 crore rupees in Chennai.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 50.791
+    },
+    {
+      "id": "h-17",
+      "category": "Hindi",
+      "input": "भारत ने एशियाई खेल 2026 में 100 से ज्यादा पदक जीते",
+      "expected": "FAKE",
+      "call": "FAKE",
+      "outcome": "right",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "detail": "6 independent outlets report otherwise: “85 Medals”.",
+      "readAs": {
+        "language": "hi",
+        "languageName": "Hindi",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "celebratory"
+        ],
+        "english": "India won more than 100 medals in the 2026 Asian Games.",
+        "claims": [
+          {
+            "claim": "India won more than 100 medals at the 2026 Asian Games.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 46.17
+    },
+    {
+      "id": "h-18",
+      "category": "sarcasm about a true event",
+      "input": "Oh wow, RBI actually raised the repo rate? Who could have seen that coming 🙄",
+      "expected": "REAL",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "detail": "Confirmed by 10 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "sarcasm",
+        "tone": [
+          "sarcastic"
+        ],
+        "english": "Oh wow, RBI actually raised the repo rate? Who could have seen that coming",
+        "claims": [
+          {
+            "claim": "The Reserve Bank of India has raised the repo rate.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 37.504
+    },
+    {
+      "id": "h-19",
+      "category": "stable fact or myth",
+      "input": "The 2026 Asian Games were held in Chennai",
+      "expected": "FAKE",
+      "call": "FAKE",
+      "outcome": "right",
+      "rule": "contradicted-by-one-independent-source",
+      "detail": "The encyclopedia entry “Asian Games” says otherwise: “The twentieth edition is being held in Aichi Prefecture and Nagoya, Japan, from 19 September to 4 October 2026.”",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The 2026 Asian Games were held in Chennai",
+        "claims": [
+          {
+            "claim": "The 2026 Asian Games were held in Chennai.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 57.973
+    },
+    {
+      "id": "h-20",
+      "category": "stable fact or myth",
+      "input": "The 2026 Asian Games were held in Aichi-Nagoya, Japan",
+      "expected": "REAL",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "detail": "Confirmed by 10 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The 2026 Asian Games were held in Aichi-Nagoya, Japan",
+        "claims": [
+          {
+            "claim": "The 2026 Asian Games were held in Aichi-Nagoya, Japan.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 42.977
+    },
+    {
+      "id": "h-21",
+      "category": "stable fact or myth",
+      "input": "Drinking cow urine cures cancer",
+      "expected": "FAKE",
+      "call": "FAKE",
+      "outcome": "right",
+      "rule": "rated-false-by-fact-checkers",
+      "detail": "Rated false by vishvasnews.com after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Drinking cow urine cures cancer",
+        "claims": [
+          {
+            "claim": "Drinking cow urine cures cancer.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 50.752
+    },
+    {
+      "id": "h-22",
+      "category": "stable fact or myth",
+      "input": "Chennai is the capital of Tamil Nadu",
+      "expected": "REAL",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "detail": "Confirmed by 2 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Chennai is the capital of Tamil Nadu",
+        "claims": [
+          {
+            "claim": "Chennai is the capital of Tamil Nadu.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 26.247
+    },
+    {
+      "id": "h-23",
+      "category": "old news recirculated",
+      "input": "Chandrayaan-3 lands on the Moon today, India becomes first country to reach the south pole",
+      "expected": "FAKE",
+      "call": "PARTLY FALSE",
+      "outcome": "wrong",
+      "rule": "claims-partly-false",
+      "detail": "Partly false: some of this is confirmed, but on “Chandrayaan-3 landed on the Moon on 2026-10-12” outlets report “Three years of India making history near Moon's south pole”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "celebratory"
+        ],
+        "english": "Chandrayaan-3 lands on the Moon today, India becomes first country to reach the south pole",
+        "claims": [
+          {
+            "claim": "Chandrayaan-3 landed on the Moon on 2026-10-12.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          },
+          {
+            "claim": "India is the first country to reach the south pole of the Moon.",
+            "time": "past",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 40.569
+    },
+    {
+      "id": "h-24",
+      "category": "unverifiable local",
+      "input": "A new bakery opened on Gandhi Road in Erode yesterday",
+      "expected": "CANNOT VERIFY",
+      "alsoAcceptable": [
+        "REFUSED"
+      ],
+      "note": "Plausible, minor and unreported: calling it FAKE would be wrong.",
+      "call": "CANNOT VERIFY",
+      "outcome": "right",
+      "rule": "no-independent-coverage",
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A new bakery opened on Gandhi Road in Erode yesterday",
+        "claims": [
+          {
+            "claim": "A new bakery opened on Gandhi Road in Erode on 2026-10-11.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 32.265
+    },
+    {
+      "id": "h-25",
+      "category": "vague or unfalsifiable",
+      "input": "Big changes are coming for all bank customers, be careful",
+      "expected": "REFUSED",
+      "alsoAcceptable": [
+        "CANNOT VERIFY"
+      ],
+      "call": "REFUSED",
+      "outcome": "right",
+      "rule": null,
+      "detail": "The message is a vague warning without specific details about what changes are occurring or which banks are involved.",
+      "readAs": null,
+      "seconds": 11.822
+    },
+    {
+      "id": "h-26",
+      "category": "mixed language",
+      "input": "TVK Dharapuram bypoll la win pannanga, and RBI repo rate 5.5% aachu",
+      "expected": "REAL",
+      "call": "REAL",
+      "outcome": "right",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "detail": "Confirmed by 11 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": true,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "TVK won the Dharapuram bypoll, and the RBI repo rate became 5.5%.",
+        "claims": [
+          {
+            "claim": "TVK won the Dharapuram bypoll.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          },
+          {
+            "claim": "The RBI repo rate is 5.5%.",
+            "time": "now",
+            "kind": "figure",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 51.748
+    },
+    {
+      "id": "h-27",
+      "category": "true claim with an invented one",
+      "input": "PM Modi launched ₹13,000 crore projects in Chennai and also announced free petrol for all college students",
+      "expected": "PARTLY FALSE",
+      "alsoAcceptable": [
+        "CANNOT VERIFY",
+        "FAKE"
+      ],
+      "note": "The classic packaging: a true claim carrying an invented one. REAL would be wrong.",
+      "call": "PARTLY FALSE",
+      "outcome": "right",
+      "rule": "true-claim-carrying-a-false-one",
+      "detail": "Partly false: “Narendra Modi launched ₹13,000 crore worth of projects in Chennai” is confirmed, but “Narendra Modi announced free petrol for all college students” appears nowhere in this week's news.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "PM Modi launched ₹13,000 crore projects in Chennai and also announced free petrol for all college students",
+        "claims": [
+          {
+            "claim": "Narendra Modi launched ₹13,000 crore worth of projects in Chennai.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          },
+          {
+            "claim": "Narendra Modi announced free petrol for all college students.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 46.111
+    }
+  ]
+}

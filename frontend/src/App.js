@@ -8,6 +8,8 @@ import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import ComparePage from './pages/ComparePage';
 import CheckPage from './pages/CheckPage';
+import ClaimsPage from './pages/ClaimsPage';
+import ClaimDetailPage from './pages/ClaimDetailPage';
 import Navbar from './components/Navbar';
 import api from './services/api';
 import { shouldClearSession } from './services/session';
@@ -71,6 +73,9 @@ const App = () => {
           path="/signup" 
           element={user ? <Navigate to="/home" /> : <SignupPage setUser={setUser} />} 
         />
+
+        <Route path="/claims" element={<ClaimsPage />} />
+        <Route path="/claims/:id" element={<ClaimDetailPage />} />
 
         {/* Protected Routes */}
         <Route 

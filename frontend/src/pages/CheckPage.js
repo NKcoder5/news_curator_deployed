@@ -84,11 +84,13 @@ const streamContentCheck = async (body, onEvent) => {
 
 const CheckPage = () => {
   // A video or social link pasted into the feed's link box is redirected here,
-  // arriving prefilled so the reader does not have to paste it twice.
-  const handedOver = useLocation().state?.url;
+  // arriving prefilled so the reader does not have to paste it twice. A claim
+  // opened from the claims registry ("Check it again") arrives as text.
+  const handed = useLocation().state;
+  const handedOver = handed?.url;
 
   const [mode, setMode] = useState(handedOver ? 'link' : 'text');
-  const [text, setText] = useState('');
+  const [text, setText] = useState(handed?.text || '');
   const [url, setUrl] = useState(handedOver || '');
   const [account, setAccount] = useState('');
   const [imageName, setImageName] = useState('');

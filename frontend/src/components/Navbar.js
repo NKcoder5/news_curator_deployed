@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
-  Newspaper, Columns2, ShieldCheck, LineChart, LogOut, LogIn, UserPlus
+  Newspaper, Columns2, ShieldCheck, LineChart, LogOut, LogIn, UserPlus, Library
 } from 'lucide-react';
 import '../styles/Navbar.css';
 
@@ -17,6 +17,7 @@ const Navbar = ({ user, setUser }) => {
     if (path === '/dashboard') setActiveLink('dashboard');
     else if (path === '/check') setActiveLink('check');
     else if (path === '/compare') setActiveLink('compare');
+    else if (path.startsWith('/claims')) setActiveLink('claims');
     else if (path === '/home') setActiveLink('home');
     else if (path.includes('/home')) setActiveLink('categories');
     else setActiveLink(null);
@@ -46,6 +47,13 @@ const Navbar = ({ user, setUser }) => {
       </Link>
       
       <div className="nav-links">
+        <Link
+          to="/claims"
+          className={`nav-link ${activeLink === 'claims' ? 'active' : ''}`}
+          onClick={() => handleLinkClick('claims')}
+        >
+          <Library size={15} /> Claims
+        </Link>
         {user ? (
           <>
             <Link

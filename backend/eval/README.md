@@ -81,3 +81,17 @@ node eval/benchmarkCheckAnything.js --gap 10   # more spacing if the model is ra
 Results go to `eval/results/checkAnything_benchmark.{json,md}`. The claims
 concern current events, so the labels hold for the weeks after they were
 written. To re-run later, refresh the claims from that week's news.
+
+## Held-out evaluation (12 October 2026)
+
+Held-out suite v2, the consistency suite and memory ablation, held-out claim
+matching, counterfactual faithfulness of the decision explainer, and the
+calibration report are described, with what each does and does not show, in
+`docs/engineering/2026-10-12-evaluation-plan.md`. The live part runs with one
+resumable command after the model quota resets:
+
+```bash
+cd backend
+node eval/runDay5.js --dry-run   # the plan
+node eval/runDay5.js             # resumes where it stopped
+```

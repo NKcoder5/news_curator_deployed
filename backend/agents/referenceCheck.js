@@ -28,6 +28,7 @@
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { fetchWikipediaContent } = require('../utils/wikipedia');
 const { findAnchors } = require('./checkability');
+const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip } = require('../utils/untrusted');
 
 /** How many entities to look up. Each costs one search plus one extract. */
 const MAX_ENTITIES = 2;
@@ -215,19 +216,22 @@ const checkPremises = async (title, content) => {
  * quote the reference text that conflicts, so the claim can be checked rather
  * than taken on trust.
  */
-const judgeAgainstReference = async (title, content, entity, reference) => {
+const judgeAgainstReference = async (title, content, name, reference) => {
+  // The subject is a run of capitalised words from the article (groupNames
+  // keeps letters and digits only), so it carries no punctuation or role
+  // label; it is still the article's wording, so it is kept short.
+  const entity = String(name).slice(0, 80);
   const prompt = `You are checking whether an encyclopedia entry CONTRADICTS a news article's stated facts about one subject.
+
+${UNTRUSTED_NOTICE}
 
 Subject: ${entity}
 
 Encyclopedia entry:
-"""
-${String(reference.content).slice(0, 1200)}
-"""
+${fence(reference.content, { label: 'encyclopedia entry', max: 1200 })}
 
 News article:
-Title: ${title}
-Text: ${String(content || '').slice(0, 900)}
+${fence(`Title: ${title}\nText: ${String(content || '').slice(0, 900)}`, { label: 'article', max: 1300 })}
 
 First decide whether the entry is even about the same ${entity} the article means. Names are shared: a local council officer, a cricketer and an actress can carry the same name, and an entry about one of them says nothing about another. If the entry describes a person or thing in a plainly different walk of life from the one the article describes, they are different subjects and there is no contradiction.
 
@@ -263,9 +267,18 @@ Return a JSON object with these keys:
     // shared name. Refusing to accuse when the subjects differ is the whole
     // point of the asymmetry this project rests on, so a contradiction is only
     // admitted once the model has confirmed it is talking about one person.
-    if (result && result.same_subject === false) {
+    //
+    // Every field below is read strictly: Boolean("false") is true, so a reply
+    // saying "contradicts": "false" beside a quoted sentence used to count as
+    // a contradiction.
+    const sameSubject = asBool(result?.same_subject);
+    const contradicts = asBool(result?.contradicts) === true;
+    const bothCanBeTrue = asBool(result?.both_can_be_true);
+    const assertedBy = oneOf(result?.asserted_by, ['article', 'quoted'], null);
+    const articleStates = clip(result?.article_states, 300);
+    if (sameSubject === false) {
       return { contradicts: false, differentSubject: true,
-        article_states: String(result.article_states || ''),
+        article_states: articleStates,
         reference_states: '' };
     }
 
@@ -281,17 +294,17 @@ Return a JSON object with these keys:
     // hold, made in the article's own voice.
     // Support needs the same grounding as contradiction: the sentence quoted
     // must actually be in the entry.
-    const supportQuote = String(result?.reference_supports || '').trim();
-    const supportGrounded = Boolean(result?.supports) && supportQuote.length > 10
+    const supportQuote = clip(result?.reference_supports, 600);
+    const supportGrounded = asBool(result?.supports) === true && supportQuote.length > 10
       && String(reference.content).toLowerCase().includes(supportQuote.slice(0, 40).toLowerCase());
-    if (result && (result.both_can_be_true !== false || result.asserted_by === 'quoted')) {
-      return { contradicts: false, supports: supportGrounded && result.contradicts !== true, referenceSupports: supportGrounded ? supportQuote : '',
-        compatible: result.both_can_be_true !== false,
-        quotedOnly: result.asserted_by === 'quoted',
-        articleStates: String(result.article_states || ''), referenceStates: '' };
+    if (result && (bothCanBeTrue !== false || assertedBy === 'quoted')) {
+      return { contradicts: false, supports: supportGrounded && !contradicts, referenceSupports: supportGrounded ? supportQuote : '',
+        compatible: bothCanBeTrue !== false,
+        quotedOnly: assertedBy === 'quoted',
+        articleStates, referenceStates: '' };
     }
 
-    const referenceStates = String(result.reference_states || '').trim();
+    const referenceStates = clip(result.reference_states, 600);
 
     // The model must ground a contradiction in the reference text. An assertion
     // with no quotation behind it, or a quotation that is not actually in the
@@ -300,10 +313,10 @@ Return a JSON object with these keys:
       && String(reference.content).toLowerCase().includes(referenceStates.slice(0, 40).toLowerCase());
 
     return {
-      contradicts: Boolean(result.contradicts) && quoted,
-      articleStates: String(result.article_states || ''),
+      contradicts: contradicts && quoted,
+      articleStates,
       referenceStates: quoted ? referenceStates : '',
-      ungrounded: Boolean(result.contradicts) && !quoted
+      ungrounded: contradicts && !quoted
     };
   } catch (_) {
     return { contradicts: false, articleStates: '', referenceStates: '', failed: true };

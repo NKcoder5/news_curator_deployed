@@ -27,6 +27,9 @@
 // event going unmentioned in twenty headlines means nothing at all.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { searchGoogleNews } = require('../utils/newsFetcher');
+const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip, numberedItems } = require('../utils/untrusted');
+
+const CLAIMED_WHEN = new Set(['this_week', 'earlier', 'future', 'ongoing', 'unclear']);
 
 /** The window of coverage read. Long enough to cover a quiet week. */
 const WINDOW = '7d';
@@ -51,11 +54,17 @@ const subjectsFor = (claims = []) => {
 
 const judge = async (claimText, headlines) => {
   const today = new Date().toISOString().slice(0, 10);
-  const lines = headlines.map((h, i) => `${i + 1}. [${(h.publishedAt || '').slice(0, 10) || 'undated'}] ${h.source}: ${h.title}`).join('\n');
+  // One line per headline, so a line break inside a retrieved headline cannot
+  // open a numbered item of its own.
+  const lines = headlines
+    .map((h, i) => `${i + 1}. [${String(h.publishedAt || '').slice(0, 10) || 'undated'}] ${h.source}: ${h.title}`.replace(/\s+/g, ' ').slice(0, 300))
+    .join('\n');
 
   const prompt = `Today is ${today}. A user wants to know whether this claim is true:
 
-"${String(claimText).slice(0, 500)}"
+${fence(claimText, { label: 'claim', max: 500 })}
+
+${UNTRUSTED_NOTICE}
 
 Below are this week's news headlines about the claim's subject, with their dates and outlets. Most will not be about the claim at all. Read each one and decide:
 
@@ -70,7 +79,7 @@ Then judge the claim as a whole:
 Use only these headlines and dates, not your own knowledge.
 
 Headlines:
-${lines}
+${fence(lines, { label: 'headlines', max: (MAX_HEADLINES + 8) * 301 })}
 
 Return a JSON object: {"event_scale": "dominant" | "minor", "claimed_when": "this_week" | "earlier" | "future" | "ongoing" | "unclear", "items": [{"n": <headline number>, "reports_event": true or false, "presupposes_false": true or false, "reported": "<exact words or empty>"}]}`;
 
@@ -133,21 +142,26 @@ const checkCurrentCoverage = async (claims = []) => {
   }
 
   // Every quote must be in the headline it is attributed to — the same rule
-  // the stance judgement is held to.
-  const pick = (flag) => (Array.isArray(result?.items) ? result.items : [])
-    .filter(it => it && it[flag] === true)
+  // the stance judgement is held to. Only headlines that were shown count,
+  // each once.
+  const items = numberedItems(result?.items, headlines.length);
+  const pick = (flag) => items
+    .filter(it => asBool(it[flag]) === true)
     .map(it => {
-      const h = headlines[Number(it.n) - 1];
-      const quoted = norm(it.reported);
+      const h = headlines[it.n - 1];
+      const reported = clip(it.reported, 300);
+      const quoted = norm(reported);
       if (!h || quoted.length < 4 || !norm(h.title).includes(quoted)) return null;
-      return { source: h.source, title: h.title, url: h.url, publishedAt: h.publishedAt, reported: String(it.reported).trim(), reliability: 0 };
+      return { source: h.source, title: h.title, url: h.url, publishedAt: h.publishedAt, reported, reliability: 0 };
     })
     .filter(Boolean);
 
   const reporting = pick('reports_event');
   const presupposingFalse = pick('presupposes_false');
-  const eventScale = result?.event_scale === 'dominant' ? 'dominant' : 'minor';
-  const claimedWhen = String(result?.claimed_when || 'unclear');
+  const eventScale = oneOf(result?.event_scale, ['dominant', 'minor'], 'minor');
+  // Read against the five answers the prompt offers. The rules downstream
+  // compare it with 'this_week' and 'future', so anything else is "unclear".
+  const claimedWhen = oneOf(result?.claimed_when, CLAIMED_WHEN, 'unclear');
   const base = { subject, headlinesRead: headlines.length, outletsRead: outlets.size, eventScale, claimedWhen, presupposingFalse, reporting };
 
   if (reporting.length > 0) {

@@ -31,6 +31,10 @@
 const axios = require('axios');
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { searchGoogleNews, cached, withRetry } = require('../utils/newsFetcher');
+const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip, numberedItems } = require('../utils/untrusted');
+const { signatureOf } = require('../services/claimSignature');
+
+const FINDINGS = new Set(['false', 'true', 'misleading']);
 
 const EXPLORER_URL = 'https://toolbox.google.com/factcheck/api/search';
 const OFFICIAL_URL = 'https://factchecktools.googleapis.com/v1alpha1/claims:search';
@@ -216,18 +220,21 @@ const ratingClass = (rating) => {
  */
 const matchReviews = async (claimText, candidates) => {
   const today = new Date().toISOString().slice(0, 10);
+  // Every field is one line, so a line break inside a retrieved title cannot
+  // open a review number of its own.
+  const oneLine = (text, max) => String(text || '').replace(/\s+/g, ' ').slice(0, max);
   const lines = candidates.map((c, i) => [
-    `${i + 1}. Fact-checker: ${c.publisher || 'unknown'}${c.reviewedAt ? ` (${c.reviewedAt})` : ''}`,
-    c.claimReviewed ? `   Claim it checked: "${c.claimReviewed.slice(0, 300)}"` : null,
-    c.rating ? `   Its rating: "${c.rating.slice(0, 200)}"` : null,
-    c.title ? `   Its headline: "${c.title.slice(0, 200)}"` : null
+    `${i + 1}. Fact-checker: ${oneLine(c.publisher, 80) || 'unknown'}${c.reviewedAt ? ` (${oneLine(c.reviewedAt, 10)})` : ''}`,
+    c.claimReviewed ? `   Claim it checked: "${oneLine(c.claimReviewed, 300)}"` : null,
+    c.rating ? `   Its rating: "${oneLine(c.rating, 200)}"` : null,
+    c.title ? `   Its headline: "${oneLine(c.title, 200)}"` : null
   ].filter(Boolean).join('\n')).join('\n');
 
   const prompt = `Today is ${today}. A user wants to know whether this text is true:
 
-"""
-${String(claimText).slice(0, 700)}
-"""
+${fence(claimText, { label: 'user text', max: 700 })}
+
+${UNTRUSTED_NOTICE}
 
 Professional fact-checkers have published the reviews below. For EACH review, decide whether it examined the SAME assertion as the user's text, and what its finding means for the user's text.
 
@@ -238,14 +245,42 @@ Rules:
 - Use only what is written below. Do not use your own knowledge of the facts.
 
 Reviews:
-${lines}
+${fence(lines, { label: 'reviews', max: MAX_CANDIDATES * 820 })}
 
 Return a JSON object: {"items": [{"n": <review number>, "same_claim": true or false, "user_text_is": "false" | "true" | "misleading" | "unclear", "why": "<one short sentence>"}]}`;
 
   const result = await callNimApiJson(prompt, {
     maxTokens: 1400, temperature: 0, requiredKeys: ['items'], label: 'fact-check match'
   });
-  return Array.isArray(result?.items) ? result.items : [];
+  // Only reviews that were shown, each judged once.
+  return numberedItems(result?.items, candidates.length);
+};
+
+// Words that turn a statement about a video, photo or event into its denial:
+// "the video is fake" says the opposite of "the video is genuine".
+const FALSITY_WORDS = /\b(?:fake|false|hoax|morphed|doctored|edited|deepfake|ai[\s-]generated|fabricated|untrue|misleading|old)\b/gi;
+
+/** Which way a sentence points: false for a plain assertion, true for its denial. */
+const deniesIt = (text) => {
+  const falsity = (String(text || '').match(FALSITY_WORDS) || []).length;
+  return ((signatureOf(text).negated ? 1 : 0) + falsity) % 2 === 1;
+};
+
+/**
+ * May the matcher's finding stand against the desk's own rating?
+ *
+ * The prompt allows one reason for a finding that opposes the rating: the
+ * user's text says the opposite of the claim the desk checked ("the video is
+ * fake" against a review of "the video is genuine"). That reason is checked
+ * here, not taken on trust. A reversal between two sentences that point the
+ * same way is how a message that says "the fact-checks below confirm this"
+ * would turn a desk's False into a reason to call a rumour true (rule R2c in
+ * agents/verdictEngine.js needs only one such match), so it is not counted.
+ */
+const reversalHolds = (finding, rated, userText, reviewedText) => {
+  const opposes = (rated === 'false' && finding === 'true') || (rated === 'true' && finding === 'false');
+  if (!opposes || !reviewedText) return true;
+  return deniesIt(userText) !== deniesIt(reviewedText);
 };
 
 /**
@@ -307,14 +342,18 @@ const checkFactCheckers = async (claims = [], { title = '', text = '' } = {}) =>
 
   const matches = [];
   for (const item of judged) {
-    const candidate = candidates[Number(item?.n) - 1];
-    if (!candidate || item.same_claim !== true) continue;
-    const finding = ['false', 'true', 'misleading'].includes(item.user_text_is) ? item.user_text_is : null;
+    const candidate = candidates[item.n - 1];
+    if (!candidate || asBool(item.same_claim) !== true) continue;
+    const finding = oneOf(item.user_text_is, FINDINGS, null);
     if (!finding) continue;
     // The desk's own rating is kept beside the matcher's reading of it, so the
     // reader can see both: they differ, legitimately, when the user's text
     // negates the claim the desk checked.
     const rated = ratingClass(candidate.rating);
+    if (!reversalHolds(finding, rated, claimText, candidate.claimReviewed || candidate.title)) {
+      console.warn(`Fact-check match: a "${finding}" reading of a review rated ${rated} was set aside; the two sentences do not point opposite ways.`);
+      continue;
+    }
     matches.push({
       publisher: candidate.publisher,
       site: candidate.site,
@@ -324,7 +363,7 @@ const checkFactCheckers = async (claims = [], { title = '', text = '' } = {}) =>
       rating: candidate.rating,
       ratingClass: rated,
       finding,
-      why: String(item.why || '').slice(0, 240),
+      why: clip(item.why, 240),
       via: candidate.via
     });
   }
@@ -368,4 +407,4 @@ const checkFactCheckers = async (claims = [], { title = '', text = '' } = {}) =>
   };
 };
 
-module.exports = { checkFactCheckers, ratingClass, parseExplorer, queriesFor, shortQuery };
+module.exports = { checkFactCheckers, ratingClass, parseExplorer, queriesFor, shortQuery, reversalHolds };

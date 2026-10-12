@@ -20,6 +20,7 @@
 // around it, and the budget is generous enough to hold the model's thinking as
 // well as the answer.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
+const { UNTRUSTED_NOTICE, fence, clip } = require('../utils/untrusted');
 
 // Phrases that mean the model narrated instead of answering. If one survives
 // into the extracted field, the summary is not usable.
@@ -57,16 +58,16 @@ Cover only what the text actually says. If it breaks off mid-story, summarise th
 
 Return a JSON object with exactly one key, "summary", whose value is that summary as a plain-prose string.
 
+${UNTRUSTED_NOTICE}
+
 Text:
-"""
-${text}
-"""`;
+${fence(text, { label: 'news text', max: 6000 })}`;
 
   // The budget has to hold the model's own reasoning as well as the answer;
   // the answer is read out of the JSON field, so extra thinking is harmless.
   const data = await callNimApiJson(prompt, { maxTokens: 700, temperature: 0.2, requiredKeys: ['summary'], label: 'summary' });
 
-  const summary = String(data?.summary || '').trim();
+  const summary = clip(data?.summary, 2000);
   if (!summary) throw new Error('The model returned no summary text.');
   if (REASONING_LEAK.test(summary)) {
     throw new Error('The model narrated its instructions instead of summarising.');

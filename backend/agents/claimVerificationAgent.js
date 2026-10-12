@@ -7,6 +7,11 @@ const { searchCoverageBroadening, searchGoogleNews } = require('../utils/newsFet
 const { getSourceReputation } = require('./sourceReputationAgent');
 const { isSearchable } = require('../utils/language');
 const { filterRelevant, anchorTerms, distinctiveTerms } = require('./evidenceRelevance');
+const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip, numberedItems } = require('../utils/untrusted');
+
+/** A claim is one sentence; a reply that writes an essay into it is cut back. */
+const MAX_CLAIM_CHARS = 300;
+const STANCES = new Set(['agree', 'disagree', 'unrelated']);
 
 /**
  * Search terms for a claim the model described but did not supply keywords for.
@@ -46,8 +51,12 @@ const extractClaims = async (title, content, maxClaims = 2, language = null) => 
 
   const prompt = `You are a fact-checking assistant. Extract the most important CHECKABLE factual claims from this news article — concrete statements about events, numbers, or actions that other news outlets would also report if true. Skip opinions and vague statements.
 
-Title: ${title}
-Content: ${(content || '').slice(0, 2000)}
+${UNTRUSTED_NOTICE}
+
+Title:
+${fence(title, { label: 'title', max: 300 })}
+Content:
+${fence(content || '', { label: 'article', max: 2000 })}
 
 Return a JSON object with one key, "claims": an array of at most ${maxClaims} entries, empty when the article contains nothing checkable. Each entry has:
 - "claim": the factual claim in one sentence.
@@ -86,17 +95,18 @@ Return at most ${maxClaims} claims. If the article contains no checkable claims,
   // Dropping a field we can reconstruct must never be reported as the article
   // asserting nothing; that is a failure wearing the costume of a finding.
   return claims
-    .filter(c => c && c.claim)
+    .filter(c => c && typeof c === 'object' && typeof c.claim === 'string' && c.claim.trim())
     .slice(0, maxClaims)
     .map(c => {
-      const given = String(c.search_keywords || '').trim();
-      const keywords = given || deriveKeywords(c.claim);
+      const claim = clip(c.claim, MAX_CLAIM_CHARS);
+      const given = clip(c.search_keywords, 120);
+      const keywords = given || deriveKeywords(claim);
       return {
-        claim: String(c.claim),
+        claim,
         keywords,
-        keywordsEn: c.search_keywords_en ? String(c.search_keywords_en) : null,
-        headline: c.headline ? String(c.headline).slice(0, 160) : null,
-        subject: c.subject ? String(c.subject).slice(0, 60) : null,
+        keywordsEn: clip(c.search_keywords_en, 120) || null,
+        headline: clip(c.headline, 160) || null,
+        subject: clip(c.subject, 60) || null,
         keywordsDerived: !given
       };
     })
@@ -214,9 +224,11 @@ const judgeClaim = async (claim, coverage) => {
   // characters invited the model to narrate its way through every one of them
   // and run out of reply budget before answering. Corroboration needs two
   // independent outlets, so six candidates is ample.
-  const evidenceText = coverage
-    .slice(0, JUDGED_HEADLINES)
-    .map((a, i) => `[${i + 1}] ${a.source}: "${a.title}" — ${a.description}`.slice(0, 220))
+  // One line per headline: a line break inside a retrieved headline would let
+  // it start a numbered item of its own.
+  const shown = coverage.slice(0, JUDGED_HEADLINES);
+  const evidenceText = shown
+    .map((a, i) => `[${i + 1}] ${a.source}: "${a.title}" — ${a.description}`.replace(/\s+/g, ' ').slice(0, 220))
     .join('\n');
 
   // Each headline is judged on its own. Asked for one overall verdict, the local
@@ -226,10 +238,13 @@ const judgeClaim = async (claim, coverage) => {
   // outcome case spelled out, is what a small model gets right.
   const prompt = `You check a claim against news headlines from other outlets.
 
-Claim: "${claim}"
+${UNTRUSTED_NOTICE}
+
+Claim:
+${fence(claim, { label: 'claim', max: 400 })}
 
 Headlines:
-${evidenceText}
+${fence(evidenceText, { label: 'headlines', max: JUDGED_HEADLINES * 221 })}
 
 For EACH headline decide its stance towards the claim:
 - "agree": it reports the same outcome or fact as the claim.
@@ -270,43 +285,49 @@ Return a JSON object with these keys:
       discardedEvidence: [], explanation: 'This claim could not be judged against the coverage that was found.' };
   }
 
-  // The verdict is derived from the per-item stances here, not asked for.
-  if (Array.isArray(result?.items)) {
-    const stance = (it) => String(it?.stance || '').toLowerCase();
-    // A disagreement counts only about the same event, and only when the two
-    // statements cannot both hold: the same guard the premise check uses.
-    result.supporting_indices = result.items
-      .filter(it => stance(it) === 'agree' && it.same_event !== false)
-      .map(it => Number(it.n));
-    // A contradiction has to be found in the headline itself: the words the
-    // model quotes as what the outlet reports must actually be there. A quote
-    // that is not in the headline is the model's own invention, not evidence.
-    const inHeadline = (it) => {
-      const quoted = norm(it.reported);
-      if (!quoted) return true;
-      const item = coverage[Number(it.n) - 1];
-      return Boolean(item) && norm(item.title + ' ' + (item.description || '')).includes(quoted);
-    };
-    result.contradicting_indices = result.items
-      .filter(it => stance(it) === 'disagree' && it.same_event === true && it.both_can_be_true === false && inHeadline(it))
-      .map(it => Number(it.n));
-    reportedByItem = new Map(result.items.map(it => [Number(it.n), String(it.reported || '').trim()]));
-    result.verdict = result.contradicting_indices.length > result.supporting_indices.length
-      ? 'contradicted'
-      : result.supporting_indices.length > 0 ? 'supported'
-        : result.contradicting_indices.length > 0 ? 'contradicted' : 'unverified';
-  }
-
-  // A recovered-but-truncated reply can arrive without the field at all. That
+  // The verdict is derived from the per-item stances here, never read from
+  // the reply. A reply without a list of per-headline stances has not judged
+  // anything, whatever else it says: "items" present but not a list, beside a
+  // "verdict": "supported" and "supporting_indices" of its own, used to pass
+  // straight through as a finding.
+  //
+  // A recovered-but-truncated reply can arrive without the list at all. That
   // is not a judgement of "unverified" either.
-  if (!['supported', 'contradicted', 'unverified'].includes(result?.verdict)) {
+  if (!Array.isArray(result?.items)) {
     // Logged, because this is the most common way verification fails and it
     // used to fail in silence: the only trace was the reader being told the
     // check had not run.
-    console.error('Claim judgement unusable: verdict was', JSON.stringify(result?.verdict));
+    console.error('Claim judgement unusable: items was', JSON.stringify(result?.items)?.slice(0, 80));
     return { verdict: 'undetermined', failed: true, supportingEvidence: [], contradictingEvidence: [],
       discardedEvidence: [], explanation: 'The judgement of this claim came back unreadable, so it was not counted.' };
   }
+
+  // Only headlines that were shown, each judged once, with a stance from the
+  // three on offer and booleans that are booleans.
+  const items = numberedItems(result.items, shown.length);
+  const stance = (it) => oneOf(it.stance, STANCES, null);
+  // A disagreement counts only about the same event, and only when the two
+  // statements cannot both hold: the same guard the premise check uses.
+  const supportingIndices = items
+    .filter(it => stance(it) === 'agree' && asBool(it.same_event) !== false)
+    .map(it => it.n);
+  // A contradiction has to be found in the headline itself: the words the
+  // model quotes as what the outlet reports must actually be there. A quote
+  // that is not in the headline is the model's own invention, not evidence.
+  const inHeadline = (it) => {
+    const quoted = norm(clip(it.reported, 200));
+    if (!quoted) return true;
+    const item = coverage[it.n - 1];
+    return Boolean(item) && norm(item.title + ' ' + (item.description || '')).includes(quoted);
+  };
+  const contradictingIndices = items
+    .filter(it => stance(it) === 'disagree' && asBool(it.same_event) === true && asBool(it.both_can_be_true) === false && inHeadline(it))
+    .map(it => it.n);
+  reportedByItem = new Map(items.map(it => [it.n, clip(it.reported, 200)]));
+  const judged = contradictingIndices.length > supportingIndices.length
+    ? 'contradicted'
+    : supportingIndices.length > 0 ? 'supported'
+      : contradictingIndices.length > 0 ? 'contradicted' : 'unverified';
 
   const pick = (indices) =>
     (Array.isArray(indices) ? indices : [])
@@ -326,7 +347,7 @@ Return a JSON object with these keys:
         reliability: getSourceReputation(a.source, a.url).score
       }));
 
-  let verdict = result.verdict;
+  let verdict = judged;
 
   // The model will cite coverage that is not about this claim at all. Measured
   // on the adversarial set, an invented "secret chemical leak" was reported as
@@ -334,8 +355,8 @@ Return a JSON object with these keys:
   // fabrication into "likely true". Evidence that shares no distinctive terms
   // with the claim is therefore discarded before it can count, and a verdict
   // left with no surviving evidence falls back to unverified.
-  const support = filterRelevant(claim, pick(result.supporting_indices));
-  const contradiction = filterRelevant(claim, pick(result.contradicting_indices));
+  const support = filterRelevant(claim, pick(supportingIndices));
+  const contradiction = filterRelevant(claim, pick(contradictingIndices));
 
   if (verdict === 'supported' && support.kept.length === 0) verdict = 'unverified';
   if (verdict === 'contradicted' && contradiction.kept.length === 0) {
@@ -349,7 +370,7 @@ Return a JSON object with these keys:
     supportingEvidence: support.kept,
     contradictingEvidence: contradiction.kept,
     discardedEvidence: [...support.dropped, ...contradiction.dropped],
-    explanation: [String(result.explanation || ''), ...notes].filter(Boolean).join(' ')
+    explanation: [clip(result.explanation, 400), ...notes].filter(Boolean).join(' ')
   };
 };
 

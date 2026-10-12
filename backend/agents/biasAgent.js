@@ -5,7 +5,10 @@ const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { languageDirective } = require('../utils/language');
 const { biasByRules } = require('./heuristics');
 
+const { UNTRUSTED_NOTICE, fence, oneOf, clip } = require('../utils/untrusted');
+
 const BIAS_TYPES =['political bias', 'emotional manipulation', 'loaded language', 'one-sided reporting', 'opinion as fact', 'sensationalism'];
+const LEANS = ['left', 'center', 'right', 'none-detected'];
 
 /**
  * Analyze article text for bias and emotionally manipulative language.
@@ -24,10 +27,10 @@ const analyzeBias = async (title, content, language) => {
   // required key missing.
   const prompt = `You are a media bias analysis system. Analyze this news text for bias and emotionally manipulative language.
 
+${UNTRUSTED_NOTICE}
+
 Text:
-"""
-${text}
-"""
+${fence(text, { label: 'news text', max: 3000 })}
 
 Look for: ${BIAS_TYPES.join(', ')}.
 Quote flagged sentences EXACTLY as they appear in the text. Only flag sentences that genuinely show bias — a neutral article should have an empty list.
@@ -44,13 +47,16 @@ Return a JSON object with these keys:
     if (!Number.isFinite(biasScore)) biasScore = 0;
     biasScore = Math.min(10, Math.max(0, biasScore));
 
+    // Shown to the reader as highlights, so each is held to the shape asked
+    // for: a sentence, one of the named types, a short reason.
     const flagged = Array.isArray(result.flagged_sentences)
       ? result.flagged_sentences
-          .filter(f => f && f.sentence)
+          .filter(f => f && typeof f === 'object' && clip(f.sentence, 600))
+          .slice(0, 8)
           .map(f => ({
-            sentence: String(f.sentence),
-            type: String(f.type || 'bias'),
-            reason: String(f.reason || '')
+            sentence: clip(f.sentence, 600),
+            type: oneOf(f.type, BIAS_TYPES, 'bias'),
+            reason: clip(f.reason, 300)
           }))
       : [];
 
@@ -60,9 +66,9 @@ Return a JSON object with these keys:
       // Invert: high score = objective article
       score: Math.round((10 - biasScore) * 10) / 10,
       biasLevel,
-      politicalLean: String(result.political_lean || 'none-detected'),
+      politicalLean: oneOf(result.political_lean, LEANS, 'none-detected'),
       flaggedSentences: flagged,
-      explanation: String(result.explanation || 'No explanation provided.'),
+      explanation: clip(result.explanation, 500) || 'No explanation provided.',
       method: 'model'
     };
   } catch (err) {

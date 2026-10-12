@@ -4,6 +4,7 @@
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { languageDirective } = require('../utils/language');
 const { clickbaitByRules } = require('./heuristics');
+const { UNTRUSTED_NOTICE, fence, clip, clipList } = require('../utils/untrusted');
 
 /**
  * Analyze a headline for clickbait characteristics.
@@ -19,7 +20,10 @@ const analyzeClickbait = async (title, language) => {
   // required key missing.
   const prompt = `You are a headline analysis system. Analyze this news headline for clickbait characteristics.
 
-Headline: "${title}"
+${UNTRUSTED_NOTICE}
+
+Headline:
+${fence(title, { label: 'headline', max: 400 })}
 
 Clickbait signals to check for:
 - Withholding key information to force a click ("You won't believe what happened next")
@@ -45,8 +49,8 @@ Return a JSON object with these keys:
       // Invert: high score = trustworthy headline, consistent with the other factors
       score: Math.round((10 - clickbaitScore) * 10) / 10,
       isClickbait: clickbaitScore >= 5,
-      signals: Array.isArray(result.signals) ? result.signals.map(String) : [],
-      explanation: String(result.explanation || 'No explanation provided.'),
+      signals: clipList(result.signals, 7, 120),
+      explanation: clip(result.explanation, 500) || 'No explanation provided.',
       method: 'model'
     };
   } catch (err) {

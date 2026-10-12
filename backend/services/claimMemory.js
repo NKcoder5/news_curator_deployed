@@ -68,6 +68,63 @@ const evidenceSnapshot = (report) => {
   return out.slice(0, 40);
 };
 
+// When to look again at a claim that could not be settled: 6 hours after it
+// was checked, then 24, then 72 (services/recheckScheduler.js runs them).
+const RECHECK_HOURS = [6, 24, 72];
+
+/**
+ * Book, advance or clear a record's next re-check after a check of it.
+ * Only claims readers checked are booked; a settled verdict clears the booking.
+ */
+const bookRecheck = (record, call, trigger, now = Date.now()) => {
+  if (record.origin !== 'user') return;
+  const rc = record.recheck || {};
+  const attempts = rc.attempts || 0;
+  if (call !== 'CANNOT VERIFY') {
+    record.recheck = { due: null, stage: rc.stage || 0, attempts };
+  } else if (trigger === 'recheck') {
+    const stage = (rc.stage || 0) + 1;
+    record.recheck = { due: stage < RECHECK_HOURS.length ? new Date(now + RECHECK_HOURS[stage] * 3600000) : null, stage, attempts };
+  } else if (!rc.due) {
+    // A reader asking again restarts the schedule: the claim is still about.
+    record.recheck = { due: new Date(now + RECHECK_HOURS[0] * 3600000), stage: 0, attempts };
+  }
+};
+
+const listNames = (names) => (names.length <= 1 ? names.join('')
+  : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`);
+
+/**
+ * Why a verdict changed, from the difference between the evidence then and
+ * now: who newly reports it, who newly contradicts it, which fact-checker
+ * newly ruled, which earlier sources are gone. When the evidence is the same,
+ * says so — the rules changed, or only the evidence's age did.
+ */
+const describeChange = ({ prevCall, call, prevEvidence = [], evidence = [], prevEngine = null, trigger = 'user' }) => {
+  const key = (e) => `${e.channel}|${e.side}|${String(e.source || '').toLowerCase()}`;
+  const before = new Set(prevEvidence.map(key));
+  const after = new Set(evidence.map(key));
+  const added = evidence.filter(e => !before.has(key(e)));
+  const gone = prevEvidence.filter(e => !after.has(key(e)));
+  const names = (list) => [...new Set(list.map(e => e.source).filter(Boolean))];
+  const some = (list) => listNames(list.slice(0, 3)) + (list.length > 3 ? ` and ${list.length - 3} more` : '');
+  const parts = [];
+  const rulings = names(added.filter(e => e.channel === 'factcheck'));
+  if (rulings.length) parts.push(`${some(rulings)} ${rulings.length === 1 ? 'has' : 'have'} ruled on it`);
+  const confirming = names(added.filter(e => e.channel !== 'factcheck' && e.side === 'for'));
+  if (confirming.length) parts.push(`${confirming.length} new ${confirming.length === 1 ? 'source confirms' : 'sources confirm'} it (${some(confirming)})`);
+  const against = names(added.filter(e => e.channel !== 'factcheck' && e.side === 'against'));
+  if (against.length) parts.push(`${against.length} new ${against.length === 1 ? 'source reports' : 'sources report'} otherwise (${some(against)})`);
+  const lost = names(gone);
+  if (lost.length) parts.push(`${lost.length} earlier ${lost.length === 1 ? 'source is' : 'sources are'} no longer found (${some(lost)})`);
+  if (!parts.length) {
+    parts.push(prevEngine && prevEngine !== ENGINE_VERSION
+      ? 'the evidence is the same; the rules that weigh it have been updated since'
+      : 'the evidence is the same; only its age has changed');
+  }
+  return `Verdict changed from ${prevCall} to ${call}${trigger === 'recheck' ? ' on an automatic re-check' : ''}: ${parts.join('; ')}.`;
+};
+
 /**
  * The record a claim belongs to: the same claim if one is known (by exact
  * signature, or by comparison with records sharing a name), otherwise a new
@@ -114,7 +171,7 @@ const fileClaim = async (claimText, signature, { origin, subject }) => {
  *   the page ("checked before", "a variant of …"), or null when the database is
  *   not connected (tests, evaluation scripts) or there was nothing to store.
  */
-const recordCheck = async ({ report, understanding = null, ledgerInput, modelCalls = [], messageText = '', trigger = 'user', modality = 'text' }) => {
+const recordCheck = async ({ report, understanding = null, ledgerInput, modelCalls = [], messageText = '', trigger = 'user', modality = 'text', recheckOf = null }) => {
   if (!connected() || !ledgerInput || !(ledgerInput.claims || []).length) return null;
 
   const now = new Date();
@@ -124,11 +181,17 @@ const recordCheck = async ({ report, understanding = null, ledgerInput, modelCal
   const subjectFor = (claim) => (understanding?.claims || []).find(c => c.claim === claim)?.subject
     || (understanding?.checkableClaims || []).find(c => c.claim === claim)?.subject || null;
 
+  // A re-check is filed under the record it was run for, whatever wording
+  // the claim comes back in, so the record's history does not fork.
+  const recheckRecord = recheckOf && mongoose.isValidObjectId(recheckOf) ? await ClaimRecord.findById(recheckOf) : null;
+
   const filed = [];
-  for (const c of ledgerInput.claims) {
+  for (const [index, c] of ledgerInput.claims.entries()) {
     const signature = signatureOf(c.claim);
-    if (!signature.entities.length && !signature.numbers.length) continue;   // names nothing; not filed
-    const { record, created, variants } = await fileClaim(c.claim, signature, { origin, subject: subjectFor(c.claim) });
+    if (!signature.entities.length && !signature.numbers.length && !(index === 0 && recheckRecord)) continue;   // names nothing; not filed
+    const { record, created, variants } = index === 0 && recheckRecord
+      ? { record: recheckRecord, created: false, variants: [] }
+      : await fileClaim(c.claim, signature, { origin: trigger === 'recheck' ? 'recheck' : origin, subject: subjectFor(c.claim) });
     const status = statusOf(perClaimReport.find(x => x.claim === c.claim));
     const call = single ? report.call : STATUS_CALL[status];
     const previous = !created && record.current?.assessmentId
@@ -139,11 +202,17 @@ const recordCheck = async ({ report, understanding = null, ledgerInput, modelCal
   if (!filed.length) return null;
 
   // A verdict that differs from the last one on the same claim says what
-  // changed. Day-one version: the change itself; the evidence diff follows.
+  // changed, from the difference between the evidence then and now.
   const lead = filed[0];
-  const changeReason = single && lead.previous && lead.previous.call !== lead.call
-    ? `Verdict changed from ${lead.previous.call} to ${lead.call}.`
-    : null;
+  const evidence = evidenceSnapshot(report);
+  let changeReason = null;
+  if (single && lead.previous && lead.previous.call !== lead.call) {
+    const prev = await ClaimAssessment.findById(lead.previous.assessmentId).select('evidence versions').lean();
+    changeReason = describeChange({
+      prevCall: lead.previous.call, call: lead.call, trigger,
+      prevEvidence: prev?.evidence || [], evidence, prevEngine: prev?.versions?.engine || null
+    });
+  }
 
   // Records must exist before the assessment can point at them.
   for (const f of filed) if (f.created) await f.record.save();
@@ -166,7 +235,7 @@ const recordCheck = async ({ report, understanding = null, ledgerInput, modelCal
       return { claimId: f.record._id, claim: f.claim, status: f.status, call: f.call,
         independentSupport: entry.independentSupport || 0, independentContradiction: entry.independentContradiction || 0 };
     }),
-    evidence: evidenceSnapshot(report),
+    evidence,
     ledgerInput,
     versions: { schema: report.schemaVersion, engine: ENGINE_VERSION, routing: routingVersion(), models: modelCalls.slice(0, 60) },
     supersedes: single && lead.previous ? lead.previous.assessmentId : undefined,
@@ -183,6 +252,7 @@ const recordCheck = async ({ report, understanding = null, ledgerInput, modelCal
     if (subject && !r.subjects.includes(subject)) r.subjects.push(subject);
     r.current = { call: f.call, status: f.status, rule: single ? report.decision?.rule : 'per-claim',
       oneLine: single ? report.oneLine : null, at: now, assessmentId: assessment._id };
+    bookRecheck(r, f.call, trigger, now.getTime());
     for (const v of f.variants) {
       if (!r.variants.some(x => String(x.claimId) === String(v.record._id))) {
         r.variants.push({ claimId: v.record._id, claim: v.record.claim, differences: v.differences, at: now });
@@ -205,6 +275,7 @@ const recordCheck = async ({ report, understanding = null, ledgerInput, modelCal
       timesSeen: f.record.timesSeen,
       firstSeenAt: f.record.firstSeenAt,
       previous: f.previous ? { call: f.previous.call, oneLine: f.previous.oneLine, at: f.previous.at } : null,
+      recheckDue: f.record.recheck?.due || null,
       variants: f.variants.map(v => ({
         claimId: String(v.record._id), claim: v.record.claim, differences: v.differences,
         call: v.record.current?.call || null, at: v.record.current?.at || null
@@ -228,4 +299,47 @@ const replayAssessment = (doc) => {
   };
 };
 
-module.exports = { recordCheck, replayAssessment, evidenceSnapshot, fingerprint, ENGINE_VERSION };
+/**
+ * A claim's record and every verdict reached on it, oldest first, for the
+ * page's timeline. Holds claims and verdicts only: no message, no reader.
+ * @returns {Promise<Object|null>} null when unknown or the database is down
+ */
+const claimHistory = async (id) => {
+  if (!connected() || !mongoose.isValidObjectId(id)) return null;
+  const record = await ClaimRecord.findById(id).lean();
+  if (!record) return null;
+  const assessments = await ClaimAssessment.find({ claimIds: record._id })
+    .sort({ createdAt: 1 }).limit(100)
+    .select('createdAt trigger call rule oneLine perClaim changeReason evidence').lean();
+  return {
+    claimId: String(record._id),
+    claim: record.claim,
+    firstSeenAt: record.firstSeenAt,
+    lastSeenAt: record.lastSeenAt,
+    timesSeen: record.timesSeen,
+    languages: record.languages || [],
+    current: record.current ? { call: record.current.call, oneLine: record.current.oneLine, at: record.current.at } : null,
+    recheck: { due: record.recheck?.due || null, stage: record.recheck?.stage || 0, of: RECHECK_HOURS.length },
+    variants: (record.variants || []).map(v => ({ claimId: String(v.claimId), claim: v.claim, differences: v.differences })),
+    history: assessments.map(a => {
+      const own = (a.perClaim || []).find(c => String(c.claimId) === String(record._id));
+      const ev = a.evidence || [];
+      return {
+        assessmentId: String(a._id),
+        at: a.createdAt,
+        trigger: a.trigger,
+        call: own?.call || a.call,
+        rule: a.rule,
+        oneLine: (a.perClaim || []).length > 1 ? null : a.oneLine,
+        changeReason: a.changeReason || null,
+        evidence: {
+          for: ev.filter(e => e.side === 'for' && e.channel !== 'factcheck').length,
+          against: ev.filter(e => e.side === 'against' && e.channel !== 'factcheck').length,
+          rulings: ev.filter(e => e.channel === 'factcheck').length
+        }
+      };
+    })
+  };
+};
+
+module.exports = { recordCheck, replayAssessment, evidenceSnapshot, fingerprint, claimHistory, describeChange, bookRecheck, ENGINE_VERSION, RECHECK_HOURS };

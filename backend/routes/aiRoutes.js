@@ -275,6 +275,21 @@ router.post('/analyze-content', async (req, res) => {
   }
 });
 
+// A claim's record: every verdict reached on it, oldest first, what changed
+// each time, and when it will next be looked at. Claims and verdicts only —
+// no reader's message and no reader is stored (services/claimMemory.js).
+const { claimHistory } = require('../services/claimMemory');
+
+router.get('/claims/:id', async (req, res) => {
+  try {
+    const history = await claimHistory(req.params.id);
+    if (!history) return res.status(404).json({ error: 'No record of that claim.' });
+    res.json(history);
+  } catch (err) {
+    res.status(500).json({ error: 'Could not read the claim record.' });
+  }
+});
+
 // What a plain language model says about the same text, with nothing to read.
 // Shown beside the verdict on request, so the difference evidence makes is
 // visible rather than asserted. See agents/plainModelBaseline.js.

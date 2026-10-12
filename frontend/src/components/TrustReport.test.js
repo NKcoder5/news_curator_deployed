@@ -1,5 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import TrustReport from './TrustReport';
+import api from '../services/api';
+
+// The claim record fetches a claim's history on request.
+jest.mock('../services/api');
 
 // A fabricated story, scored the way the pipeline actually scores one: the
 // writing checks accuse it, nothing corroborates it, and the three bookkeeping
@@ -148,4 +152,33 @@ test('what decided it: the evidence the verdict depends on, and what would chang
   expect(region).toHaveTextContent(/Without the outlets reporting otherwise, the answer would be CANNOT VERIFY/);
   expect(region).toHaveTextContent(/Without the encyclopedia entry, it would still be FAKE/);
   expect(region).toHaveTextContent(/4 more independent outlets confirming it → REAL/);
+});
+
+test('an unsettled claim says when it will be looked at again, and its history opens on request', async () => {
+  api.get.mockResolvedValue({
+    data: {
+      claimId: 'c9', claim: 'Velmurugan Sweets opened a second branch in Erode.',
+      history: [
+        { assessmentId: 'a1', at: '2026-10-12T04:00:00Z', trigger: 'user', call: 'CANNOT VERIFY', evidence: { for: 0, against: 0, rulings: 0 }, changeReason: null },
+        { assessmentId: 'a2', at: '2026-10-12T10:00:00Z', trigger: 'recheck', call: 'REAL', evidence: { for: 2, against: 0, rulings: 0 },
+          changeReason: 'Verdict changed from CANNOT VERIFY to REAL on an automatic re-check: 2 new sources confirm it (The Hindu and NDTV).' }
+      ]
+    }
+  });
+  const report = {
+    ...debunked,
+    call: 'CANNOT VERIFY',
+    memory: {
+      assessmentId: 'a3', changeReason: null,
+      claims: [{ claimId: 'c9', claim: 'Velmurugan Sweets opened a second branch in Erode.', timesSeen: 2,
+        firstSeenAt: '2026-10-12T04:00:00Z', previous: null, recheckDue: '2026-10-13T10:00:00Z', variants: [] }]
+    }
+  };
+  render(<TrustReport report={report} evidenceFirst />);
+  expect(screen.getByText(/checked again automatically/i)).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: /show every verdict/i }));
+  expect(api.get).toHaveBeenCalledWith('/ai/claims/c9');
+  const list = await screen.findByRole('list', { name: 'Verdict history' });
+  expect(list).toHaveTextContent(/Re-checked automatically → REAL/);
+  expect(list).toHaveTextContent(/2 new sources confirm it \(The Hindu and NDTV\)/);
 });

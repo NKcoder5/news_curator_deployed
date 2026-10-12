@@ -44,7 +44,7 @@ class ContentCheckError extends Error {
  */
 const runContentCheck = (requestBody, hooks = {}) => runWithContext(() => checkContent(requestBody, hooks));
 
-const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user' } = {}) => {
+const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user', recheckOf = null } = {}) => {
   const { url, text, imageBase64, account, languageHint } = requestBody || {};
   const stage = (event) => { try { onStage?.(event); } catch (_) { /* listener faults never fail a check */ } };
 
@@ -195,7 +195,7 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user' 
       memory = await recordCheck({
         report, understanding, ledgerInput,
         modelCalls: currentContext()?.calls || [],
-        messageText: ingested.content, trigger, modality: ingested.modality || 'text'
+        messageText: ingested.content, trigger, recheckOf, modality: ingested.modality || 'text'
       });
     } catch (err) {
       console.warn('Claim memory: could not record this check:', err.message);

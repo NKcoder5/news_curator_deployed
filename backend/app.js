@@ -58,6 +58,9 @@ app.use(bodyParser.json({ limit: '12mb' }));
 // Database
 connectDB().then(() => {
   console.log('Models initialized');
+  // Claims that came back CANNOT VERIFY are looked at again after 6, 24 and
+  // 72 hours, within a daily cap (services/recheckScheduler.js).
+  require('./services/recheckScheduler').startRecheckScheduler();
 }).catch(err => {
   console.error('Failed to initialize models:', err);
 });

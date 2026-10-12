@@ -7,7 +7,14 @@
  * a figure, a date or its polarity changed, the earlier version is shown with
  * the difference spelled out. That is how a rumour that mutates as it spreads
  * ("85 medals" becoming "84 medals") is made visible.
+ *
+ * A claim nothing settles yet is looked at again automatically, and its
+ * history — every verdict reached on it and what changed each time — is one
+ * click away.
  */
+import { useState } from 'react';
+import api from '../services/api';
+
 const formatWhen = (iso) => {
   if (!iso) return '';
   const d = new Date(iso);
@@ -17,9 +24,54 @@ const formatWhen = (iso) => {
 
 const CALL_CLASS = { FAKE: 'against', 'PARTLY FALSE': 'against', REAL: 'for', 'CANNOT VERIFY': 'none' };
 
+const TRIGGER_LABEL = { user: 'Checked', recheck: 'Re-checked automatically', eval: 'Test run' };
+
+/** Every verdict reached on one claim, oldest first, fetched on request. */
+const ClaimHistory = ({ claimId }) => {
+  const [state, setState] = useState({ open: false, loading: false, data: null, error: null });
+
+  const toggle = async () => {
+    if (state.open) return setState((s) => ({ ...s, open: false }));
+    if (state.data) return setState((s) => ({ ...s, open: true }));
+    setState({ open: true, loading: true, data: null, error: null });
+    try {
+      const response = await api.get(`/ai/claims/${claimId}`);
+      setState({ open: true, loading: false, data: response.data, error: null });
+    } catch (err) {
+      setState({ open: true, loading: false, data: null, error: 'The history could not be loaded.' });
+    }
+  };
+
+  return (
+    <div className="claim-history">
+      <button type="button" className="claim-history-toggle" onClick={toggle} aria-expanded={state.open}>
+        {state.open ? 'Hide the history' : 'Show every verdict on this claim'}
+      </button>
+      {state.open && state.loading && <p className="claim-record-note">Loading…</p>}
+      {state.open && state.error && <p className="claim-record-note">{state.error}</p>}
+      {state.open && state.data && (
+        <ol className="claim-history-list" aria-label="Verdict history">
+          {state.data.history.map((h) => (
+            <li key={h.assessmentId}>
+              <span className="claim-history-when">{formatWhen(h.at)}</span>{' '}
+              <span className="claim-history-how">{TRIGGER_LABEL[h.trigger] || 'Checked'}</span>{' '}
+              → <span className={`claim-record-call call-${CALL_CLASS[h.call] || 'none'}`}>{h.call}</span>
+              <span className="claim-history-evidence">
+                {' '}({h.evidence.for} for, {h.evidence.against} against{h.evidence.rulings ? `, ${h.evidence.rulings} fact-check ${h.evidence.rulings === 1 ? 'ruling' : 'rulings'}` : ''})
+              </span>
+              {h.changeReason && <div className="claim-history-change">{h.changeReason}</div>}
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+};
+
 const ClaimRecord = ({ memory, call }) => {
   if (!memory || !Array.isArray(memory.claims) || memory.claims.length === 0) return null;
   const anyHistory = memory.claims.some((c) => c.timesSeen > 1 || c.variants.length > 0);
+  const recheckDue = memory.claims.map((c) => c.recheckDue).filter(Boolean).sort()[0] || null;
 
   return (
     <section className="claim-record" aria-label="Claim record">
@@ -47,6 +99,7 @@ const ClaimRecord = ({ memory, call }) => {
               )}
             </p>
           )}
+          {c.timesSeen > 1 && <ClaimHistory claimId={c.claimId} />}
           {c.variants.map((v) => (
             <p key={v.claimId} className="claim-record-line claim-record-variant">
               <span className="claim-record-tag">Variant checked before</span>{' '}
@@ -62,6 +115,12 @@ const ClaimRecord = ({ memory, call }) => {
         </div>
       ))}
       {memory.changeReason && <p className="claim-record-change">{memory.changeReason}</p>}
+      {recheckDue && (
+        <p className="claim-record-note claim-record-recheck">
+          Nothing settles this yet. It will be checked again automatically around {formatWhen(recheckDue)}, and again
+          over the next three days; any change, and what caused it, will be on this record.
+        </p>
+      )}
     </section>
   );
 };

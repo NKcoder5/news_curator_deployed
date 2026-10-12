@@ -41,3 +41,7 @@ backend/eval/results/
 # tesseract.js downloads these on first use (a few MB each) and caches them
 # beside the process. Regenerable, so not tracked.
 *.traineddata
+
+# === Local Claude Code state (worktrees, machine settings) ===
+.claude/worktrees/
+.claude/settings.local.json

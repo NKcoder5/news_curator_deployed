@@ -2,8 +2,12 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "app.js",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "test": "node --test test/*.test.js",
+    "test:ci": "node --require ./test/support/offline.js --test test/*.test.js",
     "start": "node app.js",
     "dev": "node --watch app.js",
     "prewarm": "node scripts/prewarmTrustCache.js"

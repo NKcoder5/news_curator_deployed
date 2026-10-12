@@ -15,8 +15,11 @@ const path = require('node:path');
 // The policy lives in the route module, which pulls in a database connection,
 // so the predicate is read out of the source and exercised directly. It is a
 // pure function of the report.
-// Line endings are normalised: a Windows checkout (core.autocrlf) has CRLF,
-// and the marker below is written with a bare newline.
+//
+// Line endings are normalised first. Measured on a Windows checkout with
+// core.autocrlf, the file arrives with CRLF, the "\n" in the end marker below
+// matched nothing, the slice ran to the end of the file and the whole test
+// file died with "router is not defined" before running a single case.
 const source = fs.readFileSync(path.join(__dirname, '..', 'routes', 'aiRoutes.js'), 'utf8').replace(/\r\n/g, '\n');
 const body = source.slice(source.indexOf('const isCompleteReport'), source.indexOf('/**\n * Store a report'));
 // eslint-disable-next-line no-new-func

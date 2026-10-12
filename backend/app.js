@@ -75,6 +75,7 @@ app.use('/api/auth', authRoutes); // New
 app.use('/api/tracking', trackingRoutes);
 app.use('/api/article-history', articleHistoryRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/claims', require('./routes/claimRoutes')); // public, read-only registry
 
 // Health Check
 app.get('/health', (req, res) => {

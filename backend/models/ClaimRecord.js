@@ -53,4 +53,10 @@ const claimRecordSchema = new mongoose.Schema({
   origin: { type: String, default: 'user' }
 });
 
+// The public registry (services/claimRegistry.js) lists claims newest-checked
+// first or most-checked first and pages by position in that order; without
+// these it would sort the whole collection for every page.
+claimRecordSchema.index({ lastSeenAt: -1 });
+claimRecordSchema.index({ timesSeen: -1, lastSeenAt: -1 });
+
 module.exports = mongoose.model('ClaimRecord', claimRecordSchema);

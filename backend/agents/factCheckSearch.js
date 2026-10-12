@@ -31,7 +31,7 @@
 const axios = require('axios');
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { searchGoogleNews, cached, withRetry } = require('../utils/newsFetcher');
-const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip, numberedItems } = require('../utils/untrusted');
+const { UNTRUSTED_NOTICE, fence, addressesModel, asBool, oneOf, clip, numberedItems } = require('../utils/untrusted');
 const { signatureOf } = require('../services/claimSignature');
 
 const FINDINGS = new Set(['false', 'true', 'misleading']);
@@ -312,6 +312,8 @@ const checkFactCheckers = async (claims = [], { title = '', text = '' } = {}) =>
   const take = (item) => {
     const key = item.url || `${item.publisher}|${item.claimReviewed}`;
     if (!key || seen.has(key)) return;
+    // A review whose text tells the matcher what to answer is not a review.
+    if (addressesModel(`${item.claimReviewed} ${item.title || ''} ${item.rating || ''}`)) return;
     seen.add(key);
     pooled.push(item);
   };

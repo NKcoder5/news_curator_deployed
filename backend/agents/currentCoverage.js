@@ -27,7 +27,7 @@
 // event going unmentioned in twenty headlines means nothing at all.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { searchGoogleNews } = require('../utils/newsFetcher');
-const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip, numberedItems } = require('../utils/untrusted');
+const { UNTRUSTED_NOTICE, fence, addressesModel, asBool, oneOf, clip, numberedItems } = require('../utils/untrusted');
 
 const CLAIMED_WHEN = new Set(['this_week', 'earlier', 'future', 'ongoing', 'unclear']);
 
@@ -125,7 +125,9 @@ const checkCurrentCoverage = async (claims = []) => {
       headlines.push(h);
     }
   }
-  headlines = headlines.slice(0, MAX_HEADLINES + 8);
+  // A headline that tells the model what to answer is not reporting, and is
+  // not read (utils/untrusted.js).
+  headlines = headlines.filter(h => !addressesModel(h.title)).slice(0, MAX_HEADLINES + 8);
   const subject = subjects.filter((s, i) => lists[i].length > 0).join(' and ') || subjects[0];
 
   const outlets = new Set(headlines.map(h => h.source.toLowerCase()));

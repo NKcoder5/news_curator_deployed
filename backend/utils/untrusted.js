@@ -135,8 +135,13 @@ const LEET = { 0: 'o', 1: 'i', 3: 'e', 4: 'a', 5: 's', 7: 't', '@': 'a', $: 's',
 
 const PHRASES = [
   ['ignore-instructions', /\b(?:ignore|disregard|forget|override|bypass|skip)\b[^.\n]{0,40}\b(?:previous|above|prior|earlier|preceding|foregoing|all|your|the|these|those|any)\b[^.\n]{0,25}\b(?:instructions?|prompts?|rules?|directions?|guidelines?|context|system|everything)\b/],
+  // "Ignore the above" on its own, but not "ignore the previous message",
+  // which is how an ordinary forward corrects itself.
+  ['ignore-instructions', /\b(?:ignore|disregard)\s+(?:all\s+|everything\s+)?(?:the\s+|of\s+the\s+)?(?:above|previous|prior|preceding|earlier)\b(?!\s+(?:messages?|forwards?|posts?|news|rumou?rs?|reports?|videos?|claims?|one))/],
   ['new-instructions', /\b(?:new|updated|real|actual|revised|secret|hidden)\s+(?:instructions?|prompt|task|rules?)\s*[:：-]/],
-  ['role-label', /(?:^|\n|[.!?]\s|\s)(?:system|assistant|developer)\s*[:：]/],
+  ['addressed-to-model', /\b(?:note|message|instructions?|reminder)\s+(?:to|for)\s+(?:the\s+)?(?:fact[\s-]?check\s+)?(?:ai|model|llm|assistant|chatbot|bot|fact[\s-]?checker|matcher|checker|system|classifier)\b|\[\s*(?:ai|assistant|model|llm|system)\b[^\]]{0,30}[:：]/],
+  ['role-label', /(?:^|\n|[.!?]\s|\s)(?:system|assistant|developer)\s*[:：]|#{1,6}\s*(?:instructions?|system|response)\s*[:：]/],
+  ['dictated-field', /\bset\s+(?:the\s+)?(?:stance|verdict|user_text_is|same_event|same_claim|supports|contradicts|both_can_be_true|speech_act|checkable)\b|\breturn\s+no\s+claims\b|\b(?:call|mark|label|classify)\s+(?:it|this)\s+(?:as\s+)?an?\s+opinion\b|\b(?:reply|respond|answer)\s+only\s+with\b/],
   ['template-token', /<\|[^|>]{0,40}\|>|\[\/?inst\]|<<\/?sys>>|<\/?(?:system|assistant|start_of_turn)>/],
   ['impersonation', /\byou\s+are\s+(?:now|no longer)\b|\bact\s+as\s+(?:a|an|the)\b|\bpretend\s+(?:to be|you are)\b|\bdeveloper\s+mode\b|\bjailbreak/],
   ['dictated-output', /\b(?:respond|reply|answer|output|return|print|say|write)\s+(?:only\s+)?(?:with\s+)?(?:the\s+(?:word|json)|json|exactly|verbatim)\b|"(?:stance|verdict|same_claim|user_text_is|contradicts|claims|speech_act|checkable|text|items)"\s*:/],
@@ -177,6 +182,19 @@ const looksLikeInjection = (text) => {
   for (const [name, pattern] of SQUASHED) if (pattern.test(squashed)) signals.add(name);
   return { suspicious: signals.size > 0, signals: [...signals] };
 };
+
+/**
+ * Is this retrieved text talking to the model rather than reporting?
+ *
+ * A headline, a fact-check title or a page that tells "the AI" what to
+ * answer is not journalism, and it is set aside as evidence before any model
+ * reads it: the fence asks the model not to obey, this makes obeying
+ * impossible. A role word on its own does not count ("Health system: what
+ * changes from April" is a real headline); with anything else it does.
+ * Never applied to the reader's own message, where a correction like "ignore
+ * the previous message" is ordinary.
+ */
+const addressesModel = (text) => looksLikeInjection(text).signals.some(s => s !== 'role-label');
 
 /* ---------------------------------------------------------------------------
    Reading a model's reply
@@ -243,6 +261,7 @@ module.exports = {
   fence,
   neutralise,
   looksLikeInjection,
+  addressesModel,
   asBool,
   oneOf,
   clip,

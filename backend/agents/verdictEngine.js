@@ -142,6 +142,10 @@ const HIGH_IMPACT_PATTERNS = [
 /** How old the newest confirming report may be before "now" reads as old news. */
 const STALE_AFTER_DAYS = 21;
 
+// Words that make a headline a report OF a debunk, not a report of the claim:
+// "Video of Army chief dancing is AI-generated" mentions the claim and refutes it.
+const DEBUNK_WORDS = /\b(?:fake|false|falsely|hoax|morphed|doctored|edited|deep\s?fake|ai[\s-]generated|ai[\s-]manipulated|fact[\s-]?check|misleading|debunk\w*|not true|baseless|rumou?r|viral claim|old video|old photo)\b/i;
+
 const looksHighImpact = (text) => HIGH_IMPACT_PATTERNS.some(pattern => pattern.test(String(text || '')));
 
 /**
@@ -311,6 +315,14 @@ const buildEvidenceLedger = ({
     presupposingFalse: currentCoverageResult?.presupposingFalse || [],
     independentSupport,
     independentContradiction,
+    // Support that could overtake a fact-check ruling: outlets reporting the
+    // claim as fact, with the headlines that report the debunk itself removed.
+    // Measured: on the Army-chief deepfake, eleven outlets reporting "the video
+    // is AI-generated" were judged as supporting the claim, and the ruling of
+    // seven fact-checkers was set aside as overtaken.
+    supportBeyondDebunks: Math.max(0, ...perClaim.map(c => analyseIndependence(
+      (claims.find(x => x.claim === c.claim)?.supportingEvidence || []).filter(e => !DEBUNK_WORDS.test(`${e.title || ''} ${e.reported || ''}`))
+    ).independentCount)),
     // The contradicted claim's conflicting facts, as the outlets worded them.
     reportedAgainst: (perClaim.reduce(
       (most, c) => (c.independentContradiction > (most?.independentContradiction ?? 0) ? c : most), null
@@ -396,8 +408,8 @@ const decideVerdict = (ledger) => {
   // March can come true in June, and two or more independent outlets now
   // reporting it as fact is a disagreement the reader should see rather than
   // one this code should settle by picking a side.
-  const factCheckOvertaken = ledger.independentSupport >= 2
-    && ledger.independentSupport > ledger.independentContradiction;
+  const factCheckOvertaken = ledger.supportBeyondDebunks >= 2
+    && ledger.supportBeyondDebunks > ledger.independentContradiction;
   const describeReview = (m) => {
     const when = m.reviewedAt ? ` on ${m.reviewedAt}` : '';
     // Found through the news search: a headline, not a structured ruling.

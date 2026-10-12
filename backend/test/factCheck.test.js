@@ -125,3 +125,21 @@ test('a ruling enters the probability; the absence of one does not', () => {
   assert.strictEqual(weighFactCheck({ status: 'none' }), null);
   assert.strictEqual(weighFactCheck(null), null);
 });
+
+test('outlets reporting the debunk do not count as reporting that overtakes the ruling', () => {
+  const debunkHeadline = (source, title) => ({ source, title, description: '', url: `https://${source.replace(/\s/g, '')}.test/x`, reliability: 8, publishedAt: '2026-10-07T08:00:00Z' });
+  const decision = decideVerdict(ledgerFor({
+    claims: [{
+      claim: 'A video shows the Army chief dancing with a major\'s wife.', verdict: 'supported',
+      supportingEvidence: [
+        debunkHeadline('NDTV', 'Video of Army chief dancing with major\'s wife is AI-generated'),
+        debunkHeadline('India Today', 'Fact Check: viral video of Army chief dancing is a deepfake'),
+        debunkHeadline('The Hindu', 'Army chief dance video morphed, says PIB')
+      ],
+      contradictingEvidence: []
+    }],
+    factCheckResult: { status: 'debunked', matches: [review('AFP Fact Check'), review('PTI')] }
+  }));
+  assert.strictEqual(decision.rule, 'rated-false-by-fact-checkers');
+  assert.strictEqual(decision.call, 'FAKE');
+});

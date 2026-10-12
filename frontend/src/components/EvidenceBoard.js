@@ -132,7 +132,11 @@ const NewsPanel = ({ report, decided }) => {
   const failed = /could not/i.test(verification?.standDownReason || '') || verification?.detail?.status === 'error';
   const status = failed ? 'unavailable' : against > 0 ? 'against' : support > 0 ? 'for' : 'none';
 
-  const summary = status === 'against'
+  // A message whose claims split: say both halves, not only the damning one.
+  const split = against > 0 && perClaim.some((c) => c.independentSupport > 0);
+  const summary = split
+    ? `One claim is confirmed by ${support} independent ${support === 1 ? 'outlet' : 'outlets'}; on another, ${against} ${against === 1 ? 'outlet reports' : 'outlets report'} something different.`
+    : status === 'against'
     ? `${against} independent ${against === 1 ? 'outlet reports' : 'outlets report'} something different from what this says.`
     : status === 'for'
       ? `${support} independent ${support === 1 ? 'outlet reports' : 'outlets report'} the same facts.`
@@ -146,9 +150,11 @@ const NewsPanel = ({ report, decided }) => {
         const contra = outletsFrom(claim.contradictingEvidence);
         const confirm = outletsFrom(claim.supportingEvidence);
         if (contra.length === 0 && confirm.length === 0) return null;
-        // The two shortest: "85 medals" says it, a whole headline buries it.
+        // Quotes carrying the figure first, then the shortest: "85 medals" and
+        // "raises repo rate by 25 basis points" say it; a whole headline buries it.
+        const hasFigure = (q) => (/\d/.test(q) ? 0 : 1);
         const quotes = [...new Set(contra.map((e) => e.reported).filter(Boolean))]
-          .sort((x, y) => x.length - y.length)
+          .sort((x, y) => hasFigure(x) - hasFigure(y) || x.length - y.length)
           .slice(0, 2)
           .map((q) => (q.length > 70 ? `${q.slice(0, 67)}…` : q));
         return (

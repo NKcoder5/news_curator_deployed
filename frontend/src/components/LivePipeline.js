@@ -75,7 +75,7 @@ const LivePipeline = ({ stage, understood, channels, finished, elapsedMs }) => {
                 {step.name}
                 {step.of && c && !done ? ` (${c.count} of ${step.of})` : ''}
               </span>
-              {done && c.ms ? <span className="pipeline-ms">{seconds(c.ms)}</span> : null}
+              {done && c.ms >= 100 ? <span className="pipeline-ms">{seconds(c.ms)}</span> : null}
               {done && c.summary && <span className="pipeline-summary">{c.summary}</span>}
             </li>
           );

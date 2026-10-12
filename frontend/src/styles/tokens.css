@@ -1,0 +1,278 @@
+/* ============================================================================
+   Pure Press — design tokens
+   ----------------------------------------------------------------------------
+   One source for colour, type, space, radius, elevation and motion. Components
+   read the semantic tokens (--color-fg, --color-surface, --verdict-fake-fg…),
+   never raw hex, so the dark theme is a second set of values and nothing else.
+
+   Contrast is measured, not eyeballed: every text pair below is at least
+   4.5:1 (WCAG AA) in both themes, control edges and the focus ring at least
+   3:1 (docs/engineering/2026-10-12-frontend-design.md has the table).
+
+   Theme selection: the reader's system setting by default; an explicit choice
+   from the header toggle is stored and written to <html data-theme>, which
+   wins over the system setting in either direction.
+   ========================================================================= */
+
+:root {
+  color-scheme: light;
+
+  /* --- Surfaces --------------------------------------------------------- */
+  --color-canvas: #f5f6f8;          /* the page behind everything */
+  --color-surface: #ffffff;         /* cards, inputs, the header */
+  --color-surface-sunken: #eef0f3;  /* wells, code, empty meters */
+  --color-surface-raised: #ffffff;  /* menus, popovers */
+  --color-overlay: rgba(15, 23, 42, 0.45);
+
+  /* --- Text ------------------------------------------------------------- */
+  --color-fg-strong: #0f172a;       /* headings */
+  --color-fg: #1e293b;              /* body copy */
+  --color-fg-muted: #475569;        /* secondary copy */
+  --color-fg-subtle: #5b6576;       /* captions, meta — still 5:1 on canvas */
+  --color-fg-on-accent: #ffffff;
+
+  /* --- Lines ------------------------------------------------------------ */
+  --color-border: #dde1e7;          /* dividers, card edges */
+  --color-border-strong: #b8c0cc;   /* emphasised dividers */
+  --color-border-control: #868f9e;  /* input edges: 3:1 against the surface */
+
+  /* --- Brand ------------------------------------------------------------ */
+  --color-accent: #1d4ed8;
+  --color-accent-hover: #1e40af;
+  --color-accent-soft: #e8eefc;
+  --color-focus: #1d4ed8;
+
+  /* --- Verdicts ----------------------------------------------------------
+     One hue per answer, used for the badge, the panel edge and the evidence
+     tag alike. Never colour alone: every verdict also carries an icon and
+     its word. */
+  --verdict-real-fg: #15692f;
+  --verdict-real-bg: #e6f4ea;
+  --verdict-real-border: #9fd0ae;
+  --verdict-real-solid: #167a37;
+
+  --verdict-fake-fg: #b42318;
+  --verdict-fake-bg: #fdecea;
+  --verdict-fake-border: #f1b0a9;
+  --verdict-fake-solid: #c42a1e;
+
+  --verdict-partly-fg: #a8430a;
+  --verdict-partly-bg: #fdeee2;
+  --verdict-partly-border: #f3c09c;
+  --verdict-partly-solid: #b8500f;
+
+  --verdict-misleading-fg: #8a5300;
+  --verdict-misleading-bg: #fdf3d7;
+  --verdict-misleading-border: #ecd08a;
+  --verdict-misleading-solid: #93590a;
+
+  --verdict-unknown-fg: #475569;
+  --verdict-unknown-bg: #edf0f4;
+  --verdict-unknown-border: #c6ced9;
+  --verdict-unknown-solid: #55637a;
+
+  --verdict-info-fg: #6a3fc1;
+  --verdict-info-bg: #f1ebfc;
+  --verdict-info-border: #cfbdf3;
+
+  /* --- Type ------------------------------------------------------------- */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans',
+    'Noto Sans Tamil', 'Noto Sans Devanagari', sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Consolas, monospace;
+
+  --text-xs: 0.75rem;     /* 12 — badges, overlines */
+  --text-sm: 0.875rem;    /* 14 — meta, controls */
+  --text-base: 1rem;      /* 16 — body */
+  --text-md: 1.125rem;    /* 18 — lead paragraphs */
+  --text-lg: 1.25rem;     /* 20 — card titles */
+  --text-xl: 1.5rem;      /* 24 — section titles */
+  --text-2xl: 1.875rem;   /* 30 — page titles on phones */
+  --text-3xl: 2.25rem;    /* 36 — page titles */
+  --text-4xl: 3rem;       /* 48 — the landing headline */
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* --- Space (4 px grid) ------------------------------------------------ */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --page-max: 1200px;
+  --page-gutter: clamp(1rem, 3vw, 2rem);
+  --measure: 68ch;        /* comfortable reading line */
+
+  /* --- Radius ----------------------------------------------------------- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+
+  /* --- Elevation -------------------------------------------------------- */
+  --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow-2: 0 2px 4px rgba(15, 23, 42, 0.06), 0 6px 16px rgba(15, 23, 42, 0.08);
+  --shadow-3: 0 12px 32px rgba(15, 23, 42, 0.16);
+
+  /* --- Motion ----------------------------------------------------------- */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* --- Layers ----------------------------------------------------------- */
+  --z-header: 100;
+  --z-menu: 200;
+  --z-toast: 300;
+}
+
+/* Dark values, applied for a dark system setting unless the reader chose
+   light, and always when they chose dark. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --color-canvas: #0b1018;
+    --color-surface: #121925;
+    --color-surface-sunken: #0e141e;
+    --color-surface-raised: #172133;
+    --color-overlay: rgba(0, 0, 0, 0.6);
+    --color-fg-strong: #f3f5f8;
+    --color-fg: #dfe4ea;
+    --color-fg-muted: #a9b3c1;
+    --color-fg-subtle: #929dad;
+    --color-fg-on-accent: #0b1018;
+    --color-border: #253042;
+    --color-border-strong: #3a4659;
+    --color-border-control: #66738a;
+    --color-accent: #86a8ff;
+    --color-accent-hover: #a8c0ff;
+    --color-accent-soft: #18233d;
+    --color-focus: #86a8ff;
+    --verdict-real-fg: #6fd59a;
+    --verdict-real-bg: #10291b;
+    --verdict-real-border: #24603d;
+    --verdict-real-solid: #6fd59a;
+    --verdict-fake-fg: #ff9488;
+    --verdict-fake-bg: #331513;
+    --verdict-fake-border: #7a2c25;
+    --verdict-fake-solid: #ff9488;
+    --verdict-partly-fg: #ffad73;
+    --verdict-partly-bg: #33200f;
+    --verdict-partly-border: #7a4720;
+    --verdict-partly-solid: #ffad73;
+    --verdict-misleading-fg: #f2c55c;
+    --verdict-misleading-bg: #2f260d;
+    --verdict-misleading-border: #6e5718;
+    --verdict-misleading-solid: #f2c55c;
+    --verdict-unknown-fg: #aab6c6;
+    --verdict-unknown-bg: #1b2331;
+    --verdict-unknown-border: #3a4659;
+    --verdict-unknown-solid: #aab6c6;
+    --verdict-info-fg: #c3a8ff;
+    --verdict-info-bg: #221a38;
+    --verdict-info-border: #4b3a7a;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.35);
+    --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.6);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-canvas: #0b1018;
+  --color-surface: #121925;
+  --color-surface-sunken: #0e141e;
+  --color-surface-raised: #172133;
+  --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-fg-strong: #f3f5f8;
+  --color-fg: #dfe4ea;
+  --color-fg-muted: #a9b3c1;
+  --color-fg-subtle: #929dad;
+  --color-fg-on-accent: #0b1018;
+  --color-border: #253042;
+  --color-border-strong: #3a4659;
+  --color-border-control: #66738a;
+  --color-accent: #86a8ff;
+  --color-accent-hover: #a8c0ff;
+  --color-accent-soft: #18233d;
+  --color-focus: #86a8ff;
+  --verdict-real-fg: #6fd59a;
+  --verdict-real-bg: #10291b;
+  --verdict-real-border: #24603d;
+  --verdict-real-solid: #6fd59a;
+  --verdict-fake-fg: #ff9488;
+  --verdict-fake-bg: #331513;
+  --verdict-fake-border: #7a2c25;
+  --verdict-fake-solid: #ff9488;
+  --verdict-partly-fg: #ffad73;
+  --verdict-partly-bg: #33200f;
+  --verdict-partly-border: #7a4720;
+  --verdict-partly-solid: #ffad73;
+  --verdict-misleading-fg: #f2c55c;
+  --verdict-misleading-bg: #2f260d;
+  --verdict-misleading-border: #6e5718;
+  --verdict-misleading-solid: #f2c55c;
+  --verdict-unknown-fg: #aab6c6;
+  --verdict-unknown-bg: #1b2331;
+  --verdict-unknown-border: #3a4659;
+  --verdict-unknown-solid: #aab6c6;
+  --verdict-info-fg: #c3a8ff;
+  --verdict-info-bg: #221a38;
+  --verdict-info-border: #4b3a7a;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.35);
+  --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* ---------------------------------------------------------------------------
+   Legacy names. Stylesheets written for the newsprint theme (and pages other
+   streams are adding) read these; they now resolve to the tokens above, so
+   they follow the theme instead of fixing a cream page inside a dark one.
+   ------------------------------------------------------------------------ */
+:root {
+  --ink: var(--color-fg-strong);
+  --ink-body: var(--color-fg);
+  --ink-soft: var(--color-fg-muted);
+  --ink-muted: var(--color-fg-subtle);
+  --paper: var(--color-surface);
+  --paper-card: var(--color-surface);
+  --paper-aged: var(--color-surface-sunken);
+  --paper-sunken: var(--color-surface-sunken);
+  --desk: var(--color-canvas);
+  --rule: var(--color-border);
+  --rule-strong: var(--color-border-strong);
+  --rule-heavy: var(--color-border-control);
+  --accent: var(--color-accent);
+  --accent-hover: var(--color-accent-hover);
+  --accent-soft: var(--color-accent-soft);
+  --press-red: var(--verdict-fake-fg);
+  --press-red-bright: var(--verdict-fake-solid);
+  --trust-high: var(--verdict-real-fg);
+  --trust-high-soft: var(--verdict-real-bg);
+  --trust-good: var(--verdict-real-fg);
+  --trust-good-soft: var(--verdict-real-bg);
+  --trust-caution: var(--verdict-misleading-fg);
+  --trust-caution-soft: var(--verdict-misleading-bg);
+  --trust-low: var(--verdict-fake-fg);
+  --trust-low-soft: var(--verdict-fake-bg);
+  --trust-unknown: var(--verdict-unknown-fg);
+  --trust-unknown-soft: var(--verdict-unknown-bg);
+  --headline-font: var(--font-sans);
+  --body-font: var(--font-sans);
+  --label-font: var(--font-sans);
+  --shadow-sm: var(--shadow-1);
+  --shadow-md: var(--shadow-2);
+  --shadow-lg: var(--shadow-3);
+}

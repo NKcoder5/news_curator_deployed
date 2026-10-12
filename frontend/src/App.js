@@ -11,6 +11,7 @@ import CheckPage from './pages/CheckPage';
 import Navbar from './components/Navbar';
 import api from './services/api';
 import { shouldClearSession } from './services/session';
+import './styles/tokens.css';
 import './styles/global.css';
 import './styles/newsprint.css';
 

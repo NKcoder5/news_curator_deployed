@@ -1,0 +1,2418 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Pure Press API",
+    "version": "1.0.0",
+    "summary": "Evidence-based checking of news and viral messages.",
+    "description": "The API behind Pure Press. Its centre is **Check Anything**: send a link, a pasted message or a screenshot and get back a call (REAL, FAKE, PARTLY FALSE, CANNOT VERIFY, NOT A FACTUAL CLAIM or SATIRE), the one-sentence reason, the rule that decided it, the evidence it rests on and what would change it.\n\nThe verdict is reached by fixed rules from recorded evidence (`backend/agents/verdictEngine.js`), not by a language model's opinion, so every field below that explains a verdict was computed from the same inputs the verdict was.\n\n**Authentication.** Accounts sign in with `POST /api/auth/login` and send the returned token as `Authorization: Bearer <token>`. Tokens last 24 hours. The analysis endpoints under `/api/ai` spend scarce news and model quota, so they need a signed-in reader (or, for the evaluation scripts, the `x-internal-key` header). The claims registry under `/api/claims` is public and read-only.\n\n**Errors** are JSON objects with an `error` message written for the reader; some carry a machine-readable `code` or extra fields, documented per operation.\n\n**Streaming.** `POST /api/ai/analyze-content/stream` and `POST /api/ai/trust-analysis/stream` answer with newline-delimited JSON (`application/x-ndjson`): one JSON object per line, each with a `type`. Read them with `fetch()` and a stream reader; `EventSource` cannot be used because the input is POSTed.\n\nOperations marked `x-pending-merge` are being added by another workstream and are documented ahead of their merge.",
+    "contact": {
+      "name": "Pure Press",
+      "url": "https://github.com/NKcoder5/news_curator_deployed"
+    }
+  },
+  "servers": [
+    { "url": "https://news-curator-deployed.onrender.com", "description": "Production (Render)" },
+    { "url": "http://localhost:5000", "description": "Local development" }
+  ],
+  "tags": [
+    { "name": "Check Anything", "description": "Check a link, a pasted message or a screenshot. The main flow." },
+    { "name": "Claims registry", "description": "Public, read-only record of every claim the system has checked, and how its verdict has changed." },
+    { "name": "Article analysis", "description": "Trust analysis, summaries and coverage comparison for a news article." },
+    { "name": "News", "description": "The news feed." },
+    { "name": "Accounts", "description": "Sign-up, sign-in and the reader's profile." },
+    { "name": "Reader activity", "description": "What a signed-in reader has opened and read, used to personalise the feed." },
+    { "name": "Operations", "description": "Liveness." }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Operations"],
+        "operationId": "getHealth",
+        "summary": "Liveness check",
+        "description": "Answers `200` as soon as the process is up. It does not touch the database, so it says the server is running, not that MongoDB is reachable. Used by Render and by the container health check.",
+        "responses": {
+          "200": {
+            "description": "The server is running.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status"],
+                  "properties": { "status": { "type": "string", "const": "OK" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/api/auth/signup": {
+      "post": {
+        "tags": ["Accounts"],
+        "operationId": "signup",
+        "summary": "Create an account",
+        "description": "The email is trimmed and lower-cased; the password needs at least 8 characters. The response signs the new reader in.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Credentials" } } }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SignupResponse" } } }
+          },
+          "400": {
+            "description": "The email is not valid, the password is too short, or the account already exists (`User already exists`).",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Accounts"],
+        "operationId": "login",
+        "summary": "Sign in",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Credentials" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "Signed in.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginResponse" } } }
+          },
+          "400": {
+            "description": "Email or password missing.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": {
+            "description": "Unknown email or wrong password (`Invalid credentials`; the two cases are not distinguished).",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+    "/api/auth/verify": {
+      "get": {
+        "tags": ["Accounts"],
+        "operationId": "verifyToken",
+        "summary": "Check that a token is still valid",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "The token is valid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["userId", "email", "interests"],
+                  "properties": {
+                    "userId": { "$ref": "#/components/schemas/ObjectId" },
+                    "email": { "type": "string", "format": "email" },
+                    "interests": { "type": "array", "items": { "type": "string" } }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+
+    "/api/users/profile": {
+      "get": {
+        "tags": ["Accounts"],
+        "operationId": "getProfile",
+        "summary": "The signed-in reader's profile",
+        "description": "`interests` are the reader's three strongest news categories, taken from what they have read.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "The profile.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Profile" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      },
+      "put": {
+        "tags": ["Accounts"],
+        "operationId": "updateProfile",
+        "summary": "Change the reader's display name",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": { "name": { "type": "string", "minLength": 1, "maxLength": 60 } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The name was saved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["success", "message", "user"],
+                  "properties": {
+                    "success": { "type": "boolean", "const": true },
+                    "message": { "type": "string" },
+                    "user": { "$ref": "#/components/schemas/Profile" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The name is empty or longer than 60 characters.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+
+    "/api/news": {
+      "get": {
+        "tags": ["News"],
+        "operationId": "getNews",
+        "summary": "Top headlines",
+        "description": "English-language headlines for a category. The feed is cached for 15 minutes per category. When NewsAPI refuses (daily quota of 100 requests, bad key, outage) the last good copy is served, then Google News top stories; the error below is returned only when none of that is available.",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "description": "News category.",
+            "schema": {
+              "type": "string",
+              "default": "general",
+              "examples": ["general", "business", "entertainment", "health", "science", "sports", "technology"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Headlines.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["articles"],
+                  "properties": { "articles": { "type": "array", "items": { "$ref": "#/components/schemas/NewsArticle" } } }
+                }
+              }
+            }
+          },
+          "429": { "$ref": "#/components/responses/NewsUnavailable" },
+          "500": { "$ref": "#/components/responses/NewsUnavailable" },
+          "502": { "$ref": "#/components/responses/NewsUnavailable" },
+          "503": { "$ref": "#/components/responses/NewsUnavailable" }
+        }
+      }
+    },
+    "/api/news/personalized": {
+      "get": {
+        "tags": ["News"],
+        "operationId": "getPersonalizedNews",
+        "summary": "Headlines for the reader's strongest interest",
+        "description": "Returns an empty list with an explanatory `message` when the reader has no recorded interests yet.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Headlines, or an empty list with a message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["articles", "message"],
+                  "properties": {
+                    "articles": { "type": "array", "items": { "$ref": "#/components/schemas/NewsArticle" } },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "429": { "$ref": "#/components/responses/NewsUnavailable" },
+          "500": { "$ref": "#/components/responses/NewsUnavailable" },
+          "502": { "$ref": "#/components/responses/NewsUnavailable" },
+          "503": { "$ref": "#/components/responses/NewsUnavailable" }
+        }
+      }
+    },
+
+    "/api/tracking/activity": {
+      "post": {
+        "tags": ["Reader activity"],
+        "operationId": "trackActivity",
+        "summary": "Record that the reader viewed, clicked or read an article",
+        "description": "A `read` or `category` activity in a category other than `general` raises the reader's interest score for that category.",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ActivityInput" } } }
+        },
+        "responses": {
+          "201": {
+            "description": "Recorded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["success", "activity"],
+                  "properties": {
+                    "success": { "type": "boolean", "const": true },
+                    "activity": { "$ref": "#/components/schemas/Activity" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`articleId`, `title` or `activityType` is missing.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      },
+      "get": {
+        "tags": ["Reader activity"],
+        "operationId": "getActivity",
+        "summary": "The reader's latest 50 activities",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Newest first.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "maxItems": 50, "items": { "$ref": "#/components/schemas/Activity" } }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+    "/api/article-history/track-view": {
+      "post": {
+        "tags": ["Reader activity"],
+        "operationId": "trackArticleView",
+        "summary": "Record that the reader opened an article",
+        "description": "Creates the history entry, or bumps `viewCount` and `lastViewed` if the reader has opened this `articleId` before.",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["articleId", "title", "source"],
+                "properties": {
+                  "articleId": { "type": "string", "description": "A stable id for the article, normally its URL." },
+                  "title": { "type": "string" },
+                  "source": { "type": "string" },
+                  "category": { "type": "string", "default": "general" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Recorded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["success", "data"],
+                  "properties": {
+                    "success": { "type": "boolean", "const": true },
+                    "data": { "$ref": "#/components/schemas/ArticleHistoryEntry" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/ServerFailure" }
+        }
+      }
+    },
+    "/api/article-history/history": {
+      "get": {
+        "tags": ["Reader activity"],
+        "operationId": "getArticleHistory",
+        "summary": "The reader's 20 most recently opened articles",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Newest first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["success", "data"],
+                  "properties": {
+                    "success": { "type": "boolean", "const": true },
+                    "data": { "type": "array", "maxItems": 20, "items": { "$ref": "#/components/schemas/ArticleHistoryEntry" } }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/ServerFailure" }
+        }
+      }
+    },
+
+    "/api/ai/analyze-content": {
+      "post": {
+        "tags": ["Check Anything"],
+        "operationId": "analyzeContent",
+        "summary": "Check a link, a message or a screenshot",
+        "description": "The main endpoint. Reads what was sent, works out what it claims (in English, Tamil, Hindi, Tanglish and other Indian languages), looks for evidence in parallel channels (news coverage, fact-checkers' rulings, this week's coverage, a Wikipedia premise check, the publisher), and reaches a call by fixed rules. A full check takes from a few seconds to about a minute; use `/api/ai/analyze-content/stream` to show progress.\n\nSend exactly one of `url`, `text` or `imageBase64`. If more than one is sent, `imageBase64` wins over `url`, which wins over `text`.\n\nMessages that assert nothing checkable (opinions, questions, predictions, calls to action) are refused with `422` and a description of what is missing, rather than given a meaningless verdict.\n\nEvery successful check is also stored in the claim memory (claims and evidence only, never the message or the reader), which is what `memory` reports.",
+        "security": [{ "bearerAuth": [] }, { "internalKey": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CheckAnythingRequest" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "The finished check.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CheckAnythingReport" },
+                "examples": {
+                  "fake": { "$ref": "#/components/examples/CheckAnythingFake" }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Nothing to check was sent, the image could not be decoded, or the link is not a valid URL.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "413": {
+            "description": "The image is larger than 8 MB.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "422": { "$ref": "#/components/responses/CheckRefused" },
+          "500": { "$ref": "#/components/responses/ServerError" },
+          "503": {
+            "description": "Screenshot reading is unavailable or failed.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/api/ai/analyze-content/stream": {
+      "post": {
+        "tags": ["Check Anything"],
+        "operationId": "analyzeContentStream",
+        "summary": "Check a link, a message or a screenshot, streaming progress",
+        "description": "The same check as `POST /api/ai/analyze-content`, with the same request body, delivered as newline-delimited JSON so a page can show what was read and each evidence channel as it lands.\n\nThe status is always `200` once the stream has opened. A refusal or fault arrives as a final `error` event that carries the status the JSON endpoint would have returned, so a client can tell a refusal (422) from a fault (500). Events, in order: one `start`; `stage` events (`ocr` or `fetch`, then `understanding`, `understood`, `read`); one `channel` event per evidence channel as it finishes; then a single `report` (the same object the JSON endpoint returns) or a single `error`.",
+        "security": [{ "bearerAuth": [] }, { "internalKey": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CheckAnythingRequest" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "A stream of JSON objects, one per line. The schema describes one line.",
+            "content": {
+              "application/x-ndjson": {
+                "schema": { "$ref": "#/components/schemas/CheckStreamEvent" },
+                "examples": {
+                  "stream": {
+                    "summary": "The lines of one stream (abridged)",
+                    "value": "{\"type\":\"start\"}\n{\"type\":\"stage\",\"id\":\"understanding\",\"name\":\"Working out what the message claims\"}\n{\"type\":\"stage\",\"id\":\"understood\",\"name\":\"Understood\",\"languageName\":\"English\",\"romanized\":false,\"speechAct\":\"assertion\",\"claims\":[\"The Reserve Bank of India has banned all UPI payments from 1 November.\"]}\n{\"type\":\"channel\",\"id\":\"factChecks\",\"name\":\"Asking the fact-checkers\",\"group\":null,\"ms\":2410,\"summary\":\"1 fact-check rated this claim false.\"}\n{\"type\":\"report\",\"report\":{\"call\":\"FAKE\"}}\n"
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/api/ai/plain-answer": {
+      "post": {
+        "tags": ["Check Anything"],
+        "operationId": "plainAnswer",
+        "summary": "What a plain language model says about the same text",
+        "description": "The comparison shown beside a verdict: the same hosted model, given today's date and nothing to read, asked whether the text is true. It shows what the evidence adds. It is never used to reach the verdict.",
+        "security": [{ "bearerAuth": [] }, { "internalKey": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["text"],
+                "properties": { "text": { "type": "string", "description": "The text to ask about (the first 1,200 characters are used)." } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The model's answer. A model that is not configured or cannot be reached is reported as `call: ERROR` with status 200, not as a fault.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlainAnswer" } } }
+          },
+          "400": {
+            "description": "No text was sent.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/api/ai/claims/{id}": {
+      "get": {
+        "tags": ["Check Anything"],
+        "operationId": "getClaimHistory",
+        "summary": "A claim's record and every verdict reached on it",
+        "description": "Oldest verdict first, with what changed each time and when the claim will next be looked at. Holds claims and verdicts only: no message and no reader is stored. The public equivalent is `GET /api/claims/{id}`.",
+        "security": [{ "bearerAuth": [] }, { "internalKey": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ClaimId" }],
+        "responses": {
+          "200": {
+            "description": "The claim's history.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ClaimHistory" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": {
+            "description": "No record of that claim (also returned for an invalid id, or when the database is not connected).",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+
+    "/api/ai/trust-analysis": {
+      "post": {
+        "tags": ["Article analysis"],
+        "operationId": "trustAnalysis",
+        "summary": "Trust analysis of a news article",
+        "description": "The same evidence channels and verdict rules as Check Anything, run on an article opened from the feed. Reports are cached by article URL for 14 days (`cached: true`); a cached report is reused only if it came from the current pipeline and was written about the same text. Reports that record a failure of our own (no model, search could not run, a degraded check, a story too recent for the news index) are never cached.",
+        "security": [{ "bearerAuth": [] }, { "internalKey": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TrustAnalysisRequest" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "The trust report.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TrustReportResponse" } } }
+          },
+          "400": {
+            "description": "The article title is missing.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+    "/api/ai/trust-analysis/stream": {
+      "post": {
+        "tags": ["Article analysis"],
+        "operationId": "trustAnalysisStream",
+        "summary": "Trust analysis of a news article, streaming progress",
+        "description": "The same analysis as `POST /api/ai/trust-analysis`, delivered as newline-delimited JSON so the page fills in as each check lands. A cached report arrives as a single `report` event. Events: `start` (with the number of checks), `source-text`, one `progress` per check, then `report` or `error`. A missing title is answered with a plain `400` before the stream opens.",
+        "security": [{ "bearerAuth": [] }, { "internalKey": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TrustAnalysisRequest" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "A stream of JSON objects, one per line. The schema describes one line.",
+            "content": { "application/x-ndjson": { "schema": { "$ref": "#/components/schemas/TrustStreamEvent" } } }
+          },
+          "400": {
+            "description": "The article title is missing.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/api/ai/summarize": {
+      "post": {
+        "tags": ["Article analysis"],
+        "operationId": "summarize",
+        "summary": "A short summary of an article",
+        "description": "Cached per article URL, and only reused if the article's text is unchanged, so a reader who returns sees the same summary.",
+        "security": [{ "bearerAuth": [] }, { "internalKey": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SummaryRequest" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "The summary.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SummaryResponse" } } }
+          },
+          "400": {
+            "description": "The article text is missing.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+    "/api/ai/detailed-summary": {
+      "post": {
+        "tags": ["Article analysis"],
+        "operationId": "detailedSummary",
+        "summary": "A longer summary of an article",
+        "description": "Like `/api/ai/summarize`, but fetches the article itself so there is more to summarise than the feed's excerpt.",
+        "security": [{ "bearerAuth": [] }, { "internalKey": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SummaryRequest" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "The summary.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SummaryResponse" } } }
+          },
+          "400": {
+            "description": "The article text is missing.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+    "/api/ai/extract-article": {
+      "post": {
+        "tags": ["Article analysis"],
+        "operationId": "extractArticle",
+        "summary": "Read a pasted news link",
+        "description": "Returns the page in the same shape as a feed article, so the normal article flow works on it. When a publisher blocks automated reading, the response is `422` with a `partial` record of what is known about the publisher.",
+        "security": [{ "bearerAuth": [] }, { "internalKey": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["url"],
+                "properties": { "url": { "type": "string", "format": "uri", "description": "A public http(s) link to an article." } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The article.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["article"],
+                  "properties": { "article": { "$ref": "#/components/schemas/ExtractedArticle" } }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No link was sent.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": {
+            "description": "The page could not be read. `partial` is present when the publisher blocks automated reading.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ExtractFailure" } } }
+          }
+        }
+      }
+    },
+    "/api/ai/trust-badges": {
+      "post": {
+        "tags": ["Article analysis"],
+        "operationId": "trustBadges",
+        "summary": "Feed badges for a page of articles",
+        "description": "For each article, the full cached verdict if it has been analysed, otherwise an instant source-reputation hint. Makes no model calls, so it is fast enough for a whole page.",
+        "security": [{ "bearerAuth": [] }, { "internalKey": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["articles"],
+                "properties": {
+                  "articles": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "url": { "type": "string", "format": "uri" },
+                        "source": {
+                          "description": "The outlet, as a name or as `{ name }`.",
+                          "oneOf": [
+                            { "type": "string" },
+                            { "type": "object", "properties": { "name": { "type": "string" } } }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "One badge per article, in order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["badges"],
+                  "properties": { "badges": { "type": "array", "items": { "$ref": "#/components/schemas/TrustBadge" } } }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`articles` is not an array.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+    "/api/ai/compare-coverage": {
+      "post": {
+        "tags": ["Article analysis"],
+        "operationId": "compareCoverage",
+        "summary": "How different outlets reported the same story",
+        "description": "Finds one article per outlet, scores each outlet's record and headline, and compares the framing. Send `title` or `query`.",
+        "security": [{ "bearerAuth": [] }, { "internalKey": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "anyOf": [{ "required": ["title"] }, { "required": ["query"] }],
+                "properties": {
+                  "title": { "type": "string", "description": "Headline of the article being compared from." },
+                  "query": { "type": "string", "description": "Explicit search text, used instead of the title." },
+                  "source": { "type": "string", "description": "The originating outlet; kept in the results and marked." },
+                  "url": { "type": "string", "format": "uri" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The comparison, or `status: insufficient-coverage` when fewer than two outlets covered it.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CoverageComparison" } } }
+          },
+          "400": {
+            "description": "Neither a title nor a query was sent.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "429": { "$ref": "#/components/responses/NewsSearchUnavailable" },
+          "500": { "$ref": "#/components/responses/ServerError" },
+          "502": { "$ref": "#/components/responses/NewsSearchUnavailable" },
+          "503": { "$ref": "#/components/responses/NewsSearchUnavailable" }
+        }
+      }
+    },
+
+    "/api/claims": {
+      "get": {
+        "tags": ["Claims registry"],
+        "operationId": "listClaims",
+        "summary": "Search and page through every claim checked",
+        "description": "Newest first by default. Every word in `q` must appear in the claim, one of the ways it has been worded, or its subject. Pages are cut by position, not offset, so a claim checked while paging cannot shift rows between pages; pass `nextCursor` back as `cursor` for the next page. Claims filed by the evaluation scripts are never listed. Responses are cacheable for 60 seconds.",
+        "x-pending-merge": true,
+        "parameters": [
+          { "name": "q", "in": "query", "description": "Words to search for.", "schema": { "type": "string", "maxLength": 100 } },
+          {
+            "name": "call",
+            "in": "query",
+            "description": "Only claims whose latest verdict is this call (case-insensitive).",
+            "schema": { "type": "string", "enum": ["REAL", "FAKE", "PARTLY FALSE", "CANNOT VERIFY"] }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "`recent` orders by the last time the claim was checked; `checked` by how many times it has been checked.",
+            "schema": { "type": "string", "enum": ["recent", "checked"], "default": "recent" }
+          },
+          { "$ref": "#/components/parameters/RegistryLimit20" },
+          { "name": "cursor", "in": "query", "description": "The `nextCursor` of the previous page. Opaque; valid only with the same `sort`.", "schema": { "type": "string", "maxLength": 200 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of claims.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ClaimList" } } }
+          },
+          "400": { "$ref": "#/components/responses/RegistryBadRequest" },
+          "500": { "$ref": "#/components/responses/RegistryFault" },
+          "503": { "$ref": "#/components/responses/RegistryUnavailable" }
+        }
+      }
+    },
+    "/api/claims/trending": {
+      "get": {
+        "tags": ["Claims registry"],
+        "operationId": "trendingClaims",
+        "summary": "The claims readers checked most in the last seven days",
+        "description": "Counted from the stored checks, so a claim checked ten times today outranks one checked a hundred times last year. Re-checks by the scheduler and evaluation runs are not counted.",
+        "x-pending-merge": true,
+        "parameters": [{ "$ref": "#/components/parameters/RegistryLimit10" }],
+        "responses": {
+          "200": {
+            "description": "The most-checked claims.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TrendingClaims" } } }
+          },
+          "400": { "$ref": "#/components/responses/RegistryBadRequest" },
+          "500": { "$ref": "#/components/responses/RegistryFault" },
+          "503": { "$ref": "#/components/responses/RegistryUnavailable" }
+        }
+      }
+    },
+    "/api/claims/changes": {
+      "get": {
+        "tags": ["Claims registry"],
+        "operationId": "changedVerdicts",
+        "summary": "Verdicts that changed, and why",
+        "description": "The latest checks whose verdict differs from the one before, newest first, each with the reason in terms of the evidence that appeared or disappeared.",
+        "x-pending-merge": true,
+        "parameters": [{ "$ref": "#/components/parameters/RegistryLimit10" }],
+        "responses": {
+          "200": {
+            "description": "Recent changes.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ChangedVerdicts" } } }
+          },
+          "400": { "$ref": "#/components/responses/RegistryBadRequest" },
+          "500": { "$ref": "#/components/responses/RegistryFault" },
+          "503": { "$ref": "#/components/responses/RegistryUnavailable" }
+        }
+      }
+    },
+    "/api/claims/stats": {
+      "get": {
+        "tags": ["Claims registry"],
+        "operationId": "registryStats",
+        "summary": "Headline numbers for the registry",
+        "x-pending-merge": true,
+        "responses": {
+          "200": {
+            "description": "Totals.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegistryStats" } } }
+          },
+          "500": { "$ref": "#/components/responses/RegistryFault" },
+          "503": { "$ref": "#/components/responses/RegistryUnavailable" }
+        }
+      }
+    },
+    "/api/claims/{id}": {
+      "get": {
+        "tags": ["Claims registry"],
+        "operationId": "getClaim",
+        "summary": "One claim's permanent page",
+        "description": "The claim, its latest verdict and the evidence it rests on, the rule that decided it with that rule's measured record, every verdict reached on it, and related wordings that have their own page. Contains no message text and nothing that identifies a reader.",
+        "x-pending-merge": true,
+        "parameters": [{ "$ref": "#/components/parameters/ClaimId" }],
+        "responses": {
+          "200": {
+            "description": "The claim.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ClaimDetail" } } }
+          },
+          "400": { "$ref": "#/components/responses/RegistryBadRequest" },
+          "404": {
+            "description": "No public record of that claim.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": { "$ref": "#/components/responses/RegistryFault" },
+          "503": { "$ref": "#/components/responses/RegistryUnavailable" }
+        }
+      }
+    }
+  },
+
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "The token returned by `POST /api/auth/login` or `/api/auth/signup`. Valid for 24 hours."
+      },
+      "internalKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-internal-key",
+        "description": "Used by the evaluation scripts instead of a login. Accepted only when the server has `INTERNAL_API_KEY` set; otherwise this route into `/api/ai` is closed."
+      }
+    },
+
+    "parameters": {
+      "ClaimId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "A claim's id: 24 hexadecimal characters, as returned in `claimId` and `memory.claims[].claimId`.",
+        "schema": { "type": "string", "pattern": "^[0-9a-fA-F]{24}$" }
+      },
+      "RegistryLimit20": {
+        "name": "limit",
+        "in": "query",
+        "description": "How many to return.",
+        "schema": { "type": "integer", "minimum": 1, "maximum": 50, "default": 20 }
+      },
+      "RegistryLimit10": {
+        "name": "limit",
+        "in": "query",
+        "description": "How many to return.",
+        "schema": { "type": "integer", "minimum": 1, "maximum": 50, "default": 10 }
+      }
+    },
+
+    "responses": {
+      "Unauthorized": {
+        "description": "No token, a malformed header, or a token that is invalid, expired or belongs to a deleted account. On `/api/ai`, also returned when `x-internal-key` is wrong.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      },
+      "ServerError": {
+        "description": "An unexpected fault. The message is generic; details are in the server log.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      },
+      "ServerFailure": {
+        "description": "An unexpected fault.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["success", "error"],
+              "properties": {
+                "success": { "type": "boolean", "const": false },
+                "error": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "NewsUnavailable": {
+        "description": "The news feed could not be fetched and no cached or fallback copy exists. `code` says why: `NEWS_QUOTA_EXHAUSTED` (429, the free tier's 100 requests a day are used), `NEWS_KEY_INVALID` (500, `NEWS_API_KEY` missing or rejected), `NEWS_UNAVAILABLE` (502, the service is not responding), `NETWORK_UNAVAILABLE` (503, the server cannot reach the internet) or `NEWS_ERROR`.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NewsError" } } }
+      },
+      "NewsSearchUnavailable": {
+        "description": "The coverage search could not run, most often because the day's news quota is spent (429), the news service is unavailable (502) or the server is offline (503). Say so to the reader; it is not a finding about the story.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      },
+      "CheckRefused": {
+        "description": "The input was understood and refused, or could not be read. `checkable: false` means it asserts nothing a newsroom could confirm or deny (an opinion, a question, a prediction, a call to action, or too vague); `missing` says what would make it checkable. Other refusals say why the link or screenshot could not be read and what to send instead (`canRetryWith`).",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/CheckRefusal" },
+            "examples": {
+              "opinion": {
+                "summary": "An opinion",
+                "value": {
+                  "error": "This is an opinion. Opinions are not true or false in a way anyone can check.",
+                  "checkable": false,
+                  "kind": "opinion",
+                  "missing": ["a specific claim about a named person, place, event or figure"],
+                  "understanding": { "languageName": "English", "speechAct": "opinion", "english": "The government is the worst we have ever had." },
+                  "readText": null
+                }
+              },
+              "unreadable-link": {
+                "summary": "A site that refuses automated reading",
+                "value": {
+                  "error": "example.com does not allow its pages to be read automatically. Paste the text, or send a screenshot.",
+                  "canRetryWith": ["text", "screenshot"]
+                }
+              }
+            }
+          }
+        }
+      },
+      "RegistryBadRequest": {
+        "description": "A parameter is wrong; the message names it.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      },
+      "RegistryUnavailable": {
+        "description": "The registry's database is not connected.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      },
+      "RegistryFault": {
+        "description": "An unexpected fault.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      }
+    },
+
+    "examples": {
+      "CheckAnythingFake": {
+        "summary": "A forwarded rumour a fact-checker has rated false (abridged)",
+        "description": "Only the fields that explain the verdict are shown; a real response also carries `factors`, `evidenceLedger`, `timings` and the rest of the trust report. The publisher and fact-checker are placeholders.",
+        "value": {
+          "schemaVersion": 5,
+          "call": "FAKE",
+          "oneLine": "Rated false by Example Fact Check after checking this exact claim.",
+          "oneLineLocal": null,
+          "verdict": "False",
+          "verdictLevel": "false",
+          "verdictClass": "false",
+          "advice": "Independent reporting contradicts this. Do not share it.",
+          "overallScore": 2,
+          "decision": {
+            "verdict": "false",
+            "call": "FAKE",
+            "oneLine": "Rated false by Example Fact Check after checking this exact claim.",
+            "label": "False",
+            "rule": "rated-false-by-fact-checkers",
+            "grounds": ["Example Fact Check reviewed \"RBI has banned all UPI payments\" on 2026-10-09 and rated it False."],
+            "confidence": 0.82,
+            "ceiling": 2
+          },
+          "explanation": {
+            "verdict": { "call": "FAKE", "rule": "rated-false-by-fact-checkers" },
+            "decisive": [
+              {
+                "channel": "fact-checkers",
+                "label": "the fact-checkers’ rulings",
+                "without": { "call": "CANNOT VERIFY", "rule": "no-independent-coverage" },
+                "decisive": true
+              }
+            ],
+            "restsOn": 1,
+            "restsOnChannels": [{ "channel": "fact-checkers", "label": "the fact-checkers’ rulings" }],
+            "withoutAll": { "call": "CANNOT VERIFY", "rule": "no-independent-coverage" },
+            "fromAbsence": false,
+            "wouldChange": [
+              {
+                "change": "3 more independent outlets confirming it",
+                "added": { "stance": "for", "outlets": 3 },
+                "result": { "call": "CANNOT VERIFY", "rule": "fact-checkers-and-reporting-disagree" }
+              }
+            ]
+          },
+          "trackRecord": {
+            "rule": "rated-false-by-fact-checkers",
+            "n": 14,
+            "right": 14,
+            "wrong": 0,
+            "missed": 0,
+            "rate": 1,
+            "low": 0.785,
+            "high": 1,
+            "abstains": false,
+            "heldOut": { "n": 5, "right": 5 },
+            "measuredAt": "2026-10-12T09:38:22.480Z"
+          },
+          "memory": {
+            "assessmentId": "66ff0a1b2c3d4e5f60718293",
+            "claims": [
+              {
+                "claimId": "66ff0a1b2c3d4e5f60718291",
+                "claim": "The Reserve Bank of India has banned all UPI payments from 1 November.",
+                "timesSeen": 3,
+                "firstSeenAt": "2026-10-09T05:12:00.000Z",
+                "previous": {
+                  "call": "CANNOT VERIFY",
+                  "oneLine": "No independent outlet reports this.",
+                  "at": "2026-10-10T07:40:00.000Z"
+                },
+                "recheckDue": null,
+                "variants": []
+              }
+            ],
+            "changeReason": "Verdict changed from CANNOT VERIFY to FAKE: Example Fact Check has ruled on it."
+          },
+          "understanding": {
+            "language": "en",
+            "languageName": "English",
+            "romanized": false,
+            "speechAct": "assertion",
+            "tone": ["alarmist"],
+            "english": "The Reserve Bank of India has banned all UPI payments from 1 November.",
+            "claims": [
+              { "claim": "The Reserve Bank of India has banned all UPI payments from 1 November.", "time": "now", "kind": "event", "checkable": true }
+            ]
+          },
+          "factChecks": {
+            "status": "debunked",
+            "explanation": "1 fact-check rated this claim false.",
+            "considered": 6,
+            "matches": [
+              {
+                "publisher": "Example Fact Check",
+                "url": "https://factcheck.example.org/upi-ban",
+                "reviewedAt": "2026-10-09",
+                "claimReviewed": "RBI has banned all UPI payments",
+                "rating": "False",
+                "finding": "false",
+                "why": "The review examined the same assertion and found it false.",
+                "via": "claimreview"
+              }
+            ]
+          },
+          "ingestNotes": [],
+          "readText": null,
+          "cached": false
+        }
+      }
+    },
+
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": ["error"],
+        "properties": { "error": { "type": "string", "description": "A message written for the reader." } }
+      },
+      "NewsError": {
+        "type": "object",
+        "required": ["error", "code"],
+        "properties": {
+          "error": { "type": "string" },
+          "code": { "type": "string", "examples": ["NEWS_QUOTA_EXHAUSTED", "NEWS_KEY_INVALID", "NEWS_UNAVAILABLE", "NETWORK_UNAVAILABLE", "NEWS_ERROR"] }
+        }
+      },
+      "ObjectId": { "type": "string", "pattern": "^[0-9a-fA-F]{24}$", "description": "A MongoDB id." },
+
+      "Credentials": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "minLength": 8, "writeOnly": true }
+        }
+      },
+      "SignupResponse": {
+        "type": "object",
+        "required": ["message", "token", "userId"],
+        "properties": {
+          "message": { "type": "string" },
+          "token": { "type": "string", "description": "A JWT, valid for 24 hours." },
+          "userId": { "$ref": "#/components/schemas/ObjectId" }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "required": ["token", "userId", "interests"],
+        "properties": {
+          "token": { "type": "string", "description": "A JWT, valid for 24 hours." },
+          "userId": { "$ref": "#/components/schemas/ObjectId" },
+          "interests": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "Profile": {
+        "type": "object",
+        "required": ["userId", "email", "name", "interests"],
+        "properties": {
+          "userId": { "$ref": "#/components/schemas/ObjectId" },
+          "email": { "type": "string", "format": "email" },
+          "name": { "type": "string", "description": "Defaults to `Distinguished Reader`." },
+          "interests": { "type": "array", "maxItems": 3, "items": { "type": "string" } }
+        }
+      },
+
+      "NewsArticle": {
+        "type": "object",
+        "required": ["title", "url", "source", "publishedAt"],
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": ["string", "null"] },
+          "content": { "type": ["string", "null"], "description": "Truncated by the news service; the feed's excerpt, not the article." },
+          "url": { "type": "string", "format": "uri" },
+          "urlToImage": { "type": ["string", "null"], "format": "uri" },
+          "source": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string" } } },
+          "publishedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ActivityInput": {
+        "type": "object",
+        "required": ["articleId", "title", "activityType"],
+        "properties": {
+          "articleId": { "type": "string" },
+          "title": { "type": "string" },
+          "activityType": { "type": "string", "enum": ["view", "click", "read", "category"] },
+          "category": { "type": "string", "default": "general" },
+          "source": { "type": "string", "default": "Unknown Source" },
+          "duration": { "type": "number", "default": 0, "description": "Seconds spent." },
+          "completed": { "type": "boolean", "default": false }
+        }
+      },
+      "Activity": {
+        "type": "object",
+        "required": ["_id", "userId", "articleId", "title", "category", "source", "activityType", "timestamp"],
+        "properties": {
+          "_id": { "$ref": "#/components/schemas/ObjectId" },
+          "userId": { "$ref": "#/components/schemas/ObjectId" },
+          "articleId": { "type": "string" },
+          "title": { "type": "string" },
+          "category": { "type": "string" },
+          "source": { "type": "string" },
+          "activityType": { "type": "string", "enum": ["view", "click", "read", "category"] },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "duration": { "type": "number" },
+          "completed": { "type": "boolean" }
+        }
+      },
+      "ArticleHistoryEntry": {
+        "type": "object",
+        "required": ["_id", "userId", "articleId", "title", "source", "category", "lastViewed", "viewCount"],
+        "properties": {
+          "_id": { "$ref": "#/components/schemas/ObjectId" },
+          "userId": { "$ref": "#/components/schemas/ObjectId" },
+          "articleId": { "type": "string" },
+          "title": { "type": "string" },
+          "source": { "type": "string" },
+          "category": { "type": "string" },
+          "lastViewed": { "type": "string", "format": "date-time" },
+          "viewCount": { "type": "integer", "minimum": 1 },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "CheckAnythingRequest": {
+        "type": "object",
+        "description": "Send at least one of `url`, `text` or `imageBase64`. Precedence when several are sent: `imageBase64`, then `url`, then `text`.",
+        "anyOf": [{ "required": ["url"] }, { "required": ["text"] }, { "required": ["imageBase64"] }],
+        "properties": {
+          "url": { "type": "string", "format": "uri", "description": "A link to a news article, a YouTube video (read through its captions) or a social post. Platforms that refuse to be read are reported with `canRetryWith`." },
+          "text": { "type": "string", "description": "A pasted message, caption or forward, in any language or in romanised form." },
+          "imageBase64": { "type": "string", "contentEncoding": "base64", "description": "A screenshot, read with OCR. Plain base64 or a `data:image/...;base64,` URL; at most 8 MB once decoded (the request body limit is 12 MB)." },
+          "account": { "type": "string", "description": "Who posted it, if known. A newsroom's name given here earns no credit unless it matches that outlet's listed channel address." },
+          "languageHint": { "type": "string", "description": "A two-letter language code (`ta`, `hi`, `te`, `kn`, `ml`, `bn`, `gu`, `pa`, `mr`, `ur`, `ar`, `en`) used to pick the OCR language pack for a screenshot.", "examples": ["ta"] }
+        }
+      },
+      "CheckRefusal": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": { "type": "string", "description": "What was wrong, and what to do instead." },
+          "checkable": { "type": "boolean", "const": false, "description": "Present when the input asserts nothing checkable." },
+          "kind": { "type": "string", "description": "Why it is not checkable, e.g. `question`, `opinion`, `prediction`, `unfalsifiable`, `too-vague`, `too-short`." },
+          "missing": { "type": "array", "items": { "type": "string" }, "description": "What would make the input checkable." },
+          "understanding": {
+            "type": "object",
+            "description": "How the message was read, when it was read before being refused.",
+            "properties": {
+              "languageName": { "type": "string" },
+              "speechAct": { "$ref": "#/components/schemas/SpeechAct" },
+              "english": { "type": "string" }
+            }
+          },
+          "readText": {
+            "description": "For a screenshot: what OCR read. An object normally; the text itself (a string) when too little could be read.",
+            "oneOf": [
+              { "type": "null" },
+              { "type": "string" },
+              { "$ref": "#/components/schemas/ReadText" }
+            ]
+          },
+          "platform": { "type": "string", "description": "The platform that refused to be read (`PLATFORM_UNREADABLE`)." },
+          "canRetryWith": { "type": "array", "items": { "type": "string", "enum": ["text", "screenshot"] }, "description": "What to send instead." }
+        }
+      },
+      "SpeechAct": {
+        "type": "string",
+        "enum": ["assertion", "question", "hedged", "sarcasm", "opinion", "exhortation", "prediction", "mixed"]
+      },
+      "Call": {
+        "type": "string",
+        "enum": ["REAL", "FAKE", "PARTLY FALSE", "CANNOT VERIFY", "NOT A FACTUAL CLAIM", "SATIRE"],
+        "description": "The answer in one phrase. `CANNOT VERIFY` is not a claim that the story is false: it means nothing independent supports it yet."
+      },
+      "VerdictClass": {
+        "type": "string",
+        "enum": ["false", "likely-false", "mixed", "outdated", "unverified", "opinion", "satire", "likely-true", "corroborated"],
+        "description": "The verdict class behind the call. `outdated` is old news shared as new and is called FAKE; `mixed` is called PARTLY FALSE."
+      },
+      "VerdictLevel": {
+        "type": "string",
+        "enum": ["false", "likely-false", "unverified", "opinion", "satire", "likely-true", "corroborated"],
+        "description": "A coarser grouping of the verdict class, for colouring."
+      },
+
+      "CheckAnythingReport": {
+        "description": "The trust report for the input, plus what the claim memory knew, the computed explanation of the verdict and the rule's measured record.",
+        "allOf": [
+          { "$ref": "#/components/schemas/TrustReport" },
+          {
+            "type": "object",
+            "required": ["memory", "explanation", "trackRecord", "ingestNotes", "readText", "cached"],
+            "properties": {
+              "oneLineLocal": {
+                "type": ["string", "null"],
+                "description": "`oneLine` in the reader's own language, for a message written in an Indian script. Null for English and romanised text."
+              },
+              "memory": {
+                "description": "What the claim memory knew before this check. Null when the database is not connected or nothing nameable was filed.",
+                "oneOf": [{ "type": "null" }, { "$ref": "#/components/schemas/Memory" }]
+              },
+              "explanation": {
+                "description": "What decided the verdict and what would change it, computed by running the same rules again with evidence removed or added. Null when the rerun does not reproduce the verdict (an explanation of some other verdict is worse than none).",
+                "oneOf": [{ "type": "null" }, { "$ref": "#/components/schemas/Explanation" }]
+              },
+              "trackRecord": {
+                "description": "How often the rule that decided this has been right on labelled test messages. A count with a 95% interval, not a hand-set confidence. Null when no test message has ended at this rule.",
+                "oneOf": [{ "type": "null" }, { "$ref": "#/components/schemas/TrackRecord" }]
+              },
+              "ingestNotes": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Things the reader should know about how the input was read, e.g. that only the headline could be fetched."
+              },
+              "readText": {
+                "description": "For a screenshot: what OCR read. Null otherwise.",
+                "oneOf": [{ "type": "null" }, { "$ref": "#/components/schemas/ReadText" }]
+              },
+              "cached": { "type": "boolean", "const": false, "description": "Check Anything results are never served from a cache." }
+            }
+          }
+        ]
+      },
+      "ReadText": {
+        "type": "object",
+        "required": ["chars", "confidence"],
+        "properties": {
+          "chars": { "type": "integer", "description": "Characters read." },
+          "confidence": { "type": "integer", "minimum": 0, "maximum": 100, "description": "Tesseract's confidence. Low values usually mean a photo of a screen." },
+          "languages": { "type": "array", "items": { "type": "string" }, "description": "OCR language packs used (`eng`, `tam`, ...)." }
+        }
+      },
+
+      "Decision": {
+        "type": "object",
+        "required": ["verdict", "call", "oneLine", "label", "rule", "grounds", "confidence", "ceiling"],
+        "description": "The verdict engine's output. Rules are evaluated in order and the first match wins; the rule that fired is named so the reasoning can be checked.",
+        "properties": {
+          "verdict": { "$ref": "#/components/schemas/VerdictClass" },
+          "call": { "$ref": "#/components/schemas/Call" },
+          "oneLine": { "type": "string", "description": "The whole reason in one sentence: the single fact that decided it." },
+          "label": { "type": "string", "description": "The reader-facing name of the verdict class, e.g. `Probably false`." },
+          "rule": {
+            "type": "string",
+            "description": "The id of the rule that fired, e.g. `rated-false-by-fact-checkers`, `contradicted-by-multiple-independent-sources`, `corroborated-by-one-independent-source`, `claims-partly-false`, `old-news-presented-as-new`, `no-independent-coverage`, `verification-unavailable`. The full list is the `decide(...)` calls in `backend/agents/verdictEngine.js`."
+          },
+          "grounds": { "type": "array", "items": { "type": "string" }, "description": "The reasons, in plain language." },
+          "confidence": { "type": "number", "minimum": 0.3, "maximum": 0.95, "description": "Never 0 or 1. A rule-based estimate; `trackRecord` is the measured counterpart." },
+          "ceiling": { "type": "number", "description": "The highest trust score (0-10) an input with this verdict may receive, whatever the writing looks like." }
+        }
+      },
+
+      "Explanation": {
+        "type": "object",
+        "required": ["verdict", "decisive", "restsOn", "restsOnChannels", "withoutAll", "fromAbsence", "wouldChange"],
+        "description": "What decided the verdict and what would change it. Computed, not told: the same rules are run again with a line of evidence taken away, or with hypothetical evidence added, and the verdicts compared.",
+        "properties": {
+          "verdict": { "$ref": "#/components/schemas/Outcome" },
+          "decisive": {
+            "type": "array",
+            "description": "One entry per line of evidence that was present. `decisive: true` means removing it changes the call.",
+            "items": {
+              "type": "object",
+              "required": ["channel", "label", "without", "decisive"],
+              "properties": {
+                "channel": { "$ref": "#/components/schemas/EvidenceChannelId" },
+                "label": { "type": "string" },
+                "without": { "$ref": "#/components/schemas/Outcome", "description": "The verdict with this line of evidence taken away." },
+                "decisive": { "type": "boolean" }
+              }
+            }
+          },
+          "restsOn": { "type": "integer", "minimum": 0, "description": "How many lines of evidence would each, on its own, still give this call. Zero when the call comes from absence." },
+          "restsOnChannels": {
+            "type": "array",
+            "description": "The lines of evidence each of which would, on its own, still reach the same call.",
+            "items": {
+              "type": "object",
+              "required": ["channel", "label"],
+              "properties": {
+                "channel": { "$ref": "#/components/schemas/EvidenceChannelId" },
+                "label": { "type": "string" }
+              }
+            }
+          },
+          "withoutAll": { "$ref": "#/components/schemas/Outcome", "description": "The verdict with every line of evidence taken away." },
+          "fromAbsence": {
+            "type": "boolean",
+            "description": "True when the call stands even with all evidence removed: it comes from what is missing (no outlet reports the claim), not from anything found."
+          },
+          "wouldChange": {
+            "type": "array",
+            "description": "The smallest hypothetical evidence that would change the call, one entry per distinct outcome reached.",
+            "items": {
+              "type": "object",
+              "required": ["change", "result"],
+              "properties": {
+                "change": { "type": "string", "examples": ["3 more independent outlets confirming it", "a fact-checker rating this exact claim false"] },
+                "added": {
+                  "type": "object",
+                  "description": "Present for the outlet-count changes.",
+                  "required": ["stance", "outlets"],
+                  "properties": {
+                    "stance": { "type": "string", "enum": ["for", "against"] },
+                    "outlets": { "type": "integer", "minimum": 1 }
+                  }
+                },
+                "result": { "$ref": "#/components/schemas/Outcome" }
+              }
+            }
+          }
+        }
+      },
+      "Outcome": {
+        "type": "object",
+        "required": ["call", "rule"],
+        "properties": {
+          "call": { "$ref": "#/components/schemas/Call" },
+          "rule": { "type": "string" }
+        }
+      },
+      "EvidenceChannelId": {
+        "type": "string",
+        "enum": ["news-against", "news-for", "fact-checkers", "this-week", "reference", "writing"],
+        "description": "`news-against`: outlets reporting otherwise. `news-for`: outlets confirming it. `fact-checkers`: professional fact-checkers' rulings. `this-week`: this week's coverage of the subject. `reference`: the encyclopedia entry. `writing`: warning signs in the writing."
+      },
+
+      "TrackRecord": {
+        "type": "object",
+        "required": ["rule", "n", "right", "wrong", "missed", "rate", "low", "high", "abstains", "heldOut", "measuredAt"],
+        "description": "The measured record of one verdict rule on labelled test messages (`backend/data/ruleReliability.json`, counted by `backend/eval/ruleReliability.js`).",
+        "properties": {
+          "rule": { "type": "string" },
+          "n": { "type": "integer", "description": "Labelled test messages that ended at this rule." },
+          "right": { "type": "integer" },
+          "wrong": { "type": "integer", "description": "Called the opposite way round." },
+          "missed": { "type": "integer", "description": "Gave no call where one was expected." },
+          "rate": { "type": "number", "minimum": 0, "maximum": 1, "description": "`right / n`." },
+          "low": { "type": "number", "description": "Lower end of the Wilson 95% interval." },
+          "high": { "type": "number", "description": "Upper end of the Wilson 95% interval." },
+          "abstains": { "type": "boolean", "description": "True for rules that decline to give a verdict, where 'right' means right to decline." },
+          "heldOut": {
+            "type": "object",
+            "description": "The subset from the held-out suite and the benchmark, which were not written while the system was tuned.",
+            "properties": { "n": { "type": "integer" }, "right": { "type": "integer" } }
+          },
+          "measuredAt": { "type": ["string", "null"], "format": "date-time", "description": "When the table was generated." }
+        }
+      },
+
+      "Memory": {
+        "type": "object",
+        "required": ["assessmentId", "claims", "changeReason"],
+        "description": "What the claim memory knew before this check. Claims are stored as neutral English sentences with their evidence and a fingerprint of the message; the message itself and the reader are never stored.",
+        "properties": {
+          "assessmentId": { "$ref": "#/components/schemas/ObjectId" },
+          "claims": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["claimId", "claim", "timesSeen", "firstSeenAt", "previous", "recheckDue", "variants"],
+              "properties": {
+                "claimId": { "$ref": "#/components/schemas/ObjectId" },
+                "claim": { "type": "string", "description": "The claim as a neutral English sentence." },
+                "timesSeen": { "type": "integer", "minimum": 1, "description": "How many times the claim has been checked, this check included." },
+                "firstSeenAt": { "type": "string", "format": "date-time" },
+                "previous": {
+                  "description": "The verdict on this claim before this check. Null the first time it is seen.",
+                  "oneOf": [
+                    { "type": "null" },
+                    {
+                      "type": "object",
+                      "required": ["call", "at"],
+                      "properties": {
+                        "call": { "$ref": "#/components/schemas/Call" },
+                        "oneLine": { "type": ["string", "null"] },
+                        "at": { "type": "string", "format": "date-time" }
+                      }
+                    }
+                  ]
+                },
+                "recheckDue": {
+                  "type": ["string", "null"],
+                  "format": "date-time",
+                  "description": "When a claim that could not be verified will next be checked again automatically (6, 24 and 72 hours after it was first checked). Null once it is settled or the schedule is exhausted."
+                },
+                "variants": {
+                  "type": "array",
+                  "description": "Earlier claims about the same thing with a different figure, date or polarity.",
+                  "items": {
+                    "type": "object",
+                    "required": ["claimId", "claim", "differences"],
+                    "properties": {
+                      "claimId": { "$ref": "#/components/schemas/ObjectId" },
+                      "claim": { "type": "string" },
+                      "differences": { "type": "array", "items": { "type": "string" }, "description": "What differs, e.g. the figure or the year." },
+                      "call": { "type": ["string", "null"] },
+                      "at": { "type": ["string", "null"], "format": "date-time" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "changeReason": {
+            "type": ["string", "null"],
+            "description": "When the verdict differs from the last one on the same claim, why, in terms of the evidence that appeared or disappeared. Null otherwise."
+          }
+        }
+      },
+
+      "TrustAnalysisRequest": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": { "type": "string" },
+          "content": { "type": "string", "description": "The article text, or the feed's excerpt. The server fetches the full article itself when it can." },
+          "source": { "type": "string", "description": "The publisher's name." },
+          "url": { "type": "string", "format": "uri", "description": "Also the cache key." },
+          "publishedAt": { "type": "string", "format": "date-time", "description": "Without it a fresh story looks undated; with it, a story newer than the news index's lag is reported as too recent to check rather than as unreported." }
+        }
+      },
+      "TrustReportResponse": {
+        "allOf": [
+          { "$ref": "#/components/schemas/TrustReport" },
+          {
+            "type": "object",
+            "required": ["cached"],
+            "properties": { "cached": { "type": "boolean", "description": "True when this report was stored by an earlier request for the same article." } }
+          }
+        ]
+      },
+
+      "TrustReport": {
+        "type": "object",
+        "description": "The result of the evidence pipeline (`backend/agents/trustAnalysisAgent.js`). The headline is `call`, `oneLine` and `decision`; the rest is the working, for readers who want to check it.",
+        "required": [
+          "schemaVersion", "overallScore", "call", "oneLine", "verdict", "verdictLevel", "verdictClass", "advice", "decision",
+          "probabilityFake", "probabilityPercent", "evidenceLedger", "totalDecibans", "priorProbability", "priorBand",
+          "unmeasuredFactors", "declaredParameters", "scoreBeforeCeiling", "scoreCapped", "scoreBand", "evidence",
+          "currentCoverage", "premiseCheck", "factChecks", "degradedFactors", "plainSummary", "goodPoints", "concernPoints",
+          "factors", "analyzedAt", "modality", "language", "textCoverage", "analysedChars", "timings"
+        ],
+        "properties": {
+          "schemaVersion": { "type": "integer", "description": "Bumped whenever the shape of a report changes. Cached reports from an older version are re-analysed, never served." },
+          "overallScore": { "type": "number", "minimum": 0, "maximum": 10, "description": "Trust score. Never above the verdict's `ceiling`. A score cannot say 'other outlets contradict this'; read `call` first." },
+          "call": { "$ref": "#/components/schemas/Call" },
+          "oneLine": { "type": "string", "description": "The reason for `call` in one sentence." },
+          "verdict": { "type": "string", "description": "The reader-facing label of the verdict class (same as `decision.label`)." },
+          "verdictLevel": { "$ref": "#/components/schemas/VerdictLevel" },
+          "verdictClass": { "$ref": "#/components/schemas/VerdictClass" },
+          "advice": { "type": "string", "description": "What the reader should do." },
+          "decision": { "$ref": "#/components/schemas/Decision" },
+          "probabilityFake": { "type": "number", "minimum": 0, "maximum": 1, "description": "How likely this is to be fabricated, given every measured observation and the stated base rate. Never exactly 0 or 1." },
+          "probabilityPercent": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "quality": {
+            "description": "How well the text is written. Kept apart from truth: a false story can be well written. Null when no writing check produced a score.",
+            "oneOf": [{ "type": "null" }, { "$ref": "#/components/schemas/Quality" }]
+          },
+          "evidenceLedger": {
+            "type": "array",
+            "description": "The derivation of `probabilityFake`, in decibans. The `decibans` of every entry add up to `totalDecibans`, so the arithmetic can be checked.",
+            "items": { "$ref": "#/components/schemas/LedgerEntry" }
+          },
+          "totalDecibans": { "type": "number" },
+          "priorProbability": { "type": "number", "description": "P(fabricated) before reading the text, set by who published it." },
+          "priorBand": { "type": "string" },
+          "unmeasuredFactors": {
+            "type": "array",
+            "description": "Checks that ran but could contribute nothing because no likelihood ratio has been measured for them.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "factor": { "type": "string" },
+                "observation": { "type": "number" },
+                "decibans": { "type": "number", "const": 0 },
+                "reason": { "type": "string" }
+              }
+            }
+          },
+          "declaredParameters": { "type": "array", "items": { "type": "string" }, "description": "The ledger rows that rest on a stated assumption rather than a measurement." },
+          "scoreBeforeCeiling": { "type": "number" },
+          "scoreCapped": { "type": "boolean", "description": "True when the verdict's ceiling lowered the score." },
+          "ceilingReason": { "type": ["string", "null"] },
+          "scoreBand": { "type": "string", "description": "The label for the score, e.g. `Read carefully`." },
+          "evidence": { "$ref": "#/components/schemas/EvidenceSummary" },
+          "understanding": {
+            "description": "How the message was read. Null for articles, which go through the extractor instead.",
+            "oneOf": [{ "type": "null" }, { "$ref": "#/components/schemas/Understanding" }]
+          },
+          "currentCoverage": { "$ref": "#/components/schemas/CurrentCoverage" },
+          "premiseCheck": { "$ref": "#/components/schemas/PremiseCheck" },
+          "factChecks": { "$ref": "#/components/schemas/FactChecks" },
+          "degradedFactors": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["clickbait", "bias", "manipulation", "transparency"] },
+            "description": "Writing checks that fell back to word-pattern matching because no model answered."
+          },
+          "degradedNote": { "type": ["string", "null"] },
+          "plainSummary": { "type": "string", "description": "A one-sentence takeaway." },
+          "goodPoints": { "type": "array", "items": { "type": "string" } },
+          "concernPoints": { "type": "array", "items": { "type": "string" } },
+          "factors": {
+            "type": "array",
+            "description": "The six checks, in order: `sourceReputation`, `clickbait`, `bias`, `transparency`, `manipulation`, `verification`.",
+            "items": { "$ref": "#/components/schemas/Factor" }
+          },
+          "analyzedAt": { "type": "string", "format": "date-time" },
+          "modality": { "type": "string", "enum": ["article", "text", "image", "video", "social-post"], "description": "What was checked." },
+          "provenance": {
+            "description": "Who posted it, for social content. Null for articles.",
+            "oneOf": [{ "type": "null" }, { "$ref": "#/components/schemas/Provenance" }]
+          },
+          "ingestNotes": { "type": "array", "items": { "type": "string" } },
+          "language": {
+            "type": "object",
+            "description": "The language detected locally in the text.",
+            "properties": {
+              "code": { "type": "string" },
+              "name": { "type": "string" },
+              "script": { "type": "string" },
+              "confidence": { "type": "number" },
+              "reliable": { "type": "boolean" }
+            }
+          },
+          "textCoverage": { "type": "string", "enum": ["article-text", "publisher-excerpt"], "description": "Whether the checks read the article or only the feed's short excerpt." },
+          "analysedChars": { "type": "integer" },
+          "timings": {
+            "type": "object",
+            "description": "Milliseconds. `total` plus one entry per step that ran.",
+            "required": ["total"],
+            "additionalProperties": { "type": "integer" },
+            "properties": { "total": { "type": "integer" } }
+          }
+        }
+      },
+
+      "LedgerEntry": {
+        "type": "object",
+        "required": ["step", "label", "decibans"],
+        "properties": {
+          "step": { "type": "string", "enum": ["prior", "factor", "adjustment", "corroboration", "fact-check", "current-coverage"] },
+          "label": { "type": "string" },
+          "observation": { "type": "number", "description": "The check's 0-10 score, for `factor` steps." },
+          "band": { "type": "string", "description": "The score band the observation fell in." },
+          "likelihoodRatio": { "type": "number" },
+          "decibans": { "type": "number", "description": "10·log10 of the likelihood ratio. Positive moves towards fabricated." },
+          "detail": { "type": "string" },
+          "basis": { "type": "string", "description": "`declared` for a stated assumption, `measured` for one counted from labelled articles, or the sentence describing how it was measured." }
+        }
+      },
+      "Quality": {
+        "type": "object",
+        "required": ["score", "level", "label", "note", "checks"],
+        "properties": {
+          "score": { "type": "number", "minimum": 0, "maximum": 10 },
+          "level": { "type": "string", "enum": ["high", "medium", "low"] },
+          "label": { "type": "string", "enum": ["Well written", "Mixed", "Poorly written"] },
+          "note": { "type": "string" },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "score": { "type": "number" },
+                "degraded": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      },
+
+      "EvidenceSummary": {
+        "type": "object",
+        "required": ["checkableClaims", "independentSupport", "independentContradiction", "articlesRetrieved", "perClaim"],
+        "description": "What the news search found, counted by independent source rather than by article: five papers printing one wire story, or two titles with one owner, count once.",
+        "properties": {
+          "checkableClaims": { "type": "integer" },
+          "independentSupport": { "type": "integer", "description": "Independent sources confirming the best-evidenced claim." },
+          "independentContradiction": { "type": "integer", "description": "Independent sources reporting otherwise." },
+          "articlesRetrieved": { "type": "integer", "description": "Raw articles behind the support count." },
+          "hasHighQualitySource": { "type": "boolean" },
+          "stateOnlySupport": { "type": "boolean", "description": "True when everything that confirms it is state media." },
+          "independenceNotes": { "type": "array", "items": { "type": "string" }, "description": "Why several articles counted as one source." },
+          "unconfirmedClaim": {
+            "description": "A claim nothing reports, travelling with one that is confirmed. Null otherwise.",
+            "oneOf": [
+              { "type": "null" },
+              {
+                "type": "object",
+                "properties": {
+                  "claim": { "type": "string" },
+                  "confirmedClaim": { "type": "string" },
+                  "outcome": { "type": "string", "enum": ["presupposedFalse", "absentFromHeavyCoverage", "unreported"] },
+                  "subject": { "type": ["string", "null"] },
+                  "headlinesRead": { "type": "integer" },
+                  "outletsRead": { "type": "integer" },
+                  "evidence": { "type": "array", "items": { "$ref": "#/components/schemas/CoverageHeadline" } }
+                }
+              }
+            ]
+          },
+          "perClaim": { "type": "array", "items": { "$ref": "#/components/schemas/ClaimEvidence" } }
+        }
+      },
+      "ClaimEvidence": {
+        "type": "object",
+        "required": ["claim", "verdict", "independentSupport", "independentContradiction"],
+        "properties": {
+          "claim": { "type": "string" },
+          "verdict": { "$ref": "#/components/schemas/ClaimStance" },
+          "independentSupport": { "type": "integer" },
+          "independentContradiction": { "type": "integer" },
+          "reportedFor": { "type": "array", "items": { "type": "string" }, "description": "The facts the confirming outlets report, in their own words." },
+          "reportedAgainst": { "type": "array", "items": { "type": "string" }, "description": "The conflicting facts the contradicting outlets report, in their own words (e.g. `85 medals`)." },
+          "sources": { "type": "array", "items": { "$ref": "#/components/schemas/SourceCluster" }, "description": "Independent sources confirming the claim." },
+          "contradictingSources": { "type": "array", "items": { "$ref": "#/components/schemas/SourceCluster" } }
+        }
+      },
+      "ClaimStance": {
+        "type": "string",
+        "enum": ["supported", "contradicted", "unverified", "no-coverage", "undetermined"],
+        "description": "`no-coverage`: nothing was found. `unverified`: coverage was found but none confirms or contradicts it. `undetermined`: the check could not run."
+      },
+      "SourceCluster": {
+        "type": "object",
+        "description": "One independent source: possibly several articles that were merged because they share an owner, a wire agency or near-identical text.",
+        "properties": {
+          "label": { "type": "string", "examples": ["Reuters (wire)", "Times Group"] },
+          "collapsedFrom": { "type": "integer", "description": "How many articles were merged into this source." },
+          "reliability": { "type": "number", "minimum": 0, "maximum": 10 },
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "source": { "type": "string" },
+                "title": { "type": "string" },
+                "url": { "type": "string" },
+                "reliability": { "type": "number" },
+                "viaWire": { "type": ["string", "null"] },
+                "owner": { "type": ["string", "null"] }
+              }
+            }
+          }
+        }
+      },
+      "Understanding": {
+        "type": "object",
+        "required": ["language", "languageName", "romanized", "speechAct", "english", "claims"],
+        "properties": {
+          "language": { "type": "string", "description": "Two-letter code." },
+          "languageName": { "type": "string" },
+          "romanized": { "type": "boolean", "description": "True for Tanglish and other Indian languages typed in Latin letters." },
+          "speechAct": { "$ref": "#/components/schemas/SpeechAct" },
+          "tone": { "type": "array", "items": { "type": "string" }, "description": "Up to three words, e.g. `alarmist`." },
+          "english": { "type": "string", "description": "The message in English." },
+          "claims": {
+            "type": "array",
+            "maxItems": 3,
+            "items": {
+              "type": "object",
+              "required": ["claim", "time", "kind", "checkable"],
+              "properties": {
+                "claim": { "type": "string", "description": "A neutral English sentence." },
+                "time": { "type": "string", "enum": ["now", "past", "timeless", "future"], "description": "When the message presents it as happening." },
+                "kind": { "type": "string", "enum": ["event", "figure", "quote", "standing_fact", "prediction", "opinion"] },
+                "checkable": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      },
+      "CoverageHeadline": {
+        "type": "object",
+        "properties": {
+          "source": { "type": "string" },
+          "title": { "type": "string" },
+          "url": { "type": "string" },
+          "publishedAt": { "type": ["string", "null"] },
+          "reported": { "type": "string", "description": "The words in the headline that bear on the claim, quoted." },
+          "reliability": { "type": "number" }
+        }
+      },
+      "CurrentCoverage": {
+        "type": "object",
+        "required": ["status", "explanation"],
+        "description": "This week's headlines about the claim's subject, and what of them bears on the claim. Used only when the news search found nothing either way.",
+        "properties": {
+          "status": { "type": "string", "enum": ["presupposed-false", "absent", "reported", "silent", "thin", "none", "error"] },
+          "subject": { "type": ["string", "null"] },
+          "explanation": { "type": "string" },
+          "headlinesRead": { "type": "integer" },
+          "outletsRead": { "type": "integer" },
+          "counted": { "type": ["string", "null"], "enum": ["presupposedFalse", "absentFromHeavyCoverage", null], "description": "Whether this channel counted towards the verdict, and how." },
+          "presupposingFalse": { "type": "array", "items": { "$ref": "#/components/schemas/CoverageHeadline" }, "description": "Headlines that only make sense if the claim is false." },
+          "reporting": { "type": "array", "items": { "$ref": "#/components/schemas/CoverageHeadline" }, "description": "Headlines that report the claimed event." }
+        }
+      },
+      "PremiseCheck": {
+        "type": "object",
+        "required": ["status", "explanation"],
+        "description": "The encyclopedia check of the people and organisations the claim names.",
+        "properties": {
+          "status": { "type": "string", "enum": ["ok", "no-entities", "not-found", "error"], "description": "`ok` and the other values the check returns when it ran; `error` when the reference work could not be reached." },
+          "explanation": { "type": "string" },
+          "checked": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "entity": { "type": "string" },
+                "reference": { "$ref": "#/components/schemas/ReferenceLink" }
+              }
+            }
+          },
+          "contradictions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "entity": { "type": "string" },
+                "articleStates": { "type": "string", "description": "What the message says about the entity." },
+                "referenceStates": { "type": "string", "description": "What the encyclopedia says." },
+                "reference": { "$ref": "#/components/schemas/ReferenceLink" }
+              }
+            }
+          },
+          "confirmations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "entity": { "type": "string" },
+                "referenceStates": { "type": "string" },
+                "reference": { "$ref": "#/components/schemas/ReferenceLink" }
+              }
+            }
+          }
+        }
+      },
+      "ReferenceLink": {
+        "description": "The encyclopedia entry. Null when none was found.",
+        "oneOf": [
+          { "type": "null" },
+          {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "url": { "type": "string", "format": "uri" }
+            }
+          }
+        ]
+      },
+      "FactChecks": {
+        "type": "object",
+        "required": ["status", "explanation", "matches"],
+        "description": "What professional fact-checkers have published about the same assertion, review by review.",
+        "properties": {
+          "status": { "type": "string", "enum": ["debunked", "misleading", "confirmed", "none", "error"] },
+          "explanation": { "type": "string" },
+          "considered": { "type": "integer", "description": "Reviews found and compared with the claim." },
+          "matches": { "type": "array", "items": { "$ref": "#/components/schemas/FactCheckMatch" } }
+        }
+      },
+      "FactCheckMatch": {
+        "type": "object",
+        "properties": {
+          "publisher": { "type": ["string", "null"] },
+          "url": { "type": ["string", "null"], "format": "uri" },
+          "reviewedAt": { "type": ["string", "null"], "description": "Date of the review, `YYYY-MM-DD`." },
+          "claimReviewed": { "type": "string", "description": "The assertion the fact-checker examined." },
+          "rating": { "type": ["string", "null"], "description": "The fact-checker's own rating, e.g. `False`." },
+          "finding": { "type": "string", "enum": ["false", "true", "misleading"], "description": "What the review makes of the reader's text. Translated, not copied: a review rating 'the video is genuine' as False makes 'the video is fake' true." },
+          "why": { "type": "string" },
+          "via": { "type": "string", "enum": ["claimreview", "news-search"], "description": "`claimreview` is a structured ruling; `news-search` is a fact-check headline found in the news." }
+        }
+      },
+      "Provenance": {
+        "type": "object",
+        "description": "Who posted the content. An account is not a publisher: a social account earns an outlet's record only through that outlet's listed channel address, never through its name.",
+        "properties": {
+          "platform": { "type": "string" },
+          "account": { "type": ["string", "null"] },
+          "accountUrl": { "type": ["string", "null"] },
+          "knownOutletChannel": { "type": "boolean" },
+          "outletName": { "type": ["string", "null"] },
+          "reliability": { "type": "number", "minimum": 0, "maximum": 10 },
+          "note": { "type": "string" }
+        }
+      },
+
+      "Contribution": {
+        "type": "object",
+        "required": ["decibans", "measured"],
+        "description": "What one check did to the answer, in decibans. A check that changed nothing says so.",
+        "properties": {
+          "decibans": { "type": "number" },
+          "likelihoodRatio": { "type": "number" },
+          "band": { "type": "string" },
+          "measured": { "type": "boolean", "description": "False when no ratio has been measured for this check or it contributed no evidence." },
+          "note": { "type": "string" }
+        }
+      },
+      "Factor": {
+        "type": "object",
+        "required": ["id", "name", "explanation"],
+        "properties": {
+          "id": { "type": "string", "enum": ["sourceReputation", "clickbait", "bias", "transparency", "manipulation", "verification"] },
+          "name": { "type": "string" },
+          "score": { "type": ["number", "null"], "minimum": 0, "maximum": 10, "description": "Null for `transparency` when only an excerpt was available." },
+          "contribution": { "$ref": "#/components/schemas/Contribution", "description": "Absent on `verification`, whose effect is the verdict and ceiling instead." },
+          "degraded": { "type": "boolean", "description": "True when the check fell back to word-pattern matching." },
+          "counted": { "type": "boolean", "description": "False when the check stood down." },
+          "standDownReason": { "type": ["string", "null"] },
+          "weight": { "type": "null", "description": "`verification` only. Always null: it no longer carries a share of a weighted sum." },
+          "role": { "type": "string", "const": "evidence", "description": "`verification` only." },
+          "setsCeiling": { "type": "number", "description": "`verification` only: the verdict's ceiling." },
+          "detail": {
+            "type": "object",
+            "description": "Per check. `sourceReputation`: matched, matchedName, bias, type, notes, impersonates, ratingSource. `clickbait`: isClickbait, signals. `bias`: biasLevel, politicalLean, flaggedSentences. `transparency`: level, checks, passedCount, totalChecks, namedExamples, vagueAttributions. `manipulation`: intensity, techniques, summary. `verification`: status (`corroborated`, `contradicted`, `unverified`, `no-claims` or `error`), claims (one entry per claim with its verdict and supporting and contradicting evidence), independentSupport, independentContradiction, articlesRetrieved, independenceNotes.",
+            "additionalProperties": true
+          },
+          "explanation": { "type": ["string", "null"] }
+        }
+      },
+
+      "CheckStreamEvent": {
+        "description": "One line of the Check Anything stream.",
+        "oneOf": [
+          { "$ref": "#/components/schemas/StreamStart" },
+          { "$ref": "#/components/schemas/StreamStage" },
+          { "$ref": "#/components/schemas/StreamChannel" },
+          { "$ref": "#/components/schemas/CheckStreamReport" },
+          { "$ref": "#/components/schemas/CheckStreamError" }
+        ],
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "start": "#/components/schemas/StreamStart",
+            "stage": "#/components/schemas/StreamStage",
+            "channel": "#/components/schemas/StreamChannel",
+            "report": "#/components/schemas/CheckStreamReport",
+            "error": "#/components/schemas/CheckStreamError"
+          }
+        }
+      },
+      "StreamStart": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": { "const": "start" },
+          "total": { "type": "integer", "description": "Trust-analysis stream only: how many checks will be announced." }
+        }
+      },
+      "StreamStage": {
+        "type": "object",
+        "required": ["type", "id", "name"],
+        "description": "What has been read. `id` is `ocr` (reading a screenshot), `fetch` (opening a link), `understanding` (working out what the message claims), `understood` (carries `languageName`, `romanized`, `speechAct` and `claims`) or `read` (carries `title`, `modality`, `source` and `chars`).",
+        "properties": {
+          "type": { "const": "stage" },
+          "id": { "type": "string", "enum": ["ocr", "fetch", "understanding", "understood", "read"] },
+          "name": { "type": "string" },
+          "languageName": { "type": "string" },
+          "romanized": { "type": "boolean" },
+          "speechAct": { "$ref": "#/components/schemas/SpeechAct" },
+          "claims": { "type": "array", "items": { "type": "string" } },
+          "title": { "type": "string" },
+          "modality": { "type": "string" },
+          "source": { "type": ["string", "null"] },
+          "chars": { "type": "integer" }
+        }
+      },
+      "StreamChannel": {
+        "type": "object",
+        "required": ["type", "id", "name", "ms"],
+        "description": "One evidence channel has finished, with its one-line finding.",
+        "properties": {
+          "type": { "const": "channel" },
+          "id": { "type": "string", "enum": ["claimExtraction", "verification", "factChecks", "currentCoverage", "premises", "clickbait", "bias", "manipulation", "transparency"] },
+          "name": { "type": "string", "description": "The reader-facing name of the channel." },
+          "group": { "type": ["string", "null"], "description": "`writing` for the four writing checks, which are shown as one." },
+          "ms": { "type": "integer", "description": "How long the channel took." },
+          "summary": { "type": ["string", "null"], "description": "What it found, in one line." }
+        }
+      },
+      "CheckStreamReport": {
+        "type": "object",
+        "required": ["type", "report"],
+        "properties": {
+          "type": { "const": "report" },
+          "report": { "$ref": "#/components/schemas/CheckAnythingReport" }
+        }
+      },
+      "CheckStreamError": {
+        "type": "object",
+        "required": ["type", "status", "error"],
+        "description": "The check was refused or failed. Carries the status the JSON endpoint would have returned, and the same extra fields as `CheckRefusal`.",
+        "allOf": [{ "$ref": "#/components/schemas/CheckRefusal" }],
+        "properties": {
+          "type": { "const": "error" },
+          "status": { "type": "integer", "examples": [400, 413, 422, 500, 503] }
+        }
+      },
+      "TrustStreamEvent": {
+        "description": "One line of the trust-analysis stream.",
+        "oneOf": [
+          { "$ref": "#/components/schemas/StreamStart" },
+          {
+            "type": "object",
+            "required": ["type", "coverage", "chars"],
+            "properties": {
+              "type": { "const": "source-text" },
+              "coverage": { "type": "string", "description": "`full` when the article page was read, otherwise the excerpt was used." },
+              "chars": { "type": "integer" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type", "id", "name", "ms"],
+            "properties": {
+              "type": { "const": "progress" },
+              "id": { "type": "string", "enum": ["sourceReputation", "clickbait", "bias", "transparency", "manipulation", "verification"] },
+              "name": { "type": "string" },
+              "ms": { "type": "integer" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type", "report"],
+            "properties": {
+              "type": { "const": "report" },
+              "report": { "$ref": "#/components/schemas/TrustReportResponse" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type", "error"],
+            "properties": {
+              "type": { "const": "error" },
+              "error": { "type": "string" }
+            }
+          }
+        ]
+      },
+
+      "PlainAnswer": {
+        "type": "object",
+        "required": ["call", "reason", "model", "ms"],
+        "properties": {
+          "call": { "type": "string", "enum": ["REAL", "FAKE", "CANNOT VERIFY", "ERROR"], "description": "`ERROR` when no hosted model is configured or it could not be reached." },
+          "reason": { "type": "string" },
+          "model": { "type": "string" },
+          "ms": { "type": "integer" }
+        }
+      },
+      "SummaryRequest": {
+        "type": "object",
+        "required": ["article"],
+        "properties": {
+          "article": { "type": "string", "description": "The article's text, or the feed's excerpt." },
+          "url": { "type": "string", "format": "uri", "description": "The cache key; also lets the server fetch the full article." },
+          "title": { "type": "string" }
+        }
+      },
+      "SummaryResponse": {
+        "type": "object",
+        "required": ["summary", "cached", "sourceText"],
+        "properties": {
+          "summary": { "type": "string" },
+          "cached": { "type": "boolean" },
+          "sourceText": {
+            "type": "object",
+            "properties": {
+              "chars": { "type": "integer" },
+              "coverage": { "type": "string", "enum": ["article-text", "publisher-excerpt", "cached"], "description": "What the summary was written from." }
+            }
+          }
+        }
+      },
+      "ExtractedArticle": {
+        "type": "object",
+        "required": ["title", "content", "source", "url", "publishedAt"],
+        "properties": {
+          "title": { "type": "string" },
+          "content": { "type": "string" },
+          "description": { "type": "string" },
+          "source": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string" } } },
+          "url": { "type": "string", "format": "uri" },
+          "urlToImage": { "type": ["string", "null"] },
+          "publishedAt": { "type": "string", "format": "date-time" },
+          "publishedAtKnown": { "type": "boolean", "description": "False when `publishedAt` is only the time of fetching." },
+          "extractedChars": { "type": "integer" },
+          "readNote": { "type": "string", "description": "Present when only part of the page could be read." }
+        }
+      },
+      "ExtractFailure": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": { "type": "string" },
+          "partial": {
+            "type": "object",
+            "description": "What is known about a publisher that blocks automated reading.",
+            "properties": {
+              "sourceName": { "type": "string" },
+              "matched": { "type": "boolean" },
+              "score": { "type": "number" },
+              "bias": { "type": ["string", "null"] },
+              "note": { "type": "string" }
+            }
+          }
+        }
+      },
+      "TrustBadge": {
+        "type": "object",
+        "required": ["kind"],
+        "description": "`kind: analyzed` carries the cached verdict; `kind: source-only` carries the publisher's reputation.",
+        "properties": {
+          "url": { "type": ["string", "null"] },
+          "kind": { "type": "string", "enum": ["analyzed", "source-only"] },
+          "score": { "type": "number" },
+          "call": { "oneOf": [{ "type": "null" }, { "$ref": "#/components/schemas/Call" }], "description": "`analyzed` only." },
+          "verdict": { "type": "string", "description": "`analyzed` only." },
+          "level": { "type": "string", "description": "`analyzed` only." },
+          "concernCount": { "type": "integer", "description": "`analyzed` only." },
+          "sourceMatched": { "type": "boolean", "description": "`source-only`: whether the outlet is in the reputation database." },
+          "sourceName": { "type": ["string", "null"] },
+          "bias": { "type": ["string", "null"] },
+          "label": { "type": "string", "enum": ["Reliable source", "Mixed record", "Low-rated source", "Unrated source"] }
+        }
+      },
+      "CoverageComparison": {
+        "type": "object",
+        "required": ["status", "query"],
+        "properties": {
+          "status": { "type": "string", "enum": ["ok", "insufficient-coverage"] },
+          "query": { "type": "string" },
+          "explanation": { "type": "string", "description": "`insufficient-coverage` only." },
+          "originalSource": { "type": ["string", "null"] },
+          "originalUrl": { "type": ["string", "null"] },
+          "outlets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "source": { "type": "string" },
+                "title": { "type": "string" },
+                "description": { "type": "string" },
+                "url": { "type": "string" },
+                "publishedAt": { "type": ["string", "null"] },
+                "isOriginal": { "type": "boolean" },
+                "reputation": {
+                  "type": "object",
+                  "properties": {
+                    "score": { "type": "number" },
+                    "bias": { "type": ["string", "null"] },
+                    "type": { "type": ["string", "null"] },
+                    "matched": { "type": "boolean" },
+                    "matchedName": { "type": ["string", "null"] }
+                  }
+                },
+                "headline": {
+                  "type": "object",
+                  "properties": {
+                    "score": { "type": "number" },
+                    "isClickbait": { "type": "boolean" },
+                    "signals": { "type": "array", "items": { "type": "string" } }
+                  }
+                },
+                "coverageScore": { "type": "number" }
+              }
+            }
+          },
+          "consensus": {
+            "type": "object",
+            "properties": {
+              "topic": { "type": "string" },
+              "agreement": { "type": "string", "enum": ["high", "mixed", "low"] },
+              "sharedFacts": { "type": "array", "items": { "type": "string" } },
+              "differences": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "point": { "type": "string" },
+                    "outlets": { "type": "array", "items": { "type": "string" } }
+                  }
+                }
+              },
+              "summary": { "type": "string" },
+              "failed": { "type": "boolean", "description": "True when the framing comparison could not run; the outlet list is still valid." }
+            }
+          },
+          "spread": {
+            "type": "object",
+            "properties": {
+              "outletCount": { "type": "integer" },
+              "leanCounts": { "type": "object", "additionalProperties": { "type": "integer" } },
+              "lowestScore": { "type": "number" },
+              "highestScore": { "type": "number" }
+            }
+          },
+          "analyzedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+
+      "ClaimHistory": {
+        "type": "object",
+        "required": ["claimId", "claim", "timesSeen", "history"],
+        "properties": {
+          "claimId": { "$ref": "#/components/schemas/ObjectId" },
+          "claim": { "type": "string" },
+          "firstSeenAt": { "type": "string", "format": "date-time" },
+          "lastSeenAt": { "type": "string", "format": "date-time" },
+          "timesSeen": { "type": "integer" },
+          "languages": { "type": "array", "items": { "type": "string" } },
+          "current": {
+            "oneOf": [
+              { "type": "null" },
+              {
+                "type": "object",
+                "properties": {
+                  "call": { "type": "string" },
+                  "oneLine": { "type": ["string", "null"] },
+                  "at": { "type": "string", "format": "date-time" }
+                }
+              }
+            ]
+          },
+          "recheck": {
+            "type": "object",
+            "properties": {
+              "due": { "type": ["string", "null"], "format": "date-time" },
+              "stage": { "type": "integer", "description": "How many re-checks have run." },
+              "of": { "type": "integer", "description": "How many are scheduled in all (3: at 6, 24 and 72 hours)." }
+            }
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "claimId": { "$ref": "#/components/schemas/ObjectId" },
+                "claim": { "type": "string" },
+                "differences": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          },
+          "history": { "type": "array", "items": { "$ref": "#/components/schemas/ClaimHistoryEntry" }, "description": "Oldest first, at most 100." }
+        }
+      },
+      "ClaimHistoryEntry": {
+        "type": "object",
+        "required": ["assessmentId", "at", "trigger", "call"],
+        "properties": {
+          "assessmentId": { "$ref": "#/components/schemas/ObjectId" },
+          "at": { "type": "string", "format": "date-time" },
+          "trigger": { "type": "string", "enum": ["user", "recheck", "eval"], "description": "`user`: a reader's check. `recheck`: the automatic re-check of an unsettled claim. `eval`: an evaluation run." },
+          "call": { "type": "string" },
+          "rule": { "type": ["string", "null"] },
+          "oneLine": { "type": ["string", "null"], "description": "Null for a message with several claims, whose one-line reason is not this claim's." },
+          "changeReason": { "type": ["string", "null"] },
+          "evidence": {
+            "type": "object",
+            "description": "Counts of evidence items stored with that check.",
+            "properties": {
+              "for": { "type": "integer" },
+              "against": { "type": "integer" },
+              "rulings": { "type": "integer", "description": "Fact-checkers' rulings." }
+            }
+          }
+        }
+      },
+
+      "ClaimSummary": {
+        "type": "object",
+        "required": ["claimId", "claim", "timesChecked"],
+        "description": "A claim in a list. Names exactly the fields the registry publishes; nothing else from the stored record leaves the server.",
+        "properties": {
+          "claimId": { "$ref": "#/components/schemas/ObjectId" },
+          "claim": { "type": "string" },
+          "call": { "type": ["string", "null"], "description": "The latest verdict on this claim." },
+          "oneLine": { "type": ["string", "null"] },
+          "verdictAt": { "type": ["string", "null"], "format": "date-time" },
+          "timesChecked": { "type": "integer" },
+          "firstCheckedAt": { "type": ["string", "null"], "format": "date-time" },
+          "lastCheckedAt": { "type": ["string", "null"], "format": "date-time" },
+          "languages": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "ClaimList": {
+        "type": "object",
+        "required": ["claims", "total", "limit", "nextCursor"],
+        "properties": {
+          "claims": { "type": "array", "items": { "$ref": "#/components/schemas/ClaimSummary" } },
+          "total": { "type": "integer", "description": "All claims matching the search, not just this page." },
+          "limit": { "type": "integer" },
+          "nextCursor": { "type": ["string", "null"], "description": "Pass as `cursor` for the next page. Null on the last page." }
+        }
+      },
+      "TrendingClaims": {
+        "type": "object",
+        "required": ["windowDays", "claims"],
+        "properties": {
+          "windowDays": { "type": "integer", "const": 7 },
+          "claims": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                { "$ref": "#/components/schemas/ClaimSummary" },
+                {
+                  "type": "object",
+                  "required": ["checksThisWeek"],
+                  "properties": { "checksThisWeek": { "type": "integer" } }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "ChangedVerdicts": {
+        "type": "object",
+        "required": ["changes"],
+        "properties": {
+          "changes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["claimId", "claim", "at", "trigger", "to", "changeReason"],
+              "properties": {
+                "claimId": { "$ref": "#/components/schemas/ObjectId" },
+                "claim": { "type": "string" },
+                "at": { "type": "string", "format": "date-time" },
+                "trigger": { "type": "string", "enum": ["user", "recheck"] },
+                "from": { "type": ["string", "null"], "description": "The call before. Null when the earlier check cannot be found." },
+                "to": { "type": "string", "description": "The call now." },
+                "changeReason": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "RegistryStats": {
+        "type": "object",
+        "required": ["claims", "checks", "checksThisWeek", "calls", "languages", "since"],
+        "properties": {
+          "claims": { "type": "integer", "description": "Distinct claims." },
+          "checks": { "type": "integer", "description": "Times claims have been checked, in total." },
+          "checksThisWeek": { "type": "integer", "description": "Checks by readers in the last seven days." },
+          "calls": {
+            "type": "object",
+            "description": "Claims by latest call.",
+            "required": ["REAL", "FAKE", "PARTLY FALSE", "CANNOT VERIFY", "other"],
+            "properties": {
+              "REAL": { "type": "integer" },
+              "FAKE": { "type": "integer" },
+              "PARTLY FALSE": { "type": "integer" },
+              "CANNOT VERIFY": { "type": "integer" },
+              "other": { "type": "integer" }
+            }
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "language": { "type": "string" },
+                "claims": { "type": "integer" }
+              }
+            }
+          },
+          "since": { "type": ["string", "null"], "format": "date-time", "description": "When the first claim was checked." }
+        }
+      },
+      "ClaimDetail": {
+        "type": "object",
+        "required": ["claimId", "claim", "timesChecked", "history", "evidence", "variants"],
+        "properties": {
+          "claimId": { "$ref": "#/components/schemas/ObjectId" },
+          "claim": { "type": "string" },
+          "call": { "type": ["string", "null"] },
+          "oneLine": { "type": ["string", "null"] },
+          "verdictAt": { "type": ["string", "null"], "format": "date-time" },
+          "timesChecked": { "type": "integer" },
+          "firstCheckedAt": { "type": ["string", "null"], "format": "date-time" },
+          "lastCheckedAt": { "type": ["string", "null"], "format": "date-time" },
+          "languages": { "type": "array", "items": { "type": "string" } },
+          "decidedBy": {
+            "description": "The rule that decided the latest verdict, with its measured record. Null for a message with several claims, whose rule is not this claim's.",
+            "oneOf": [
+              { "type": "null" },
+              {
+                "type": "object",
+                "required": ["rule", "trackRecord"],
+                "properties": {
+                  "rule": { "type": "string" },
+                  "trackRecord": { "oneOf": [{ "type": "null" }, { "$ref": "#/components/schemas/TrackRecord" }] }
+                }
+              }
+            ]
+          },
+          "recheckDue": { "type": ["string", "null"], "format": "date-time" },
+          "history": { "type": "array", "items": { "$ref": "#/components/schemas/ClaimHistoryEntry" }, "description": "Every verdict reached on the claim, oldest first." },
+          "evidence": { "type": "array", "items": { "$ref": "#/components/schemas/RegistryEvidence" }, "description": "The evidence behind the latest verdict, at most 40 items." },
+          "variants": {
+            "type": "array",
+            "description": "Related wordings that have their own public page.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "claimId": { "$ref": "#/components/schemas/ObjectId" },
+                "claim": { "type": "string" },
+                "call": { "type": ["string", "null"] },
+                "differences": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          }
+        }
+      },
+      "RegistryEvidence": {
+        "type": "object",
+        "required": ["channel", "side", "source"],
+        "properties": {
+          "channel": { "type": "string", "enum": ["news", "factcheck", "week", "reference"] },
+          "side": { "type": "string", "enum": ["for", "against"] },
+          "source": { "type": "string" },
+          "title": { "type": "string" },
+          "url": { "type": "string", "description": "Empty unless it is an http(s) address." },
+          "reported": { "type": "string", "description": "What the source reported, in its own words, or the fact-checker's rating." },
+          "publishedAt": { "type": "string" }
+        }
+      }
+    }
+  }
+}

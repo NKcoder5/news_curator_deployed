@@ -1,0 +1,562 @@
+{
+  "ranAt": "2026-10-12T10:21:18.745Z",
+  "suite": "claim_matching_heldout",
+  "summary": {
+    "pairs": 46,
+    "exact": 33,
+    "falseMerges": 0,
+    "variantsMerged": 3,
+    "falseLinks": 0,
+    "sameRecall": "4/14",
+    "variantRecall": "9/12",
+    "differentKeptApart": "20/20",
+    "decoysKeptApart": "18/18",
+    "ambiguous": 8,
+    "modelConsulted": "off"
+  },
+  "rows": [
+    {
+      "id": "m-1",
+      "a": "Nana Patekar died at his home in Goa.",
+      "b": "Actor Nana Patekar passed away in Goa.",
+      "label": "same",
+      "got": "different",
+      "differences": [],
+      "score": 0.15,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-2",
+      "a": "Navi Pillay won the 2026 Nobel Peace Prize.",
+      "b": "The 2026 Nobel Peace Prize was awarded to Navi Pillay.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 0.84,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-3",
+      "a": "West Indies beat India by six wickets in the second T20I in Ranchi.",
+      "b": "West Indies defeated India by 6 wickets in the 2nd T20I at Ranchi.",
+      "label": "same",
+      "got": "different",
+      "differences": [],
+      "score": 0.68,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-4",
+      "a": "Narendra Modi completed 25 years as head of government.",
+      "b": "PM Modi has completed 25 years as a head of government.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 0.76,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-5",
+      "a": "Vijay launched the Dream Olympics 2036 scheme.",
+      "b": "The Dream Olympics 2036 scheme was launched by Chief Minister Vijay.",
+      "label": "same",
+      "got": "different",
+      "differences": [],
+      "score": 0.57,
+      "ambiguous": true,
+      "askedModel": false
+    },
+    {
+      "id": "m-6",
+      "a": "Francis Halzen won the 2026 Nobel Prize in Physics.",
+      "b": "The Nobel Prize in Physics 2026 went to Francis Halzen.",
+      "label": "same",
+      "got": "different",
+      "differences": [],
+      "score": 0.6,
+      "ambiguous": true,
+      "askedModel": false
+    },
+    {
+      "id": "m-7",
+      "a": "The government will ban Instagram in India from 25 August.",
+      "b": "Instagram will be banned across India from August 25.",
+      "label": "same",
+      "got": "different",
+      "differences": [],
+      "score": 0.8,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-8",
+      "a": "UNESCO declared Jana Gana Mana the best national anthem in the world.",
+      "b": "Jana Gana Mana was named the world's best national anthem by UNESCO.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 0.91,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-9",
+      "a": "The Rs 2,000 note has a GPS nano chip.",
+      "b": "The 2000 rupee note contains a nano GPS chip.",
+      "label": "same",
+      "got": "different",
+      "differences": [],
+      "score": 0.9,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-10",
+      "a": "The Madras High Court reserved orders on Vijay's plea to dismiss the Perambur election petition.",
+      "b": "Orders were reserved by the Madras High Court on Chief Minister Vijay's petition seeking dismissal of the Perambur poll case.",
+      "label": "same",
+      "got": "different",
+      "differences": [],
+      "score": 0.51,
+      "ambiguous": true,
+      "askedModel": false
+    },
+    {
+      "id": "m-11",
+      "a": "Shreyas Iyer scored his maiden T20I century against West Indies.",
+      "b": "Shreyas Iyer hit his first T20 international hundred against the West Indies.",
+      "label": "same",
+      "got": "different",
+      "differences": [],
+      "score": 0.65,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-12",
+      "a": "ISRO launched the EOS-05 satellite on GSLV-F17.",
+      "b": "The GSLV-F17 rocket carried EOS-05 into orbit for ISRO.",
+      "label": "same",
+      "got": "different",
+      "differences": [],
+      "score": 0.71,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-13",
+      "a": "Tamil Nadu expanded free bus travel for women to express buses from October 2.",
+      "b": "From October 2, women can travel free on express buses in Tamil Nadu.",
+      "label": "same",
+      "got": "same",
+      "differences": [],
+      "score": 0.89,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-14",
+      "a": "Ratan Tata died at the age of 86.",
+      "b": "Ratan Tata passed away aged 86.",
+      "label": "same",
+      "got": "different",
+      "differences": [],
+      "score": 0.6,
+      "ambiguous": true,
+      "askedModel": false
+    },
+    {
+      "id": "m-15",
+      "a": "Nana Patekar died at the age of 75.",
+      "b": "Nana Patekar died at the age of 82.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "figure: 75 vs 82"
+      ],
+      "score": 1,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-16",
+      "a": "Narendra Modi completed 25 years as head of government.",
+      "b": "Narendra Modi completed 30 years as head of government.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "figure: 25 year vs 30 year"
+      ],
+      "score": 1,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-17",
+      "a": "Navi Pillay won the Nobel Peace Prize in 2026.",
+      "b": "Navi Pillay won the Nobel Peace Prize in 2025.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "date: 2026 vs 2025"
+      ],
+      "score": 1,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-18",
+      "a": "India beat West Indies in the second T20I in Ranchi.",
+      "b": "West Indies beat India in the second T20I in Ranchi.",
+      "label": "variant",
+      "note": "The same match with the result reversed: who beat whom is carried by word order alone.",
+      "got": "same",
+      "differences": [],
+      "score": 1,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-19",
+      "a": "Tamil Nadu will pay Rs 5 crore for an Olympic gold medal.",
+      "b": "Tamil Nadu will pay Rs 50 crore for an Olympic gold medal.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "figure: 50000000 rupee vs 500000000 rupee"
+      ],
+      "score": 1,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-20",
+      "a": "ISRO's GSLV-F17 mission succeeded.",
+      "b": "ISRO's GSLV-F17 mission failed.",
+      "label": "variant",
+      "got": "same",
+      "differences": [],
+      "score": 0.8,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-21",
+      "a": "The Madras High Court upheld Vijay's election from Perambur.",
+      "b": "The Madras High Court set aside Vijay's election from Perambur.",
+      "label": "variant",
+      "got": "same",
+      "differences": [],
+      "score": 0.83,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-22",
+      "a": "India won the T20 World Cup in 2024.",
+      "b": "India won the T20 World Cup in 2026.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "date: 2024 vs 2026"
+      ],
+      "score": 1,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-23",
+      "a": "The Pulwama attack killed 40 CRPF personnel.",
+      "b": "The Pulwama attack killed 44 CRPF personnel.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "figure: 40 crpf vs 44 crpf"
+      ],
+      "score": 1,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-24",
+      "a": "The Karur crowd crush at the TVK rally killed 41 people.",
+      "b": "The Karur crowd crush at the TVK rally killed 10 people.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "figure: 41 people vs 10 people"
+      ],
+      "score": 1,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-25",
+      "a": "Navi Pillay accepted the Nobel Peace Prize.",
+      "b": "Navi Pillay did not accept the Nobel Peace Prize.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "one says the opposite of the other"
+      ],
+      "score": 0.84,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-26",
+      "a": "Instagram will be banned in India from 25 August.",
+      "b": "Instagram will not be banned in India from 25 August.",
+      "label": "variant",
+      "got": "variant",
+      "differences": [
+        "one says the opposite of the other"
+      ],
+      "score": 1,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-27",
+      "a": "Navi Pillay won the 2026 Nobel Peace Prize.",
+      "b": "Francis Halzen won the 2026 Nobel Prize in Physics.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.1,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-28",
+      "a": "Shreyas Iyer hit a century in the first T20I in Lucknow.",
+      "b": "Shai Hope hit a century in the second T20I in Ranchi.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.2,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-29",
+      "a": "West Indies beat India in the second T20I in Ranchi.",
+      "b": "India beat West Indies in the first T20I in Lucknow.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.49,
+      "ambiguous": true,
+      "askedModel": false
+    },
+    {
+      "id": "m-30",
+      "a": "Vijay launched the Dream Olympics 2036 scheme.",
+      "b": "Vijay launched the expanded Vettri Payanam free bus scheme.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.28,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-31",
+      "a": "The Madras High Court reserved orders on Vijay's Perambur election petition.",
+      "b": "The Madras High Court extended its stay on by-elections in five Tamil Nadu seats.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.22,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-32",
+      "a": "Narendra Modi completed 25 years as head of government.",
+      "b": "Narendra Modi offered prayers at a Delhi temple.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.4,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-33",
+      "a": "Nana Patekar died in Goa.",
+      "b": "Nana Patekar starred in Krantiveer.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.3,
+      "ambiguous": true,
+      "askedModel": false
+    },
+    {
+      "id": "m-34",
+      "a": "ISRO launched EOS-05 on GSLV-F17.",
+      "b": "ISRO plans the uncrewed Gaganyaan G1 mission.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.36,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-35",
+      "a": "General Dhiraj Seth urged soldiers to drink cow urine.",
+      "b": "General Dhiraj Seth visited ex-servicemen in Kupwara.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.48,
+      "ambiguous": true,
+      "askedModel": false
+    },
+    {
+      "id": "m-36",
+      "a": "DCP Sumit Jha resigned over the student protests.",
+      "b": "DCP Sumit Jha spoke about action against Pakistan-based social media handles.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.46,
+      "ambiguous": true,
+      "askedModel": false
+    },
+    {
+      "id": "m-37",
+      "a": "S Jaishankar asked the US to hand over the Cockroach Janta Party founder.",
+      "b": "S Jaishankar held a joint press conference with Marco Rubio in New Delhi.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.09,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-38",
+      "a": "Tamil Nadu will pay Rs 5 crore for an Olympic gold medal.",
+      "b": "Tamil Nadu will pay Rs 5 crore for a Chess Olympiad gold medal.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.64,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-39",
+      "a": "India won the T20 World Cup in 2024.",
+      "b": "India won the Champions Trophy in 2025.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.52,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-40",
+      "a": "Ratan Tata died at the age of 86.",
+      "b": "Ratan Tata stepped down as Tata Sons chairman.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.4,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-41",
+      "a": "The government will ban Instagram from 25 August.",
+      "b": "The government will ban TikTok from 25 August.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.4,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-42",
+      "a": "Karl Deisseroth shared the 2026 Nobel Prize in Medicine.",
+      "b": "Karl Deisseroth gave a lecture at Stanford in 2026.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.2,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-43",
+      "a": "UNESCO declared Jana Gana Mana the best national anthem.",
+      "b": "UNESCO declared the Durga Puja of Kolkata an intangible cultural heritage.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.23,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-44",
+      "a": "Shreyas Iyer captained India at the Asian Games.",
+      "b": "Shreyas Iyer captained India against West Indies in Lucknow.",
+      "label": "different",
+      "decoy": true,
+      "got": "different",
+      "differences": [],
+      "score": 0.43,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-45",
+      "a": "Nana Patekar died in Goa.",
+      "b": "Navi Pillay won the Nobel Peace Prize.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0,
+      "ambiguous": false,
+      "askedModel": false
+    },
+    {
+      "id": "m-46",
+      "a": "The Madras High Court reserved orders on Vijay's plea.",
+      "b": "ISRO launched EOS-05 on GSLV-F17.",
+      "label": "different",
+      "got": "different",
+      "differences": [],
+      "score": 0,
+      "ambiguous": false,
+      "askedModel": false
+    }
+  ]
+}

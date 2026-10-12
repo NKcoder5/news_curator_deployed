@@ -25,25 +25,46 @@
 //   node scripts/profileCheck.js --db none "message"      # no claim memory
 //   node scripts/profileCheck.js --db live "message"      # the real memory, filed as 'eval'
 //   node scripts/profileCheck.js --out run.json "message" # also keep the raw timings
+//   node scripts/profileCheck.js --trigger user "message" # as a reader's check (fast path, deadlines)
 //
-// Each message is checked with trigger 'eval', so no re-check is ever booked.
-// Live checks spend shared model quota: keep the list short and the gap long.
+// Record and replay. A live check spends quota and meets whatever the network
+// and the model providers are doing that minute, so two versions of the code
+// cannot be compared fairly live. `--record file` keeps every HTTP response
+// with the time it took; `--replay file` answers every request from that
+// recording, after the recorded delay, with no network at all. Old and new code
+// replayed on one recording see identical evidence and identical latencies, so
+// any difference in verdict or time is the code's. `--slow host=4` (four times
+// slower) or `--slow host=+3000` (3 s more) and `--busy host` (each distinct
+// request answered 503 "model busy" the first time) replay a loaded day.
+//
+// Each message is checked with trigger 'eval' unless told otherwise, so no
+// re-check is ever booked. Live checks spend shared model quota: keep the list
+// short and the gap long.
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const parseArgs = (argv) => {
-  const opts = { repeat: 1, gap: 20, db: 'copy', out: null, messages: [] };
+  const opts = { repeat: 1, gap: 20, db: 'copy', out: null, trigger: 'eval', record: null, replay: null, slow: {}, busy: [], messages: [] };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--repeat') opts.repeat = Math.max(1, Number(argv[++i]) || 1);
     else if (a === '--gap') opts.gap = Math.max(0, Number(argv[++i]) || 0);
     else if (a === '--db') opts.db = String(argv[++i] || 'copy');
     else if (a === '--out') opts.out = argv[++i];
+    else if (a === '--trigger') opts.trigger = String(argv[++i] || 'eval');
+    else if (a === '--record') opts.record = argv[++i];
+    else if (a === '--replay') opts.replay = argv[++i];
+    else if (a === '--slow') {
+      const [host, how] = String(argv[++i] || '').split('=');
+      if (host && how) opts.slow[host] = how;
+    } else if (a === '--busy') opts.busy.push(String(argv[++i] || ''));
     else opts.messages.push(a);
   }
   return opts;
 };
+const opts = parseArgs(process.argv.slice(2));
 
 /* ---------------------------------------------------------------------------
    Instrumentation, installed before the pipeline is loaded
@@ -52,6 +73,7 @@ const parseArgs = (argv) => {
 let t0 = Date.now();
 let current = null;          // the record of the check in progress
 const now = () => Date.now() - t0;
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 const record = (kind, entry) => { if (current) current[kind].push(entry); };
 
 // Every HTTP request, whichever module made it.
@@ -66,18 +88,66 @@ const describeRequest = (url, config = {}) => {
     return { host: String(url).slice(0, 40), what: '' };
   }
 };
+// A request's identity for record and replay: method, address and what was
+// sent, with any key left out so a recording never holds a credential.
+const SECRET_PARAMS = /^(apikey|key|token)$/i;
+const requestKey = (method, url, payload) => {
+  const clean = String(url).replace(/([?&])(apiKey|key)=[^&]*/gi, '$1');
+  const sent = Object.fromEntries(Object.entries(payload || {}).filter(([k]) => !SECRET_PARAMS.test(k)));
+  return `${method} ${clean} ${crypto.createHash('sha1').update(JSON.stringify(sent)).digest('hex')}`;
+};
+const recording = opts.replay ? JSON.parse(fs.readFileSync(opts.replay, 'utf8')) : {};
+const replayUsed = new Map();
+const busySeen = new Set();
+const replayMisses = [];
+const delayFor = (host, ms) => {
+  const rule = Object.entries(opts.slow).find(([h]) => host.includes(h))?.[1];
+  if (!rule) return ms;
+  return rule.startsWith('+') ? ms + Number(rule.slice(1)) : ms * Number(rule);
+};
+const replay = async (method, url, key, host) => {
+  if (opts.busy.some(h => host.includes(h)) && !busySeen.has(key)) {
+    busySeen.add(key);
+    await sleep(300);
+    throw Object.assign(new Error('Request failed with status code 503'), { response: { status: 503, data: {}, headers: {} } });
+  }
+  const answers = recording[key];
+  if (!answers || !answers.length) {
+    replayMisses.push(`${method} ${String(url).slice(0, 100)}`);
+    throw Object.assign(new Error('connect ECONNREFUSED (not in the recording)'), { code: 'ECONNREFUSED' });
+  }
+  // The same request made twice is answered in the order it was recorded.
+  const i = replayUsed.get(key) || 0;
+  replayUsed.set(key, i + 1);
+  const a = answers[Math.min(i, answers.length - 1)];
+  await sleep(delayFor(host, a.ms));
+  if (a.code) throw Object.assign(new Error(a.message || a.code), { code: a.code });
+  const response = { status: a.status, data: a.data, headers: a.headers || {} };
+  if (a.status >= 400) throw Object.assign(new Error(`Request failed with status code ${a.status}`), { response });
+  return response;
+};
+
 for (const method of ['get', 'post']) {
   const original = axios[method].bind(axios);
   axios[method] = async (url, ...rest) => {
     const config = (method === 'get' ? rest[0] : rest[1]) || {};
     const entry = { method, ...describeRequest(url, config), start: now() };
     if (method === 'post' && rest[0]?.model) entry.what = `model ${rest[0].model}`;
+    const key = requestKey(method, url, method === 'get' ? config.params : rest[0]);
+    const keep = (answer) => {
+      if (!opts.record) return;
+      (recording[key] = recording[key] || []).push(answer);
+    };
     try {
-      const response = await original(url, ...rest);
+      const response = opts.replay ? await replay(method, url, key, entry.host) : await original(url, ...rest);
       Object.assign(entry, { ms: now() - entry.start, status: response.status });
+      keep({ status: response.status, data: response.data, headers: { 'retry-after': response.headers?.['retry-after'] }, ms: entry.ms });
       return response;
     } catch (err) {
       Object.assign(entry, { ms: now() - entry.start, status: err.response?.status || err.code || 'error' });
+      keep(err.response
+        ? { status: err.response.status, data: err.response.data, headers: { 'retry-after': err.response.headers?.['retry-after'] }, ms: entry.ms }
+        : { code: err.code || 'ERROR', message: err.message, ms: entry.ms });
       throw err;
     } finally {
       record('http', entry);
@@ -268,28 +338,28 @@ const connect = async (mode) => {
   return scratch;
 };
 
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
 (async () => {
-  const opts = parseArgs(process.argv.slice(2));
   if (!opts.messages.length) {
     console.error('Give at least one message to check.');
     process.exit(2);
   }
+  // A replay spends nothing, so it need not be spaced out.
+  const gap = opts.replay ? 0 : opts.gap;
   const scratch = await connect(opts.db);
   if (scratch) console.log(`Claim memory: a copy in scratch database "${scratch}", dropped at the end.`);
+  if (opts.replay) console.log(`Replaying HTTP from ${opts.replay}${Object.keys(opts.slow).length ? `, slowed: ${JSON.stringify(opts.slow)}` : ''}${opts.busy.length ? `, busy: ${opts.busy.join(',')}` : ''}.`);
 
   const checks = [];
   let first = true;
   for (let round = 0; round < opts.repeat; round++) {
     for (const message of opts.messages) {
-      if (!first && opts.gap) await sleep(opts.gap * 1000);
+      if (!first && gap) await sleep(gap * 1000);
       first = false;
       t0 = Date.now();
       current = { message, round, spans: [], models: [], http: [], log: [], channels: [], context: null };
       try {
         const result = await runContentCheck({ text: message }, {
-          trigger: 'eval',
+          trigger: opts.trigger,
           onStage: (e) => current.channels.push({ id: `stage:${e.id}`, at: now(), ms: null }),
           onChannel: (e) => current.channels.push({ id: e.id, at: now(), ms: e.ms })
         });
@@ -303,16 +373,24 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
       // Work the check left running after it answered (a deferred write) is
       // still timed: wait for it before the record is closed.
       const done = current;
-      await sleep(Math.min(5000, opts.gap * 1000 || 1000));
+      await sleep(Math.min(5000, gap * 1000 || 2000));
       current = null;
       printCheck(done);
       checks.push(done);
     }
   }
   summarise(checks);
+  if (replayMisses.length) {
+    console.log(`\n${replayMisses.length} requests were not in the recording (answered as a refused connection):`);
+    for (const m of [...new Set(replayMisses)]) console.log(`  ${m}`);
+  }
   if (opts.out) {
     fs.writeFileSync(opts.out, JSON.stringify(checks.map(({ context, ...c }) => ({ ...c, calls: context?.calls || [] })), null, 2));
     console.log(`\nRaw timings written to ${opts.out}`);
+  }
+  if (opts.record) {
+    fs.writeFileSync(opts.record, JSON.stringify(recording));
+    console.log(`HTTP recording written to ${opts.record}`);
   }
   if (scratch && mongoose.connection.name === scratch) await mongoose.connection.db.dropDatabase();
   if (mongoose.connection.readyState) await mongoose.disconnect();

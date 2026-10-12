@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pure Press API reference</title>
+<style>
+  :root {
+    --bg: #fbfaf7; --panel: #ffffff; --ink: #1d1d1b; --muted: #5f5e58; --line: #dedbd2; --accent: #1f4e79;
+    --code: #f1efe8; --get: #1d6b46; --post: #1f4e79; --put: #8a5a00; --delete: #9b2c2c; --warn: #8a5a00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161614; --panel: #1f1f1c; --ink: #ecebe5; --muted: #a3a29a; --line: #36352f; --accent: #8db8e6;
+      --code: #2a2a26; --get: #6fcf9a; --post: #8db8e6; --put: #e0b45a; --delete: #ef8f8f; --warn: #e0b45a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 0.88em; }
+  code { background: var(--code); padding: 0.1em 0.35em; border-radius: 3px; }
+  pre { background: var(--code); padding: 12px; border-radius: 6px; overflow-x: auto; margin: 8px 0; }
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); min-height: 100vh; }
+  nav { position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 16px; border-right: 1px solid var(--line); background: var(--panel); }
+  nav h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 18px 0 6px; }
+  nav a { display: flex; gap: 8px; align-items: baseline; padding: 3px 0; text-decoration: none; color: var(--ink); font-size: 0.88rem; word-break: break-all; }
+  nav a:hover { color: var(--accent); }
+  nav input { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; }
+  main { padding: 24px clamp(16px, 4vw, 48px) 80px; max-width: 980px; }
+  h1 { margin: 0 0 4px; font-size: 1.7rem; }
+  .lede { color: var(--muted); margin: 0 0 16px; }
+  .method { display: inline-block; min-width: 3.6em; text-align: center; font: 700 0.72rem ui-monospace, Consolas, monospace; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; border: 1px solid currentColor; }
+  .get { color: var(--get); } .post { color: var(--post); } .put { color: var(--put); } .delete { color: var(--delete); }
+  .op { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; margin: 18px 0; scroll-margin-top: 12px; }
+  .op h3 { margin: 0 0 4px; font-size: 1.05rem; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; word-break: break-all; }
+  .op h4 { margin: 18px 0 6px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .chip { display: inline-block; font-size: 0.75rem; padding: 1px 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); }
+  .chip.warn { color: var(--warn); border-color: var(--warn); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+  th, td { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+  ul.tree { list-style: none; margin: 0; padding-left: 18px; border-left: 1px dashed var(--line); }
+  ul.tree.root { padding-left: 0; border-left: 0; }
+  ul.tree li { margin: 3px 0; }
+  .type { color: var(--muted); font-family: ui-monospace, Consolas, monospace; font-size: 0.82rem; }
+  .req { color: var(--delete); font-size: 0.75rem; margin-left: 4px; }
+  .desc { color: var(--muted); }
+  details > summary { cursor: pointer; }
+  .status { font-weight: 700; }
+  .notice { background: var(--code); border-left: 3px solid var(--warn); padding: 10px 14px; border-radius: 4px; }
+  @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } nav { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); } }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav aria-label="Operations">
+    <input id="filter" type="search" placeholder="Filter operations" aria-label="Filter operations">
+    <div id="toc"></div>
+  </nav>
+  <main id="main"><p>Loading the reference…</p></main>
+</div>
+
+<script>
+'use strict';
+// Renders openapi.json (the file beside this page) without any library or network
+// access. Every string from the spec is inserted as text, never as HTML.
+var spec = null;
+var main = document.getElementById('main');
+var toc = document.getElementById('toc');
+
+function h(tag, attrs) {
+  var el = document.createElement(tag);
+  Object.keys(attrs || {}).forEach(function (k) { if (k === 'class') el.className = attrs[k]; else el.setAttribute(k, attrs[k]); });
+  (function add(children) {
+    children.forEach(function (c) {
+      if (c === null || c === undefined || c === false) return;
+      if (Array.isArray(c)) return add(c);
+      el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    });
+  })(Array.prototype.slice.call(arguments, 2));
+  return el;
+}
+
+// `code` and **bold**, and paragraph breaks; nothing else the spec uses.
+function inline(text) {
+  var frag = document.createDocumentFragment();
+  String(text).split(/(`[^`]+`|\*\*[^*]+\*\*)/).forEach(function (part) {
+    if (!part) return;
+    if (part[0] === '`') frag.appendChild(h('code', {}, part.slice(1, -1)));
+    else if (part.slice(0, 2) === '**') frag.appendChild(h('strong', {}, part.slice(2, -2)));
+    else frag.appendChild(document.createTextNode(part));
+  });
+  return frag;
+}
+function prose(text) {
+  var box = h('div', { class: 'desc' });
+  String(text || '').split(/\n{2,}/).forEach(function (p) { if (p.trim()) box.appendChild(h('p', {}, inline(p))); });
+  return box;
+}
+
+function deref(node) {
+  var seen = 0;
+  while (node && node.$ref && seen++ < 20) {
+    node = node.$ref.replace(/^#\//, '').split('/').reduce(function (o, k) { return o && o[k]; }, spec);
+  }
+  return node;
+}
+function refName(node) { return node && node.$ref ? node.$ref.split('/').pop() : null; }
+
+function typeLabel(s) {
+  if (!s) return '';
+  if (s.const !== undefined) return 'const ' + JSON.stringify(s.const);
+  if (s.enum) return s.enum.map(function (v) { return JSON.stringify(v); }).join(' | ');
+  var t = [].concat(s.type || []).join(' | ');
+  if (s.type === 'array' && s.items) { var n = refName(s.items); t = (n || (deref(s.items).type || 'any')) + '[]'; }
+  if (s.format) t += ' (' + s.format + ')';
+  return t;
+}
+
+// One schema as a nested list. A schema already being drawn above is shown by
+// name only, so recursive references cannot loop.
+function schemaTree(node, path, depth, required) {
+  var name = refName(node);
+  var s = deref(node);
+  if (!s) return h('span', {}, '');
+  var items = [];
+  var cycle = name && path.indexOf(name) !== -1;
+  var inner = path.concat(name ? [name] : []);
+
+  var variants = s.oneOf || s.anyOf;
+  var props = s.properties;
+  var parts = s.allOf ? s.allOf : null;
+
+  var box = h('div', {});
+  if (s.description && !props) box.appendChild(h('div', { class: 'desc' }, inline(s.description)));
+  if (cycle || depth > 7) { box.appendChild(h('span', { class: 'type' }, '↻ ' + (name || 'see above'))); return box; }
+
+  if (parts) {
+    parts.forEach(function (p) { box.appendChild(schemaTree(p, inner, depth + 1)); });
+  } else if (variants) {
+    box.appendChild(h('div', { class: 'type' }, 'one of:'));
+    variants.forEach(function (v) {
+      var vs = deref(v);
+      var d = h('details', {}, h('summary', {}, refName(v) || typeLabel(vs) || 'object'), schemaTree(v, inner, depth + 1));
+      if (!refName(v) && vs && !vs.properties) d.open = true;
+      box.appendChild(d);
+    });
+  } else if (props) {
+    var list = h('ul', { class: 'tree' + (depth === 0 ? ' root' : '') });
+    Object.keys(props).forEach(function (k) {
+      var p = props[k];
+      var ps = deref(p);
+      var isReq = (s.required || []).indexOf(k) !== -1;
+      var nested = ps && (ps.properties || ps.allOf || ps.oneOf || (ps.type === 'array' && ps.items && (deref(ps.items) || {}).properties));
+      var head = h('span', {}, h('code', {}, k), isReq ? h('span', { class: 'req' }, 'required') : null, ' ',
+        h('span', { class: 'type' }, refName(p) || typeLabel(ps)));
+      var li = h('li', {}, head);
+      var text = (p.description || (ps && ps.description));
+      if (text) li.appendChild(h('div', { class: 'desc' }, inline(text)));
+      if (nested) {
+        var target = ps.type === 'array' ? ps.items : p;
+        li.appendChild(h('details', {}, h('summary', {}, 'fields'), schemaTree(target, inner, depth + 1)));
+      }
+      list.appendChild(li);
+    });
+    box.appendChild(list);
+  } else if (s.type === 'array' && s.items) {
+    box.appendChild(h('div', { class: 'type' }, 'array of ' + (refName(s.items) || typeLabel(deref(s.items)))));
+    if ((deref(s.items) || {}).properties || (deref(s.items) || {}).allOf) box.appendChild(schemaTree(s.items, inner, depth + 1));
+  } else {
+    box.appendChild(h('span', { class: 'type' }, typeLabel(s)));
+  }
+  return box;
+}
+
+function mediaBlock(content) {
+  var out = h('div', {});
+  Object.keys(content || {}).forEach(function (type) {
+    var m = content[type];
+    out.appendChild(h('div', {}, h('code', {}, type)));
+    if (m.schema) out.appendChild(schemaTree(m.schema, [], 0));
+    var examples = m.examples || (m.example !== undefined ? { example: { value: m.example } } : {});
+    Object.keys(examples).forEach(function (k) {
+      var ex = deref(examples[k]);
+      var value = ex.value;
+      out.appendChild(h('details', {}, h('summary', {}, 'Example: ' + (ex.summary || k)),
+        ex.description ? prose(ex.description) : null,
+        h('pre', {}, typeof value === 'string' ? value : JSON.stringify(value, null, 2))));
+    });
+  });
+  return out;
+}
+
+function authChips(op) {
+  var sec = op.security;
+  if (sec === undefined || !sec.length) return h('span', { class: 'chip' }, 'public');
+  return h('span', {}, sec.map(function (s, i) {
+    return h('span', { class: 'chip' }, (i ? 'or ' : 'needs ') + Object.keys(s).map(function (k) { return k === 'internalKey' ? 'x-internal-key' : 'Bearer token'; }).join(' + '));
+  }));
+}
+
+function opId(path, method) { return (method + path).replace(/[^a-z0-9]+/gi, '-'); }
+
+function operation(path, method, op) {
+  var card = h('section', { class: 'op', id: opId(path, method), 'data-search': (method + ' ' + path + ' ' + (op.summary || '')).toLowerCase() },
+    h('h3', {}, h('span', { class: 'method ' + method }, method), h('code', {}, path),
+      op['x-pending-merge'] ? h('span', { class: 'chip warn' }, 'being added by another workstream') : null));
+  card.appendChild(h('div', {}, h('strong', {}, op.summary || ''), ' ', authChips(op)));
+  if (op.description) card.appendChild(prose(op.description));
+
+  var params = (op.parameters || []).map(deref);
+  if (params.length) {
+    var rows = params.map(function (p) {
+      return h('tr', {}, h('td', {}, h('code', {}, p.name), p.required ? h('span', { class: 'req' }, 'required') : null),
+        h('td', {}, p.in), h('td', {}, h('span', { class: 'type' }, typeLabel(deref(p.schema)))), h('td', { class: 'desc' }, inline(p.description || '')));
+    });
+    card.appendChild(h('h4', {}, 'Parameters'));
+    card.appendChild(h('table', {}, h('thead', {}, h('tr', {}, h('th', {}, 'Name'), h('th', {}, 'In'), h('th', {}, 'Type'), h('th', {}, 'Description'))), h('tbody', {}, rows)));
+  }
+  if (op.requestBody) {
+    card.appendChild(h('h4', {}, 'Request body' + (op.requestBody.required ? ' (required)' : '')));
+    card.appendChild(mediaBlock(op.requestBody.content));
+  }
+  card.appendChild(h('h4', {}, 'Responses'));
+  Object.keys(op.responses).forEach(function (code) {
+    var r = deref(op.responses[code]);
+    var d = h('details', {}, h('summary', {}, h('span', { class: 'status' }, code), ' ', inline(r.description || '')));
+    if (r.content) d.appendChild(mediaBlock(r.content));
+    if (code[0] === '2') d.open = true;
+    card.appendChild(d);
+  });
+  return card;
+}
+
+function render() {
+  var info = spec.info;
+  main.textContent = '';
+  main.appendChild(h('h1', {}, info.title));
+  main.appendChild(h('p', { class: 'lede' }, 'Version ' + info.version + (info.summary ? ' · ' + info.summary : '')));
+  main.appendChild(h('p', {}, (spec.servers || []).map(function (s) { return h('span', { class: 'chip' }, s.url + ' — ' + s.description); })));
+  main.appendChild(prose(info.description));
+
+  toc.textContent = '';
+  (spec.tags || []).forEach(function (tag) {
+    var ops = [];
+    Object.keys(spec.paths).forEach(function (path) {
+      ['get', 'post', 'put', 'delete', 'patch'].forEach(function (m) {
+        var op = spec.paths[path][m];
+        if (op && (op.tags || [])[0] === tag.name) ops.push({ path: path, method: m, op: op });
+      });
+    });
+    if (!ops.length) return;
+    toc.appendChild(h('h2', {}, tag.name));
+    var section = h('section', { 'data-tag': tag.name }, h('h2', {}, tag.name), prose(tag.description));
+    ops.forEach(function (o) {
+      toc.appendChild(h('a', { href: '#' + opId(o.path, o.method), 'data-search': (o.method + ' ' + o.path + ' ' + (o.op.summary || '')).toLowerCase() },
+        h('span', { class: 'method ' + o.method }, o.method), h('span', {}, o.path)));
+      section.appendChild(operation(o.path, o.method, o.op));
+    });
+    main.appendChild(section);
+  });
+}
+
+document.getElementById('filter').addEventListener('input', function (e) {
+  var q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('[data-search]').forEach(function (el) { el.style.display = !q || el.getAttribute('data-search').indexOf(q) !== -1 ? '' : 'none'; });
+});
+
+function load(json) { spec = json; render(); if (location.hash) { var t = document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); } }
+
+function offerFile(reason) {
+  main.textContent = '';
+  main.appendChild(h('h1', {}, 'Pure Press API reference'));
+  main.appendChild(h('div', { class: 'notice' },
+    h('p', {}, 'The reference file could not be fetched (' + reason + '). Browsers will not read local files from a page opened with file://.'),
+    h('p', {}, 'Either serve this folder, e.g. ', h('code', {}, 'npx serve docs/api'), ', or choose ', h('code', {}, 'openapi.json'), ' here:'),
+    h('input', { type: 'file', accept: '.json,application/json', id: 'pick' })));
+  document.getElementById('pick').addEventListener('change', function (e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () { try { load(JSON.parse(reader.result)); } catch (err) { offerFile('that file is not valid JSON'); } };
+    reader.readAsText(file);
+  });
+}
+
+fetch('openapi.json').then(function (r) {
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}).then(load).catch(function (err) { offerFile(err.message); });
+</script>
+</body>
+</html>

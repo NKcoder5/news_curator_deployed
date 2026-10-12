@@ -5,7 +5,7 @@ import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import { LoadingRegion, Skeleton, SkeletonText } from './components/ui';
 import api from './services/api';
-import { shouldClearSession } from './services/session';
+import { afterSignIn, shouldClearSession } from './services/session';
 import './styles/tokens.css';
 import './styles/global.css';
 import './styles/newsprint.css';
@@ -21,6 +21,8 @@ const ArticlePage = lazy(() => import('./pages/ArticlePage'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const ComparePage = lazy(() => import('./pages/ComparePage'));
 const CheckPage = lazy(() => import('./pages/CheckPage'));
+const ClaimsPage = lazy(() => import('./pages/ClaimsPage'));
+const ClaimDetailPage = lazy(() => import('./pages/ClaimDetailPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 /** The shape of a page, shown while its code or the session is loading. */
@@ -41,11 +43,20 @@ const PageFallback = () => (
 );
 
 const AppRoutes = ({ user, setUser, checkingSession }) => {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname, search } = location;
   // Pages behind sign-in wait for the session check rather than bouncing a
-  // signed-in reader to the login page while it runs.
-  const signedIn = (element) => (checkingSession ? <PageFallback /> : user ? element : <Navigate to="/login" replace />);
-  const signedOut = (element) => (user ? <Navigate to="/check" replace /> : element);
+  // signed-in reader to the login page while it runs. A reader who is sent to
+  // sign in carries the page they asked for, and its state, with them
+  // (services/session.js afterSignIn).
+  const signedIn = (element) => (checkingSession ? <PageFallback />
+    : user ? element
+    : <Navigate to="/login" replace state={{ from: { pathname, search, state: location.state } }} />);
+  const signedOut = (element) => {
+    if (!user) return element;
+    const { to, state } = afterSignIn(location.state);
+    return <Navigate to={to} state={state} replace />;
+  };
 
   return (
     <ErrorBoundary resetKey={pathname}>
@@ -54,6 +65,10 @@ const AppRoutes = ({ user, setUser, checkingSession }) => {
           <Route path="/" element={<LandingPage signedIn={Boolean(user)} />} />
           <Route path="/login" element={signedOut(<LoginPage setUser={setUser} />)} />
           <Route path="/signup" element={signedOut(<SignupPage setUser={setUser} />)} />
+
+          {/* The claims registry is public: anyone can look a claim up. */}
+          <Route path="/claims" element={<ClaimsPage />} />
+          <Route path="/claims/:id" element={<ClaimDetailPage />} />
 
           <Route path="/check" element={signedIn(<CheckPage />)} />
           <Route path="/home" element={signedIn(<HomePage />)} />

@@ -1,0 +1,16 @@
+# Secrets and local state never go into an image.
+.env
+.env.*
+
+# Reinstalled inside the image for its own platform.
+node_modules
+npm-debug.log*
+
+# Not needed to serve requests: the tests, and the evaluation harness with its
+# datasets and results (large, regenerable, and nothing in the server requires it).
+test
+eval
+
+Dockerfile
+.dockerignore
+*.md

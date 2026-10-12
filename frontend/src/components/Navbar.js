@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Columns2, LayoutDashboard, LogIn, LogOut, Menu, Newspaper, ShieldCheck, X } from 'lucide-react';
+import { Columns2, LayoutDashboard, Library, LogIn, LogOut, Menu, Newspaper, ShieldCheck, X } from 'lucide-react';
 import BrandMark from './BrandMark';
 import { Button, ThemeToggle } from './ui';
 import '../styles/AppShell.css';
@@ -12,6 +12,8 @@ import '../styles/AppShell.css';
  */
 export const NAV_LINKS = [
   { to: '/check', label: 'Check', icon: ShieldCheck, match: (path) => path === '/check' },
+  // The claims registry is public, so its link shows signed in or not.
+  { to: '/claims', label: 'Claims', icon: Library, match: (path) => path.startsWith('/claims'), isPublic: true },
   { to: '/home?category=general', label: 'News', icon: Newspaper, match: (path) => path === '/home' || path === '/article' },
   { to: '/compare', label: 'Compare', icon: Columns2, match: (path) => path === '/compare' },
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, match: (path) => path === '/dashboard' }
@@ -56,25 +58,23 @@ const Navbar = ({ user, setUser }) => {
           className={`site-nav ${menuOpen ? 'is-open' : ''}`}
           aria-label="Main"
         >
-          {user && (
-            <ul className="site-nav__links">
-              {NAV_LINKS.map(({ to, label, icon: Icon, match }) => {
-                const current = match(pathname);
-                return (
-                  <li key={to}>
-                    <Link
-                      to={to}
-                      className={`site-nav__link ${current ? 'is-current' : ''}`}
-                      aria-current={current ? 'page' : undefined}
-                    >
-                      <Icon size={16} aria-hidden="true" />
-                      {label}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+          <ul className="site-nav__links">
+            {NAV_LINKS.filter((link) => user || link.isPublic).map(({ to, label, icon: Icon, match }) => {
+              const current = match(pathname);
+              return (
+                <li key={to}>
+                  <Link
+                    to={to}
+                    className={`site-nav__link ${current ? 'is-current' : ''}`}
+                    aria-current={current ? 'page' : undefined}
+                  >
+                    <Icon size={16} aria-hidden="true" />
+                    {label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
 
           <div className="site-nav__account">
             {user ? (

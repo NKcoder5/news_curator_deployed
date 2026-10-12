@@ -1,0 +1,74 @@
+name: CI
+
+# Every push and every pull request runs both test suites and the production
+# build. None of it needs a .env file, a database, an API key or the network:
+# the suites are deterministic by design, and the backend one is run with the
+# network switched off so that stays true (backend/test/support/offline.js).
+
+on:
+  push:
+  pull_request:
+
+# A newer push to the same branch makes the older run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      # Any connection to another machine fails, as on a laptop with no network.
+      CI_OFFLINE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      # node --test over test/*.test.js, with the offline preload.
+      - run: npm run test:ci
+
+  frontend:
+    name: Frontend tests and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      # Test runner: run once and exit instead of watching.
+      # Build: treat lint warnings as errors, as the container build does.
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run test:ci
+      - run: npm run build
+
+  images:
+    name: Container images build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      # The compose file needs backend/.env to exist; an empty one is enough to
+      # check that the file is valid.
+      - run: touch backend/.env && docker compose config --quiet
+      - run: docker build --tag pure-press-backend backend
+      - run: docker build --tag pure-press-frontend frontend

@@ -13,7 +13,7 @@ import '../styles/Claims.css';
 
 const SIDE_LIST = 5;
 const PAGE = 20;
-const SORTS = [['recent', 'Most recently checked'], ['checked', 'Most checked']];
+const SORTS = [['recent', 'Most recent'], ['checked', 'Most checked']];
 const CALLS = Object.entries(CALL_NAMES);
 
 const loadStats = () => getStats();

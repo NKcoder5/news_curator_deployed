@@ -11,6 +11,8 @@ const { readImageText, packForLanguage } = require('../utils/ocr');
 const { assessCheckability } = require('../agents/checkability');
 const { limitText, TEXT_BUDGET } = require('../utils/articleText');
 const { understandInput } = require('../agents/inputUnderstanding');
+const { recordCheck } = require('./claimMemory');
+const { runWithContext, currentContext } = require('../utils/runContext');
 const { translateVerdict } = require('../agents/verdictTranslation');
 
 // What each kind of message that asserts nothing checkable is told.
@@ -38,7 +40,9 @@ class ContentCheckError extends Error {
  * `onStage` hears what was read; `onChannel` hears each evidence channel
  * land, with its one-line finding.
  */
-const runContentCheck = async (requestBody, { onStage, onChannel } = {}) => {
+const runContentCheck = (requestBody, hooks = {}) => runWithContext(() => checkContent(requestBody, hooks));
+
+const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user' } = {}) => {
   const { url, text, imageBase64, account, languageHint } = requestBody || {};
   const stage = (event) => { try { onStage?.(event); } catch (_) { /* listener faults never fail a check */ } };
 
@@ -157,6 +161,7 @@ const runContentCheck = async (requestBody, { onStage, onChannel } = {}) => {
       chars: String(ingested.content || '').length
     });
 
+    let ledgerInput = null;
     const report = await analyzeTrust({
       title: ingested.title,
       content: limitText(ingested.content, TEXT_BUDGET.factors),
@@ -169,7 +174,8 @@ const runContentCheck = async (requestBody, { onStage, onChannel } = {}) => {
       onChannel,
       preparedClaims: understanding ? understanding.checkableClaims : null,
       evidenceText: understanding && understanding.language !== 'en' ? understanding.english : null,
-      understanding
+      understanding,
+      onLedgerInput: (input) => { ledgerInput = input; }
     });
 
     // The one-line reason in the reader's own language, for a message written
@@ -178,9 +184,25 @@ const runContentCheck = async (requestBody, { onStage, onChannel } = {}) => {
       ? await translateVerdict(report.oneLine, report.call, understanding.language, understanding.languageName)
       : null;
 
+    // Kept as a record: the claim, its evidence and the inputs the verdict
+    // was reached from (services/claimMemory.js). What the memory already knew
+    // — checked before, a variant of an earlier claim — comes back for the page.
+    // A failure here is logged and ignored: the reader's answer never waits on it.
+    let memory = null;
+    try {
+      memory = await recordCheck({
+        report, understanding, ledgerInput,
+        modelCalls: currentContext()?.calls || [],
+        messageText: ingested.content, trigger, modality: ingested.modality || 'text'
+      });
+    } catch (err) {
+      console.warn('Claim memory: could not record this check:', err.message);
+    }
+
     return {
       ...report,
       oneLineLocal: localLine,
+      memory,
       ingestNotes: ingested.ingestNotes,
       readText: ocrResult ? { chars: ocrResult.text.length, confidence: ocrResult.confidence, languages: ocrResult.languages } : null,
       cached: false

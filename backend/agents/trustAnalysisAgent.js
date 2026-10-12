@@ -18,7 +18,7 @@ const { assessTransparency } = require('./transparencyAgent');
 const { checkPremises } = require('./referenceCheck');
 const { checkFactCheckers } = require('./factCheckSearch');
 const { checkCurrentCoverage } = require('./currentCoverage');
-const { buildEvidenceLedger, decideVerdict, applyCeiling } = require('./verdictEngine');
+const { buildEvidenceLedger, decideVerdict, applyCeiling, compactLedgerInput } = require('./verdictEngine');
 const { assessProbability } = require('./weightOfEvidence');
 const { detectLanguage } = require('../utils/language');
 
@@ -260,7 +260,10 @@ const analyzeTrust = async ({
   // From the input-understanding step (Check Anything): the claims already
   // read out of the message in English, the message in English for the
   // reference check, and the reading itself for the report.
-  preparedClaims = null, evidenceText = null, understanding = null
+  preparedClaims = null, evidenceText = null, understanding = null,
+  // Called with the exact inputs the verdict was reached from, so the check can
+  // be stored as a record that replays to the same verdict (services/claimMemory.js).
+  onLedgerInput = null
 }) => {
   // Whether we are reading the article or the feed's two-line summary of it.
   // Checks that need the body of the piece cannot be reported as findings
@@ -438,7 +441,7 @@ const analyzeTrust = async ({
   // The evidence ledger first: it counts INDEPENDENT sources rather than
   // articles (see agents/independence.js), and both the probability and the
   // verdict read from it.
-  const evidenceLedger = buildEvidenceLedger({
+  const ledgerInput = {
     claims: verificationResult.claims || [],
     verificationStatus: verificationResult.status,
     premiseResult,
@@ -452,8 +455,13 @@ const analyzeTrust = async ({
     // So the ledger can tell "no outlet reports this" apart from "the index we
     // search does not carry anything this recent". See verdictEngine R3a.
     publishedAt,
-    domainAge: await domainAgePromise
-  });
+    domainAge: await domainAgePromise,
+    asOf: Date.now()
+  };
+  const evidenceLedger = buildEvidenceLedger(ledgerInput);
+  if (typeof onLedgerInput === 'function') {
+    try { onLedgerInput(compactLedgerInput(ledgerInput)); } catch (_) { /* recording must never fail the analysis */ }
+  }
 
   const assessment = assessProbability({
     // Source reputation is deliberately absent. Provenance already sets the

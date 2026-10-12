@@ -160,12 +160,18 @@ const buildEvidenceLedger = ({
   claims = [], sourceResult = {}, transparencyResult = {}, manipulationResult = {}, title = '',
   verificationStatus = 'unverified', premiseResult = null, factCheckResult = null, currentCoverageResult = null,
   unconfirmedClaimResult = null,
-  publishedAt = null, indexLagHours = INDEX_LAG_HOURS, domainAge = null
+  publishedAt = null, indexLagHours = INDEX_LAG_HOURS, domainAge = null,
+  // The moment the verdict is reached. Everything time-dependent below (how
+  // old the story is, whether a report is recent enough to contradict a claim
+  // about now, whether confirming coverage is old news) is measured from it,
+  // never from the clock, so a stored verdict replays as it was reached: what
+  // was known then, not what is known now.
+  asOf = Date.now()
 }) => {
   // How old the story is, when the page told us. An unknown date is left
   // unknown: guessing "now" would make every undated article look too recent
   // to check, which is a worse error than the one being fixed.
-  const ageMs = publishedAt ? Date.now() - new Date(publishedAt).getTime() : NaN;
+  const ageMs = publishedAt ? asOf - new Date(publishedAt).getTime() : NaN;
   const articleAgeHours = Number.isFinite(ageMs) && ageMs >= 0 ? ageMs / 3600000 : null;
   const perClaim = claims.map(claim => {
     // A claim about something happening now can only be contradicted by
@@ -173,7 +179,7 @@ const buildEvidenceLedger = ({
     // "contradicted" by a February report of a one-day shutdown: a different
     // occurrence, which a judge model let through as the same event.
     const recentEnough = (e) => !e.publishedAt || !Number.isFinite(Date.parse(e.publishedAt))
-      || Date.now() - Date.parse(e.publishedAt) <= STALE_AFTER_DAYS * 86400000;
+      || asOf - Date.parse(e.publishedAt) <= STALE_AFTER_DAYS * 86400000;
     const contradicting = claim.time === 'now'
       ? (claim.contradictingEvidence || []).filter(recentEnough)
       : (claim.contradictingEvidence || []);
@@ -195,7 +201,7 @@ const buildEvidenceLedger = ({
       .map(e => Date.parse(e.publishedAt)).filter(Number.isFinite);
     const newestSupport = supportDates.length ? Math.max(...supportDates) : null;
     const stale = claim.time === 'now' && forCount > againstCount && newestSupport !== null
-      && Date.now() - newestSupport > STALE_AFTER_DAYS * 86400000;
+      && asOf - newestSupport > STALE_AFTER_DAYS * 86400000;
     return {
       claim: claim.claim,
       verdict: claim.verdict,
@@ -884,10 +890,65 @@ const applyCeiling = (presentationScore, verdict) => {
   };
 };
 
+
+// ---------------------------------------------------------------------------
+// The verdict as a record.
+//
+// buildEvidenceLedger and decideVerdict are pure functions of their inputs and
+// asOf, so a verdict can be stored as the inputs that produced it and replayed
+// later to the identical result. compactLedgerInput keeps exactly the fields
+// the ledger reads — the evidence items, the channel results, the four facts
+// it uses about the publisher and the writing — and drops the rest, so the
+// record is small and contains nothing the verdict did not depend on.
+// ---------------------------------------------------------------------------
+const pickEvidence = (e) => ({
+  source: e.source, title: e.title, description: e.description || '', url: e.url,
+  publishedAt: e.publishedAt || null, reported: e.reported || '', reliability: e.reliability
+});
+
+const compactLedgerInput = (input) => ({
+  claims: (input.claims || []).map(c => ({
+    claim: c.claim, verdict: c.verdict, time: c.time || null, kind: c.kind || null,
+    supportingEvidence: (c.supportingEvidence || []).map(pickEvidence),
+    contradictingEvidence: (c.contradictingEvidence || []).map(pickEvidence)
+  })),
+  verificationStatus: input.verificationStatus,
+  premiseResult: input.premiseResult ? {
+    status: input.premiseResult.status,
+    contradictions: input.premiseResult.contradictions || [],
+    confirmations: input.premiseResult.confirmations || []
+  } : null,
+  factCheckResult: input.factCheckResult ? {
+    status: input.factCheckResult.status, matches: input.factCheckResult.matches || []
+  } : null,
+  currentCoverageResult: input.currentCoverageResult ? {
+    status: input.currentCoverageResult.status, subject: input.currentCoverageResult.subject || null,
+    headlinesRead: input.currentCoverageResult.headlinesRead || 0, outletsRead: input.currentCoverageResult.outletsRead || 0,
+    presupposingFalse: input.currentCoverageResult.presupposingFalse || []
+  } : null,
+  unconfirmedClaimResult: input.unconfirmedClaimResult || null,
+  sourceResult: {
+    matched: Boolean(input.sourceResult?.matched), score: input.sourceResult?.score ?? null,
+    impersonates: input.sourceResult?.impersonates || null, type: input.sourceResult?.type || null
+  },
+  transparencyResult: { score: input.transparencyResult?.score ?? null },
+  manipulationResult: { techniques: (input.manipulationResult?.techniques || []).map(t => ({ technique: t.technique || t })) },
+  title: input.title || '',
+  publishedAt: input.publishedAt || null,
+  indexLagHours: input.indexLagHours ?? INDEX_LAG_HOURS,
+  domainAge: input.domainAge || null,
+  asOf: input.asOf ?? Date.now()
+});
+
+/** Re-reach a stored verdict from its recorded inputs. */
+const replayVerdict = (ledgerInput) => decideVerdict(buildEvidenceLedger(ledgerInput));
+
 module.exports = {
   buildEvidenceLedger,
   decideVerdict,
   applyCeiling,
   VERDICT_CLASSES,
-  looksHighImpact
+  looksHighImpact,
+  compactLedgerInput,
+  replayVerdict
 };

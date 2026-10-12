@@ -2,6 +2,7 @@ const {
   resolveProviderChain,
   isRetired, isOverloaded, isRateLimited, isAuthFailure, isConnectionFailure
 } = require('./llmProviders');
+const { noteModelCall } = require('./runContext');
 
 // Provider endpoints, model lists and error classification all live in
 // llmProviders.js. This file is the gateway around them: one request gate, one
@@ -99,6 +100,7 @@ const isExhausted = (provider, model) => (exhaustedUntil.get(modelKey(provider, 
  * @returns {Promise<string>} the reply text
  */
 const callNimApi = async (prompt, options = {}) => {
+  const callStarted = Date.now();
   // The caller's label doubles as the routing key: which provider leads for
   // this task is a measured property of the task (see data/taskRouting.json),
   // not a global setting.
@@ -150,6 +152,11 @@ const callNimApi = async (prompt, options = {}) => {
             if (provider !== providers[0]) {
               console.warn(`${provider.label} answered after ${providers[0].label} could not.`);
             }
+            // Which model made this judgement, for the record of the check in
+            // progress (utils/runContext.js). The key index on a Gemini entry
+            // is dropped: it says which project's quota paid, not which model.
+            noteModelCall({ label: options.label || 'model call', provider: provider.name,
+              model: String(model).split('#')[0], ms: Date.now() - callStarted });
             return text;
           } catch (error) {
             lastError = error;
@@ -433,7 +440,10 @@ const callNimApiJson = async (prompt, options = {}) => {
   const key = cacheable ? judgementKey(options.label || 'model call', prompt) : null;
   if (cacheable) {
     const hit = judgementCache.get(key);
-    if (hit && Date.now() - hit.at < JUDGEMENT_TTL_MS) return structuredClone(hit.value);
+    if (hit && Date.now() - hit.at < JUDGEMENT_TTL_MS) {
+      noteModelCall({ label: options.label || 'model call', cached: true, provider: hit.provider || null, model: hit.model || null });
+      return structuredClone(hit.value);
+    }
   }
   const value = await callNimApiJsonUncached(prompt, options);
   if (cacheable) {

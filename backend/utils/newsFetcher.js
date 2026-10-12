@@ -176,7 +176,9 @@ const apiKey = process.env.NEWS_API_KEY;
 
   let response;
   try {
-    response = await axios.get(url);
+    // Without a timeout a stalled request held the front page until the
+    // socket gave up; a refusal now falls back to the cached copy or Google.
+    response = await axios.get(url, { timeout: 10000 });
   } catch (err) {
     throw describeNewsApiError(err);
   }

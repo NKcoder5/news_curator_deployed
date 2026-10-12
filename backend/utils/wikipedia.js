@@ -22,6 +22,11 @@ class ReferenceUnavailableError extends Error {
  * @param {number} limit - Maximum number of articles to return
  * @returns {Promise<Array>} - Array of Wikipedia articles with title, content, and URL
  */
+// Both requests had no timeout at all, so a stalled connection held the
+// reference check — and the reader's answer with it — for as long as the
+// operating system kept the socket open. Measured answers take 0.4-0.7 s.
+const TIMEOUT_MS = 6000;
+
 async function fetchWikipediaContent(query, limit = 3) {
   try {
     // Wikipedia requires a User-Agent header
@@ -31,7 +36,7 @@ async function fetchWikipediaContent(query, limit = 3) {
 
     // First, search for relevant articles
     const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json`;
-    const searchResponse = await axios.get(searchUrl, { headers });
+    const searchResponse = await axios.get(searchUrl, { headers, timeout: TIMEOUT_MS });
 
     if (!searchResponse.data.query || !searchResponse.data.query.search || searchResponse.data.query.search.length === 0) {
       console.log('No Wikipedia articles found for query:', query);
@@ -47,7 +52,7 @@ async function fetchWikipediaContent(query, limit = 3) {
         const pageId = result.pageid;
         const contentUrl = `https://en.wikipedia.org/w/api.php?action=query&pageids=${pageId}&prop=extracts&exintro=1&explaintext=1&format=json`;
 
-        const contentResponse = await axios.get(contentUrl, { headers });
+        const contentResponse = await axios.get(contentUrl, { headers, timeout: TIMEOUT_MS });
         const page = contentResponse.data.query.pages[pageId];
 
         return {

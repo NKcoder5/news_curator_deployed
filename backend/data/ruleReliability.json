@@ -1,0 +1,390 @@
+{
+  "generatedAt": "2026-10-12T07:50:56.047Z",
+  "note": "Per-rule record on labelled test messages. Robustness-suite cases were written while the system was tuned, so rates that rest on them are optimistic; heldOut counts only the held-out suite and the benchmark.",
+  "sources": [
+    {
+      "file": "robustness_final.json",
+      "ranAt": "2026-10-12T07:42:18.631Z",
+      "cases": 55,
+      "writtenDuringTuning": true
+    },
+    {
+      "file": "robustness_heldout.json",
+      "ranAt": "2026-10-11T17:17:36.994Z",
+      "cases": 27,
+      "writtenDuringTuning": false
+    },
+    {
+      "file": "checkAnything_benchmark.json",
+      "ranAt": "2026-10-11T15:50:54.561Z",
+      "cases": 22,
+      "writtenDuringTuning": false
+    }
+  ],
+  "totalCases": 104,
+  "rules": {
+    "absent-from-heavy-coverage": {
+      "n": 1,
+      "right": 1,
+      "missed": 0,
+      "wrong": 0,
+      "rate": 1,
+      "low": 0.207,
+      "high": 1,
+      "abstains": false,
+      "calls": {
+        "FAKE": 1
+      },
+      "heldOut": {
+        "n": 1,
+        "right": 1
+      },
+      "cases": [
+        "heldout:h-23"
+      ]
+    },
+    "claims-partly-false": {
+      "n": 1,
+      "right": 1,
+      "missed": 0,
+      "wrong": 0,
+      "rate": 1,
+      "low": 0.207,
+      "high": 1,
+      "abstains": false,
+      "calls": {
+        "PARTLY FALSE": 1
+      },
+      "heldOut": {
+        "n": 0,
+        "right": 0
+      },
+      "cases": [
+        "robustness:multi-1"
+      ]
+    },
+    "confirmed-by-reference": {
+      "n": 3,
+      "right": 3,
+      "missed": 0,
+      "wrong": 0,
+      "rate": 1,
+      "low": 0.438,
+      "high": 1,
+      "abstains": false,
+      "calls": {
+        "REAL": 3
+      },
+      "heldOut": {
+        "n": 1,
+        "right": 1
+      },
+      "cases": [
+        "robustness:fact-1",
+        "robustness:fact-5",
+        "heldout:h-22"
+      ]
+    },
+    "contradicted-by-current-coverage": {
+      "n": 3,
+      "right": 3,
+      "missed": 0,
+      "wrong": 0,
+      "rate": 1,
+      "low": 0.438,
+      "high": 1,
+      "abstains": false,
+      "calls": {
+        "FAKE": 3
+      },
+      "heldOut": {
+        "n": 1,
+        "right": 1
+      },
+      "cases": [
+        "robustness:hedge-3",
+        "robustness:sarcasm-1",
+        "benchmark:b-13"
+      ]
+    },
+    "contradicted-by-multiple-independent-sources": {
+      "n": 23,
+      "right": 23,
+      "missed": 0,
+      "wrong": 0,
+      "rate": 1,
+      "low": 0.857,
+      "high": 1,
+      "abstains": false,
+      "calls": {
+        "FAKE": 23
+      },
+      "heldOut": {
+        "n": 13,
+        "right": 13
+      },
+      "cases": [
+        "robustness:base-1",
+        "robustness:q-3",
+        "robustness:hedge-1",
+        "robustness:neg-3",
+        "robustness:unit-2",
+        "robustness:typo-2",
+        "robustness:ta-1",
+        "robustness:ta-6",
+        "robustness:tl-3",
+        "robustness:fact-4",
+        "heldout:h-2",
+        "heldout:h-5",
+        "heldout:h-8",
+        "heldout:h-13",
+        "heldout:h-15",
+        "heldout:h-17",
+        "heldout:h-19",
+        "benchmark:b-1",
+        "benchmark:b-2",
+        "benchmark:b-4",
+        "benchmark:b-6",
+        "benchmark:b-12",
+        "benchmark:b-15"
+      ]
+    },
+    "contradicted-by-one-independent-source": {
+      "n": 2,
+      "right": 2,
+      "missed": 0,
+      "wrong": 0,
+      "rate": 1,
+      "low": 0.342,
+      "high": 1,
+      "abstains": false,
+      "calls": {
+        "FAKE": 2
+      },
+      "heldOut": {
+        "n": 1,
+        "right": 1
+      },
+      "cases": [
+        "robustness:fact-2",
+        "benchmark:b-16"
+      ]
+    },
+    "corroborated-by-multiple-independent-sources": {
+      "n": 39,
+      "right": 38,
+      "missed": 0,
+      "wrong": 1,
+      "rate": 0.974,
+      "low": 0.868,
+      "high": 0.995,
+      "abstains": false,
+      "calls": {
+        "REAL": 39
+      },
+      "heldOut": {
+        "n": 20,
+        "right": 19
+      },
+      "cases": [
+        "robustness:base-2",
+        "robustness:q-2",
+        "robustness:hedge-2",
+        "robustness:tone-3",
+        "robustness:neg-1",
+        "robustness:neg-2",
+        "robustness:opinion-1",
+        "robustness:multi-2",
+        "robustness:unit-1",
+        "robustness:unit-3",
+        "robustness:typo-1",
+        "robustness:ta-2",
+        "robustness:ta-4",
+        "robustness:ta-5",
+        "robustness:tl-2",
+        "robustness:hi-2",
+        "robustness:old-2",
+        "robustness:long-1",
+        "robustness:url-1",
+        "heldout:h-1",
+        "heldout:h-3",
+        "heldout:h-4",
+        "heldout:h-6",
+        "heldout:h-7",
+        "heldout:h-10",
+        "heldout:h-12",
+        "heldout:h-14",
+        "heldout:h-16",
+        "heldout:h-18",
+        "heldout:h-20",
+        "heldout:h-26",
+        "heldout:h-27",
+        "benchmark:b-3",
+        "benchmark:b-5",
+        "benchmark:b-7",
+        "benchmark:b-17",
+        "benchmark:b-18",
+        "benchmark:b-19",
+        "benchmark:b-20"
+      ]
+    },
+    "corroborated-by-one-independent-source": {
+      "n": 5,
+      "right": 5,
+      "missed": 0,
+      "wrong": 0,
+      "rate": 1,
+      "low": 0.566,
+      "high": 1,
+      "abstains": false,
+      "calls": {
+        "REAL": 5
+      },
+      "heldOut": {
+        "n": 2,
+        "right": 2
+      },
+      "cases": [
+        "robustness:quote-1",
+        "robustness:local-1",
+        "robustness:local-2",
+        "benchmark:b-21",
+        "benchmark:b-22"
+      ]
+    },
+    "fact-checkers-and-reporting-disagree": {
+      "n": 1,
+      "right": 0,
+      "missed": 1,
+      "wrong": 0,
+      "rate": 0,
+      "low": 0,
+      "high": 0.793,
+      "abstains": true,
+      "calls": {
+        "CANNOT VERIFY": 1
+      },
+      "heldOut": {
+        "n": 0,
+        "right": 0
+      },
+      "cases": [
+        "robustness:rumour-1"
+      ]
+    },
+    "no-independent-coverage": {
+      "n": 2,
+      "right": 1,
+      "missed": 1,
+      "wrong": 0,
+      "rate": 0.5,
+      "low": 0.095,
+      "high": 0.905,
+      "abstains": true,
+      "calls": {
+        "CANNOT VERIFY": 2
+      },
+      "heldOut": {
+        "n": 2,
+        "right": 1
+      },
+      "cases": [
+        "heldout:h-9",
+        "heldout:h-24"
+      ]
+    },
+    "premise-contradicted-by-reference": {
+      "n": 1,
+      "right": 1,
+      "missed": 0,
+      "wrong": 0,
+      "rate": 1,
+      "low": 0.207,
+      "high": 1,
+      "abstains": false,
+      "calls": {
+        "FAKE": 1
+      },
+      "heldOut": {
+        "n": 1,
+        "right": 1
+      },
+      "cases": [
+        "benchmark:b-14"
+      ]
+    },
+    "rated-false-by-fact-checkers": {
+      "n": 13,
+      "right": 13,
+      "missed": 0,
+      "wrong": 0,
+      "rate": 1,
+      "low": 0.772,
+      "high": 1,
+      "abstains": false,
+      "calls": {
+        "FAKE": 13
+      },
+      "heldOut": {
+        "n": 4,
+        "right": 4
+      },
+      "cases": [
+        "robustness:q-1",
+        "robustness:tone-1",
+        "robustness:tone-2",
+        "robustness:ta-3",
+        "robustness:ta-7",
+        "robustness:tl-1",
+        "robustness:hi-1",
+        "robustness:hi-3",
+        "robustness:fact-3",
+        "benchmark:b-8",
+        "benchmark:b-9",
+        "benchmark:b-10",
+        "benchmark:b-11"
+      ]
+    },
+    "rated-misleading-by-fact-checkers": {
+      "n": 1,
+      "right": 1,
+      "missed": 0,
+      "wrong": 0,
+      "rate": 1,
+      "low": 0.207,
+      "high": 1,
+      "abstains": false,
+      "calls": {
+        "FAKE": 1
+      },
+      "heldOut": {
+        "n": 0,
+        "right": 0
+      },
+      "cases": [
+        "robustness:old-1"
+      ]
+    },
+    "uncorroborated-high-impact-with-risk-signals": {
+      "n": 2,
+      "right": 2,
+      "missed": 0,
+      "wrong": 0,
+      "rate": 1,
+      "low": 0.342,
+      "high": 1,
+      "abstains": false,
+      "calls": {
+        "FAKE": 2
+      },
+      "heldOut": {
+        "n": 1,
+        "right": 1
+      },
+      "cases": [
+        "robustness:long-2",
+        "heldout:h-21"
+      ]
+    }
+  }
+}

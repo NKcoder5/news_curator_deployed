@@ -403,4 +403,9 @@
 .claim-record-tag {
   font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent);
 }
+/* What decided it: the verdict recomputed with evidence taken away or added. */
+.decision-standing { color: var(--ink-soft); }
+.decision-subhead { display: block; margin: 0.7rem 0 0.15rem; }
+.decision-changes { margin: 0.15rem 0 0; padding-left: 1.15rem; font-size: 0.9rem; line-height: 1.55; color: var(--ink-body); }
+.verdict-range { color: var(--ink-muted); }
 .claim-record-change { margin: 0.5rem 0 0; font-size: 0.88rem; font-weight: 700; color: var(--ink); }

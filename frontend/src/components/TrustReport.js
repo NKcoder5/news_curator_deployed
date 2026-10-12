@@ -2,6 +2,7 @@ import { useState } from 'react';
 import EvidenceBoard, { RULE_LABELS } from './EvidenceBoard';
 import ReadAs from './ReadAs';
 import ClaimRecord from './ClaimRecord';
+import DecisionExplanation, { TrackRecord } from './DecisionExplanation';
 import '../styles/TrustReport.css';
 
 const LEVEL_COLORS = {
@@ -379,19 +380,15 @@ const TrustReport = ({ report, evidenceFirst = false }) => {
             {RULE_LABELS[report.decision.rule] && (
               <span className="verdict-decided">Decided by: <strong>{RULE_LABELS[report.decision.rule]}</strong></span>
             )}
-            {typeof report.decision.confidence === 'number' && (
-              <span className="verdict-confidence">
-                Confidence <strong>{Math.round(report.decision.confidence * 100)}%</strong>
-                <span className="verdict-confidence-track" aria-hidden="true">
-                  <span style={{ width: `${Math.round(report.decision.confidence * 100)}%`, background: color }} />
-                </span>
-              </span>
-            )}
+            {/* How often this rule has been right on labelled test messages,
+                counted (eval/ruleReliability.js) — not a hand-set confidence. */}
+            <TrackRecord record={report.trackRecord} />
           </div>
         )}
       </div>
 
       {evidenceFirst && <ReadAs understanding={report.understanding} call={report.call} perClaim={report.evidence?.perClaim} />}
+      {evidenceFirst && <DecisionExplanation explanation={report.explanation} />}
       {evidenceFirst && <ClaimRecord memory={report.memory} call={report.call} />}
       {evidenceFirst && <EvidenceBoard report={report} />}
 

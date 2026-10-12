@@ -12,6 +12,8 @@ const { assessCheckability } = require('../agents/checkability');
 const { limitText, TEXT_BUDGET } = require('../utils/articleText');
 const { understandInput } = require('../agents/inputUnderstanding');
 const { recordCheck } = require('./claimMemory');
+const { explainDecision } = require('./decisionExplainer');
+const { trackRecordFor } = require('./ruleReliability');
 const { runWithContext, currentContext } = require('../utils/runContext');
 const { translateVerdict } = require('../agents/verdictTranslation');
 
@@ -199,10 +201,27 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user' 
       console.warn('Claim memory: could not record this check:', err.message);
     }
 
+    // What decided the verdict and what would change it, found by running the
+    // same rules again with evidence taken away or added (services/
+    // decisionExplainer.js). Shown only when the rerun reproduces the verdict
+    // the reader was given; an explanation of some other verdict is worse
+    // than none.
+    let explanation = null;
+    try {
+      const explained = ledgerInput ? explainDecision(ledgerInput) : null;
+      if (explained && explained.verdict.call === report.call) explanation = explained;
+    } catch (err) {
+      console.warn('Decision explainer failed:', err.message);
+    }
+
     return {
       ...report,
       oneLineLocal: localLine,
       memory,
+      explanation,
+      // How often the rule that decided this has been right on labelled test
+      // messages (eval/ruleReliability.js): a count, not a hand-set confidence.
+      trackRecord: trackRecordFor(report.decision?.rule),
       ingestNotes: ingested.ingestNotes,
       readText: ocrResult ? { chars: ocrResult.text.length, confidence: ocrResult.confidence, languages: ocrResult.languages } : null,
       cached: false

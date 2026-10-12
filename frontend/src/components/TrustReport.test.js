@@ -81,7 +81,9 @@ const debunked = {
 test('the Check page shows the evidence board and what decided the verdict', () => {
   render(<TrustReport report={debunked} evidenceFirst />);
   expect(screen.getByText(/decided by/i)).toBeInTheDocument();
-  expect(screen.getByText('93%')).toBeInTheDocument();
+  // No hand-set confidence: without a measured record the page says so.
+  expect(screen.queryByText('93%')).not.toBeInTheDocument();
+  expect(screen.getByText(/none yet/i)).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: 'Fact-checkers' })).toBeInTheDocument();
   expect(screen.getAllByText(/this decided the verdict/i)).toHaveLength(1);
   expect(screen.getAllByRole('link', { name: /read the fact-check/i })).toHaveLength(2);
@@ -112,4 +114,38 @@ test('the claim record shows a claim checked before and a variant with its diffe
   expect(screen.getByText(/3 times/)).toBeInTheDocument();
   expect(screen.getByText(/Variant checked before/i)).toBeInTheDocument();
   expect(screen.getByText(/figure: 84 medal vs 85 medal/)).toBeInTheDocument();
+});
+
+test('the verdict shows the measured track record of its rule, not a hand-set confidence', () => {
+  const report = {
+    ...debunked,
+    trackRecord: { rule: 'rated-false-by-fact-checkers', n: 13, right: 13, wrong: 0, missed: 0, rate: 1, low: 0.772, high: 1, abstains: false }
+  };
+  render(<TrustReport report={report} evidenceFirst />);
+  expect(screen.getByText(/13 of 13/)).toBeInTheDocument();
+  expect(screen.getByText(/95% range 77%–100%/)).toBeInTheDocument();
+});
+
+test('what decided it: the evidence the verdict depends on, and what would change it', () => {
+  const report = {
+    ...debunked,
+    call: 'FAKE',
+    explanation: {
+      verdict: { call: 'FAKE', rule: 'contradicted-by-multiple-independent-sources' },
+      restsOn: 1,
+      decisive: [
+        { channel: 'news-against', label: 'the outlets reporting otherwise', decisive: true, without: { call: 'CANNOT VERIFY' } },
+        { channel: 'reference', label: 'the encyclopedia entry', decisive: false, without: { call: 'FAKE' } }
+      ],
+      wouldChange: [
+        { change: '3 more independent outlets confirming it', added: { stance: 'for', outlets: 3 }, result: { call: 'CANNOT VERIFY' } },
+        { change: '4 more independent outlets confirming it', added: { stance: 'for', outlets: 4 }, result: { call: 'REAL' } }
+      ]
+    }
+  };
+  render(<TrustReport report={report} evidenceFirst />);
+  const region = screen.getByRole('region', { name: 'What decided it' });
+  expect(region).toHaveTextContent(/Without the outlets reporting otherwise, the answer would be CANNOT VERIFY/);
+  expect(region).toHaveTextContent(/Without the encyclopedia entry, it would still be FAKE/);
+  expect(region).toHaveTextContent(/4 more independent outlets confirming it → REAL/);
 });

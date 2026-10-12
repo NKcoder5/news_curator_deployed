@@ -1,0 +1,109 @@
+// How long the gateway makes a check wait when a model is busy or rate
+// limited.
+//
+// Measured before this was changed: a 429 or 503 cost 1 s, 2 s and 4 s on the
+// same model before the next one was tried, and Gemini's per-minute limit
+// names a wait of up to a minute, so those retries mostly failed again.
+const test = require('node:test');
+const assert = require('node:assert');
+
+const PROVIDERS_PATH = require.resolve('../utils/llmProviders');
+const GATEWAY_PATH = require.resolve('../utils/nvidiaNimApi');
+
+/** Load the gateway over one fake provider whose replies the test scripts. */
+const withProvider = (models, send) => {
+  const real = require.cache[PROVIDERS_PATH];
+  const actual = require(PROVIDERS_PATH);
+  const provider = { name: 'fake', label: 'Fake', models, concurrency: 6, isConfigured: () => true, send };
+  require.cache[PROVIDERS_PATH] = { id: PROVIDERS_PATH, filename: PROVIDERS_PATH, loaded: true,
+    exports: { ...actual, resolveProviderChain: () => [provider] } };
+  delete require.cache[GATEWAY_PATH];
+  const gateway = require(GATEWAY_PATH);
+  return {
+    gateway,
+    restore: () => {
+      delete require.cache[GATEWAY_PATH];
+      if (real) require.cache[PROVIDERS_PATH] = real; else delete require.cache[PROVIDERS_PATH];
+    }
+  };
+};
+
+const httpError = (status, data = {}, headers = {}) =>
+  Object.assign(new Error(`Request failed with status code ${status}`), { response: { status, data, headers } });
+
+// What Gemini sends when a model's per-minute allowance is spent.
+const perMinute = (seconds) => httpError(429, { error: { code: 429, details: [
+  { '@type': 'type.googleapis.com/google.rpc.QuotaFailure', violations: [{ quotaId: 'GenerateRequestsPerMinutePerProjectPerModel-FreeTier' }] },
+  { '@type': 'type.googleapis.com/google.rpc.RetryInfo', retryDelay: `${seconds}s` }
+] } });
+
+test('a model rate limited for the rest of the minute is set aside and the next model asked at once', async () => {
+  const asked = [];
+  const { gateway, restore } = withProvider(['first', 'second'], async ({ model }) => {
+    asked.push(model);
+    if (model === 'first') throw perMinute(37);
+    return 'answer from second';
+  });
+  const warn = console.warn; console.warn = () => {};
+  try {
+    const started = Date.now();
+    assert.strictEqual(await gateway.callNimApi('q', { label: 'test' }), 'answer from second');
+    assert.ok(Date.now() - started < 400, `waited ${Date.now() - started} ms; the old code waited 7 s`);
+    assert.deepStrictEqual(asked, ['first', 'second']);
+    // And the next call does not knock on the limited model again.
+    asked.length = 0;
+    await gateway.callNimApi('q2', { label: 'test' });
+    assert.deepStrictEqual(asked, ['second']);
+  } finally {
+    console.warn = warn;
+    restore();
+  }
+});
+
+test('a short wait the provider asks for is honoured on the same model', async () => {
+  let calls = 0;
+  const { gateway, restore } = withProvider(['only'], async () => {
+    calls += 1;
+    if (calls === 1) throw httpError(503, {}, { 'retry-after': '0.2' });
+    return 'ok';
+  });
+  const warn = console.warn; console.warn = () => {};
+  try {
+    const started = Date.now();
+    assert.strictEqual(await gateway.callNimApi('q', { label: 'test' }), 'ok');
+    assert.strictEqual(calls, 2);
+    assert.ok(Date.now() - started >= 180, 'the requested 200 ms were waited');
+  } finally {
+    console.warn = warn;
+    restore();
+  }
+});
+
+test('back-off is jittered and bounded: about 0.5 s, 1 s, 2 s rather than 1 s, 2 s, 4 s', () => {
+  const { gateway, restore } = withProvider(['m'], async () => 'ok');
+  try {
+    const { backoffMs } = gateway.__test;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const waits = Array.from({ length: 200 }, () => backoffMs(attempt));
+      const base = 500 * Math.pow(2, attempt);
+      assert.ok(Math.min(...waits) >= base * 0.5 && Math.max(...waits) <= base * 1.5, `attempt ${attempt}: ${Math.min(...waits)}-${Math.max(...waits)}`);
+      assert.ok(new Set(waits).size > 20, 'calls that failed together must not retry together');
+    }
+    // The longest the three retries can now cost, against 7 s before.
+    assert.ok([0, 1, 2].reduce((sum, a) => sum + 500 * Math.pow(2, a) * 1.5, 0) <= 5250);
+  } finally {
+    restore();
+  }
+});
+
+test('the wait a provider asks for is read from Retry-After or from Gemini\'s RetryInfo', () => {
+  const { gateway, restore } = withProvider(['m'], async () => 'ok');
+  try {
+    const { providerWaitMs } = gateway.__test;
+    assert.strictEqual(providerWaitMs(httpError(429, {}, { 'retry-after': '3' })), 3000);
+    assert.strictEqual(providerWaitMs(perMinute(37)), 37000);
+    assert.strictEqual(providerWaitMs(httpError(503)), null);
+  } finally {
+    restore();
+  }
+});

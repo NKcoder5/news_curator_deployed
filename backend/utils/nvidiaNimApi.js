@@ -68,7 +68,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // winter; 07:00 is used, and a quota not yet reset is simply marked again
 // after one refused call). Retrying it with back-off,
 // as a per-minute limit deserves, only adds seconds to every call for the rest
-// of the day: measured, one check took 170 s that way.
+// of the day: measured, one check took 170 s that way. A model that asks for a
+// wait of more than a few seconds is set aside here too, until that wait ends.
 const exhaustedUntil = new Map();
 const nextQuotaReset = () => {
   const reset = new Date();
@@ -80,6 +81,28 @@ const isDailyQuota = (error) => (error.response?.data?.error?.details || [])
   .some(detail => (detail.violations || []).some(v => /PerDay/i.test(String(v.quotaId || ''))));
 const modelKey = (provider, model) => `${provider.name}:${model}`;
 const isExhausted = (provider, model) => (exhaustedUntil.get(modelKey(provider, model)) || 0) > Date.now();
+
+// How long the provider says to wait: a Retry-After header, or the
+// RetryInfo detail Gemini puts in the body of a 429 ("retryDelay": "37s").
+const providerWaitMs = (error) => {
+  const header = Number(error.response?.headers?.['retry-after']);
+  if (Number.isFinite(header) && header > 0) return header * 1000;
+  const info = (error.response?.data?.error?.details || []).find(d => /RetryInfo/.test(String(d['@type'] || '')));
+  const seconds = parseFloat(String(info?.retryDelay || ''));
+  return Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : null;
+};
+
+// Back-off for a busy or rate-limited model. It was 1 s, 2 s, then 4 s on the
+// same model, 7 s before the next model was even tried, and several calls of
+// one check backed off together, in step. Now about 0.5 s, 1 s, 2 s, each
+// jittered by half either way so calls that failed together do not retry
+// together. A wait the provider asks for is honoured up to MAX_WAIT_MS; a
+// model that asks for longer — Gemini's per-minute limit names the rest of
+// the minute — is set aside until then and the next model asked at once,
+// since each model has its own quota.
+const BACKOFF_BASE_MS = 500;
+const MAX_WAIT_MS = 4000;
+const backoffMs = (attempt) => Math.round(BACKOFF_BASE_MS * Math.pow(2, attempt) * (0.5 + Math.random()));
 
 /**
  * Send a prompt to the language model.
@@ -175,13 +198,17 @@ const callNimApi = async (prompt, options = {}) => {
               break;
             }
 
-            // Busy or rate limited: wait and try the same model again. Honour
-            // the server's Retry-After when it sends one, else 1s, 2s, 4s.
+            // Busy or rate limited: wait briefly and try the same model again,
+            // unless the provider asks for a longer wait than the next model
+            // would cost (see BACKOFF_BASE_MS above).
             if ((isRateLimited(status) || isOverloaded(status)) && attempt < MAX_RATE_LIMIT_RETRIES) {
-              const retryAfter = Number(error.response?.headers?.['retry-after']);
-              const waitMs = Number.isFinite(retryAfter) && retryAfter > 0
-                ? retryAfter * 1000
-                : 1000 * Math.pow(2, attempt);
+              const asked = providerWaitMs(error);
+              if (asked !== null && asked > MAX_WAIT_MS) {
+                exhaustedUntil.set(modelKey(provider, model), Date.now() + asked);
+                console.warn(`${provider.label}: "${model}" ${isRateLimited(status) ? 'rate limited' : 'busy'} for ${Math.round(asked / 1000)}s — asking the next model instead of waiting.`);
+                break;
+              }
+              const waitMs = asked !== null ? asked : backoffMs(attempt);
               console.warn(`${provider.label}: ${isRateLimited(status) ? 'rate limited' : 'model busy'}, retrying in ${waitMs}ms (attempt ${attempt + 1}).`);
               await sleep(waitMs);
               continue;
@@ -513,4 +540,4 @@ Your previous reply was not usable: ${lastError?.message || 'it did not match th
   throw lastError;
 };
 
-module.exports = { callNimApi, callNimApiJson, extractJson };
+module.exports = { callNimApi, callNimApiJson, extractJson, __test: { backoffMs, providerWaitMs, MAX_WAIT_MS } };

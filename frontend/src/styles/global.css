@@ -18,19 +18,20 @@ body {
   font-size: var(--text-base);
   line-height: var(--leading-normal);
   color: var(--color-fg);
-  background: var(--color-canvas);
+  /* The desk, with the faint half-tone dots that make it read as newsprint. */
+  background-color: var(--color-canvas);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23a39573' fill-opacity='0.12' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: 'cv11', 'ss01';
 }
 
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
-  font-family: var(--font-sans);
-  font-weight: var(--weight-semibold);
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
   color: var(--color-fg-strong);
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 
 p { margin: 0; }

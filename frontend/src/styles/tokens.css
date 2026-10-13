@@ -1,83 +1,91 @@
 /* ============================================================================
-   Pure Press — design tokens
+   Pure Press — design tokens: the newsprint edition
    ----------------------------------------------------------------------------
    One source for colour, type, space, radius, elevation and motion. Components
    read the semantic tokens (--color-fg, --color-surface, --verdict-fake-fg…),
-   never raw hex, so the dark theme is a second set of values and nothing else.
+   never raw hex, so a theme is a set of values and nothing else.
+
+   The house style is a newspaper: aged paper on a desk, ink-black Playfair
+   headlines, Source Serif body copy, steel-blue links and hairline rules. The
+   palette is the one the application was first built in (the newsprint
+   theme); the owner preferred it to a neutral product palette, so the tokens
+   carry it now and every component follows.
 
    Contrast is measured, not eyeballed: every text pair below is at least
-   4.5:1 (WCAG AA) in both themes, control edges and the focus ring at least
-   3:1 (docs/engineering/2026-10-12-frontend-design.md has the table).
+   4.5:1 (WCAG AA) on the sheet, control edges and the focus ring at least 3:1.
 
    Theme selection: the reader's system setting by default; an explicit choice
    from the header toggle is stored and written to <html data-theme>, which
-   wins over the system setting in either direction.
+   wins over the system setting in either direction. Dark is the same paper
+   at night: warm, not blue-grey.
    ========================================================================= */
 
 :root {
   color-scheme: light;
 
   /* --- Surfaces --------------------------------------------------------- */
-  --color-canvas: #f5f6f8;          /* the page behind everything */
-  --color-surface: #ffffff;         /* cards, inputs, the header */
-  --color-surface-sunken: #eef0f3;  /* wells, code, empty meters */
-  --color-surface-raised: #ffffff;  /* menus, popovers */
-  --color-overlay: rgba(15, 23, 42, 0.45);
+  --color-canvas: #e6e1d2;          /* the desk the paper lies on */
+  --color-surface: #fbf9f3;         /* the sheet: cards, the header */
+  --color-surface-sunken: #ece7d9;  /* wells, empty meters */
+  --color-surface-raised: #fefdfa;  /* clippings, inputs, menus */
+  --color-overlay: rgba(26, 26, 20, 0.45);
 
-  /* --- Text ------------------------------------------------------------- */
-  --color-fg-strong: #0f172a;       /* headings */
-  --color-fg: #1e293b;              /* body copy */
-  --color-fg-muted: #475569;        /* secondary copy */
-  --color-fg-subtle: #5b6576;       /* captions, meta — still 5:1 on canvas */
-  --color-fg-on-accent: #ffffff;
+  /* --- Ink -------------------------------------------------------------- */
+  --color-fg-strong: #14140f;       /* headlines */
+  --color-fg: #26251d;              /* body copy */
+  --color-fg-muted: #4c4738;        /* secondary copy */
+  --color-fg-subtle: #5f5a4b;       /* captions, meta: 5.9:1 on the sheet */
+  --color-fg-on-accent: #fefdfa;
 
-  /* --- Lines ------------------------------------------------------------ */
-  --color-border: #dde1e7;          /* dividers, card edges */
-  --color-border-strong: #b8c0cc;   /* emphasised dividers */
-  --color-border-control: #868f9e;  /* input edges: 3:1 against the surface */
+  /* --- Rules ------------------------------------------------------------ */
+  --color-border: #e0dbc9;          /* hairlines between items */
+  --color-border-strong: #c7bfa5;   /* card borders */
+  --color-border-control: #8c826a;  /* input edges: 3:1 against the sheet */
 
   /* --- Brand ------------------------------------------------------------ */
-  --color-accent: #1d4ed8;
-  --color-accent-hover: #1e40af;
-  --color-accent-soft: #e8eefc;
-  --color-focus: #1d4ed8;
+  --color-accent: #264653;          /* steel blue: links, primary actions */
+  --color-accent-hover: #1d3641;
+  --color-accent-soft: #e3ebee;
+  --color-focus: #264653;
 
   /* --- Verdicts ----------------------------------------------------------
      One hue per answer, used for the badge, the panel edge and the evidence
-     tag alike. Never colour alone: every verdict also carries an icon and
-     its word. */
-  --verdict-real-fg: #15692f;
-  --verdict-real-bg: #e6f4ea;
-  --verdict-real-border: #9fd0ae;
-  --verdict-real-solid: #167a37;
+     tag alike, in the newsprint inks. Never colour alone: every verdict also
+     carries an icon and its word. */
+  --verdict-real-fg: #3d6b4a;
+  --verdict-real-bg: #e7f0e9;
+  --verdict-real-border: #b3cbb8;
+  --verdict-real-solid: #4a7c59;
 
-  --verdict-fake-fg: #b42318;
-  --verdict-fake-bg: #fdecea;
-  --verdict-fake-border: #f1b0a9;
-  --verdict-fake-solid: #c42a1e;
+  --verdict-fake-fg: #9a2f2f;
+  --verdict-fake-bg: #fbeaea;
+  --verdict-fake-border: #e2b3ae;
+  --verdict-fake-solid: #8b0000;
 
-  --verdict-partly-fg: #a8430a;
-  --verdict-partly-bg: #fdeee2;
-  --verdict-partly-border: #f3c09c;
-  --verdict-partly-solid: #b8500f;
+  --verdict-partly-fg: #93460f;
+  --verdict-partly-bg: #fbefe2;
+  --verdict-partly-border: #e7c29d;
+  --verdict-partly-solid: #a8521a;
 
-  --verdict-misleading-fg: #8a5300;
-  --verdict-misleading-bg: #fdf3d7;
-  --verdict-misleading-border: #ecd08a;
-  --verdict-misleading-solid: #93590a;
+  --verdict-misleading-fg: #7e5711;
+  --verdict-misleading-bg: #fbf1e0;
+  --verdict-misleading-border: #e4cd98;
+  --verdict-misleading-solid: #c9862b;
 
-  --verdict-unknown-fg: #475569;
-  --verdict-unknown-bg: #edf0f4;
-  --verdict-unknown-border: #c6ced9;
-  --verdict-unknown-solid: #55637a;
+  --verdict-unknown-fg: #5a5446;
+  --verdict-unknown-bg: #f0ede2;
+  --verdict-unknown-border: #d2cbb6;
+  --verdict-unknown-solid: #8a8271;
 
-  --verdict-info-fg: #6a3fc1;
-  --verdict-info-bg: #f1ebfc;
-  --verdict-info-border: #cfbdf3;
+  --verdict-info-fg: #55467f;
+  --verdict-info-bg: #eeeaf3;
+  --verdict-info-border: #cbc2dd;
 
   /* --- Type ------------------------------------------------------------- */
-  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans',
-    'Noto Sans Tamil', 'Noto Sans Devanagari', sans-serif;
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', 'Noto Serif Tamil',
+    'Noto Serif Devanagari', serif;
+  --font-sans: 'Source Serif 4', 'Source Serif Pro', Georgia, 'Noto Serif Tamil',
+    'Noto Serif Devanagari', serif;   /* the body face; the name is historical */
   --font-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Consolas, monospace;
 
   --text-xs: 0.75rem;     /* 12 — badges, overlines */
@@ -92,7 +100,7 @@
 
   --leading-tight: 1.2;
   --leading-snug: 1.35;
-  --leading-normal: 1.55;
+  --leading-normal: 1.6;
 
   --weight-regular: 400;
   --weight-medium: 500;
@@ -113,18 +121,18 @@
 
   --page-max: 1200px;
   --page-gutter: clamp(1rem, 3vw, 2rem);
-  --measure: 68ch;        /* comfortable reading line */
+  --measure: 68ch;
 
-  /* --- Radius ----------------------------------------------------------- */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  /* --- Radius: print has square corners --------------------------------- */
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
   --radius-pill: 999px;
 
-  /* --- Elevation -------------------------------------------------------- */
-  --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.06);
-  --shadow-2: 0 2px 4px rgba(15, 23, 42, 0.06), 0 6px 16px rgba(15, 23, 42, 0.08);
-  --shadow-3: 0 12px 32px rgba(15, 23, 42, 0.16);
+  /* --- Elevation: paper lifting off the desk ---------------------------- */
+  --shadow-1: 0 1px 2px rgba(26, 26, 20, 0.08);
+  --shadow-2: 0 2px 6px rgba(26, 26, 20, 0.08), 0 5px 18px rgba(26, 26, 20, 0.1);
+  --shadow-3: 0 5px 25px rgba(26, 26, 20, 0.18);
 
   /* --- Motion ----------------------------------------------------------- */
   --duration-fast: 120ms;
@@ -138,51 +146,23 @@
   --z-toast: 300;
 }
 
-/* Dark values, applied for a dark system setting unless the reader chose
-   light, and always when they chose dark. */
+/* The night edition, for a dark system setting unless the reader chose
+   light, and always when they chose dark. The two blocks are identical. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --color-canvas: #0b1018;
-    --color-surface: #121925;
-    --color-surface-sunken: #0e141e;
-    --color-surface-raised: #172133;
-    --color-overlay: rgba(0, 0, 0, 0.6);
-    --color-fg-strong: #f3f5f8;
-    --color-fg: #dfe4ea;
-    --color-fg-muted: #a9b3c1;
-    --color-fg-subtle: #929dad;
-    --color-fg-on-accent: #0b1018;
-    --color-border: #253042;
-    --color-border-strong: #3a4659;
-    --color-border-control: #66738a;
-    --color-accent: #86a8ff;
-    --color-accent-hover: #a8c0ff;
-    --color-accent-soft: #18233d;
-    --color-focus: #86a8ff;
-    --verdict-real-fg: #6fd59a;
-    --verdict-real-bg: #10291b;
-    --verdict-real-border: #24603d;
-    --verdict-real-solid: #6fd59a;
-    --verdict-fake-fg: #ff9488;
-    --verdict-fake-bg: #331513;
-    --verdict-fake-border: #7a2c25;
-    --verdict-fake-solid: #ff9488;
-    --verdict-partly-fg: #ffad73;
-    --verdict-partly-bg: #33200f;
-    --verdict-partly-border: #7a4720;
-    --verdict-partly-solid: #ffad73;
-    --verdict-misleading-fg: #f2c55c;
-    --verdict-misleading-bg: #2f260d;
-    --verdict-misleading-border: #6e5718;
-    --verdict-misleading-solid: #f2c55c;
-    --verdict-unknown-fg: #aab6c6;
-    --verdict-unknown-bg: #1b2331;
-    --verdict-unknown-border: #3a4659;
-    --verdict-unknown-solid: #aab6c6;
-    --verdict-info-fg: #c3a8ff;
-    --verdict-info-bg: #221a38;
-    --verdict-info-border: #4b3a7a;
+    --color-canvas: #12110d; --color-surface: #1c1a15; --color-surface-sunken: #16140f;
+    --color-surface-raised: #24211a; --color-overlay: rgba(0, 0, 0, 0.6);
+    --color-fg-strong: #f2ede1; --color-fg: #e3ddce; --color-fg-muted: #b8b09e; --color-fg-subtle: #a39b8b;
+    --color-fg-on-accent: #12110d;
+    --color-border: #302c23; --color-border-strong: #474134; --color-border-control: #7d7563;
+    --color-accent: #8fb6c4; --color-accent-hover: #abc9d4; --color-accent-soft: #1d2a2f; --color-focus: #8fb6c4;
+    --verdict-real-fg: #8fcf9f; --verdict-real-bg: #16261b; --verdict-real-border: #2f5a3b; --verdict-real-solid: #8fcf9f;
+    --verdict-fake-fg: #f0948a; --verdict-fake-bg: #2e1614; --verdict-fake-border: #6e2c26; --verdict-fake-solid: #f0948a;
+    --verdict-partly-fg: #f2ac78; --verdict-partly-bg: #2e1f12; --verdict-partly-border: #6e4522; --verdict-partly-solid: #f2ac78;
+    --verdict-misleading-fg: #e8c46a; --verdict-misleading-bg: #2b2410; --verdict-misleading-border: #66521c; --verdict-misleading-solid: #e8c46a;
+    --verdict-unknown-fg: #bdb5a4; --verdict-unknown-bg: #211e18; --verdict-unknown-border: #474134; --verdict-unknown-solid: #bdb5a4;
+    --verdict-info-fg: #c2b3e6; --verdict-info-bg: #221d30; --verdict-info-border: #4a3f6b;
     --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
     --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.35);
     --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.6);
@@ -191,62 +171,34 @@
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --color-canvas: #0b1018;
-  --color-surface: #121925;
-  --color-surface-sunken: #0e141e;
-  --color-surface-raised: #172133;
-  --color-overlay: rgba(0, 0, 0, 0.6);
-  --color-fg-strong: #f3f5f8;
-  --color-fg: #dfe4ea;
-  --color-fg-muted: #a9b3c1;
-  --color-fg-subtle: #929dad;
-  --color-fg-on-accent: #0b1018;
-  --color-border: #253042;
-  --color-border-strong: #3a4659;
-  --color-border-control: #66738a;
-  --color-accent: #86a8ff;
-  --color-accent-hover: #a8c0ff;
-  --color-accent-soft: #18233d;
-  --color-focus: #86a8ff;
-  --verdict-real-fg: #6fd59a;
-  --verdict-real-bg: #10291b;
-  --verdict-real-border: #24603d;
-  --verdict-real-solid: #6fd59a;
-  --verdict-fake-fg: #ff9488;
-  --verdict-fake-bg: #331513;
-  --verdict-fake-border: #7a2c25;
-  --verdict-fake-solid: #ff9488;
-  --verdict-partly-fg: #ffad73;
-  --verdict-partly-bg: #33200f;
-  --verdict-partly-border: #7a4720;
-  --verdict-partly-solid: #ffad73;
-  --verdict-misleading-fg: #f2c55c;
-  --verdict-misleading-bg: #2f260d;
-  --verdict-misleading-border: #6e5718;
-  --verdict-misleading-solid: #f2c55c;
-  --verdict-unknown-fg: #aab6c6;
-  --verdict-unknown-bg: #1b2331;
-  --verdict-unknown-border: #3a4659;
-  --verdict-unknown-solid: #aab6c6;
-  --verdict-info-fg: #c3a8ff;
-  --verdict-info-bg: #221a38;
-  --verdict-info-border: #4b3a7a;
+  --color-canvas: #12110d; --color-surface: #1c1a15; --color-surface-sunken: #16140f;
+  --color-surface-raised: #24211a; --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-fg-strong: #f2ede1; --color-fg: #e3ddce; --color-fg-muted: #b8b09e; --color-fg-subtle: #a39b8b;
+  --color-fg-on-accent: #12110d;
+  --color-border: #302c23; --color-border-strong: #474134; --color-border-control: #7d7563;
+  --color-accent: #8fb6c4; --color-accent-hover: #abc9d4; --color-accent-soft: #1d2a2f; --color-focus: #8fb6c4;
+  --verdict-real-fg: #8fcf9f; --verdict-real-bg: #16261b; --verdict-real-border: #2f5a3b; --verdict-real-solid: #8fcf9f;
+  --verdict-fake-fg: #f0948a; --verdict-fake-bg: #2e1614; --verdict-fake-border: #6e2c26; --verdict-fake-solid: #f0948a;
+  --verdict-partly-fg: #f2ac78; --verdict-partly-bg: #2e1f12; --verdict-partly-border: #6e4522; --verdict-partly-solid: #f2ac78;
+  --verdict-misleading-fg: #e8c46a; --verdict-misleading-bg: #2b2410; --verdict-misleading-border: #66521c; --verdict-misleading-solid: #e8c46a;
+  --verdict-unknown-fg: #bdb5a4; --verdict-unknown-bg: #211e18; --verdict-unknown-border: #474134; --verdict-unknown-solid: #bdb5a4;
+  --verdict-info-fg: #c2b3e6; --verdict-info-bg: #221d30; --verdict-info-border: #4a3f6b;
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.35);
   --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.6);
 }
 
 /* ---------------------------------------------------------------------------
-   Legacy names. Stylesheets written for the newsprint theme (and pages other
-   streams are adding) read these; they now resolve to the tokens above, so
-   they follow the theme instead of fixing a cream page inside a dark one.
+   Legacy names. Stylesheets written for the first newsprint pages (and the
+   claims pages) read these; they resolve to the tokens above, so they follow
+   the theme.
    ------------------------------------------------------------------------ */
 :root {
   --ink: var(--color-fg-strong);
   --ink-body: var(--color-fg);
   --ink-soft: var(--color-fg-muted);
   --ink-muted: var(--color-fg-subtle);
-  --paper: var(--color-surface);
+  --paper: var(--color-surface-raised);
   --paper-card: var(--color-surface);
   --paper-aged: var(--color-surface-sunken);
   --paper-sunken: var(--color-surface-sunken);
@@ -257,8 +209,8 @@
   --accent: var(--color-accent);
   --accent-hover: var(--color-accent-hover);
   --accent-soft: var(--color-accent-soft);
-  --press-red: var(--verdict-fake-fg);
-  --press-red-bright: var(--verdict-fake-solid);
+  --press-red: var(--verdict-fake-solid);
+  --press-red-bright: var(--verdict-fake-fg);
   --trust-high: var(--verdict-real-fg);
   --trust-high-soft: var(--verdict-real-bg);
   --trust-good: var(--verdict-real-fg);
@@ -269,9 +221,9 @@
   --trust-low-soft: var(--verdict-fake-bg);
   --trust-unknown: var(--verdict-unknown-fg);
   --trust-unknown-soft: var(--verdict-unknown-bg);
-  --headline-font: var(--font-sans);
+  --headline-font: var(--font-display);
   --body-font: var(--font-sans);
-  --label-font: var(--font-sans);
+  --label-font: var(--font-display);
   --shadow-sm: var(--shadow-1);
   --shadow-md: var(--shadow-2);
   --shadow-lg: var(--shadow-3);

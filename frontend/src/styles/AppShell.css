@@ -212,3 +212,14 @@
 @media (max-width: 760px) {
   .page-fallback__grid { grid-template-columns: 1fr; }
 }
+
+/* ------------------------------------------------------------- Newsprint
+   The header is the masthead: the name set in Playfair capitals over a
+   double rule, as on the first pages of the application. */
+.brand__name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.site-header { border-bottom: 3px double var(--color-fg-strong); }

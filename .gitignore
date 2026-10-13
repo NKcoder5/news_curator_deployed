@@ -33,6 +33,13 @@ Thumbs.db
 backend/eval/data/
 !backend/eval/data/smoke.csv
 backend/eval/results/
+# === Own-model training (ml/): venv, datasets, weights and checkpoints are regenerable ===
+ml/.venv/
+ml/data/
+ml/artifacts/
+__pycache__/
+*.pyc
+
 # === Office lock files ===
 # Word writes ~$name.docx beside an open document and deletes it on close.
 ~$*

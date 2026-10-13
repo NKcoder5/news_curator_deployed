@@ -6,7 +6,9 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { getClaim } from '../services/claimsApi';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 import {
   VerdictBadge, TrackRecord, TRIGGER_LABEL, formatDate, formatDateTime, languageList, ruleLabel, useLoaded
 } from './ClaimsShared';
@@ -112,13 +114,14 @@ const ClaimDetailPage = () => {
   const load = useCallback(() => getClaim(id), [id]);
   const [state, retry] = useLoaded(load);
   const claim = state.data;
+  useDocumentTitle(claim ? claim.claim : 'Claim');
 
   // Arriving from the list (or from a variant) should start at the top of the page.
   useEffect(() => { window.scrollTo?.(0, 0); }, [id]);
 
   return (
-    <div className="press-sheet press-sheet-narrow claims-page claim-detail">
-      <p className="claims-back"><Link to="/claims">All checked claims</Link></p>
+    <div className="page page--narrow claims-page claim-detail">
+      <p className="claims-back"><Link to="/claims"><ArrowLeft size={16} aria-hidden="true" /> All checked claims</Link></p>
 
       {state.status === 'loading' && <p className="claims-note" role="status">Loading the claim…</p>}
       {state.status === 'error' && (

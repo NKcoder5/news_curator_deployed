@@ -95,6 +95,16 @@ const recentCheck = async (key) => {
   return { ...result, cached: true, checkedAt: new Date(hit.at).toISOString(), ageSeconds: Math.round((Date.now() - hit.at) / 1000) };
 };
 
+// Claim-memory writes still in flight after their answers went out.
+const pendingWrites = new Set();
+
+/**
+ * Settles once every check answered so far has been filed. A script that
+ * exits straight after its last check (the evaluation suites) awaits this
+ * first, or the last write is cut off with the process.
+ */
+const recordsSettled = () => Promise.allSettled([...pendingWrites]).then(() => undefined);
+
 /** Settles with the promise's value, or with `fallback` after `ms`. */
 const within = (promise, ms, fallback) => {
   let timer;
@@ -358,13 +368,15 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
     const filing = prepared ? Promise.resolve(prepared)
       : plan === LATE ? planPromise.then(prepare)
       : Promise.resolve(null);
-    filing
+    const written = filing
       .then(async (p) => {
         if (!p) return;
         await p.write();
         if (key && isComplete(result) && result.memory) rememberCheck(key, result, { recordIds: p.recordIds, assessmentId: p.assessmentId });
       })
-      .catch(err => console.warn('Claim memory: could not record this check:', err.message));
+      .catch(err => console.warn('Claim memory: could not record this check:', err.message))
+      .finally(() => pendingWrites.delete(written));
+    pendingWrites.add(written);
 
     return result;
   } catch (err) {
@@ -395,4 +407,4 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
   }
 };
 
-module.exports = { runContentCheck, ContentCheckError };
+module.exports = { runContentCheck, recordsSettled, ContentCheckError };

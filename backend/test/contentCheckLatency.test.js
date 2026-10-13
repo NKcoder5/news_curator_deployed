@@ -81,9 +81,10 @@ const load = (o = {}) => {
     require.cache[p] = { id: p, filename: p, loaded: true, exports: exportsFor[name] };
   }
   delete require.cache[CHECK_PATH];
-  const { runContentCheck } = require(CHECK_PATH);
+  const { runContentCheck, recordsSettled } = require(CHECK_PATH);
   return {
     check: (text, hooks) => runContentCheck({ text }, hooks),
+    settled: recordsSettled,
     log,
     first: (event) => log.find(e => e.event === event),
     count: (event) => log.filter(e => e.event === event).length,
@@ -104,8 +105,8 @@ test('the answer does not wait for the claim memory to be written', async () => 
     assert.ok(Date.now() - started < 300, `answered after ${Date.now() - started} ms`);
     assert.strictEqual(result.memory.claims[0].timesSeen, 1, 'the page still gets what the memory knew');
     assert.strictEqual(s.count('write:end'), 0);
-    await sleep(500);
-    assert.strictEqual(s.count('write:end'), 1, 'and the check is filed all the same');
+    await s.settled();
+    assert.strictEqual(s.count('write:end'), 1, 'and the check is filed all the same, which a script can wait for');
   } finally {
     s.restore();
   }

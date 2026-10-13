@@ -234,7 +234,9 @@ wrap('../agents/trustAnalysisAgent', ['analyzeTrust']);
 wrap('../agents/inputUnderstanding', ['understandInput']);
 wrap('../agents/verdictTranslation', ['translateVerdict']);
 wrap('../services/decisionExplainer', ['explainDecision']);
-const { runContentCheck } = require('../services/contentCheck');
+// recordsSettled is absent from versions before the claim memory's write was
+// deferred; the profiler still runs on them, for before-and-after replays.
+const { runContentCheck, recordsSettled } = require('../services/contentCheck');
 const mongoose = require('mongoose');
 
 /* ---------------------------------------------------------------------------
@@ -392,7 +394,8 @@ const connect = async (mode) => {
       // Work the check left running after it answered (a deferred write) is
       // still timed: wait for it before the record is closed.
       const done = current;
-      await sleep(Math.min(5000, gap * 1000 || 2000));
+      if (recordsSettled) await recordsSettled();
+      await sleep(200);
       current = null;
       printCheck(done);
       checks.push(done);

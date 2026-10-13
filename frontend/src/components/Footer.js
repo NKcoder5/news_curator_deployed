@@ -13,6 +13,7 @@ const Footer = () => (
       </div>
       <nav className="site-footer__links" aria-label="Footer">
         <Link to="/check">Check anything</Link>
+        <Link to="/claims">Claims database</Link>
         <Link to="/home?category=general">News</Link>
         <Link to="/compare">Compare coverage</Link>
         <Link to="/dashboard">Dashboard</Link>

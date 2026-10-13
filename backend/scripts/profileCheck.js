@@ -35,7 +35,8 @@
 // replayed on one recording see identical evidence and identical latencies, so
 // any difference in verdict or time is the code's. `--slow host=4` (four times
 // slower) or `--slow host=+3000` (3 s more) and `--busy host` (each distinct
-// request answered 503 "model busy" the first time) replay a loaded day.
+// request answered 503 "model busy" the first time) replay a loaded day. A
+// replay runs on the clock of the recording (or `--clock <ISO time>`).
 //
 // Each message is checked with trigger 'eval' unless told otherwise, so no
 // re-check is ever booked. Live checks spend shared model quota: keep the list
@@ -56,6 +57,7 @@ const parseArgs = (argv) => {
     else if (a === '--trigger') opts.trigger = String(argv[++i] || 'eval');
     else if (a === '--record') opts.record = argv[++i];
     else if (a === '--replay') opts.replay = argv[++i];
+    else if (a === '--clock') opts.clock = argv[++i];
     else if (a === '--slow') {
       const [host, how] = String(argv[++i] || '').split('=');
       if (host && how) opts.slow[host] = how;
@@ -89,14 +91,31 @@ const describeRequest = (url, config = {}) => {
   }
 };
 // A request's identity for record and replay: method, address and what was
-// sent, with any key left out so a recording never holds a credential.
-const SECRET_PARAMS = /^(apikey|key|token)$/i;
+// sent, with any key left out so a recording never holds a credential, and
+// with how long Ollama keeps the model loaded left out as not part of the
+// question.
+const IGNORED_FIELDS = /^(apikey|key|token|keep_alive)$/i;
 const requestKey = (method, url, payload) => {
   const clean = String(url).replace(/([?&])(apiKey|key)=[^&]*/gi, '$1');
-  const sent = Object.fromEntries(Object.entries(payload || {}).filter(([k]) => !SECRET_PARAMS.test(k)));
+  const sent = Object.fromEntries(Object.entries(payload || {}).filter(([k]) => !IGNORED_FIELDS.test(k)));
   return `${method} ${clean} ${crypto.createHash('sha1').update(JSON.stringify(sent)).digest('hex')}`;
 };
 const recording = opts.replay ? JSON.parse(fs.readFileSync(opts.replay, 'utf8')) : {};
+
+// Prompts carry today's date ("Today is 2026-10-12") and searches ask for this
+// week, so a replay runs on the recording's clock: the time is shifted to when
+// it was recorded, and every duration measured is unaffected.
+const clockAt = opts.clock || recording.__meta?.recordedAt || null;
+if (opts.replay && clockAt) {
+  const RealDate = Date;
+  const offset = RealDate.parse(clockAt) - RealDate.now();
+  // Named Date: Mongoose recognises a schema's Date type by name.
+  global.Date = class Date extends RealDate {
+    constructor(...args) { if (args.length) super(...args); else super(RealDate.now() + offset); }
+    static now() { return RealDate.now() + offset; }
+  };
+}
+if (opts.record) recording.__meta = { recordedAt: new Date().toISOString() };
 const replayUsed = new Map();
 const busySeen = new Set();
 const replayMisses = [];

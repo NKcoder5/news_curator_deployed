@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChevronDown, CircleCheck } from 'lucide-react';
 
 /**
  * The check as it runs: each evidence channel, and what it found the moment
@@ -34,20 +35,29 @@ const LivePipeline = ({ stage, understood, channels, finished, elapsedMs }) => {
   if (finished && !open) {
     return (
       <div className="pipeline pipeline-folded">
+        <CircleCheck size={18} aria-hidden="true" className="pipeline-folded__icon" />
         <span>
           Checked across {PIPELINE.length - 1} evidence channels and 4 writing checks
           {elapsedMs ? ` in ${seconds(elapsedMs)}` : ''}.
         </span>
-        <button type="button" className="pipeline-toggle" onClick={() => setOpen(true)}>Show the steps</button>
+        <button type="button" className="pipeline-toggle" onClick={() => setOpen(true)} aria-expanded="false">
+          Show the steps <ChevronDown size={16} aria-hidden="true" />
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="pipeline" aria-live="polite">
+    <section className="pipeline" aria-label={finished ? 'How it was checked' : 'Checking'}>
       <div className="pipeline-head">
-        <span className="pipeline-title">{finished ? 'How it was checked' : 'Checking…'}</span>
-        <span className="pipeline-count">{doneCount} of {PIPELINE.length}</span>
+        <span className="pipeline-title">
+          {!finished && <span className="ui-spinner pipeline-spinner" aria-hidden="true" />}
+          {finished ? 'How it was checked' : 'Checking…'}
+        </span>
+        <span className="pipeline-count tabular" aria-live="polite">{doneCount} of {PIPELINE.length}</span>
+      </div>
+      <div className="pipeline-progress" aria-hidden="true">
+        <span style={{ width: `${(doneCount / PIPELINE.length) * 100}%` }} />
       </div>
       {stage && (
         <p className="pipeline-stage">
@@ -70,21 +80,26 @@ const LivePipeline = ({ stage, understood, channels, finished, elapsedMs }) => {
           const done = c && (!step.of || c.count >= step.of);
           return (
             <li key={step.id} className={`pipeline-step ${done ? 'is-done' : 'is-running'}`}>
-              <span className="pipeline-dot" aria-hidden="true">{done ? '✓' : ''}</span>
+              <span className="pipeline-dot" aria-hidden="true">
+                {done ? <CircleCheck size={18} /> : <span className="pipeline-pending" />}
+              </span>
               <span className="pipeline-name">
                 {step.name}
                 {step.of && c && !done ? ` (${c.count} of ${step.of})` : ''}
+                <span className="sr-only">{done ? ' — done' : ' — running'}</span>
               </span>
-              {done && c.ms >= 100 ? <span className="pipeline-ms">{seconds(c.ms)}</span> : null}
+              {done && c.ms >= 100 ? <span className="pipeline-ms tabular">{seconds(c.ms)}</span> : null}
               {done && c.summary && <span className="pipeline-summary">{c.summary}</span>}
             </li>
           );
         })}
       </ol>
       {finished && (
-        <button type="button" className="pipeline-toggle" onClick={() => setOpen(false)}>Fold the steps</button>
+        <button type="button" className="pipeline-toggle" onClick={() => setOpen(false)} aria-expanded="true">
+          Fold the steps <ChevronDown size={16} aria-hidden="true" className="is-open" />
+        </button>
       )}
-    </div>
+    </section>
   );
 };
 

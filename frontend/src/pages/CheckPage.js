@@ -1,10 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Link2, ClipboardType, Image as ImageIcon } from 'lucide-react';
+import { CircleSlash2, ClipboardType, Image as ImageIcon, Link2, RefreshCw, RotateCcw, ShieldCheck, Upload } from 'lucide-react';
 import api from '../services/api';
 import TrustReport from '../components/TrustReport';
 import LivePipeline from '../components/LivePipeline';
 import PlainAnswer from '../components/PlainAnswer';
+import {
+  Alert, Button, Field, LoadingRegion, PageHeader, Skeleton, SkeletonText, TabPanel, Tabs, VerdictBadge, VERDICTS
+} from '../components/ui';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 import '../styles/CheckPage.css';
 
 /**
@@ -31,6 +35,9 @@ const MODES = [
 ];
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+
+// The answers the reader can get, shown before they submit.
+const LEGEND = ['REAL', 'FAKE', 'PARTLY FALSE', 'CANNOT VERIFY'];
 
 /**
  * Run the check over the streamed endpoint, reporting each event as it lands.
@@ -82,7 +89,64 @@ const streamContentCheck = async (body, onEvent) => {
   throw new Error('The check ended without a result.');
 };
 
+// Messages of the kinds people forward, one per language the checker reads.
+const EXAMPLES = [
+  { label: 'A figure', text: 'India won 84 medals at the Asian Games 2026.' },
+  { label: 'A WhatsApp forward', text: 'RBI has declared every Saturday a bank holiday from next month. Share with everyone!' },
+  { label: 'Tanglish', text: 'Chennai la naalai mudhal ella school-um leave nu Collector announce panniyirukaru nu sonnanga' },
+  { label: 'Hindi', text: 'सरकार ने सभी किसानों के खाते में 10,000 रुपये डालने की नई योजना घोषित की है।' }
+];
+
+const SPEECH_ACT_READ = {
+  opinion: 'an opinion', prediction: 'a prediction', exhortation: 'a call to action', question: 'a question'
+};
+
+/** The input gate's answer: not a verdict, and not a failure — what is missing. */
+const Refusal = ({ refusal }) => (
+  <section className="check-refusal" aria-labelledby="refusal-title">
+    <div className="check-refusal__icon" aria-hidden="true"><CircleSlash2 size={22} /></div>
+    <div className="check-refusal__body">
+      <h2 id="refusal-title">Nothing to check</h2>
+      {refusal.readAs && (
+        <p className="check-refusal__read">
+          We read this as {SPEECH_ACT_READ[refusal.readAs.speechAct] || 'a statement'}
+          {refusal.readAs.languageName && refusal.readAs.languageName !== 'English' ? ` in ${refusal.readAs.languageName}` : ''}.
+        </p>
+      )}
+      <p className="check-refusal__reason">{refusal.reason}</p>
+      {refusal.missing.length > 0 && (
+        <div className="check-refusal__missing">
+          <p><strong>To check this we would need:</strong></p>
+          <ul>{refusal.missing.map((m) => <li key={m}>{m}</li>)}</ul>
+        </div>
+      )}
+      {refusal.canRetryWith.length > 0 && (
+        <p className="check-refusal__read">Try pasting the text of the post, or a screenshot of it, instead.</p>
+      )}
+    </div>
+  </section>
+);
+
+/** The shape of the answer, while the first events are on their way. */
+const ResultSkeleton = () => (
+  <LoadingRegion label="Checking. The verdict will appear here." className="check-skeleton">
+    <div className="check-skeleton__card">
+      <Skeleton width="110px" height="12px" />
+      <Skeleton width="80%" height="18px" />
+      <div className="check-skeleton__row">
+        <Skeleton width="130px" height="40px" radius="8px" />
+        <SkeletonText lines={2} />
+      </div>
+    </div>
+    <div className="check-skeleton__grid">
+      <Skeleton height="180px" radius="12px" />
+      <Skeleton height="180px" radius="12px" />
+    </div>
+  </LoadingRegion>
+);
+
 const CheckPage = () => {
+  useDocumentTitle('Check anything');
   // A video or social link pasted into the feed's link box is redirected here,
   // arriving prefilled so the reader does not have to paste it twice. A claim
   // opened from the claims registry ("Check it again") arrives as text.
@@ -107,6 +171,9 @@ const CheckPage = () => {
   const [refusal, setRefusal] = useState(null);
   const [error, setError] = useState('');
 
+  const formRef = useRef(null);
+  const inputRef = useRef(null);
+
   const reset = () => {
     setReport(null);
     setRefusal(null);
@@ -117,14 +184,14 @@ const CheckPage = () => {
     setStreamed(false);
   };
 
-  // Bring the live check into view the moment it starts, since it opens
-  // below the form and would otherwise run unseen.
-  const pipelineRef = useRef(null);
+  // Bring the check into view the moment it starts, since it opens below the
+  // form and would otherwise run unseen.
+  const resultRef = useRef(null);
   useEffect(() => {
-    if (loading && streamed && pipelineRef.current?.scrollIntoView) {
-      pipelineRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (loading && resultRef.current?.scrollIntoView) {
+      resultRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, [loading, streamed]);
+  }, [loading]);
 
   const onStreamEvent = (event) => {
     setStreamed(true);
@@ -150,6 +217,13 @@ const CheckPage = () => {
   const chooseMode = (id) => {
     setMode(id);
     reset();
+  };
+
+  const fillExample = (example) => {
+    setMode('text');
+    setText(example);
+    reset();
+    inputRef.current?.focus();
   };
 
   const handleImage = (event) => {
@@ -184,7 +258,7 @@ const CheckPage = () => {
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
+    event?.preventDefault();
     if (!ready() || loading) return;
 
     reset();
@@ -219,186 +293,173 @@ const CheckPage = () => {
     }
   };
 
+  const checkAnother = () => {
+    reset();
+    setText('');
+    setUrl('');
+    formRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+    inputRef.current?.focus({ preventScroll: true });
+  };
+
   const active = MODES.find((m) => m.id === mode);
+  const busyOrDone = loading || Boolean(report) || Boolean(refusal);
 
   return (
-    <div className="press-sheet check-page">
-      <header className="press-masthead">
-        <div className="press-dateline">The Verification Desk</div>
-        <h1 className="press-name">Check Anything</h1>
-        <div className="press-tagline">
-          An article, a video, a forwarded message or a screenshot — we will tell
-          you whether it holds up
-        </div>
-      </header>
+    <div className={`page check-page ${busyOrDone ? 'has-result' : ''}`}>
+      <PageHeader
+        eyebrow="Check anything"
+        title="Is it true? Check before you share."
+        description="Paste a forwarded message, a link or a screenshot — in English, Tamil, Hindi or Tanglish. We look for independent reporting, fact-checks and reference facts, and show you the evidence behind the verdict."
+      />
 
-      {/* Two columns, because one narrow form adrift in a full-width sheet is
-          what the page looked like before: a lot of bare paper and nothing to
-          justify it. The right-hand column carries what a reader needs BEFORE
-          they submit — the three answers they can get, and the fact that some
-          input gets none — which until now only appeared after the fact, in a
-          refusal they had no way to anticipate. */}
       <div className="check-layout">
-        <form className="check-form" onSubmit={handleSubmit}>
-          <div className="check-modes" role="tablist">
-            {MODES.map((m) => {
-              const Icon = m.icon;
-              return (
-                <button
-                  key={m.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={mode === m.id}
-                  className={`check-mode ${mode === m.id ? 'active' : ''}`}
-                  onClick={() => chooseMode(m.id)}
-                >
-                  <Icon size={15} /> {m.label}
-                </button>
-              );
-            })}
+        <form className="check-form" onSubmit={handleSubmit} ref={formRef} aria-label="Check a claim">
+          <Tabs tabs={MODES} value={mode} onChange={chooseMode} label="What do you want to check?" idPrefix="check" />
+
+          <TabPanel id={mode} idPrefix="check" className="check-panel">
+            {mode === 'text' && (
+              <Field label="Message, post or claim" hint={active.hint}>
+                <textarea
+                  ref={inputRef}
+                  className="ui-input check-textarea"
+                  rows={7}
+                  value={text}
+                  onChange={(e) => { setText(e.target.value); reset(); }}
+                  placeholder="Paste the message or post here…"
+                />
+              </Field>
+            )}
+
+            {mode === 'link' && (
+              <Field label="Link" hint={active.hint}>
+                <input
+                  ref={inputRef}
+                  className="ui-input"
+                  type="url"
+                  inputMode="url"
+                  value={url}
+                  onChange={(e) => { setUrl(e.target.value); reset(); }}
+                  placeholder="https://…"
+                />
+              </Field>
+            )}
+
+            {mode === 'image' && (
+              <div className="ui-field">
+                <span className="ui-field__label" id="check-image-label">Screenshot</span>
+                <p className="ui-field__hint" id="check-image-hint">{active.hint}</p>
+                <div className="check-upload">
+                  <input
+                    ref={inputRef}
+                    id="check-image"
+                    className="sr-only"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImage}
+                    aria-labelledby="check-image-label"
+                    aria-describedby="check-image-hint"
+                  />
+                  <label htmlFor="check-image" className="check-upload-label">
+                    <Upload size={20} aria-hidden="true" />
+                    <span className="check-upload-name">{imageName || 'Choose a screenshot'}</span>
+                    <span className="check-upload-hint">PNG or JPEG, up to 8 MB</span>
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {mode === 'text' && (
+              <div className="check-examples">
+                <span className="check-examples__label">Try an example:</span>
+                {EXAMPLES.map((example) => (
+                  <button key={example.label} type="button" className="check-example" onClick={() => fillExample(example.text)}>
+                    {example.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {mode !== 'link' && (
+              <Field label="Who posted it?" optional hint="A name or handle helps us judge the source.">
+                <input
+                  className="ui-input check-account"
+                  type="text"
+                  value={account}
+                  onChange={(e) => setAccount(e.target.value)}
+                  placeholder="e.g. @handle or the group it came from"
+                />
+              </Field>
+            )}
+          </TabPanel>
+
+          <div className="check-submit-row">
+            <Button type="submit" size="lg" icon={ShieldCheck} disabled={!ready() || loading} loading={loading} className="check-submit">
+              {loading ? 'Checking…' : 'Check it'}
+            </Button>
+            <p className="check-submit-note">Takes about 20 seconds. Nothing you paste is stored — only the claims in it.</p>
           </div>
-
-          <p className="check-hint">{active.hint}</p>
-
-          {mode === 'text' && (
-            <textarea
-              className="press-input check-textarea"
-              rows={9}
-              value={text}
-              onChange={(e) => { setText(e.target.value); reset(); }}
-              placeholder="Paste the message or post here…"
-            />
-          )}
-
-          {mode === 'link' && (
-            <input
-              className="press-input"
-              type="url"
-              value={url}
-              onChange={(e) => { setUrl(e.target.value); reset(); }}
-              placeholder="Paste a news link, or a YouTube video — https://…"
-            />
-          )}
-
-          {mode === 'image' && (
-            <div className="check-upload">
-              <input id="check-image" type="file" accept="image/*" onChange={handleImage} />
-              <label htmlFor="check-image" className="check-upload-label">
-                {imageName || 'Choose a screenshot…'}
-              </label>
-            </div>
-          )}
-
-          {mode !== 'link' && (
-            <input
-              className="press-input check-account"
-              type="text"
-              value={account}
-              onChange={(e) => setAccount(e.target.value)}
-              placeholder="Who posted it? (optional — helps us judge the source)"
-            />
-          )}
-
-          <button className="press-btn check-submit" type="submit" disabled={!ready() || loading}>
-            {loading ? 'Checking…' : 'Check it'}
-          </button>
         </form>
 
-        <aside className="check-aside">
-          {/* What may be given, which was the least discoverable thing on the
-              page: video is accepted and always was, but the only mention of
-              it sat inside the link tab's hint, and the page opens on the text
-              tab. */}
-          <h2 className="check-aside__head">What you can give it</h2>
-          <ul className="check-inputs">
-            <li><strong>A news link</strong> — we read the article itself, not the preview.</li>
-            <li><strong>A YouTube video</strong> — we read the transcript, since the claim is in the speech.</li>
-            <li><strong>A forwarded message</strong> — paste it as it reached you.</li>
-            <li><strong>A screenshot</strong> — we read the text out of the image.</li>
-          </ul>
-
-          <h2 className="check-aside__head">What you will get back</h2>
+        <aside className="check-aside" aria-labelledby="check-aside-title">
+          {/* What may be given, and the answers there are, before submitting —
+              including the fact that some input gets no verdict at all. */}
+          <h2 className="check-aside__head" id="check-aside-title">What you will get back</h2>
           <dl className="check-verdicts">
-            <div className="check-verdict check-verdict--real">
-              <dt>Real</dt>
-              <dd>Independent outlets report the same events.</dd>
-            </div>
-            <div className="check-verdict check-verdict--fake">
-              <dt>Fake</dt>
-              <dd>Outlets report otherwise, fact-checkers have rated it false, this week’s news rules it out, or a premise of it is false.</dd>
-            </div>
-            <div className="check-verdict check-verdict--unknown">
-              <dt>Cannot verify</dt>
-              <dd>Nothing independent supports it yet. Not a finding that it is false.</dd>
-            </div>
+            {LEGEND.map((call) => (
+              <div key={call} className="check-verdict">
+                <dt><VerdictBadge call={call} size="sm" label={VERDICTS[call].label} /></dt>
+                <dd>{VERDICTS[call].description}</dd>
+              </div>
+            ))}
           </dl>
-
           <p className="check-aside__note">
-            Outlets are counted, not articles: five papers carrying one wire
-            story count as one source.
+            Outlets are counted, not articles: five papers carrying one wire story count as one source.
           </p>
-
           <h2 className="check-aside__head">What it will refuse</h2>
           <p className="check-aside__note">
-            A question, an opinion, or something too vague to place gets no
-            verdict — only a note saying what would make it checkable. A system
-            that answers what it cannot answer teaches you to distrust the
-            answers it gets right.
+            A question, an opinion, or something too vague to place gets no verdict — only a note saying what would
+            make it checkable. A system that answers what it cannot answer teaches you to distrust the answers it
+            gets right.
           </p>
         </aside>
       </div>
 
-      {error && <p className="check-error">{error}</p>}
+      <div className="check-result-area" ref={resultRef}>
+        {error && (
+          <Alert tone="danger" title="The check did not finish" action={ready() ? <Button size="sm" variant="secondary" icon={RefreshCw} onClick={handleSubmit}>Try again</Button> : null}>
+            {error}
+          </Alert>
+        )}
 
-      {/* A refusal, shown as a result in its own right. */}
-      {refusal && (
-        <section className="check-refusal">
-          <h2>Nothing to check</h2>
-          {refusal.readAs && (
-            <p className="check-missing">
-              We read this as {refusal.readAs.speechAct === 'opinion' ? 'an opinion'
-                : refusal.readAs.speechAct === 'prediction' ? 'a prediction'
-                : refusal.readAs.speechAct === 'exhortation' ? 'a call to action'
-                : refusal.readAs.speechAct === 'question' ? 'a question'
-                : 'a statement'}
-              {refusal.readAs.languageName && refusal.readAs.languageName !== 'English' ? ` in ${refusal.readAs.languageName}` : ''}.
-            </p>
-          )}
-          <p>{refusal.reason}</p>
-          {refusal.missing.length > 0 && (
-            <p className="check-missing">
-              <strong>To check this we would need:</strong> {refusal.missing.join('; ')}.
-            </p>
-          )}
-          {refusal.canRetryWith.length > 0 && (
-            <p className="check-missing">
-              Try pasting the text of the post, or a screenshot of it, instead.
-            </p>
-          )}
-        </section>
-      )}
+        {/* A refusal, shown as a result in its own right. */}
+        {refusal && <Refusal refusal={refusal} />}
 
-      {/* The check as it runs, folded to one line once the verdict is in. */}
-      {(loading || report) && streamed && (
-        <div ref={pipelineRef}>
+        {loading && !streamed && <ResultSkeleton />}
+
+        {/* The check as it runs, folded to one line once the verdict is in. */}
+        {(loading || report) && streamed && (
           <LivePipeline stage={stage} understood={understood} channels={channels} finished={Boolean(report)} elapsedMs={elapsedMs} />
-        </div>
-      )}
+        )}
 
-      {report && (
-        <section className="check-result">
-          <TrustReport report={report} evidenceFirst />
-          <PlainAnswer
-            question={mode === 'text' ? text.trim() : report.evidence?.perClaim?.[0]?.claim}
-            ourCall={report.call}
-            sourceCount={
-              (report.factChecks?.matches?.length || 0)
-              + (report.evidence?.perClaim || []).reduce((n, c) => n + (c.independentSupport || 0) + (c.independentContradiction || 0), 0)
-              + (report.currentCoverage?.counted ? (report.currentCoverage.presupposingFalse || []).length : 0)
-            }
-          />
-        </section>
-      )}
+        {report && (
+          <section className="check-result" aria-label="Result">
+            <TrustReport report={report} evidenceFirst>
+              <PlainAnswer
+                question={mode === 'text' ? text.trim() : report.evidence?.perClaim?.[0]?.claim}
+                ourCall={report.call}
+                sourceCount={
+                  (report.factChecks?.matches?.length || 0)
+                  + (report.evidence?.perClaim || []).reduce((n, c) => n + (c.independentSupport || 0) + (c.independentContradiction || 0), 0)
+                  + (report.currentCoverage?.counted ? (report.currentCoverage.presupposingFalse || []).length : 0)
+                }
+              />
+            </TrustReport>
+            <div className="check-again">
+              <Button variant="secondary" icon={RotateCcw} onClick={checkAnother}>Check something else</Button>
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   );
 };

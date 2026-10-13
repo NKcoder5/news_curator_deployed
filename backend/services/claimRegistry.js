@@ -358,10 +358,20 @@ const registryStats = async (now = Date.now()) => {
     if (CALLS.includes(row._id)) calls[row._id] = row.claims;
     else other += row.claims;
   }
+  // Reader checks this week of public claims only. Counting every reader check
+  // gave "0 checks, 3 this week" on the front page: readers' checks of a claim
+  // the evaluation suites had filed first land under that hidden record.
+  const [week] = await ClaimAssessment.aggregate([
+    { $match: { createdAt: { $gte: new Date(now - WINDOW_DAYS * DAY) }, ...READER_CHECKS } },
+    { $lookup: { from: ClaimRecord.collection.name, localField: 'claimIds', foreignField: '_id', as: 'public',
+      pipeline: [{ $match: PUBLIC }, { $project: { _id: 1 } }] } },
+    { $match: { 'public.0': { $exists: true } } },
+    { $count: 'checks' }
+  ]);
   return {
     claims: totals.claims,
     checks: totals.checks,
-    checksThisWeek: await ClaimAssessment.countDocuments({ createdAt: { $gte: new Date(now - WINDOW_DAYS * DAY) }, ...READER_CHECKS }),
+    checksThisWeek: week ? week.checks : 0,
     calls: { ...calls, other },
     languages: facets.languages.map(l => ({ language: l._id, claims: l.claims })),
     since: totals.since

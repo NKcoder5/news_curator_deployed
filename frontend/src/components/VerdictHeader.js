@@ -90,7 +90,7 @@ const VerdictHeader = ({ report, full = false }) => {
         </div>
       )}
       <div className="verdict-main">
-        <VerdictBadge call={call} size="lg" className="verdict-call" />
+        <VerdictBadge call={call} size={full ? 'lg' : 'md'} className="verdict-call" />
         <div className="verdict-text">
           {report.oneLine && <p className="verdict-oneline">{report.oneLine}</p>}
           {/* The same reason in the reader's language, for a message written in it. */}

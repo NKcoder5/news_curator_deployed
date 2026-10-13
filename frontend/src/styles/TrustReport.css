@@ -66,6 +66,10 @@
 
 .verdict-card:not(.verdict-card--full) .verdict-oneline { font-size: var(--text-base); }
 
+/* The article page's compact answer: badge and sentence on one line. */
+.verdict-card:not(.verdict-card--full) .verdict-main { align-items: center; }
+.verdict-card:not(.verdict-card--full) .verdict-text { padding-top: 0; }
+
 .verdict-oneline-local { color: var(--color-fg); }
 .verdict-advice { font-size: var(--text-sm); color: var(--color-fg-muted); }
 

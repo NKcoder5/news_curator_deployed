@@ -42,7 +42,7 @@ else:
     from transformers import AutoModelForSequenceClassification
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = AutoModelForSequenceClassification.from_pretrained(a.model).to(device)
+    model = AutoModelForSequenceClassification.from_pretrained(a.model, dtype=torch.float32).to(device)
     predict = lambda rows: predict_torch(model, tok, rows, order, max_len=a.max_len, device=device)  # noqa: E731
 
 results = {"model": a.model, "onnx": a.onnx, "con_threshold": a.con_threshold, "sets": {}}

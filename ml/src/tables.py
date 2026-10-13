@@ -23,7 +23,7 @@ for key, title in (("accuracy", "Accuracy (%)"), ("macro_f1", "Macro-F1 (%)"), (
         n = runs[0][1]["sets"][name]["overall"]["n"]
         print(f"| {name.replace('eval_', '')} | {n} | " + " | ".join(cell(r, name, key) for _, r in runs) + " |")
 
-for name in ("eval_synth_seen", "eval_synth_unseen", "eval_claims"):
+for name in ("eval_synth_seen", "eval_synth_unseen", "eval_claims", "eval_blind"):
     cats = runs[0][1]["sets"][name].get("by_cat", {})
     if not cats:
         continue

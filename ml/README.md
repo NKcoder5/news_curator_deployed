@@ -30,14 +30,14 @@ ml\.venv\Scripts\python -I -X utf8 ml/src/build_data.py ml/data backend/eval/sui
 # 3. zero-shot baselines of the three candidate base models (for the comparison)
 ml\.venv\Scripts\python -I -X utf8 ml/src/zero_shot.py ml/data ml/artifacts/eval
 
-# 4. fine-tune (about 9 minutes for MiniLM-L12, about 100 minutes for mDeBERTa on this GPU)
+# 4. fine-tune (about 10 minutes for MiniLM-L12 on this GPU; mDeBERTa did not finish in the time allowed, see the engineering note)
 ml\.venv\Scripts\python -I -X utf8 ml/src/train.py --model MoritzLaurer/multilingual-MiniLMv2-L12-mnli-xnli --data ml/data --out ml/artifacts/minilm-l12-ft --epochs 2 --lr 3e-5
 
 # 5. evaluate (writes JSON; add --errors eval_claims to print the misclassified pairs of one set)
 ml\.venv\Scripts\python -I -X utf8 ml/src/evaluate.py --model ml/artifacts/minilm-l12-ft --data ml/data --out ml/artifacts/eval/ft_minilm_l12.json
 
-# 6. export to ONNX and quantise to int8, then check the int8 model and measure CPU latency
-ml\.venv\Scripts\python -I -X utf8 ml/src/export_onnx.py --model ml/artifacts/minilm-l12-ft --out ml/artifacts/minilm-l12-onnx-int8
+# 6. export to ONNX with a pruned vocabulary, quantise to int8, then check the int8 model and measure CPU latency
+ml\.venv\Scripts\python -I -X utf8 ml/src/export_onnx.py --model ml/artifacts/minilm-l12-ft --out ml/artifacts/minilm-l12-onnx-int8 --data ml/data
 ml\.venv\Scripts\python -I -X utf8 ml/src/evaluate.py --model ml/artifacts/minilm-l12-onnx-int8 --onnx ml/artifacts/minilm-l12-onnx-int8/onnx/model_quantized.onnx --data ml/data --out ml/artifacts/eval/int8_minilm_l12.json
 ml\.venv\Scripts\python -I -X utf8 ml/src/bench_onnx.py --model ml/artifacts/minilm-l12-onnx-int8 --onnx ml/artifacts/minilm-l12-onnx-int8/onnx/model_quantized.onnx --data ml/data
 
@@ -46,7 +46,7 @@ ml\.venv\Scripts\python -I -X utf8 ml/src/tables.py "zero-shot=ml/artifacts/eval
 ```
 
 To use the model in the backend, point `LOCAL_NLI_MODEL_DIR` at the export directory (default
-`ml/artifacts/minilm-l12-onnx-int8`); `onnx/model.onnx` (the fp32 file, 450 MB) is not needed there.
+`ml/artifacts/minilm-l12-onnx-int8`); `onnx/model.onnx` (the fp32 file, 160 MB) is not needed there. The export is 43 MB in total.
 
 ## What is in `ml/src`
 
@@ -55,9 +55,10 @@ To use the model in the backend, point `LOCAL_NLI_MODEL_DIR` at the export direc
 | `synth.py` | synthetic in-domain pairs, one generator per failure mode; entities and some sentence frames are held out of training |
 | `fetch_data.py` | downloads FEVER-NLI, MultiNLI, XNLI-hi, IndicXNLI (hi, ta) and FNC-1 |
 | `build_data.py` | mixes them into `train.jsonl` / `dev.jsonl` and builds the evaluation files, including the project's claim-matching suites as an evaluation-only set |
-| `train.py` | the fine-tuning loop (length-grouped batches, bf16 autocast, linear warm-up and decay) |
+| `train.py` | the fine-tuning loop (length-grouped batches, bf16 autocast over fp32 weights, linear warm-up and decay; `--freeze-embeddings` for large-vocabulary models) |
 | `evaluate.py`, `nli_common.py` | predictions (PyTorch or ONNX Runtime) and metrics: accuracy, macro-F1, false-contradiction rate, per category |
-| `export_onnx.py`, `bench_onnx.py` | ONNX export, int8 quantisation, CPU latency and memory |
+| `export_onnx.py`, `bench_onnx.py` | vocabulary pruning, ONNX export, per-channel int8 quantisation, CPU latency and memory |
+| `ml/eval/blind_pairs.json` | 72 hand-written pairs for the final check, kept unseen until the last model was trained |
 | `zero_shot.py`, `tables.py`, `peek.py` | baseline comparison, markdown tables, a quick look at generated pairs |
 
 ## Labels and the error that matters

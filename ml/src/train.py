@@ -30,6 +30,8 @@ ap.add_argument("--bs", type=int, default=32)
 ap.add_argument("--max-len", type=int, default=160)
 ap.add_argument("--warmup", type=float, default=0.06)
 ap.add_argument("--seed", type=int, default=13)
+ap.add_argument("--freeze-embeddings", action="store_true",
+                help="keep the word-embedding table at its pre-trained values (192M of mDeBERTa's 278M weights: saves 3 GB of optimiser state)")
 ap.add_argument("--limit", type=int, default=None, help="train on the first N pairs only (smoke test)")
 a = ap.parse_args()
 
@@ -41,7 +43,9 @@ t0 = time.time()
 
 tok = AutoTokenizer.from_pretrained(a.model)
 order = label_map(AutoConfig.from_pretrained(a.model).id2label)  # model class index of entail / neutral / contradict
-model = AutoModelForSequenceClassification.from_pretrained(a.model).to(device)
+model = AutoModelForSequenceClassification.from_pretrained(a.model, dtype=torch.float32).to(device)  # checkpoints may be stored in fp16
+if a.freeze_embeddings:
+    model.get_input_embeddings().weight.requires_grad_(False)
 train, dev = load(Path(a.data) / "train.jsonl")[:a.limit], load(Path(a.data) / "dev.jsonl")
 enc = tok([r["premise"] for r in train], [r["hypothesis"] for r in train], truncation=True, max_length=a.max_len)
 ids = enc["input_ids"]
@@ -64,8 +68,8 @@ def epoch_batches():
 
 steps_per_epoch = (len(train) + a.bs - 1) // a.bs
 total = int(steps_per_epoch * a.epochs)
-decay = [p for n, p in model.named_parameters() if p.ndim > 1]
-no_decay = [p for n, p in model.named_parameters() if p.ndim <= 1]
+decay = [p for n, p in model.named_parameters() if p.ndim > 1 and p.requires_grad]
+no_decay = [p for n, p in model.named_parameters() if p.ndim <= 1 and p.requires_grad]
 opt = torch.optim.AdamW([{"params": decay, "weight_decay": 0.01}, {"params": no_decay, "weight_decay": 0.0}], lr=a.lr, fused=True)
 sched = get_linear_schedule_with_warmup(opt, int(total * a.warmup), total)
 

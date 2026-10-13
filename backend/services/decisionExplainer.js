@@ -48,12 +48,16 @@ const CHANNELS = [
 // Hypothetical outlets, each independent of the others and of the real ones:
 // separate owners, and headlines that share too few words to be read as the
 // same copy (agents/independence.js merges headlines that overlap by 75%).
+// They are dated at the moment of the check, as fresh reports would be.
+// Measured (eval/counterfactualFaithfulness.js): undated, they could never
+// show that one fresh report would confirm a claim whose only coverage was
+// old news passed off as new.
 const CODEWORDS = ['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel'];
-const synthetic = (n, stance) => Array.from({ length: n }, (_, k) => ({
+const synthetic = (n, stance, asOf) => Array.from({ length: n }, (_, k) => ({
   source: `Hypothetical ${stance === 'for' ? 'Confirming' : 'Contradicting'} Outlet ${CODEWORDS[k]}`,
   title: `Hypothetical ${CODEWORDS[k]} report`,
   description: '', url: `https://hypothetical-${stance}-${CODEWORDS[k]}.example/`,
-  publishedAt: null, reported: stance === 'for' ? 'confirms it' : 'reports otherwise', reliability: 7
+  publishedAt: new Date(asOf).toISOString(), reported: stance === 'for' ? 'confirms it' : 'reports otherwise', reliability: 7
 }));
 
 const outcome = (input) => {
@@ -108,7 +112,7 @@ const explainDecision = (ledgerInput) => {
         const trial = clone(ledgerInput);
         const target = trial.claims[0];
         const key = stance === 'for' ? 'supportingEvidence' : 'contradictingEvidence';
-        target[key] = [...(target[key] || []), ...synthetic(n, stance)];
+        target[key] = [...(target[key] || []), ...synthetic(n, stance, ledgerInput.asOf || Date.now())];
         const result = outcome(trial);
         if (reached.has(result.call)) continue;
         reached.add(result.call);

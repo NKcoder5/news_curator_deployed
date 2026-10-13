@@ -110,4 +110,16 @@ function calibration(items, numBins = 10, probOf = it => it.score / 10) {
   return { ece: +ece.toFixed(4), bins: binReport };
 }
 
-module.exports = { classificationMetrics, rocAuc, bestThreshold, calibration, plattFit };
+// 95% Wilson score interval for k successes in n trials. Unlike k/n ± 2 s.e.
+// it stays inside [0, 1] and is honest about small samples: 3 of 3 right is
+// 44–100%, not 100%.
+function wilson(k, n, z = 1.96) {
+  if (!n) return { low: 0, high: 1 };
+  const p = k / n;
+  const denom = 1 + (z * z) / n;
+  const centre = (p + (z * z) / (2 * n)) / denom;
+  const half = (z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / denom;
+  return { low: Math.max(0, centre - half), high: Math.min(1, centre + half) };
+}
+
+module.exports = { classificationMetrics, rocAuc, bestThreshold, calibration, plattFit, wilson };

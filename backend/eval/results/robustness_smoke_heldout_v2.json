@@ -1,0 +1,76 @@
+{
+  "summary": {
+    "ranAt": "2026-10-12T15:38:48.250Z",
+    "suite": "heldout_v2",
+    "complete": true,
+    "stoppedBecause": null,
+    "cases": 1,
+    "overall": {
+      "n": 1,
+      "right": 1,
+      "safe": 0,
+      "missed": 0,
+      "wrong": 0
+    },
+    "byCategory": {
+      "true current event": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      }
+    },
+    "medianSeconds": 33.622
+  },
+  "rows": [
+    {
+      "id": "v2-1",
+      "category": "true current event",
+      "language": "en",
+      "input": "Veteran actor Nana Patekar died in Goa at the age of 75",
+      "expected": "REAL",
+      "sources": [
+        "https://www.aljazeera.com/news/2026/10/8/acclaimed-indian-actor-nana-patekar-dies-aged-75",
+        "https://gulfnews.com/entertainment/nana-patekar-dies-at-75-in-goa-1.500702513"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Confirmed by 11 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "alarmist"
+        ],
+        "english": "Veteran actor Nana Patekar died in Goa at the age of 75",
+        "claims": [
+          {
+            "claim": "Nana Patekar died in Goa at the age of 75.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 33.622,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "gemini": 4,
+          "nim": 1,
+          "ollama": 4
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    }
+  ]
+}

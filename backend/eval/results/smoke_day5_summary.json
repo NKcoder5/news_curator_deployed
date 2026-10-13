@@ -1,0 +1,83 @@
+{
+  "ranAt": "2026-10-12T15:47:51.792Z",
+  "tag": "smoke_",
+  "stoppedAt": "heldout",
+  "steps": [
+    {
+      "step": "heldout",
+      "code": "skipped",
+      "seconds": 0,
+      "checks": 0
+    }
+  ],
+  "heldoutV2": {
+    "complete": true,
+    "overall": {
+      "n": 1,
+      "right": 1,
+      "safe": 0,
+      "missed": 0,
+      "wrong": 0
+    },
+    "byCategory": {
+      "true current event": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      }
+    },
+    "medianSeconds": 33.622
+  },
+  "consistency": {
+    "withMemory": {
+      "complete": false,
+      "identicalCalls": "0/0",
+      "allPhrasingsRight": "0/0",
+      "filedTogether": "0/0",
+      "phrasings": {
+        "n": 2,
+        "right": 0,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 1
+      },
+      "seconds": {
+        "median": 20.461,
+        "p90": 27.483
+      }
+    },
+    "noMemory": {
+      "complete": false,
+      "identicalCalls": "0/0",
+      "allPhrasingsRight": "0/0",
+      "filedTogether": "memory off",
+      "phrasings": {
+        "n": 1,
+        "right": 0,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 0
+      },
+      "seconds": {
+        "median": 37.528,
+        "p90": 37.528
+      }
+    }
+  },
+  "claimMatchingWithModel": {
+    "pairs": 46,
+    "exact": 36,
+    "falseMerges": 0,
+    "variantsMerged": 3,
+    "falseLinks": 0,
+    "sameRecall": "7/14",
+    "variantRecall": "9/12",
+    "differentKeptApart": "20/20",
+    "decoysKeptApart": "18/18",
+    "ambiguous": 8,
+    "modelConsulted": 8
+  },
+  "heldOutCalibration": null
+}

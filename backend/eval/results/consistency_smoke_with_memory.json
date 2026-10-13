@@ -1,0 +1,154 @@
+{
+  "summary": {
+    "ranAt": "2026-10-12T15:39:39.294Z",
+    "memory": "on (database news_curator_eval_smoke)",
+    "complete": false,
+    "stoppedBecause": "check budget of 2 spent",
+    "claims": 1,
+    "claimsFinished": 0,
+    "identicalCalls": "0/0",
+    "allPhrasingsRight": "0/0",
+    "filedTogether": "0/0",
+    "phrasings": {
+      "n": 2,
+      "right": 0,
+      "safe": 0,
+      "missed": 1,
+      "wrong": 1
+    },
+    "byStyle": {
+      "plain": {
+        "n": 1,
+        "rightOrSafe": 0,
+        "wrong": 1
+      },
+      "question": {
+        "n": 1,
+        "rightOrSafe": 0,
+        "wrong": 0
+      }
+    },
+    "seconds": {
+      "median": 20.461,
+      "p90": 27.483
+    },
+    "perClaim": [
+      {
+        "id": "k-1",
+        "claim": "Nana Patekar died at his home in Goa.",
+        "expected": "REAL",
+        "phrasings": 2,
+        "calls": {
+          "plain": "FAKE",
+          "question": "CANNOT VERIFY"
+        },
+        "identical": false,
+        "allRight": false,
+        "wrong": 1,
+        "filed": {
+          "together": false,
+          "records": 2,
+          "unfiled": 0
+        }
+      }
+    ]
+  },
+  "rows": [
+    {
+      "claimId": "k-1",
+      "style": "plain",
+      "language": "en",
+      "input": "Actor Nana Patekar has died at his home in Goa",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "FAKE",
+      "rule": "premise-contradicted-by-reference",
+      "confidence": 0.55,
+      "kind": null,
+      "detail": "The encyclopedia entry “Nana Patekar” says otherwise: “Vishwanath \"Nana\" Patekar (1 January 1951 – 8 October 2026) was an Indian actor and filmmaker, who mainly worked in Hindi and Marathi cin…”",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Actor Nana Patekar has died at his home in Goa",
+        "claims": [
+          {
+            "claim": "Actor Nana Patekar has died at his home in Goa.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 13.439,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "gemini": 4,
+          "ollama": 4,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "filed": {
+        "claimIds": [
+          "6accff1fd2bdf745836e30b1"
+        ],
+        "assessmentId": "6accff1fd2bdf745836e30b3"
+      },
+      "outcome": "wrong"
+    },
+    {
+      "claimId": "k-1",
+      "style": "question",
+      "language": "en",
+      "input": "Is it true that Nana Patekar passed away?",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "fact-checkers-and-reporting-disagree",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "Fact-checkers rated this false, but 10 independent outlets now report it.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Is it true that Nana Patekar passed away?",
+        "claims": [
+          {
+            "claim": "Nana Patekar passed away.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 27.483,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "gemini": 4,
+          "ollama": 4,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "filed": {
+        "claimIds": [
+          "6accff3bd2bdf745836e30b8"
+        ],
+        "assessmentId": "6accff3bd2bdf745836e30ba"
+      },
+      "outcome": "missed"
+    }
+  ]
+}

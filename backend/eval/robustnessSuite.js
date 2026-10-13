@@ -8,27 +8,31 @@
 // round a fact, two claims in one breath, Tamil, Tanglish, Hindi, a typo, old
 // news passed off as new. eval/suites/robustness_suite.json holds labelled
 // cases of each kind; this runs every one through the same service the page
-// uses and scores the answers three ways:
-//
-//   right      — the expected answer
-//   safe       — an abstention or refusal listed as acceptable: unhelpful,
-//                but it misleads no one
-//   wrong      — anything else, and above all REAL for a false claim or FAKE
-//                for a true one
+// uses and scores the answers four ways (eval/liveCheck.js): right, safe (an
+// abstention listed as acceptable), missed (no verdict where one was due) and
+// wrong (a verdict the wrong way).
 //
 // Usage:
 //   node eval/robustnessSuite.js                     every case
 //   node eval/robustnessSuite.js --category Tamil    one category
 //   node eval/robustnessSuite.js --id q-1,ta-3       chosen cases
+//   node eval/robustnessSuite.js --limit 5           the first five cases
 //   node eval/robustnessSuite.js --gap 8             seconds between cases
 //   node eval/robustnessSuite.js --out before        results file suffix
 //   node eval/robustnessSuite.js --suite heldout     the held-out cases
+//   node eval/robustnessSuite.js --suite heldout_v2 --out heldout_v2 --resume
+//                                                    keep what an interrupted run finished
+//   node eval/robustnessSuite.js --max-checks 10     stop after ten live checks
+//
+// Results are written after every case. When the model quota runs out (two
+// cases in a row answered by fallback providers or failing), the run stops
+// with exit code 75 and --resume carries on from there after the reset.
 //
 // Writes eval/results/robustness_<out>.{json,md}.
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 const fs = require('fs');
 const path = require('path');
-const { runContentCheck } = require('../services/contentCheck');
+const { checkMessage, outcomeOf, quotaGuard, EXIT_RESUMABLE, resultsFile, keptRows, writeJson, median, pause } = require('./liveCheck');
 
 const args = process.argv.slice(2);
 const flag = (name, fallback = null) => (args.includes(name) ? args[args.indexOf(name) + 1] : fallback);
@@ -36,77 +40,53 @@ const gapSeconds = Number(flag('--gap', 5));
 const outName = flag('--out', 'latest');
 const onlyCategory = flag('--category');
 const onlyIds = flag('--id') ? new Set(flag('--id').split(',')) : null;
+const limit = flag('--limit') ? Number(flag('--limit')) : Infinity;
+const maxChecks = flag('--max-checks') ? Number(flag('--max-checks')) : Infinity;
+const resume = args.includes('--resume');
 
 // --suite heldout runs eval/suites/heldout_suite.json: cases written after the
-// system was tuned on the main suite, so its score is the honest one.
+// system was tuned on the main suite, so its score is the honest one. Newer
+// suites are named for themselves (eval/suites/heldout_v2.json).
 const suiteName = flag('--suite', 'robustness');
-const suite = JSON.parse(fs.readFileSync(path.join(__dirname, 'suites', `${suiteName}_suite.json`), 'utf8'));
+const suiteFile = [`${suiteName}_suite.json`, `${suiteName}.json`]
+  .map(f => path.join(__dirname, 'suites', f)).find(f => fs.existsSync(f));
+const suite = JSON.parse(fs.readFileSync(suiteFile, 'utf8'));
 const cases = suite.cases
   .filter(c => !onlyCategory || c.category === onlyCategory)
-  .filter(c => !onlyIds || onlyIds.has(c.id));
+  .filter(c => !onlyIds || onlyIds.has(c.id))
+  .slice(0, limit);
 
-// Four outcomes, because they are not equally bad. A verdict the other way
-// misleads; declining to answer only fails to help.
-//   right   — the expected answer
-//   safe    — an answer listed as acceptable for that case
-//   missed  — an abstention or refusal where a verdict was due
-//   wrong   — a verdict, and the wrong one
-const ABSTENTIONS = new Set(['CANNOT VERIFY', 'REFUSED', 'NOT A FACTUAL CLAIM', 'ERROR']);
-const outcomeOf = (c, call) => {
-  if (call === c.expected) return 'right';
-  if ((c.alsoAcceptable || []).includes(call)) return 'safe';
-  if (ABSTENTIONS.has(call)) return 'missed';
-  return 'wrong';
-};
+const jsonFile = resultsFile(`robustness_${outName}.json`);
+let checks = 0;   // live checks made by this run, for eval/runDay5.js's budget
 
-(async () => {
-  const rows = [];
-  for (const c of cases) {
-    const started = Date.now();
-    let call; let detail = ''; let rule = null; let readAs = null;
-    try {
-      const report = await runContentCheck(c.isUrl ? { url: c.input } : { text: c.input });
-      call = report.call;
-      detail = report.oneLine || '';
-      rule = report.decision?.rule || null;
-      readAs = report.understanding || null;
-    } catch (err) {
-      if (err.status && err.status < 500 && err.payload) {
-        call = 'REFUSED';
-        detail = err.payload.error || '';
-      } else {
-        call = 'ERROR';
-        detail = err.message;
-      }
-    }
-    const row = { ...c, call, outcome: outcomeOf(c, call), rule, detail, readAs, seconds: (Date.now() - started) / 1000 };
-    rows.push(row);
-    const mark = { right: '✓', safe: '~', missed: '○', wrong: '✗' }[row.outcome];
-    console.log(`${mark} ${c.id.padEnd(10)} ${c.category.padEnd(22)} expected ${c.expected.padEnd(19)} got ${call.padEnd(19)} ${row.seconds.toFixed(1)}s  ${detail.slice(0, 80)}`);
-    await new Promise(resolve => setTimeout(resolve, gapSeconds * 1000));
-  }
+const tally = (list) => ({
+  n: list.length,
+  right: list.filter(r => r.outcome === 'right').length,
+  safe: list.filter(r => r.outcome === 'safe').length,
+  missed: list.filter(r => r.outcome === 'missed').length,
+  wrong: list.filter(r => r.outcome === 'wrong').length
+});
 
-  const tally = (list) => ({
-    n: list.length,
-    right: list.filter(r => r.outcome === 'right').length,
-    safe: list.filter(r => r.outcome === 'safe').length,
-    missed: list.filter(r => r.outcome === 'missed').length,
-    wrong: list.filter(r => r.outcome === 'wrong').length
-  });
+const save = (rows, stoppedBecause) => {
   const categories = [...new Set(rows.map(r => r.category))];
   const summary = {
     ranAt: new Date().toISOString(),
+    suite: suiteName,
+    complete: !stoppedBecause && rows.length === cases.length,
+    stoppedBecause: stoppedBecause || null,
+    checksThisRun: checks,
+    cases: cases.length,
     overall: tally(rows),
-    byCategory: Object.fromEntries(categories.map(cat => [cat, tally(rows.filter(r => r.category === cat))]))
+    byCategory: Object.fromEntries(categories.map(cat => [cat, tally(rows.filter(r => r.category === cat))])),
+    medianSeconds: median(rows.map(r => r.seconds))
   };
-
-  const outDir = path.join(__dirname, 'results');
-  fs.mkdirSync(outDir, { recursive: true });
-  fs.writeFileSync(path.join(outDir, `robustness_${outName}.json`), JSON.stringify({ summary, rows }, null, 2));
+  writeJson(jsonFile, { summary, rows });
+  const o = summary.overall;
   const md = [
     `# Robustness suite (${outName})`,
     '',
-    `Run ${summary.ranAt.slice(0, 16).replace('T', ' ')} UTC. ${summary.overall.right}/${summary.overall.n} right, ${summary.overall.safe} acceptable, ${summary.overall.missed} missed (no verdict where one was due), ${summary.overall.wrong} wrong (a verdict the wrong way).`,
+    `Suite ${suiteName}. Run ${summary.ranAt.slice(0, 16).replace('T', ' ')} UTC. ${o.right}/${o.n} right, ${o.safe} acceptable, ${o.missed} missed (no verdict where one was due), ${o.wrong} wrong (a verdict the wrong way).`
+      + (summary.complete ? '' : ` Incomplete: ${rows.length} of ${cases.length} cases${stoppedBecause ? ` (stopped: ${stoppedBecause})` : ''}.`),
     '',
     '| Category | Cases | Right | Acceptable | Missed | Wrong |',
     '|---|---|---|---|---|---|',
@@ -120,13 +100,40 @@ const outcomeOf = (c, call) => {
     ...rows.map(r => `| ${r.id} | ${r.input.replace(/\|/g, '/').slice(0, 90)} | ${r.expected} | ${r.call} | ${r.rule || ''} |`),
     ''
   ].join('\n');
-  fs.writeFileSync(path.join(outDir, `robustness_${outName}.md`), md);
+  fs.writeFileSync(resultsFile(`robustness_${outName}.md`), md);
+  return summary;
+};
 
-  const o = summary.overall;
-  console.log(`\n${o.right}/${o.n} right, ${o.safe} safe, ${o.missed} missed, ${o.wrong} wrong`);
-  for (const cat of categories) {
-    const t = summary.byCategory[cat];
-    console.log(`  ${cat.padEnd(24)} ${t.right}/${t.n}${t.missed ? `  (${t.missed} missed)` : ''}${t.wrong ? `  (${t.wrong} wrong)` : ''}`);
+(async () => {
+  const kept = resume ? keptRows(jsonFile).filter(r => cases.some(c => c.id === r.id)) : [];
+  const done = new Set(kept.map(r => r.id));
+  const rows = [...kept];
+  if (kept.length) console.log(`Resuming: ${kept.length} cases kept from the earlier run.`);
+  const guard = quotaGuard();
+  let stoppedBecause = null;
+
+  for (const c of cases) {
+    if (done.has(c.id)) continue;
+    if (checks >= maxChecks) { stoppedBecause = `check budget of ${maxChecks} spent`; break; }
+    const result = await checkMessage(c.input, { isUrl: Boolean(c.isUrl) });
+    checks += 1;
+    const row = { ...c, ...result, outcome: outcomeOf(c, result.call) };
+    rows.push(row);
+    const mark = { right: '✓', safe: '~', missed: '○', wrong: '✗' }[row.outcome];
+    console.log(`${mark} ${c.id.padEnd(10)} ${c.category.padEnd(22)} expected ${c.expected.padEnd(19)} got ${row.call.padEnd(19)} ${row.seconds.toFixed(1)}s  ${row.detail.slice(0, 80)}${row.degraded.length ? `  [fallback: ${row.degraded.join(', ')}]` : ''}`);
+    save(rows);
+    if (guard.note(row)) { stoppedBecause = 'model quota: two cases in a row failed or fell back from Gemini'; break; }
+    await pause(gapSeconds);
   }
-  process.exit(0);
+
+  // Cases in suite order, whatever order they were run in.
+  rows.sort((a, b) => cases.findIndex(c => c.id === a.id) - cases.findIndex(c => c.id === b.id));
+  const summary = save(rows, stoppedBecause);
+  const o = summary.overall;
+  console.log(`\n${o.right}/${o.n} right, ${o.safe} safe, ${o.missed} missed, ${o.wrong} wrong${summary.complete ? '' : ` — incomplete (${rows.length}/${cases.length})`}`);
+  for (const [cat, t] of Object.entries(summary.byCategory)) {
+    console.log(`  ${cat.padEnd(28)} ${t.right}/${t.n}${t.missed ? `  (${t.missed} missed)` : ''}${t.wrong ? `  (${t.wrong} wrong)` : ''}`);
+  }
+  if (stoppedBecause) console.log(`Stopped: ${stoppedBecause}. Run again with --resume to continue.`);
+  process.exit(stoppedBecause ? EXIT_RESUMABLE : 0);
 })();

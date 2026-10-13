@@ -94,3 +94,19 @@ test('more fresh outlets confirming it never make a verdict more false', () => {
   }
   assert.deepStrictEqual(broken, []);
 });
+
+// A message with one claim confirmed and a premise the encyclopedia
+// contradicts is partly false — and stays partly false when a second claim is
+// also contradicted, rather than softening from FAKE to PARTLY FALSE.
+test('a confirmed claim on a contradicted premise is partly false, with or without another claim contradicted', () => {
+  const base = clone(grid.find(g => g.label === 'past for=0@new against=0 week=silent premise=1 tech=0').input);
+  base.claims = [
+    { claim: 'Narendra Modi inaugurated the new terminal at Chennai airport.', verdict: 'x', time: 'past', kind: 'event', supportingEvidence: outlets(2, 'for', RECENT), contradictingEvidence: [] },
+    { claim: 'Narendra Modi resigned as Prime Minister.', verdict: 'x', time: 'past', kind: 'event', supportingEvidence: [], contradictingEvidence: [] }
+  ];
+  const confirmedOnly = replayVerdict(base);
+  assert.strictEqual(confirmedOnly.rule, 'confirmed-claim-on-a-false-premise');
+  assert.strictEqual(confirmedOnly.call, 'PARTLY FALSE');
+  base.claims[1].contradictingEvidence = outlets(2, 'against', RECENT, 5);
+  assert.strictEqual(replayVerdict(base).call, 'PARTLY FALSE');
+});

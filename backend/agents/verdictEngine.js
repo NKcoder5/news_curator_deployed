@@ -472,6 +472,22 @@ const decideVerdict = (ledger) => {
     ]);
   }
 
+  // R0d — Part of the message is confirmed, but it rests on a premise a
+  // reference work contradicts. Partly false, like R0c. It used to fall to
+  // R2b and come out FAKE, while the same message with a second claim also
+  // contradicted came out PARTLY FALSE by R0c: more evidence against made the
+  // verdict milder (257 of 20,000 random ledgers in
+  // eval/counterfactualFaithfulness.js). The confirmed part is real and the
+  // premise is probably not; neither "true" nor "false" describes the message.
+  if (ledger.confirmedClaims.length > 0 && ledger.premiseContradictions.length > 0) {
+    const first = ledger.premiseContradictions[0];
+    return decide('mixed', 'confirmed-claim-on-a-false-premise', [
+      ...ledger.confirmedClaims.slice(0, 2).map(c => `Confirmed by independent outlets: ${c}`),
+      `But the message states: ${first.articleStates}`,
+      `A reference entry on ${first.entity} says otherwise: "${first.referenceStates}"`
+    ], 'Part of this is confirmed, but it rests on something a reference work contradicts. Do not share it as stated.');
+  }
+
   // R1 — Contradicted by two or more independent sources. This is the only
   // route to a flat "False": one outlet disagreeing can be the outlet that is
   // wrong, two independent ones rarely are.
@@ -795,6 +811,12 @@ const summarise = (verdict, ledger, rule = '') => {
       ? `Partly false: some of this is confirmed, but on “${wrong.claim.replace(/\.$/, '')}” outlets report “${wrong.reported}”.`
       : 'Partly false: some of this is confirmed by independent outlets and some is contradicted.';
   }
+  if (rule === 'confirmed-claim-on-a-false-premise') {
+    const first = (ledger.premiseContradictions || [])[0];
+    return first
+      ? `Partly false: some of this is confirmed, but a reference entry on ${first.entity} contradicts what it takes for granted.`
+      : 'Partly false: some of this is confirmed, but it rests on a premise a reference work contradicts.';
+  }
   if (rule === 'old-news-presented-as-new') {
     const first = (ledger.staleClaims || [])[0];
     return `This is old news: the latest report of it found is from ${first?.newestSupport ? first.newestSupport.slice(0, 10) : 'long ago'}, not now.`;
@@ -879,6 +901,7 @@ const confidenceFor = (verdict, ledger, rule = '') => {
   if (rule === 'contradicted-by-current-coverage') return cap(0.62 + 0.05 * Math.min(ledger.presupposedAgainst - 2, 3));
   if (rule === 'claims-partly-false') return cap(0.75);
   if (rule === 'true-claim-carrying-a-false-one') return cap(0.65);
+  if (rule === 'confirmed-claim-on-a-false-premise') return cap(0.65);
   if (rule === 'only-partly-confirmed') return cap(0.5);
   if (rule === 'old-news-presented-as-new') return cap(0.7);
   if (rule === 'confirmed-by-reference') return cap(0.7);

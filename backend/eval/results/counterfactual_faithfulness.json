@@ -1,0 +1,352 @@
+{
+  "ranAt": "2026-10-13T03:25:45.462Z",
+  "seed": 12,
+  "sets": {
+    "stored": {
+      "ledgers": 14,
+      "statements": 200,
+      "agree": 200,
+      "rate": 1,
+      "byKind": {
+        "verdict": {
+          "n": 14,
+          "agree": 14
+        },
+        "channels present": {
+          "n": 14,
+          "agree": 14
+        },
+        "decisive": {
+          "n": 44,
+          "agree": 44
+        },
+        "from absence": {
+          "n": 14,
+          "agree": 14
+        },
+        "rests on": {
+          "n": 44,
+          "agree": 44
+        },
+        "would change": {
+          "n": 14,
+          "agree": 14
+        },
+        "would change (smallest)": {
+          "n": 14,
+          "agree": 14
+        },
+        "would change (complete)": {
+          "n": 28,
+          "agree": 28
+        },
+        "would change (ruling)": {
+          "n": 14,
+          "agree": 14
+        }
+      },
+      "datedSensitivity": 0
+    },
+    "scenarios": {
+      "ledgers": 380,
+      "statements": 4130,
+      "agree": 4130,
+      "rate": 1,
+      "byKind": {
+        "verdict": {
+          "n": 380,
+          "agree": 380
+        },
+        "channels present": {
+          "n": 380,
+          "agree": 380
+        },
+        "decisive": {
+          "n": 395,
+          "agree": 395
+        },
+        "from absence": {
+          "n": 380,
+          "agree": 380
+        },
+        "rests on": {
+          "n": 435,
+          "agree": 435
+        },
+        "would change": {
+          "n": 510,
+          "agree": 510
+        },
+        "would change (smallest)": {
+          "n": 510,
+          "agree": 510
+        },
+        "would change (complete)": {
+          "n": 760,
+          "agree": 760
+        },
+        "would change (ruling)": {
+          "n": 380,
+          "agree": 380
+        }
+      },
+      "datedSensitivity": 0,
+      "byScenario": {
+        "figure contradicted": {
+          "agree": 240,
+          "statements": 240,
+          "verdicts": "FAKE"
+        },
+        "true event, corroborated": {
+          "agree": 240,
+          "statements": 240,
+          "verdicts": "REAL"
+        },
+        "reversed outcome": {
+          "agree": 254,
+          "statements": 254,
+          "verdicts": "FAKE"
+        },
+        "rumour fact-checked": {
+          "agree": 200,
+          "statements": 200,
+          "verdicts": "FAKE"
+        },
+        "rumour fact-checked, debunk headlines": {
+          "agree": 240,
+          "statements": 240,
+          "verdicts": "FAKE"
+        },
+        "ruling overtaken by reporting": {
+          "agree": 220,
+          "statements": 220,
+          "verdicts": "CANNOT VERIFY"
+        },
+        "misleading ruling": {
+          "agree": 200,
+          "statements": 200,
+          "verdicts": "FAKE"
+        },
+        "old news as today": {
+          "agree": 200,
+          "statements": 200,
+          "verdicts": "FAKE"
+        },
+        "old news, fresh anniversary coverage": {
+          "agree": 232,
+          "statements": 232,
+          "verdicts": "REAL/FAKE"
+        },
+        "invented, high impact, warning signs": {
+          "agree": 200,
+          "statements": 200,
+          "verdicts": "FAKE"
+        },
+        "invented, ruled out by this week": {
+          "agree": 200,
+          "statements": 200,
+          "verdicts": "FAKE"
+        },
+        "invented, absent from heavy coverage": {
+          "agree": 200,
+          "statements": 200,
+          "verdicts": "FAKE"
+        },
+        "unverified local": {
+          "agree": 220,
+          "statements": 220,
+          "verdicts": "CANNOT VERIFY"
+        },
+        "false premise": {
+          "agree": 216,
+          "statements": 216,
+          "verdicts": "FAKE"
+        },
+        "standing fact confirmed by reference": {
+          "agree": 200,
+          "statements": 200,
+          "verdicts": "REAL"
+        },
+        "two claims, one false": {
+          "agree": 240,
+          "statements": 240,
+          "verdicts": "PARTLY FALSE"
+        },
+        "true claim carrying an invented one": {
+          "agree": 228,
+          "statements": 228,
+          "verdicts": "PARTLY FALSE/CANNOT VERIFY"
+        },
+        "too recent to corroborate": {
+          "agree": 220,
+          "statements": 220,
+          "verdicts": "CANNOT VERIFY"
+        },
+        "search failed": {
+          "agree": 180,
+          "statements": 180,
+          "verdicts": "CANNOT VERIFY"
+        }
+      }
+    },
+    "random": {
+      "ledgers": 2000,
+      "statements": 27942,
+      "agree": 27942,
+      "rate": 1,
+      "byKind": {
+        "verdict": {
+          "n": 2000,
+          "agree": 2000
+        },
+        "channels present": {
+          "n": 2000,
+          "agree": 2000
+        },
+        "decisive": {
+          "n": 5999,
+          "agree": 5999
+        },
+        "from absence": {
+          "n": 2000,
+          "agree": 2000
+        },
+        "rests on": {
+          "n": 5473,
+          "agree": 5473
+        },
+        "would change": {
+          "n": 2235,
+          "agree": 2235
+        },
+        "would change (smallest)": {
+          "n": 2235,
+          "agree": 2235
+        },
+        "would change (complete)": {
+          "n": 4000,
+          "agree": 4000
+        },
+        "would change (ruling)": {
+          "n": 2000,
+          "agree": 2000
+        }
+      },
+      "datedSensitivity": 0
+    }
+  },
+  "disagreements": [],
+  "monotonicity": {
+    "grid": 20000,
+    "perturbations": [
+      {
+        "name": "a fact-checker rates it false",
+        "direction": "against",
+        "tried": 13886,
+        "broken": 0,
+        "transitions": {},
+        "examples": []
+      },
+      {
+        "name": "two more fresh outlets report otherwise",
+        "direction": "against",
+        "tried": 20000,
+        "broken": 12,
+        "transitions": {
+          "PARTLY FALSE (true-claim-carrying-a-false-one) -> REAL (rated-true-by-fact-checkers)": 2,
+          "CANNOT VERIFY (only-partly-confirmed) -> REAL (corroborated-by-multiple-independent-sources)": 1,
+          "PARTLY FALSE (true-claim-carrying-a-false-one) -> REAL (confirmed-by-reference)": 2,
+          "PARTLY FALSE (true-claim-carrying-a-false-one) -> CANNOT VERIFY (fact-checkers-and-reporting-disagree)": 4,
+          "PARTLY FALSE (true-claim-carrying-a-false-one) -> REAL (corroborated-by-multiple-independent-sources)": 1,
+          "PARTLY FALSE (true-claim-carrying-a-false-one) -> CANNOT VERIFY (no-independent-coverage)": 1,
+          "PARTLY FALSE (true-claim-carrying-a-false-one) -> CANNOT VERIFY (too-recent-to-corroborate)": 1
+        },
+        "examples": [
+          {
+            "key": "PARTLY FALSE (true-claim-carrying-a-false-one) -> REAL (rated-true-by-fact-checkers)",
+            "claims": [
+              {
+                "time": "now",
+                "for": 3,
+                "against": 1
+              },
+              {
+                "time": "now",
+                "for": 0,
+                "against": 0
+              },
+              {
+                "time": "now",
+                "for": 0,
+                "against": 0
+              }
+            ],
+            "factCheck": "confirmed",
+            "week": "silent",
+            "unconfirmed": true
+          },
+          {
+            "key": "CANNOT VERIFY (only-partly-confirmed) -> REAL (corroborated-by-multiple-independent-sources)",
+            "claims": [
+              {
+                "time": "now",
+                "for": 3,
+                "against": 1
+              },
+              {
+                "time": "timeless",
+                "for": 0,
+                "against": 0
+              }
+            ],
+            "factCheck": "none",
+            "week": "silent",
+            "unconfirmed": true
+          },
+          {
+            "key": "PARTLY FALSE (true-claim-carrying-a-false-one) -> REAL (confirmed-by-reference)",
+            "claims": [
+              {
+                "time": "past",
+                "for": 2,
+                "against": 0
+              },
+              {
+                "time": "timeless",
+                "for": 0,
+                "against": 0
+              }
+            ],
+            "factCheck": "none",
+            "week": "absent",
+            "unconfirmed": true
+          }
+        ]
+      },
+      {
+        "name": "the encyclopedia contradicts it",
+        "direction": "against",
+        "tried": 17019,
+        "broken": 0,
+        "transitions": {},
+        "examples": []
+      },
+      {
+        "name": "two more fresh outlets confirm it",
+        "direction": "for",
+        "tried": 20000,
+        "broken": 0,
+        "transitions": {},
+        "examples": []
+      },
+      {
+        "name": "a fact-checker rates it true",
+        "direction": "for",
+        "tried": 13886,
+        "broken": 0,
+        "transitions": {},
+        "examples": []
+      }
+    ]
+  }
+}

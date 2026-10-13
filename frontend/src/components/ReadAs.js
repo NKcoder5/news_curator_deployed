@@ -1,3 +1,6 @@
+import { Languages } from 'lucide-react';
+import { Badge } from './ui';
+
 /**
  * How the message was read, before the evidence.
  *
@@ -26,6 +29,8 @@ const TONE_TEXT = {
 // A question gets a direct answer as well as a verdict.
 const ANSWER = { FAKE: 'No — this is false.', REAL: 'Yes — this is true.', 'PARTLY FALSE': 'Partly — some of it is false.', 'CANNOT VERIFY': 'We cannot say yet.' };
 
+const RESULT_TONE = { against: 'fake', for: 'real', none: 'unknown' };
+
 const ReadAs = ({ understanding, call, perClaim = [] }) => {
   if (!understanding) return null;
   const tones = (understanding.tone || []).filter((t) => TONE_TEXT[t]);
@@ -42,8 +47,8 @@ const ReadAs = ({ understanding, call, perClaim = [] }) => {
   };
 
   return (
-    <section className="read-as" aria-label="How we read your message">
-      <h4>How we read your message</h4>
+    <section className="report-section read-as" aria-label="How we read your message">
+      <h2 className="report-section__title"><Languages size={18} aria-hidden="true" /> How we read your message</h2>
       <dl className="read-as-facts">
         <div><dt>Language</dt><dd>{language}</dd></div>
         <div><dt>Read as</dt><dd>{SPEECH_ACT_TEXT[understanding.speechAct] || 'a statement'}{tones.length > 0 ? `, ${tones.map((t) => TONE_TEXT[t]).join(' and ')} in tone` : ''}</dd></div>
@@ -53,14 +58,14 @@ const ReadAs = ({ understanding, call, perClaim = [] }) => {
       </dl>
       {checked.length > 0 && (
         <>
-          <p className="read-as-label">{checked.length === 1 ? 'The claim we checked' : 'The claims we checked'}</p>
+          <h3 className="read-as-label">{checked.length === 1 ? 'The claim we checked' : 'The claims we checked'}</h3>
           <ol className="read-as-claims">
             {checked.map((c, i) => {
               const result = resultFor(c.claim);
               return (
                 <li key={i}>
                   <span>{c.claim}</span>
-                  {result && <span className={`read-as-chip read-as-${result.cls}`}>{result.text}</span>}
+                  {result && <Badge tone={RESULT_TONE[result.cls]} size="xs" className={`read-as-chip read-as-${result.cls}`}>{result.text}</Badge>}
                 </li>
               );
             })}

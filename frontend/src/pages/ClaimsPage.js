@@ -9,6 +9,8 @@ import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { listClaims, getTrending, getChanges, getStats } from '../services/claimsApi';
 import { VerdictBadge, CALL_NAMES, callClass, formatDate, languageList, languageName, useLoaded } from './ClaimsShared';
+import { PageHeader } from '../components/ui';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 import '../styles/Claims.css';
 
 const SIDE_LIST = 5;
@@ -134,6 +136,7 @@ const ClaimRow = ({ claim }) => (
 );
 
 const ClaimsPage = () => {
+  useDocumentTitle('Claims database');
   const [text, setText] = useState('');
   const [filters, setFilters] = useState({ q: '', call: '', sort: 'recent' });
   const [list, setList] = useState({ status: 'loading', claims: [], total: 0, next: null, more: false, moreFailed: false });
@@ -175,12 +178,12 @@ const ClaimsPage = () => {
   const narrowed = Boolean(filters.q || filters.call);
 
   return (
-    <div className="press-sheet claims-page">
-      <header className="press-masthead">
-        <div className="press-dateline">The Public Record</div>
-        <h1 className="press-name">Claims Registry</h1>
-        <div className="press-tagline">Every claim we have checked, the evidence behind each verdict, and what changed.</div>
-      </header>
+    <div className="page claims-page">
+      <PageHeader
+        eyebrow="Public record"
+        title="Claims database"
+        description="Every claim checked so far, the evidence behind each verdict, and what changed when a claim was checked again."
+      />
 
       <Stats onFilter={setCall} active={filters.call} />
 
@@ -209,7 +212,7 @@ const ClaimsPage = () => {
       </form>
 
       <div className="claims-layout">
-        <main className="claims-main">
+        <div className="claims-main">
           {list.status === 'ready' && (
             <p className="claims-count-line" role="status">
               {list.total === 0 ? 'No claims' : `${list.claims.length} of ${list.total} ${list.total === 1 ? 'claim' : 'claims'}`}
@@ -248,7 +251,7 @@ const ClaimsPage = () => {
               </button>
             </div>
           )}
-        </main>
+        </div>
 
         <aside className="claims-aside">
           <Trending />

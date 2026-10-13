@@ -1,3 +1,5 @@
+import { BookOpen, CalendarDays, ExternalLink, Newspaper, SearchCheck, Target } from 'lucide-react';
+import { Badge } from './ui';
 import '../styles/EvidenceBoard.css';
 
 /**
@@ -13,8 +15,9 @@ import '../styles/EvidenceBoard.css';
  *   This week's news     — does current coverage of the subject rule it out?
  *   Reference facts      — does an encyclopedia contradict a stated fact?
  *
- * The channel whose finding decided the verdict is marked, so the reader can
- * see which evidence the rule acted on rather than guess.
+ * The channel whose finding decided the verdict is marked and comes first, then
+ * the channels that found something; the ones that found nothing follow in a
+ * compact list, so the evidence that matters is not buried among empty panels.
  */
 
 // Which channel each verdict rule acts on.
@@ -78,6 +81,11 @@ const STATUS_TEXT = {
   unavailable: 'Could not run'
 };
 
+const STATUS_TONE = { against: 'fake', for: 'real', mixed: 'partly', none: 'unknown', clear: 'unknown', unavailable: 'misleading' };
+
+// Order of appearance: what the verdict rests on first, what found nothing last.
+const STATUS_RANK = { against: 0, for: 0, mixed: 0, clear: 1, none: 1, unavailable: 1 };
+
 const formatDate = (iso) => {
   if (!iso) return '';
   const date = new Date(iso);
@@ -100,16 +108,36 @@ const Highlighted = ({ text, phrase }) => {
   );
 };
 
-const Panel = ({ id, title, status, decided, summary, children }) => (
-  <section className={`eb-panel eb-${status}`} aria-labelledby={`eb-${id}`}>
-    <header className="eb-panel-head">
-      <h4 id={`eb-${id}`}>{title}</h4>
-      <span className={`eb-status eb-status-${status}`}>{STATUS_TEXT[status]}</span>
-    </header>
-    {decided && <p className="eb-decided">This decided the verdict</p>}
-    {summary && <p className="eb-summary">{summary}</p>}
-    {children}
-  </section>
+/** One source: what it says about the claim, who published it, and a link. */
+const EvidenceItem = ({ side, tag, source, title, phrase, url, date }) => (
+  <li className={`eb-item eb-item-${side}`}>
+    <Badge tone={side === 'against' ? 'fake' : 'real'} size="xs" className="eb-item-tag">{tag}</Badge>
+    <div className="eb-item-body">
+      <a href={url} target="_blank" rel="noopener noreferrer" className="eb-item-link">
+        <Highlighted text={title} phrase={phrase} />
+        <ExternalLink size={13} aria-hidden="true" className="eb-item-external" />
+        <span className="sr-only"> (opens in a new tab)</span>
+      </a>
+      <span className="eb-item-meta">
+        <strong>{source}</strong>
+        {date && <> · {date}</>}
+      </span>
+    </div>
+  </li>
+);
+
+/** A claim set against what the outlets (or the encyclopedia) actually say. */
+const Versus = ({ says, reportedLabel, reported }) => (
+  <div className="eb-versus">
+    <div className="eb-versus-side">
+      <span className="eb-versus-label">This says</span>
+      <span className="eb-versus-text">{says}</span>
+    </div>
+    <div className="eb-versus-side eb-versus-reported">
+      <span className="eb-versus-label">{reportedLabel}</span>
+      <span className="eb-versus-text">{reported}</span>
+    </div>
+  </div>
 );
 
 /** Distinct outlets, with the quote each was judged on. */
@@ -123,7 +151,10 @@ const outletsFrom = (items = []) => {
   });
 };
 
-const NewsPanel = ({ report, decided }) => {
+// Each channel is described as { id, title, icon, status, summary, body };
+// the board decides the order and which ones get a full panel.
+
+const describeNews = (report) => {
   const perClaim = report.evidence?.perClaim || [];
   const verification = (report.factors || []).find((f) => f.id === 'verification');
   const detailClaims = verification?.detail?.claims || [];
@@ -146,55 +177,49 @@ const NewsPanel = ({ report, decided }) => {
         ? 'The news search could not run just now.'
         : 'No outlet reports this event.';
 
-  return (
-    <Panel id="news" title="News reporting" status={status} decided={decided} summary={ran ? summary : null}>
-      {detailClaims.map((claim, i) => {
-        const contra = outletsFrom(claim.contradictingEvidence);
-        const confirm = outletsFrom(claim.supportingEvidence);
-        if (contra.length === 0 && confirm.length === 0) return null;
-        // Quotes carrying the figure first, then the shortest: "85 medals" and
-        // "raises repo rate by 25 basis points" say it; a whole headline buries it.
-        const hasFigure = (q) => (/\d/.test(q) ? 0 : 1);
-        const quotes = [...new Set(contra.map((e) => e.reported).filter(Boolean))]
-          .sort((x, y) => hasFigure(x) - hasFigure(y) || x.length - y.length)
-          .slice(0, 2)
-          .map((q) => (q.length > 70 ? `${q.slice(0, 67)}…` : q));
-        return (
-          <div key={i} className="eb-claim">
-            {contra.length > 0 && quotes.length > 0 && (
-              <div className="eb-versus">
-                <div className="eb-versus-side">
-                  <span className="eb-versus-label">This says</span>
-                  <span className="eb-versus-text">{claim.claim}</span>
-                </div>
-                <div className="eb-versus-side eb-versus-reported">
-                  <span className="eb-versus-label">Outlets report</span>
-                  <span className="eb-versus-text">{quotes.map((q) => `“${q}”`).join(' · ')}</span>
-                </div>
-              </div>
-            )}
-            <ul className="eb-list">
-              {[...contra.map((e) => ({ ...e, side: 'against' })), ...confirm.map((e) => ({ ...e, side: 'for' }))]
-                .slice(0, 6)
-                .map((e, j) => (
-                  <li key={j} className={`eb-item eb-item-${e.side}`}>
-                    <span className="eb-item-tag">{e.side === 'against' ? 'Says otherwise' : 'Confirms'}</span>
-                    <a href={e.url} target="_blank" rel="noopener noreferrer">
-                      <strong>{e.source}</strong>: <Highlighted text={e.title} phrase={e.reported} />
-                    </a>
-                  </li>
-                ))}
-            </ul>
-          </div>
-        );
-      })}
-    </Panel>
-  );
+  const body = detailClaims.map((claim, i) => {
+    const contra = outletsFrom(claim.contradictingEvidence);
+    const confirm = outletsFrom(claim.supportingEvidence);
+    if (contra.length === 0 && confirm.length === 0) return null;
+    // Quotes carrying the figure first, then the shortest: "85 medals" and
+    // "raises repo rate by 25 basis points" say it; a whole headline buries it.
+    const hasFigure = (q) => (/\d/.test(q) ? 0 : 1);
+    const quotes = [...new Set(contra.map((e) => e.reported).filter(Boolean))]
+      .sort((x, y) => hasFigure(x) - hasFigure(y) || x.length - y.length)
+      .slice(0, 2)
+      .map((q) => (q.length > 70 ? `${q.slice(0, 67)}…` : q));
+    return (
+      <div key={i} className="eb-claim">
+        {contra.length > 0 && quotes.length > 0 && (
+          <Versus says={claim.claim} reportedLabel="Outlets report" reported={quotes.map((q) => `“${q}”`).join(' · ')} />
+        )}
+        <ul className="eb-list">
+          {[...contra.map((e) => ({ ...e, side: 'against' })), ...confirm.map((e) => ({ ...e, side: 'for' }))]
+            .slice(0, 6)
+            .map((e, j) => (
+              <EvidenceItem
+                key={j}
+                side={e.side}
+                tag={e.side === 'against' ? 'Says otherwise' : 'Confirms'}
+                source={e.source}
+                title={e.title}
+                phrase={e.reported}
+                url={e.url}
+                date={formatDate(e.publishedAt)}
+              />
+            ))}
+        </ul>
+      </div>
+    );
+  }).filter(Boolean);
+
+  return { id: 'news', title: 'News reporting', icon: Newspaper, status, summary: ran ? summary : null, body };
 };
 
 const FINDING_TEXT = { false: 'Rated false', misleading: 'Rated misleading', true: 'Rated true' };
+const FINDING_TONE = { false: 'fake', misleading: 'misleading', true: 'real' };
 
-const FactCheckPanel = ({ factChecks, decided }) => {
+const describeFactChecks = (factChecks) => {
   if (!factChecks) return null;
   const matches = factChecks.matches || [];
   const status = factChecks.status === 'debunked' || factChecks.status === 'misleading' ? 'against'
@@ -202,32 +227,33 @@ const FactCheckPanel = ({ factChecks, decided }) => {
     : factChecks.status === 'disputed' ? 'mixed'
     : factChecks.status === 'error' ? 'unavailable'
     : 'none';
-  return (
-    <Panel id="factchecks" title="Fact-checkers" status={status} decided={decided} summary={factChecks.explanation}>
-      {matches.length > 0 && (
-        <ul className="eb-cards">
-          {matches.slice(0, 6).map((m, i) => (
-            <li key={i} className={`eb-card eb-card-${m.finding}`}>
-              <div className="eb-card-head">
-                <span className="eb-card-publisher">{m.publisher}</span>
-                <span className={`eb-rating eb-rating-${m.finding}`}>
-                  {m.rating && m.rating.length <= 24 && m.via !== 'news-search' ? m.rating : FINDING_TEXT[m.finding]}
-                </span>
-              </div>
-              {m.claimReviewed && <p className="eb-card-claim">“{m.claimReviewed}”</p>}
-              <div className="eb-card-foot">
-                {m.reviewedAt && <span>{formatDate(m.reviewedAt)}</span>}
-                {m.url && <a href={m.url} target="_blank" rel="noopener noreferrer">Read the fact-check</a>}
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </Panel>
-  );
+  const body = matches.length > 0 ? (
+    <ul className="eb-cards">
+      {matches.slice(0, 6).map((m, i) => (
+        <li key={i} className={`eb-card eb-card-${m.finding}`}>
+          <div className="eb-card-head">
+            <span className="eb-card-publisher">{m.publisher}</span>
+            <Badge tone={FINDING_TONE[m.finding] || 'unknown'} size="xs" className={`eb-rating eb-rating-${m.finding}`}>
+              {m.rating && m.rating.length <= 24 && m.via !== 'news-search' ? m.rating : FINDING_TEXT[m.finding]}
+            </Badge>
+          </div>
+          {m.claimReviewed && <p className="eb-card-claim">“{m.claimReviewed}”</p>}
+          <div className="eb-card-foot">
+            {m.reviewedAt && <span>{formatDate(m.reviewedAt)}</span>}
+            {m.url && (
+              <a href={m.url} target="_blank" rel="noopener noreferrer">
+                Read the fact-check <ExternalLink size={13} aria-hidden="true" />
+              </a>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+  ) : null;
+  return { id: 'factchecks', title: 'Fact-checkers', icon: SearchCheck, status, summary: factChecks.explanation, body };
 };
 
-const WeekPanel = ({ week, decided, newsFound }) => {
+const describeWeek = (week, newsFound) => {
   if (!week) return null;
   const counted = Boolean(week.counted);
   const against = week.presupposingFalse || [];
@@ -244,28 +270,33 @@ const WeekPanel = ({ week, decided, newsFound }) => {
   const summary = !counted && (week.status === 'absent' || week.status === 'presupposed-false')
     ? `This week’s coverage${week.subject ? ` of ${week.subject}` : ''} does not mention the claim. Not counted: ${newsFound ? 'outlets already report on the event itself' : 'too little to rely on'}.`
     : week.explanation;
-  return (
-    <Panel id="week" title={title} status={status} decided={decided} summary={summary}>
+  const body = (
+    <>
       {week.headlinesRead > 0 && (
         <p className="eb-meta">{week.headlinesRead} headlines from {week.outletsRead} outlets read, from the last seven days.</p>
       )}
       {shown.length > 0 && (
         <ul className="eb-list">
           {shown.slice(0, 5).map((h, i) => (
-            <li key={i} className={`eb-item eb-item-${counted ? 'against' : 'for'}`}>
-              <span className="eb-item-tag">{formatDate(h.publishedAt) || (counted ? 'Rules it out' : 'Reports it')}</span>
-              <a href={h.url} target="_blank" rel="noopener noreferrer">
-                <strong>{h.source}</strong>: <Highlighted text={h.title} phrase={h.reported} />
-              </a>
-            </li>
+            <EvidenceItem
+              key={i}
+              side={counted ? 'against' : 'for'}
+              tag={counted ? 'Rules it out' : 'Reports it'}
+              source={h.source}
+              title={h.title}
+              phrase={h.reported}
+              url={h.url}
+              date={formatDate(h.publishedAt)}
+            />
           ))}
         </ul>
       )}
-    </Panel>
+    </>
   );
+  return { id: 'week', title, icon: CalendarDays, status, summary, body };
 };
 
-const ReferencePanel = ({ premise, decided }) => {
+const describeReference = (premise) => {
   if (!premise) return null;
   const contradictions = premise.contradictions || [];
   const confirmations = premise.confirmations || [];
@@ -274,53 +305,70 @@ const ReferencePanel = ({ premise, decided }) => {
     : premise.status === 'consistent' ? 'clear'
     : premise.status === 'error' ? 'unavailable'
     : 'none';
-  return (
-    <Panel id="reference" title="Reference facts" status={status} decided={decided} summary={premise.explanation}>
+  const referenceName = (c) => (c.reference?.url
+    ? <a href={c.reference.url} target="_blank" rel="noopener noreferrer">{c.reference.title || c.entity}</a>
+    : (c.reference?.title || c.entity));
+  const body = (
+    <>
       {contradictions.length === 0 && confirmations.map((c, i) => (
-        <p key={`c${i}`} className="eb-quote">
-          {c.reference?.url
-            ? <a href={c.reference.url} target="_blank" rel="noopener noreferrer">{c.reference.title || c.entity}</a>
-            : (c.reference?.title || c.entity)}
-          : “{c.referenceStates}”
-        </p>
+        <p key={`c${i}`} className="eb-quote">{referenceName(c)}: “{c.referenceStates}”</p>
       ))}
       {contradictions.map((c, i) => (
-        <div key={i} className="eb-versus">
-          <div className="eb-versus-side">
-            <span className="eb-versus-label">This says</span>
-            <span className="eb-versus-text">{c.articleStates}</span>
-          </div>
-          <div className="eb-versus-side eb-versus-reported">
-            <span className="eb-versus-label">
-              {c.reference?.url
-                ? <a href={c.reference.url} target="_blank" rel="noopener noreferrer">{c.reference.title || c.entity}</a>
-                : (c.reference?.title || c.entity)}
-            </span>
-            <span className="eb-versus-text">“{c.referenceStates}”</span>
-          </div>
-        </div>
+        <Versus key={i} says={c.articleStates} reportedLabel={referenceName(c)} reported={`“${c.referenceStates}”`} />
       ))}
-    </Panel>
+    </>
+  );
+  return { id: 'reference', title: 'Reference facts', icon: BookOpen, status, summary: premise.explanation, body };
+};
+
+const Panel = ({ channel, decided }) => {
+  const Icon = channel.icon;
+  return (
+    <section className={`eb-panel eb-${channel.status} ${decided ? 'is-decisive' : ''}`} aria-labelledby={`eb-${channel.id}`}>
+      <header className="eb-panel-head">
+        <h3 id={`eb-${channel.id}`}><Icon size={17} aria-hidden="true" /> {channel.title}</h3>
+        <Badge tone={STATUS_TONE[channel.status]} className={`eb-status eb-status-${channel.status}`}>{STATUS_TEXT[channel.status]}</Badge>
+      </header>
+      {decided && <p className="eb-decided"><Target size={14} aria-hidden="true" /> This decided the verdict</p>}
+      {channel.summary && <p className="eb-summary">{channel.summary}</p>}
+      {channel.body}
+    </section>
   );
 };
 
 const EvidenceBoard = ({ report }) => {
   if (!report) return null;
   const decidedBy = RULE_CHANNEL[report.decision?.rule];
+  const newsFound = (report.evidence?.perClaim || []).some((c) => c.independentSupport > 0 || c.independentContradiction > 0);
+  const channels = [
+    { key: 'news', ...describeNews(report) },
+    { key: 'factChecks', ...describeFactChecks(report.factChecks) },
+    { key: 'week', ...describeWeek(report.currentCoverage, newsFound) },
+    { key: 'reference', ...describeReference(report.premiseCheck) }
+  ].filter((c) => c.id);
+
+  // A stable sort: the deciding channel, then findings, then the quiet ones,
+  // each group keeping the order above.
+  const rank = (c) => (c.key === decidedBy ? -1 : STATUS_RANK[c.status] ?? 1);
+  const ordered = channels.map((c, i) => ({ c, i })).sort((a, b) => rank(a.c) - rank(b.c) || a.i - b.i).map(({ c }) => c);
+  const full = ordered.filter((c) => rank(c) < 1);
+  const quiet = ordered.filter((c) => rank(c) >= 1);
+
   return (
-    <div className="evidence-board">
-      <h3 className="eb-title">The evidence</h3>
-      <div className="eb-grid">
-        <NewsPanel report={report} decided={decidedBy === 'news'} />
-        <FactCheckPanel factChecks={report.factChecks} decided={decidedBy === 'factChecks'} />
-        <WeekPanel
-          week={report.currentCoverage}
-          decided={decidedBy === 'week'}
-          newsFound={(report.evidence?.perClaim || []).some((c) => c.independentSupport > 0 || c.independentContradiction > 0)}
-        />
-        <ReferencePanel premise={report.premiseCheck} decided={decidedBy === 'reference'} />
-      </div>
-    </div>
+    <section className="report-section evidence-board" aria-labelledby="eb-title">
+      <h2 className="report-section__title" id="eb-title">The evidence</h2>
+      {full.length > 0 && (
+        <div className="eb-grid">
+          {full.map((c) => <Panel key={c.key} channel={c} decided={c.key === decidedBy} />)}
+        </div>
+      )}
+      {quiet.length > 0 && (
+        <div className="eb-quiet">
+          <p className="eb-quiet-title">{full.length > 0 ? 'Also checked' : 'Checked, with nothing found'}</p>
+          {quiet.map((c) => <Panel key={c.key} channel={c} decided={c.key === decidedBy} />)}
+        </div>
+      )}
+    </section>
   );
 };
 

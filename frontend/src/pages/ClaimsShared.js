@@ -5,6 +5,7 @@
  */
 import { useState, useEffect } from 'react';
 import { RULE_LABELS } from '../components/EvidenceBoard';
+import { VerdictBadge as DesignVerdictBadge } from '../components/ui';
 
 // Colour is never the only signal: the badge always carries the verdict's name.
 const CALL_CLASS = { REAL: 'for', FAKE: 'against', 'PARTLY FALSE': 'mixed', 'CANNOT VERIFY': 'none' };
@@ -14,10 +15,9 @@ export const CALL_NAMES = {
   REAL: 'Real', FAKE: 'Fake', 'PARTLY FALSE': 'Partly false', 'CANNOT VERIFY': 'Cannot verify'
 };
 
+/** The design system's verdict badge, named as the registry names verdicts. */
 export const VerdictBadge = ({ call, large = false }) => (
-  <span className={`claims-badge ${callClass(call)}${large ? ' claims-badge-large' : ''}`}>
-    {CALL_NAMES[call] || call || 'No verdict'}
-  </span>
+  <DesignVerdictBadge call={call} size={large ? 'md' : 'xs'} label={CALL_NAMES[call] || call || 'No verdict'} />
 );
 
 export const TRIGGER_LABEL = { user: 'Checked', recheck: 'Re-checked automatically' };

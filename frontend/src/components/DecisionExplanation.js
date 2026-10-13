@@ -1,3 +1,6 @@
+import { Scale } from 'lucide-react';
+import { VerdictBadge } from './ui';
+
 /**
  * What decided this verdict, and what would change it.
  *
@@ -7,9 +10,7 @@
  * (services/decisionExplainer.js). "Without the outlets reporting otherwise,
  * the answer would be CANNOT VERIFY" is therefore true by construction.
  */
-const CALL_CLASS = { FAKE: 'against', 'PARTLY FALSE': 'against', MISLEADING: 'against', REAL: 'for', 'CANNOT VERIFY': 'none' };
-
-const Call = ({ call }) => <span className={`claim-record-call call-${CALL_CLASS[call] || 'none'}`}>{call}</span>;
+const Call = ({ call }) => <VerdictBadge call={call} size="xs" className="claim-record-call" />;
 
 const DecisionExplanation = ({ explanation }) => {
   if (!explanation || !Array.isArray(explanation.decisive)) return null;
@@ -25,43 +26,47 @@ const DecisionExplanation = ({ explanation }) => {
   if (decisive.length === 0 && wouldChange.length === 0) return null;
 
   return (
-    <section className="claim-record decision-explanation" aria-label="What decided it">
-      <h4>What decided it</h4>
-      {restsOn >= 2 && (
-        <p className="claim-record-line">
-          It rests on <strong>{restsOn} separate lines of evidence</strong>
-          {restsOnChannels.length === restsOn ? ` — ${andList(restsOnChannels.map((c) => c.label))} — ` : ': '}
-          each of which, on its own, gives the same answer.
-        </p>
-      )}
-      {deciding.map((d) => (
-        <p key={d.channel} className="claim-record-line">
-          Without {d.label}, the answer would be <Call call={d.without.call} />.
-        </p>
-      ))}
-      {standing.map((d) => (
-        <p key={d.channel} className="claim-record-line decision-standing">
-          Without {d.label}, it would still be <Call call={d.without.call} />.
-        </p>
-      ))}
-      {fromAbsence && (
-        <p className="claim-record-line">
-          {verdict?.call === 'CANNOT VERIFY'
-            ? 'Nothing found confirms or refutes the claim, and that absence is the answer.'
-            : <>With every line of evidence taken away it would still be <Call call={verdict?.call} />: it rests on what was not found and on the warning signs under “How do you know?”.</>}
-        </p>
-      )}
+    <section className="report-section decision-explanation" aria-label="What decided it">
+      <h2 className="report-section__title"><Scale size={18} aria-hidden="true" /> What decided it</h2>
+      <div className="decision-body">
+        {restsOn >= 2 && (
+          <p className="decision-line decision-line--lead">
+            It rests on <strong>{restsOn} separate lines of evidence</strong>
+            {restsOnChannels.length === restsOn ? ` — ${andList(restsOnChannels.map((c) => c.label))} — ` : ': '}
+            each of which, on its own, gives the same answer.
+          </p>
+        )}
+        {deciding.map((d) => (
+          <p key={d.channel} className="decision-line decision-line--lead">
+            Without {d.label}, the answer would be <Call call={d.without.call} />.
+          </p>
+        ))}
+        {standing.map((d) => (
+          <p key={d.channel} className="decision-line decision-standing">
+            Without {d.label}, it would still be <Call call={d.without.call} />.
+          </p>
+        ))}
+        {fromAbsence && (
+          <p className="decision-line decision-line--lead">
+            {verdict?.call === 'CANNOT VERIFY'
+              ? 'Nothing found confirms or refutes the claim, and that absence is the answer.'
+              : <>With every line of evidence taken away it would still be <Call call={verdict?.call} />: it rests on what was not found and on the warning signs under “How do you know?”.</>}
+          </p>
+        )}
+      </div>
       {wouldChange.length > 0 && (
-        <>
-          <p className="claim-record-tag decision-subhead">What would change it</p>
+        <div className="decision-changes-block">
+          <h3 className="decision-subhead">What would change it</h3>
           <ul className="decision-changes">
             {wouldChange.map((w) => (
               <li key={w.change}>
-                {w.change.charAt(0).toUpperCase() + w.change.slice(1)} → <Call call={w.result.call} />
+                <span>{w.change.charAt(0).toUpperCase() + w.change.slice(1)}</span>
+                <span className="decision-arrow"> → </span>
+                <Call call={w.result.call} />
               </li>
             ))}
           </ul>
-        </>
+        </div>
       )}
     </section>
   );

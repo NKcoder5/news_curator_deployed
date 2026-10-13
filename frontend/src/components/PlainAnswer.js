@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { Bot } from 'lucide-react';
 import api from '../services/api';
+import { Button, VerdictBadge } from './ui';
 
 /**
  * "Could a chatbot do this?" — answered on the page, on request.
@@ -28,31 +30,33 @@ const PlainAnswer = ({ question, ourCall, sourceCount }) => {
   const agrees = answer && answer.call === ourCall;
 
   return (
-    <section className="plain-answer">
+    <section className="report-section plain-answer" aria-label="Could a chatbot do this?">
       <div className="plain-answer-head">
-        <h4>Could a chatbot do this?</h4>
+        <div>
+          <h2 className="report-section__title"><Bot size={18} aria-hidden="true" /> Could a chatbot do this?</h2>
+          {status === 'idle' && (
+            <p className="plain-answer-note">
+              See what the same AI model says when it answers from memory, with no search and no evidence.
+            </p>
+          )}
+        </div>
         {status !== 'done' && (
-          <button type="button" className="plain-answer-btn" onClick={ask} disabled={status === 'loading'}>
+          <Button variant="secondary" size="sm" onClick={ask} loading={status === 'loading'}>
             {status === 'loading' ? 'Asking…' : 'Ask a plain AI model the same thing'}
-          </button>
+          </Button>
         )}
       </div>
-      {status === 'idle' && (
-        <p className="plain-answer-note">
-          See what the same AI model says when it answers from memory, with no search and no evidence.
-        </p>
-      )}
-      {status === 'error' && <p className="plain-answer-note">The model could not be reached just now.</p>}
+      {status === 'error' && <p className="plain-answer-note" role="alert">The model could not be reached just now.</p>}
       {status === 'done' && answer && (
         <div className="plain-answer-body">
           <div className="plain-answer-row">
             <span className="plain-answer-label">Plain AI model</span>
-            <strong className={`plain-answer-call call-${String(answer.call).replace(/\s+/g, '-').toLowerCase()}`}>{answer.call}</strong>
+            <VerdictBadge call={answer.call} size="sm" className="plain-answer-call" />
             <span className="plain-answer-reason">{answer.reason}</span>
           </div>
           <div className="plain-answer-row">
-            <span className="plain-answer-label">Check Anything</span>
-            <strong className={`plain-answer-call call-${String(ourCall).replace(/\s+/g, '-').toLowerCase()}`}>{ourCall}</strong>
+            <span className="plain-answer-label">Pure Press</span>
+            <VerdictBadge call={ourCall} size="sm" className="plain-answer-call" />
             <span className="plain-answer-reason">
               {sourceCount > 0
                 ? `Backed by ${sourceCount} ${sourceCount === 1 ? 'source' : 'sources'} you can open above.`

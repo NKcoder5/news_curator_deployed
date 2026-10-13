@@ -13,7 +13,9 @@
  * click away.
  */
 import { useState } from 'react';
+import { CalendarClock, ChevronDown, History } from 'lucide-react';
 import api from '../services/api';
+import { VerdictBadge } from './ui';
 
 const formatWhen = (iso) => {
   if (!iso) return '';
@@ -22,9 +24,9 @@ const formatWhen = (iso) => {
   return d.toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 };
 
-const CALL_CLASS = { FAKE: 'against', 'PARTLY FALSE': 'against', REAL: 'for', 'CANNOT VERIFY': 'none' };
-
 const TRIGGER_LABEL = { user: 'Checked', recheck: 'Re-checked automatically', eval: 'Test run' };
+
+const Call = ({ call }) => <VerdictBadge call={call} size="xs" className="claim-record-call" />;
 
 /** Every verdict reached on one claim, oldest first, fetched on request. */
 const ClaimHistory = ({ claimId }) => {
@@ -46,20 +48,23 @@ const ClaimHistory = ({ claimId }) => {
     <div className="claim-history">
       <button type="button" className="claim-history-toggle" onClick={toggle} aria-expanded={state.open}>
         {state.open ? 'Hide the history' : 'Show every verdict on this claim'}
+        <ChevronDown size={16} aria-hidden="true" className={state.open ? 'is-open' : ''} />
       </button>
-      {state.open && state.loading && <p className="claim-record-note">Loading…</p>}
-      {state.open && state.error && <p className="claim-record-note">{state.error}</p>}
+      {state.open && state.loading && <p className="claim-record-note" role="status">Loading the history…</p>}
+      {state.open && state.error && <p className="claim-record-note" role="alert">{state.error}</p>}
       {state.open && state.data && (
         <ol className="claim-history-list" aria-label="Verdict history">
           {state.data.history.map((h) => (
             <li key={h.assessmentId}>
-              <span className="claim-history-when">{formatWhen(h.at)}</span>{' '}
-              <span className="claim-history-how">{TRIGGER_LABEL[h.trigger] || 'Checked'}</span>{' '}
-              → <span className={`claim-record-call call-${CALL_CLASS[h.call] || 'none'}`}>{h.call}</span>
-              <span className="claim-history-evidence">
-                {' '}({h.evidence.for} for, {h.evidence.against} against{h.evidence.rulings ? `, ${h.evidence.rulings} fact-check ${h.evidence.rulings === 1 ? 'ruling' : 'rulings'}` : ''})
+              <span className="claim-history-when">{formatWhen(h.at)}</span>
+              <span className="claim-history-what">
+                <span className="claim-history-how">{TRIGGER_LABEL[h.trigger] || 'Checked'}</span>{' '}
+                → <Call call={h.call} />
               </span>
-              {h.changeReason && <div className="claim-history-change">{h.changeReason}</div>}
+              <span className="claim-history-evidence">
+                {h.evidence.for} for, {h.evidence.against} against{h.evidence.rulings ? `, ${h.evidence.rulings} fact-check ${h.evidence.rulings === 1 ? 'ruling' : 'rulings'}` : ''}
+              </span>
+              {h.changeReason && <span className="claim-history-change">{h.changeReason}</span>}
             </li>
           ))}
         </ol>
@@ -74,8 +79,8 @@ const ClaimRecord = ({ memory, call }) => {
   const recheckDue = memory.claims.map((c) => c.recheckDue).filter(Boolean).sort()[0] || null;
 
   return (
-    <section className="claim-record" aria-label="Claim record">
-      <h4>Claim record</h4>
+    <section className="report-section claim-record" aria-label="Claim record">
+      <h2 className="report-section__title"><History size={18} aria-hidden="true" /> Claim record</h2>
       {!anyHistory && (
         <p className="claim-record-note">
           {memory.claims.length === 1 ? 'This claim has' : 'These claims have'} not been checked before. The verdict and
@@ -91,8 +96,7 @@ const ClaimRecord = ({ memory, call }) => {
               Checked <strong>{c.timesSeen} times</strong> since {formatWhen(c.firstSeenAt)}.
               {c.previous && (
                 <>
-                  {' '}Last verdict before this one:{' '}
-                  <span className={`claim-record-call call-${CALL_CLASS[c.previous.call] || 'none'}`}>{c.previous.call}</span>
+                  {' '}Last verdict before this one: <Call call={c.previous.call} />
                   {' '}on {formatWhen(c.previous.at)}
                   {c.previous.call !== call ? ' — the verdict has changed since.' : ' — the same as now.'}
                 </>
@@ -101,24 +105,26 @@ const ClaimRecord = ({ memory, call }) => {
           )}
           {c.timesSeen > 1 && <ClaimHistory claimId={c.claimId} />}
           {c.variants.map((v) => (
-            <p key={v.claimId} className="claim-record-line claim-record-variant">
-              <span className="claim-record-tag">Variant checked before</span>{' '}
-              “{v.claim}”
-              {v.call && (
-                <>
-                  {' '}→ <span className={`claim-record-call call-${CALL_CLASS[v.call] || 'none'}`}>{v.call}</span>
-                </>
-              )}
-              {v.at ? ` on ${formatWhen(v.at)}` : ''}. <em>Differs: {v.differences.join('; ')}.</em>
-            </p>
+            <div key={v.claimId} className="claim-record-variant">
+              <span className="claim-record-tag">Variant checked before</span>
+              <p className="claim-record-line">
+                “{v.claim}”
+                {v.call && <>{' '}→ <Call call={v.call} /></>}
+                {v.at ? ` on ${formatWhen(v.at)}` : ''}.
+              </p>
+              <p className="claim-record-diff">Differs: {v.differences.join('; ')}.</p>
+            </div>
           ))}
         </div>
       ))}
       {memory.changeReason && <p className="claim-record-change">{memory.changeReason}</p>}
       {recheckDue && (
         <p className="claim-record-note claim-record-recheck">
-          Nothing settles this yet. It will be checked again automatically around {formatWhen(recheckDue)}, and again
-          over the next three days; any change, and what caused it, will be on this record.
+          <CalendarClock size={16} aria-hidden="true" />
+          <span>
+            Nothing settles this yet. It will be checked again automatically around {formatWhen(recheckDue)}, and again
+            over the next three days; any change, and what caused it, will be on this record.
+          </span>
         </p>
       )}
     </section>

@@ -137,7 +137,7 @@ const checkExplanation = (input) => {
       const calls = [];
       for (let n = 1; n <= 8; n++) {
         const t = clone(input);
-        t.claims[0][key] = [...(t.claims[0][key] || []), ...outlets(n, stance, null)];
+        t.claims[0][key] = [...(t.claims[0][key] || []), ...outlets(n, stance, new Date(input.asOf || ASOF).toISOString())];
         calls.push(callOf(t));
       }
       const steps = x.wouldChange.filter(w => w.added?.stance === stance);
@@ -158,8 +158,9 @@ const checkExplanation = (input) => {
     else add('would change (ruling)', withRuling === base || (base === 'FAKE' && input.factCheckResult?.status === 'debunked'), `not offered; a ruling gives ${withRuling} vs ${base}`);
   }
 
-  // Sensitivity, reported apart from the agreement rate: the explainer's
-  // hypothetical outlets carry no date. Dated today, do they say the same?
+  // Sensitivity, reported apart from the agreement rate: the explainer dates
+  // its hypothetical outlets at the moment of the check. Dated half an hour
+  // earlier, do they say the same?
   const dated = [];
   if (input.claims.length) {
     const told = new Map(x.wouldChange.filter(s => s.added?.stance === 'for').map(w => [w.result.call, w.added.outlets]));
@@ -409,7 +410,7 @@ const tallyChecks = (explained) => {
     ...[...new Set(Object.values(report.sets).flatMap(s => Object.keys(s.byKind)))].map(kind =>
       `| ${kind} | ${Object.values(report.sets).map(s => (s.byKind[kind] ? `${s.byKind[kind].agree}/${s.byKind[kind].n}` : '–')).join(' | ')} |`),
     '',
-    `Sensitivity (not counted above): the explainer's hypothetical outlets carry no date. Dated today instead, a "would change" step reaches a different verdict for ${Object.entries(report.sets).map(([n, s]) => `${s.datedSensitivity} ${n}`).join(', ')} ledgers.`
+    `Sensitivity (not counted above): the explainer dates its hypothetical outlets at the moment of the check. Dated half an hour earlier instead, a "would change" step reaches a different verdict for ${Object.entries(report.sets).map(([n, s]) => `${s.datedSensitivity} ${n}`).join(', ')} ledgers.`
       + (Object.values(report.sets).find(s => s.datedExample) ? ` Example (${Object.values(report.sets).find(s => s.datedExample).datedExample.rule}): ${Object.values(report.sets).find(s => s.datedExample).datedExample.detail}.` : ''),
     '',
     report.disagreements.length ? '## Disagreements (first few of each kind)' : '## Disagreements: none',

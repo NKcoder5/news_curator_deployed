@@ -1,11 +1,11 @@
 {
-  "ranAt": "2026-10-12T15:44:59.727Z",
+  "ranAt": "2026-10-13T03:25:45.462Z",
   "seed": 12,
   "sets": {
     "stored": {
       "ledgers": 14,
-      "statements": 196,
-      "agree": 196,
+      "statements": 200,
+      "agree": 200,
       "rate": 1,
       "byKind": {
         "verdict": {
@@ -29,12 +29,12 @@
           "agree": 44
         },
         "would change": {
-          "n": 12,
-          "agree": 12
+          "n": 14,
+          "agree": 14
         },
         "would change (smallest)": {
-          "n": 12,
-          "agree": 12
+          "n": 14,
+          "agree": 14
         },
         "would change (complete)": {
           "n": 28,
@@ -45,17 +45,12 @@
           "agree": 14
         }
       },
-      "datedSensitivity": 1,
-      "datedExample": {
-        "ledger": "6accab556d1f8a9027f5b960",
-        "rule": "old-news-presented-as-new",
-        "detail": "REAL with 1 confirming outlets dated today; the explainer does not offer it"
-      }
+      "datedSensitivity": 0
     },
     "scenarios": {
       "ledgers": 380,
-      "statements": 4042,
-      "agree": 4042,
+      "statements": 4130,
+      "agree": 4130,
       "rate": 1,
       "byKind": {
         "verdict": {
@@ -79,12 +74,12 @@
           "agree": 435
         },
         "would change": {
-          "n": 466,
-          "agree": 466
+          "n": 510,
+          "agree": 510
         },
         "would change (smallest)": {
-          "n": 466,
-          "agree": 466
+          "n": 510,
+          "agree": 510
         },
         "would change (complete)": {
           "n": 760,
@@ -95,12 +90,7 @@
           "agree": 380
         }
       },
-      "datedSensitivity": 24,
-      "datedExample": {
-        "ledger": "old news as today #1",
-        "rule": "old-news-presented-as-new",
-        "detail": "REAL with 1 confirming outlets dated today; the explainer does not offer it"
-      },
+      "datedSensitivity": 0,
       "byScenario": {
         "figure contradicted": {
           "agree": 240,
@@ -138,13 +128,13 @@
           "verdicts": "FAKE"
         },
         "old news as today": {
-          "agree": 160,
-          "statements": 160,
+          "agree": 200,
+          "statements": 200,
           "verdicts": "FAKE"
         },
         "old news, fresh anniversary coverage": {
-          "agree": 224,
-          "statements": 224,
+          "agree": 232,
+          "statements": 232,
           "verdicts": "REAL/FAKE"
         },
         "invented, high impact, warning signs": {
@@ -168,8 +158,8 @@
           "verdicts": "CANNOT VERIFY"
         },
         "false premise": {
-          "agree": 176,
-          "statements": 176,
+          "agree": 216,
+          "statements": 216,
           "verdicts": "FAKE"
         },
         "standing fact confirmed by reference": {
@@ -201,8 +191,8 @@
     },
     "random": {
       "ledgers": 2000,
-      "statements": 27431,
-      "agree": 27431,
+      "statements": 27942,
+      "agree": 27942,
       "rate": 1,
       "byKind": {
         "verdict": {
@@ -222,16 +212,16 @@
           "agree": 2000
         },
         "rests on": {
-          "n": 5458,
-          "agree": 5458
+          "n": 5473,
+          "agree": 5473
         },
         "would change": {
-          "n": 1987,
-          "agree": 1987
+          "n": 2235,
+          "agree": 2235
         },
         "would change (smallest)": {
-          "n": 1987,
-          "agree": 1987
+          "n": 2235,
+          "agree": 2235
         },
         "would change (complete)": {
           "n": 4000,
@@ -242,12 +232,7 @@
           "agree": 2000
         }
       },
-      "datedSensitivity": 93,
-      "datedExample": {
-        "ledger": "random #16",
-        "rule": "old-news-presented-as-new",
-        "detail": "REAL with 1 confirming outlets dated today; the explainer does not offer it"
-      }
+      "datedSensitivity": 0
     }
   },
   "disagreements": [],
@@ -266,9 +251,8 @@
         "name": "two more fresh outlets report otherwise",
         "direction": "against",
         "tried": 20000,
-        "broken": 269,
+        "broken": 12,
         "transitions": {
-          "FAKE (premise-contradicted-by-reference) -> PARTLY FALSE (claims-partly-false)": 257,
           "PARTLY FALSE (true-claim-carrying-a-false-one) -> REAL (rated-true-by-fact-checkers)": 2,
           "CANNOT VERIFY (only-partly-confirmed) -> REAL (corroborated-by-multiple-independent-sources)": 1,
           "PARTLY FALSE (true-claim-carrying-a-false-one) -> REAL (confirmed-by-reference)": 2,
@@ -279,11 +263,16 @@
         },
         "examples": [
           {
-            "key": "FAKE (premise-contradicted-by-reference) -> PARTLY FALSE (claims-partly-false)",
+            "key": "PARTLY FALSE (true-claim-carrying-a-false-one) -> REAL (rated-true-by-fact-checkers)",
             "claims": [
               {
                 "time": "now",
-                "for": 4,
+                "for": 3,
+                "against": 1
+              },
+              {
+                "time": "now",
+                "for": 0,
                 "against": 0
               },
               {
@@ -292,50 +281,45 @@
                 "against": 0
               }
             ],
-            "factCheck": "none",
-            "week": "presupposed-false",
-            "unconfirmed": false
+            "factCheck": "confirmed",
+            "week": "silent",
+            "unconfirmed": true
           },
           {
-            "key": "FAKE (premise-contradicted-by-reference) -> PARTLY FALSE (claims-partly-false)",
+            "key": "CANNOT VERIFY (only-partly-confirmed) -> REAL (corroborated-by-multiple-independent-sources)",
             "claims": [
               {
                 "time": "now",
                 "for": 3,
+                "against": 1
+              },
+              {
+                "time": "timeless",
+                "for": 0,
+                "against": 0
+              }
+            ],
+            "factCheck": "none",
+            "week": "silent",
+            "unconfirmed": true
+          },
+          {
+            "key": "PARTLY FALSE (true-claim-carrying-a-false-one) -> REAL (confirmed-by-reference)",
+            "claims": [
+              {
+                "time": "past",
+                "for": 2,
                 "against": 0
               },
               {
                 "time": "timeless",
-                "for": 4,
-                "against": 3
-              },
-              {
-                "time": "past",
                 "for": 0,
                 "against": 0
               }
             ],
             "factCheck": "none",
-            "week": "silent",
-            "unconfirmed": false
-          },
-          {
-            "key": "FAKE (premise-contradicted-by-reference) -> PARTLY FALSE (claims-partly-false)",
-            "claims": [
-              {
-                "time": "past",
-                "for": 3,
-                "against": 2
-              },
-              {
-                "time": "now",
-                "for": 4,
-                "against": 2
-              }
-            ],
-            "factCheck": "none",
-            "week": "silent",
-            "unconfirmed": false
+            "week": "absent",
+            "unconfirmed": true
           }
         ]
       },
@@ -351,66 +335,9 @@
         "name": "two more fresh outlets confirm it",
         "direction": "for",
         "tried": 20000,
-        "broken": 84,
-        "transitions": {
-          "PARTLY FALSE (claims-partly-false) -> FAKE (premise-contradicted-by-reference)": 84
-        },
-        "examples": [
-          {
-            "key": "PARTLY FALSE (claims-partly-false) -> FAKE (premise-contradicted-by-reference)",
-            "claims": [
-              {
-                "time": "past",
-                "for": 1,
-                "against": 2
-              },
-              {
-                "time": "timeless",
-                "for": 4,
-                "against": 0
-              }
-            ],
-            "factCheck": "none",
-            "week": "presupposed-false",
-            "unconfirmed": false
-          },
-          {
-            "key": "PARTLY FALSE (claims-partly-false) -> FAKE (premise-contradicted-by-reference)",
-            "claims": [
-              {
-                "time": "past",
-                "for": 1,
-                "against": 3
-              },
-              {
-                "time": "timeless",
-                "for": 3,
-                "against": 0
-              }
-            ],
-            "factCheck": "none",
-            "week": "silent",
-            "unconfirmed": false
-          },
-          {
-            "key": "PARTLY FALSE (claims-partly-false) -> FAKE (premise-contradicted-by-reference)",
-            "claims": [
-              {
-                "time": "timeless",
-                "for": 4,
-                "against": 0
-              },
-              {
-                "time": "now",
-                "for": 0,
-                "against": 3
-              }
-            ],
-            "factCheck": "none",
-            "week": "silent",
-            "unconfirmed": false
-          }
-        ]
+        "broken": 0,
+        "transitions": {},
+        "examples": []
       },
       {
         "name": "a fact-checker rates it true",

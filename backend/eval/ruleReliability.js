@@ -19,14 +19,20 @@
 //                                              tuning (falls back to
 //                                              robustness_heldout.json)
 //   eval/results/checkAnything_benchmark.json  the benchmark of real claims
+//   eval/results/robustness_heldout_v2.json    held-out suite v2 (51 cases
+//                                              written on 12 Oct, after every
+//                                              change), once it has been run
 //
 // Each run is counted once; earlier runs of the same suite are not added, so
-// one message is never counted twice.
+// one message is never counted twice. Cases a run marked degraded (answered by
+// fallback models after the quota ran out) measured the quota, not the rule,
+// and are left out.
 //
 // Usage: node eval/ruleReliability.js
 // Writes data/ruleReliability.json.
 const fs = require('fs');
 const path = require('path');
+const { wilson } = require('./metrics');
 
 const RESULTS = path.join(__dirname, 'results');
 const ABSTENTIONS = new Set(['CANNOT VERIFY', 'REFUSED', 'NOT A FACTUAL CLAIM', 'ERROR']);
@@ -34,16 +40,6 @@ const ABSTENTIONS = new Set(['CANNOT VERIFY', 'REFUSED', 'NOT A FACTUAL CLAIM', 
 const readJson = (name) => {
   const file = path.join(RESULTS, name);
   return fs.existsSync(file) ? { name, data: JSON.parse(fs.readFileSync(file, 'utf8')) } : null;
-};
-
-// 95% Wilson score interval for k successes in n trials.
-const wilson = (k, n, z = 1.96) => {
-  if (!n) return { low: 0, high: 1 };
-  const p = k / n;
-  const denom = 1 + (z * z) / n;
-  const centre = (p + (z * z) / (2 * n)) / denom;
-  const half = (z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / denom;
-  return { low: Math.max(0, centre - half), high: Math.min(1, centre + half) };
 };
 
 const sources = [];
@@ -65,6 +61,13 @@ if (heldout) {
       : ABSTENTIONS.has(r.call) ? 'missed' : 'wrong';
     cases.push({ suite: 'heldout', id: r.id, rule: r.rule, call: r.call, expected: r.expected, outcome });
   }
+}
+
+const heldoutV2 = readJson('robustness_heldout_v2.json');
+if (heldoutV2) {
+  const rows = heldoutV2.data.rows.filter(r => !(r.degraded || []).length);
+  sources.push({ file: heldoutV2.name, ranAt: heldoutV2.data.summary?.ranAt || null, cases: rows.length, complete: Boolean(heldoutV2.data.summary?.complete), writtenDuringTuning: false });
+  for (const r of rows) cases.push({ suite: 'heldout_v2', id: r.id, rule: r.rule, call: r.call, expected: r.expected, outcome: r.outcome });
 }
 
 const benchmark = readJson('checkAnything_benchmark.json');

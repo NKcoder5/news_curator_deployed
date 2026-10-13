@@ -1,0 +1,91 @@
+{
+  "summary": {
+    "ranAt": "2026-10-12T15:40:43.158Z",
+    "memory": "off",
+    "complete": false,
+    "stoppedBecause": "check budget of 1 spent",
+    "claims": 1,
+    "claimsFinished": 0,
+    "identicalCalls": "0/0",
+    "allPhrasingsRight": "0/0",
+    "filedTogether": "memory off",
+    "phrasings": {
+      "n": 1,
+      "right": 0,
+      "safe": 0,
+      "missed": 1,
+      "wrong": 0
+    },
+    "byStyle": {
+      "plain": {
+        "n": 1,
+        "rightOrSafe": 0,
+        "wrong": 0
+      }
+    },
+    "seconds": {
+      "median": 37.528,
+      "p90": 37.528
+    },
+    "perClaim": [
+      {
+        "id": "k-1",
+        "claim": "Nana Patekar died at his home in Goa.",
+        "expected": "REAL",
+        "phrasings": 1,
+        "calls": {
+          "plain": "CANNOT VERIFY"
+        },
+        "identical": false,
+        "allRight": false,
+        "wrong": 0,
+        "filed": null
+      }
+    ]
+  },
+  "rows": [
+    {
+      "claimId": "k-1",
+      "style": "plain",
+      "language": "en",
+      "input": "Actor Nana Patekar has died at his home in Goa",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "fact-checkers-and-reporting-disagree",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "Fact-checkers rated this false, but 8 independent outlets now report it.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Actor Nana Patekar has died at his home in Goa",
+        "claims": [
+          {
+            "claim": "Actor Nana Patekar has died at his home in Goa.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 37.528,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "gemini": 4,
+          "ollama": 4,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    }
+  ]
+}

@@ -1,0 +1,416 @@
+{
+  "generatedAt": "2026-10-12T15:46:22.771Z",
+  "sources": [
+    {
+      "file": "robustness_final.json",
+      "suite": "robustness",
+      "ranAt": "2026-10-12T07:42:18.631Z",
+      "cases": 55,
+      "droppedAsQuota": 0
+    },
+    {
+      "file": "robustness_heldout_final.json",
+      "suite": "heldout",
+      "ranAt": "2026-10-12T08:02:16.834Z",
+      "cases": 27,
+      "droppedAsQuota": 0
+    },
+    {
+      "file": "checkAnything_benchmark.json",
+      "suite": "benchmark",
+      "ranAt": "2026-10-12T08:18:00.807Z",
+      "cases": 22,
+      "droppedAsQuota": 0
+    }
+  ],
+  "groups": {
+    "tuned": {
+      "cases": 55,
+      "right": 54,
+      "coverage": {
+        "k": 49,
+        "n": 50,
+        "rate": 0.98,
+        "low": 0.895,
+        "high": 0.996
+      },
+      "accuracyWhenAnswered": {
+        "k": 49,
+        "n": 49,
+        "rate": 1,
+        "low": 0.927,
+        "high": 1
+      },
+      "wrongDirection": {
+        "k": 0,
+        "n": 49,
+        "rate": 0,
+        "low": 0,
+        "high": 0.073
+      },
+      "abstentionsDue": {
+        "k": 5,
+        "n": 6,
+        "rate": 0.833,
+        "low": 0.436,
+        "high": 0.97
+      },
+      "perCall": {
+        "REAL": {
+          "k": 24,
+          "n": 24,
+          "rate": 1,
+          "low": 0.862,
+          "high": 1
+        },
+        "FAKE": {
+          "k": 24,
+          "n": 24,
+          "rate": 1,
+          "low": 0.862,
+          "high": 1
+        },
+        "PARTLY FALSE": {
+          "k": 1,
+          "n": 1,
+          "rate": 1,
+          "low": 0.207,
+          "high": 1
+        },
+        "CANNOT VERIFY": {
+          "k": 0,
+          "n": 1,
+          "rate": 0,
+          "low": 0,
+          "high": 0.793
+        },
+        "REFUSED": {
+          "k": 5,
+          "n": 5,
+          "rate": 1,
+          "low": 0.566,
+          "high": 1
+        }
+      },
+      "confidence": null
+    },
+    "held-out": {
+      "cases": 49,
+      "right": 46,
+      "coverage": {
+        "k": 44,
+        "n": 47,
+        "rate": 0.936,
+        "low": 0.828,
+        "high": 0.978
+      },
+      "accuracyWhenAnswered": {
+        "k": 43,
+        "n": 44,
+        "rate": 0.977,
+        "low": 0.882,
+        "high": 0.996
+      },
+      "wrongDirection": {
+        "k": 0,
+        "n": 44,
+        "rate": 0,
+        "low": 0,
+        "high": 0.08
+      },
+      "abstentionsDue": {
+        "k": 3,
+        "n": 5,
+        "rate": 0.6,
+        "low": 0.231,
+        "high": 0.882
+      },
+      "perCall": {
+        "REAL": {
+          "k": 22,
+          "n": 22,
+          "rate": 1,
+          "low": 0.851,
+          "high": 1
+        },
+        "FAKE": {
+          "k": 20,
+          "n": 20,
+          "rate": 1,
+          "low": 0.839,
+          "high": 1
+        },
+        "PARTLY FALSE": {
+          "k": 1,
+          "n": 2,
+          "rate": 0.5,
+          "low": 0.095,
+          "high": 0.905
+        },
+        "CANNOT VERIFY": {
+          "k": 2,
+          "n": 4,
+          "rate": 0.5,
+          "low": 0.15,
+          "high": 0.85
+        },
+        "REFUSED": {
+          "k": 1,
+          "n": 1,
+          "rate": 1,
+          "low": 0.207,
+          "high": 1
+        }
+      },
+      "confidence": {
+        "n": 21,
+        "ece": 0.144,
+        "bins": [
+          {
+            "bin": "0.0-0.6",
+            "n": 1,
+            "meanConfidence": 0.55,
+            "accuracy": 1
+          },
+          {
+            "bin": "0.6-0.7",
+            "n": 2,
+            "meanConfidence": 0.6,
+            "accuracy": 1
+          },
+          {
+            "bin": "0.7-0.8",
+            "n": 3,
+            "meanConfidence": 0.77,
+            "accuracy": 1
+          },
+          {
+            "bin": "0.8-0.9",
+            "n": 1,
+            "meanConfidence": 0.84,
+            "accuracy": 1
+          },
+          {
+            "bin": "0.9-1.0",
+            "n": 14,
+            "meanConfidence": 0.934,
+            "accuracy": 1
+          }
+        ],
+        "curve": [
+          {
+            "coverage": 0.25,
+            "minConfidence": 0.95,
+            "accuracy": 1,
+            "n": 5
+          },
+          {
+            "coverage": 0.5,
+            "minConfidence": 0.91,
+            "accuracy": 1,
+            "n": 11
+          },
+          {
+            "coverage": 0.75,
+            "minConfidence": 0.77,
+            "accuracy": 1,
+            "n": 16
+          },
+          {
+            "coverage": 1,
+            "minConfidence": 0.55,
+            "accuracy": 1,
+            "n": 21
+          }
+        ]
+      }
+    },
+    "heldout": {
+      "cases": 27,
+      "right": 25,
+      "coverage": {
+        "k": 23,
+        "n": 25,
+        "rate": 0.92,
+        "low": 0.75,
+        "high": 0.978
+      },
+      "accuracyWhenAnswered": {
+        "k": 22,
+        "n": 23,
+        "rate": 0.957,
+        "low": 0.79,
+        "high": 0.992
+      },
+      "wrongDirection": {
+        "k": 0,
+        "n": 23,
+        "rate": 0,
+        "low": 0,
+        "high": 0.143
+      },
+      "abstentionsDue": {
+        "k": 3,
+        "n": 4,
+        "rate": 0.75,
+        "low": 0.301,
+        "high": 0.954
+      },
+      "perCall": {
+        "REAL": {
+          "k": 13,
+          "n": 13,
+          "rate": 1,
+          "low": 0.772,
+          "high": 1
+        },
+        "FAKE": {
+          "k": 8,
+          "n": 8,
+          "rate": 1,
+          "low": 0.676,
+          "high": 1
+        },
+        "PARTLY FALSE": {
+          "k": 1,
+          "n": 2,
+          "rate": 0.5,
+          "low": 0.095,
+          "high": 0.905
+        },
+        "CANNOT VERIFY": {
+          "k": 2,
+          "n": 3,
+          "rate": 0.667,
+          "low": 0.208,
+          "high": 0.939
+        },
+        "REFUSED": {
+          "k": 1,
+          "n": 1,
+          "rate": 1,
+          "low": 0.207,
+          "high": 1
+        }
+      },
+      "confidence": null
+    },
+    "benchmark": {
+      "cases": 22,
+      "right": 21,
+      "coverage": {
+        "k": 21,
+        "n": 22,
+        "rate": 0.955,
+        "low": 0.782,
+        "high": 0.992
+      },
+      "accuracyWhenAnswered": {
+        "k": 21,
+        "n": 21,
+        "rate": 1,
+        "low": 0.845,
+        "high": 1
+      },
+      "wrongDirection": {
+        "k": 0,
+        "n": 21,
+        "rate": 0,
+        "low": 0,
+        "high": 0.155
+      },
+      "abstentionsDue": {
+        "k": 0,
+        "n": 1,
+        "rate": 0,
+        "low": 0,
+        "high": 0.793
+      },
+      "perCall": {
+        "REAL": {
+          "k": 9,
+          "n": 9,
+          "rate": 1,
+          "low": 0.701,
+          "high": 1
+        },
+        "FAKE": {
+          "k": 12,
+          "n": 12,
+          "rate": 1,
+          "low": 0.757,
+          "high": 1
+        },
+        "CANNOT VERIFY": {
+          "k": 0,
+          "n": 1,
+          "rate": 0,
+          "low": 0,
+          "high": 0.793
+        }
+      },
+      "confidence": {
+        "n": 21,
+        "ece": 0.144,
+        "bins": [
+          {
+            "bin": "0.0-0.6",
+            "n": 1,
+            "meanConfidence": 0.55,
+            "accuracy": 1
+          },
+          {
+            "bin": "0.6-0.7",
+            "n": 2,
+            "meanConfidence": 0.6,
+            "accuracy": 1
+          },
+          {
+            "bin": "0.7-0.8",
+            "n": 3,
+            "meanConfidence": 0.77,
+            "accuracy": 1
+          },
+          {
+            "bin": "0.8-0.9",
+            "n": 1,
+            "meanConfidence": 0.84,
+            "accuracy": 1
+          },
+          {
+            "bin": "0.9-1.0",
+            "n": 14,
+            "meanConfidence": 0.934,
+            "accuracy": 1
+          }
+        ],
+        "curve": [
+          {
+            "coverage": 0.25,
+            "minConfidence": 0.95,
+            "accuracy": 1,
+            "n": 5
+          },
+          {
+            "coverage": 0.5,
+            "minConfidence": 0.91,
+            "accuracy": 1,
+            "n": 11
+          },
+          {
+            "coverage": 0.75,
+            "minConfidence": 0.77,
+            "accuracy": 1,
+            "n": 16
+          },
+          {
+            "coverage": 1,
+            "minConfidence": 0.55,
+            "accuracy": 1,
+            "n": 21
+          }
+        ]
+      }
+    }
+  }
+}

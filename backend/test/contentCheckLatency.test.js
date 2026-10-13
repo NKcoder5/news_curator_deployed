@@ -195,15 +195,44 @@ test('the same message minutes later is answered from that check, marked cached 
   }
 });
 
-test('nothing is served from an earlier check to a different message, a re-check or an evaluation run', async () => {
+test('nothing is served from an earlier check to a different message', async () => {
   const s = load();
   try {
     await s.check(MESSAGE);
     await sleep(50);
     assert.strictEqual((await s.check(`${MESSAGE}!!! forward to everyone`)).cached, false);
-    assert.strictEqual((await s.check(MESSAGE, { trigger: 'recheck' })).cached, false);
-    assert.strictEqual((await s.check(MESSAGE, { trigger: 'eval' })).cached, false);
-    assert.strictEqual(s.count('evidence:start'), 4);
+    assert.strictEqual(s.count('evidence:start'), 2);
+  } finally {
+    s.restore();
+  }
+});
+
+// The consistency suite sends one claim in four phrasings back to back, and a
+// re-check exists to see fresh evidence: served from the cache, both would
+// measure the cache instead of the system.
+test('an evaluation check and a re-check always run in full, even right after a reader\'s check of the same message', async () => {
+  const s = load();
+  try {
+    await s.check(MESSAGE);
+    await sleep(50);
+    for (const trigger of ['eval', 'eval', 'recheck', 'recheck']) {
+      const result = await s.check(MESSAGE, { trigger });
+      assert.strictEqual(result.cached, false, trigger);
+      await sleep(50);
+    }
+    assert.strictEqual(s.count('understand:start'), 5);
+    assert.strictEqual(s.count('evidence:start'), 5);
+    assert.strictEqual(s.count('stillCurrent'), 0, 'the cache is not even consulted');
+    // Nor do they leave anything a reader would then be served.
+    const t = load();
+    try {
+      await t.check(MESSAGE, { trigger: 'eval' });
+      await t.check(MESSAGE, { trigger: 'recheck' });
+      await sleep(50);
+      assert.strictEqual((await t.check(MESSAGE)).cached, false);
+    } finally {
+      t.restore();
+    }
   } finally {
     s.restore();
   }

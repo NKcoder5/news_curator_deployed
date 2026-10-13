@@ -28,6 +28,34 @@
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { fetchWikipediaContent } = require('../utils/wikipedia');
 const { findAnchors } = require('./checkability');
+const { judgePairs } = require('../services/localNli');
+
+// A contradiction found by a language model stands only if our own pair model
+// (services/localNli.js, fine-tuned for exactly this) also reads the quoted
+// reference sentence as contradicting what the message states. Measured on
+// 13 Oct: three true claims were called FAKE on contradictions a fallback
+// model invented ("Nana Patekar died in Goa" against an entry giving his
+// death date); our model gives each of them a contradiction probability of
+// 0.00-0.01, and the real ones ("Chennai is the capital of Karnataka",
+// "Rahul Gandhi is the Prime Minister") 0.86-1.00. Without the model files
+// (CI, a fresh clone) the model's opinion is absent and nothing is filtered.
+const SECOND_OPINION_MIN = 0.5;
+const secondOpinion = async (contradictions) => {
+  if (!contradictions.length) return { kept: contradictions, overruled: [] };
+  const pairs = contradictions.map(c => ({ premise: c.referenceStates || '', hypothesis: c.articleStates || '' }));
+  let verdicts = null;
+  try { verdicts = await judgePairs(pairs); } catch (_) { verdicts = null; }
+  if (!Array.isArray(verdicts) || verdicts.length !== contradictions.length) return { kept: contradictions, overruled: [] };
+  const kept = [];
+  const overruled = [];
+  contradictions.forEach((c, i) => {
+    const v = verdicts[i];
+    const pCon = v && v.scores ? v.scores.contradiction : null;
+    if (pCon === null || pCon >= SECOND_OPINION_MIN || !c.referenceStates || !c.articleStates) kept.push({ ...c, ownModel: pCon });
+    else overruled.push({ ...c, ownModel: pCon });
+  });
+  return { kept, overruled };
+};
 const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip } = require('../utils/untrusted');
 
 /** How many entities to look up. Each costs one search plus one extract. */
@@ -169,7 +197,7 @@ const checkPremises = async (title, content) => {
       return { entity, reference: { title: reference.title, url: reference.url }, ...judgement };
     }));
 
-    const contradictions = results.filter(r => r.contradicts);
+    const { kept: contradictions, overruled } = await secondOpinion(results.filter(r => r.contradicts));
     const confirmations = results.filter(r => r.supports && !r.contradicts)
       .map(r => ({ entity: r.entity, reference: r.reference, referenceStates: r.referenceSupports }));
     const failures = results.filter(r => r.failed);
@@ -194,6 +222,9 @@ const checkPremises = async (title, content) => {
       checked: results,
       contradictions,
       confirmations,
+      // Contradictions our own model did not see in the quoted sentence; shown
+      // for transparency, never counted.
+      overruled: overruled.map(c => ({ entity: c.entity, articleStates: c.articleStates, referenceStates: c.referenceStates, ownModel: c.ownModel })),
       partialFailure: failures.length > 0,
       explanation: contradictions.length
         ? `A reference entry contradicts what this article states about ${contradictions.map(c => c.entity).join(' and ')}.`

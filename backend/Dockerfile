@@ -4,13 +4,14 @@
 #   docker build -t pure-press-backend .
 # Configuration is read from the environment at run time (see .env.example);
 # nothing secret is baked into the image.
-FROM node:24-alpine
+FROM node:24-slim
 
 ENV NODE_ENV=production
 WORKDIR /app
 
-# Dependencies first, so editing source does not reinstall them. bcrypt ships a
-# prebuilt binary for musl, so no compiler is needed on Alpine.
+# Debian slim rather than Alpine: onnxruntime-node, which runs our own pair
+# model (services/localNli.js), ships glibc binaries only. Dependencies first,
+# so editing source does not reinstall them.
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
@@ -26,7 +27,7 @@ USER node
 EXPOSE 5000
 
 # /health answers without touching the database, so it says the process is up,
-# not that Mongo is. Node's own fetch is used because Alpine has no curl.
+# not that Mongo is. Node's own fetch is used because the slim image has no curl.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD ["node", "-e", "fetch('http://127.0.0.1:' + (process.env.PORT || 5000) + '/health').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
 

@@ -190,15 +190,18 @@ const buildPlainLanguage = ({
   // scored 0 here and pulled the writing score from 9.3 to 7.0 for sourcing
   // that was present in the article we never read.
   const vague = (transparencyResult?.vagueAttributions) || [];
+  // A check with no score did not finish, and says nothing about sourcing:
+  // `null < 4` is true in JavaScript, which would report "names no sources".
+  const transparencyScored = typeof transparencyResult?.score === 'number';
   if (excerptOnly) {
     concernPoints.push('Only the publisher’s summary was available, so the article’s own sourcing could not be checked.');
-  } else if (transparencyResult && transparencyResult.score < 4) {
+  } else if (transparencyScored && transparencyResult.score < 4) {
     concernPoints.push(
       vague.length > 0
         ? `Little you can check: the article leans on unnamed authority such as “${vague[0]}”.`
         : 'The article names no sources you could go and verify.'
     );
-  } else if (transparencyResult && transparencyResult.score >= 7.5) {
+  } else if (transparencyScored && transparencyResult.score >= 7.5) {
     goodPoints.push('Names its sources and gives detail you can check independently.');
   }
 
@@ -250,6 +253,74 @@ const buildPlainLanguage = ({
   return { goodPoints, concernPoints, summary };
 };
 
+// NewsAPI ends a truncated body with "… [+8026 chars]". That marker is not
+// part of the article, and a model that echoes it back puts a stray "["
+// ahead of its own JSON. Drop it before any factor sees the text.
+const cleanText = (content) => String(content || '').replace(/\[\+\d+\s*chars\]/gi, '').trim();
+
+/**
+ * What a channel that could not be read in time contributes: nothing.
+ *
+ * Each value has the shape the verdict engine already reads as "this did not
+ * run" — never the shape of a finding. A news search that timed out is an
+ * unrun search ('error', so the verdict says it could not check), not a search
+ * that found no coverage, which the rules may read as a warning sign; a
+ * writing check that timed out has no score, not a score of 0, which would
+ * read as "names no sources". test/channelDeadline.test.js holds every value
+ * here to that.
+ */
+const UNREAD = {
+  writing: () => ({ score: null, unread: true, explanation: 'This check could not be finished in time.', summary: 'This check could not be finished in time.' }),
+  claimExtraction: () => ({ claims: [], failed: true, unread: true }),
+  verification: (claims = []) => ({
+    score: 5,
+    status: 'error',
+    claims: claims.map(c => ({
+      claim: c.claim, time: c.time || null, kind: c.kind || null,
+      verdict: 'undetermined', failed: true, supportingEvidence: [], contradictingEvidence: [],
+      explanation: 'Other outlets could not be searched in time for this claim.'
+    })),
+    explanation: 'The news search could not be finished in time, so nothing was confirmed or denied.',
+    failed: true,
+    unread: true
+  }),
+  premises: () => ({ status: 'error', checked: [], contradictions: [], explanation: 'The reference check could not be finished in time.', unread: true }),
+  factChecks: () => ({ status: 'error', matches: [], considered: 0, explanation: 'The fact-check search could not be finished in time.', unread: true }),
+  currentCoverage: () => ({ status: 'error', presupposingFalse: [], reporting: [], explanation: 'This week\'s coverage could not be read in time.', unread: true })
+};
+
+/**
+ * Start the checks that read only the message, before its claims are known.
+ *
+ * How a message is written, and for English text what a reference work says
+ * about the names in it, do not depend on what the message is read as
+ * claiming. Measured on 12 Oct, they waited for the input-understanding call
+ * (1.5-3.1 s) before starting, and then were the last to land: the four
+ * writing checks queue on the one local GPU (5.5 s together) and the
+ * reference check goes to NVIDIA NIM (5-9 s). Started here, at the same time
+ * as the understanding call, they are no longer on the critical path. The
+ * inputs are exactly those analyzeTrust would give them, so the judgements are
+ * the same; analyzeTrust uses these only for the same title and text, and the
+ * reference check only when no English rendering replaces the text.
+ *
+ * @returns {Object} the started work, to pass to analyzeTrust as `early`
+ */
+const startMessageChecks = ({ title, content }) => {
+  const text = cleanText(content);
+  const language = detectLanguage(`${title} ${text}`);
+  const tasks = {
+    clickbait: analyzeClickbait(title, language),
+    bias: analyzeBias(title, text, language),
+    manipulation: detectManipulation(title, text, language),
+    transparency: assessTransparency(title, text, language),
+    premises: checkPremises(title, text).catch(() => ({ status: 'error', checked: [], contradictions: [], explanation: 'The reference check could not run.' }))
+  };
+  // A message refused after it is read never collects these; a failure among
+  // them must not surface as an unhandled rejection.
+  for (const task of Object.values(tasks)) task.catch(() => {});
+  return { title, content, startedAt: Date.now(), tasks };
+};
+
 /**
  * Run the full trust analysis pipeline for an article.
  * @param {Object} article - { title, content, source, url }
@@ -263,7 +334,14 @@ const analyzeTrust = async ({
   preparedClaims = null, evidenceText = null, understanding = null,
   // Called with the exact inputs the verdict was reached from, so the check can
   // be stored as a record that replays to the same verdict (services/claimMemory.js).
-  onLedgerInput = null
+  onLedgerInput = null,
+  // Work already started by startMessageChecks for this same title and text.
+  early = null,
+  // How long, from now, the evidence channels have to land. A channel still
+  // out after that is reported as not read in time and counts as absent (see
+  // UNREAD), so one slow provider cannot hold a reader's answer. Null waits
+  // for everything, as the re-checks and the article analyses do.
+  deadlineMs = null
 }) => {
   // Whether we are reading the article or the feed's two-line summary of it.
   // Checks that need the body of the piece cannot be reported as findings
@@ -271,13 +349,34 @@ const analyzeTrust = async ({
   const excerptOnly = textCoverage !== undefined && textCoverage !== 'full';
   const startedAt = Date.now();
   const timings = {};
+  const deadlineAt = Number.isFinite(deadlineMs) && deadlineMs > 0 ? startedAt + deadlineMs : null;
+  const unreadChannels = [];
+  const usable = early && early.title === title && early.content === content ? early : null;
+  const fromEarly = (name, start) => (usable && usable.tasks[name]) || start();
+  const since = (name) => (usable && usable.tasks[name] ? usable.startedAt : null);
+
+  // Settles with the channel's result, or with its unread value once the
+  // deadline passes. The work itself cannot be cancelled and is left to finish;
+  // only the answer stops waiting for it.
+  const beforeDeadline = (name, promise, unread) => {
+    if (!deadlineAt || !unread) return promise;
+    let timer;
+    const late = new Promise(resolve => {
+      timer = setTimeout(() => {
+        unreadChannels.push(name);
+        resolve(unread());
+      }, Math.max(0, deadlineAt - Date.now()));
+    });
+    return Promise.race([promise, late]).finally(() => clearTimeout(timer));
+  };
+
   // Every factor passes through here, so this is also where a caller watching
   // the analysis is told that one has landed. A reader should see the checks
   // arrive one by one rather than staring at a spinner until all six finish.
-  const timed = async (name, task) => {
-    const started = Date.now();
+  const timed = async (name, task, { from = null, unread = null } = {}) => {
+    const started = from || Date.now();
     try {
-      const result = await task();
+      const result = await beforeDeadline(name, Promise.resolve().then(task), unread);
       if (typeof onProgress === 'function' && REPORTED_STEPS.has(name)) {
         try {
           onProgress({ id: name, name: FACTOR_LABELS[name], ms: Date.now() - started });
@@ -291,7 +390,9 @@ const analyzeTrust = async ({
             name: channel.name,
             group: channel.group || null,
             ms: Date.now() - started,
-            summary: channel.summary ? String(channel.summary(result) || '') : null
+            unread: Boolean(result?.unread),
+            summary: result?.unread ? 'Could not be read in time.'
+              : channel.summary ? String(channel.summary(result) || '') : null
           });
         } catch (_) { /* a broken listener must never fail the analysis */ }
       }
@@ -300,10 +401,7 @@ const analyzeTrust = async ({
       timings[name] = Date.now() - started;
     }
   };
-  // NewsAPI ends a truncated body with "… [+8026 chars]". That marker is not
-  // part of the article, and a model that echoes it back puts a stray "["
-  // ahead of its own JSON. Drop it before any factor sees the text.
-  const text = String(content || '').replace(/\[\+\d+\s*chars\]/gi, '').trim();
+  const text = cleanText(content);
 
   // Which language is this? Everything downstream depends on the answer: the
   // prompts, the language flagged sentences are quoted back in, and — the one
@@ -360,35 +458,40 @@ const analyzeTrust = async ({
     : extractClaims(title, text, 2, language).then(
       claims => ({ claims, failed: false }),
       () => ({ claims: [], failed: true })
-    )));
+    )), { unread: UNREAD.claimExtraction });
+
+  // The reference check started early read the message's own title and text;
+  // a non-English message is checked on its English rendering instead.
+  const earlyPremises = !evidenceText && usable && usable.tasks.premises;
 
   const [
     clickbaitResult, biasResult, manipulationResult,
     transparencyResult, verificationResult, premiseResult, factCheckResult, currentCoverageResult
   ] = await Promise.all([
-    timed('clickbait', () => analyzeClickbait(title, language)),
-    timed('bias', () => analyzeBias(title, text, language)),
-    timed('manipulation', () => detectManipulation(title, text, language)),
-    timed('transparency', () => assessTransparency(title, text, language)),
+    timed('clickbait', () => fromEarly('clickbait', () => analyzeClickbait(title, language)), { from: since('clickbait'), unread: UNREAD.writing }),
+    timed('bias', () => fromEarly('bias', () => analyzeBias(title, text, language)), { from: since('bias'), unread: UNREAD.writing }),
+    timed('manipulation', () => fromEarly('manipulation', () => detectManipulation(title, text, language)), { from: since('manipulation'), unread: UNREAD.writing }),
+    timed('transparency', () => fromEarly('transparency', () => assessTransparency(title, text, language)), { from: since('transparency'), unread: UNREAD.writing }),
     claimsPromise.then(({ claims, failed }) =>
-      timed('verification', () => verifyClaims(title, text, source, claims, failed, language))),
+      timed('verification', () => verifyClaims(title, text, source, claims, failed, language), { unread: () => UNREAD.verification(claims) })),
     // Runs beside the news search because it answers a question the news search
     // structurally cannot. "Prime Minister Rahul Gandhi announced X" describes
     // an event no outlet reports, so the news channel correctly returns nothing
     // — while a reference work settles the premise in one lookup.
-    timed('premises', () => checkPremises(evidenceText ? evidenceText.slice(0, 140) : title, evidenceText || text)
-      .catch(() => ({ status: 'error', checked: [], contradictions: [], explanation: 'The reference check could not run.' }))),
+    timed('premises', () => earlyPremises || checkPremises(evidenceText ? evidenceText.slice(0, 140) : title, evidenceText || text)
+      .catch(() => ({ status: 'error', checked: [], contradictions: [], explanation: 'The reference check could not run.' })),
+    { from: earlyPremises ? usable.startedAt : null, unread: UNREAD.premises }),
     // The third channel, beside the news search and the reference check: has a
     // professional fact-checking desk already ruled on this claim? A viral
     // rumour is never reported as news, so the news channel can only say
     // "cannot verify" about it — while a desk may have investigated it days ago.
     // It reuses the extracted claims, so it starts as soon as they exist.
-    claimsPromise.then(({ claims }) => timed('factChecks', () => checkFactCheckers(claims, { title, text })))
+    claimsPromise.then(({ claims }) => timed('factChecks', () => checkFactCheckers(claims, { title, text }), { unread: UNREAD.factChecks }))
       .catch(() => ({ status: 'error', matches: [], considered: 0, explanation: 'The fact-check search could not run.' })),
     // The fourth: what this week's coverage of the claim's subject takes for
     // granted. An invented event about a heavily covered subject is
     // contradicted, implicitly, by everything else reported about it.
-    claimsPromise.then(({ claims }) => timed('currentCoverage', () => checkCurrentCoverage(claims)))
+    claimsPromise.then(({ claims }) => timed('currentCoverage', () => checkCurrentCoverage(claims), { unread: UNREAD.currentCoverage }))
       .catch(() => ({ status: 'error', presupposingFalse: [], reporting: [], explanation: 'This week\'s coverage could not be read.' }))
   ]);
 
@@ -405,7 +508,7 @@ const analyzeTrust = async ({
     const unreported = preparedClaims.filter(p => judged.some(c => c.claim === p.claim && ['no-coverage', 'unverified'].includes(c.verdict)));
     if (confirmed.length > 0 && unreported.length > 0) {
       const target = unreported[0];
-      const week = await timed('unconfirmedClaim', () => checkCurrentCoverage([target]))
+      const week = await timed('unconfirmedClaim', () => checkCurrentCoverage([target]), { unread: UNREAD.currentCoverage })
         .catch(() => null);
       unconfirmedClaimResult = { claim: target.claim, confirmedClaim: confirmed[0].claim, week };
     }
@@ -455,7 +558,9 @@ const analyzeTrust = async ({
     // So the ledger can tell "no outlet reports this" apart from "the index we
     // search does not carry anything this recent". See verdictEngine R3a.
     publishedAt,
-    domainAge: await domainAgePromise,
+    // An age the registry did not give in time is unknown, as when it does
+    // not answer at all — never "old".
+    domainAge: await beforeDeadline('domainAge', domainAgePromise, () => null),
     asOf: Date.now()
   };
   const evidenceLedger = buildEvidenceLedger(ledgerInput);
@@ -588,6 +693,8 @@ const analyzeTrust = async ({
     };
   };
 
+  const unreadReason = (result) => (result?.unread ? 'Not counted — this check could not be finished in time.' : undefined);
+
   return {
     schemaVersion: REPORT_SCHEMA_VERSION,
     overallScore,
@@ -715,6 +822,9 @@ const analyzeTrust = async ({
       }))
     },
     degradedFactors,
+    // Channels still out when the answer was due: reported as not read, never
+    // as having found nothing (see UNREAD).
+    unreadChannels,
     degradedNote: degradedFactors.length
       ? `${degradedFactors.length} of these checks ran without the language model and used word-pattern matching instead. They catch less than a full check would.`
       : null,
@@ -751,6 +861,7 @@ const analyzeTrust = async ({
         score: clickbaitResult.score,
         contribution: contributionOf('clickbait'),
         degraded: Boolean(clickbaitResult.degraded),
+        standDownReason: unreadReason(clickbaitResult),
         detail: {
           isClickbait: clickbaitResult.isClickbait,
           signals: clickbaitResult.signals
@@ -763,6 +874,7 @@ const analyzeTrust = async ({
         score: biasResult.score,
         contribution: contributionOf('bias'),
         degraded: Boolean(biasResult.degraded),
+        standDownReason: unreadReason(biasResult),
         detail: {
           biasLevel: biasResult.biasLevel,
           politicalLean: biasResult.politicalLean,
@@ -777,10 +889,10 @@ const analyzeTrust = async ({
         score: excerptOnly ? null : transparencyResult.score,
         contribution: contributionOf('transparency'),
         degraded: Boolean(transparencyResult.degraded),
-        counted: !excerptOnly,
+        counted: !excerptOnly && !transparencyResult.unread,
         standDownReason: excerptOnly
           ? 'Not checked — only the publisher’s summary was available, not the article itself.'
-          : undefined,
+          : unreadReason(transparencyResult),
         detail: {
           level: transparencyResult.level,
           checks: transparencyResult.checks,
@@ -797,6 +909,7 @@ const analyzeTrust = async ({
         score: manipulationResult.score,
         contribution: contributionOf('manipulation'),
         degraded: Boolean(manipulationResult.degraded),
+        standDownReason: unreadReason(manipulationResult),
         detail: {
           intensity: manipulationResult.intensity,
           techniques: manipulationResult.techniques,
@@ -842,4 +955,4 @@ const analyzeTrust = async ({
   };
 };
 
-module.exports = { analyzeTrust, WEIGHTS, verdictFromScore, REPORT_SCHEMA_VERSION, FACTOR_LABELS };
+module.exports = { analyzeTrust, startMessageChecks, UNREAD, WEIGHTS, verdictFromScore, REPORT_SCHEMA_VERSION, FACTOR_LABELS };

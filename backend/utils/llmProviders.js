@@ -249,6 +249,12 @@ const ollama = {
         model,
         prompt,
         stream: false,
+        // How long the model stays loaded after this request. Ollama's default
+        // is five minutes, and loading it again costs seconds: profiled on 12
+        // Oct, the first two writing checks after a pause took 8.3 s and 9.5 s
+        // against 1.4-2.8 s warm, and the check waited for them. Checks
+        // arrive minutes apart, so the model is kept for half an hour.
+        keep_alive: process.env.OLLAMA_KEEP_ALIVE || '30m',
         // Ollama's name for the same thing.
         ...(json ? { format: 'json' } : {}),
         options: {

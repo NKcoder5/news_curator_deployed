@@ -135,5 +135,6 @@ const save = (rows, stoppedBecause) => {
     console.log(`  ${cat.padEnd(28)} ${t.right}/${t.n}${t.missed ? `  (${t.missed} missed)` : ''}${t.wrong ? `  (${t.wrong} wrong)` : ''}`);
   }
   if (stoppedBecause) console.log(`Stopped: ${stoppedBecause}. Run again with --resume to continue.`);
+  await require('../services/contentCheck').recordsSettled();
   process.exit(stoppedBecause ? EXIT_RESUMABLE : 0);
 })();

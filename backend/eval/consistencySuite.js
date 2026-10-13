@@ -202,6 +202,8 @@ const cleanUp = async (rows) => {
   console.log(`\nSame call in all phrasings ${summary.identicalCalls}; all right ${summary.allPhrasingsRight}; filed together ${summary.filedTogether}; median ${summary.seconds.median} s`);
   if (withMemory) {
     if (summary.complete && !keep) await cleanUp(rows);
+    // The last check's record is written after its answer; wait for it.
+    await require('../services/contentCheck').recordsSettled();
     await mongoose.disconnect();
   }
   if (stoppedBecause) console.log(`Stopped: ${stoppedBecause}. Run again with --resume to continue.`);

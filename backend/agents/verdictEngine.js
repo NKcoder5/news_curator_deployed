@@ -331,9 +331,15 @@ const buildEvidenceLedger = ({
     // explainer, a fact-checker's "false" added to old news passed off as new
     // turned FAKE into CANNOT VERIFY, because the 2022 reports of the event
     // were counted as reporting that had overtaken the ruling.
-    supportBeyondDebunks: Math.max(0, ...perClaim.filter(c => !c.stale).map(c => analyseIndependence(
-      (claims.find(x => x.claim === c.claim)?.supportingEvidence || []).filter(e => !DEBUNK_WORDS.test(`${e.title || ''} ${e.reported || ''}`))
-    ).independentCount)),
+    // And only where it outnumbers the outlets contradicting that claim: an
+    // even split used to overtake a ruling, so adding contradicting outlets
+    // turned the ruling's FAKE into CANNOT VERIFY (eval/counterfactualFaithfulness.js).
+    supportBeyondDebunks: Math.max(0, ...perClaim.filter(c => !c.stale).map(c => {
+      const beyond = analyseIndependence(
+        (claims.find(x => x.claim === c.claim)?.supportingEvidence || []).filter(e => !DEBUNK_WORDS.test(`${e.title || ''} ${e.reported || ''}`))
+      ).independentCount;
+      return beyond > c.contradiction.independentCount ? beyond : 0;
+    })),
     // The contradicted claim's conflicting facts, as the outlets worded them.
     reportedAgainst: (perClaim.reduce(
       (most, c) => (c.independentContradiction > (most?.independentContradiction ?? 0) ? c : most), null
@@ -520,6 +526,48 @@ const decideVerdict = (ledger) => {
       `This article states: ${first.articleStates}`,
       `A reference entry on ${first.entity} says otherwise: "${first.referenceStates}"`,
       'A story built on a premise that is wrong does not become true because no one has reported it.'
+    ]);
+  }
+
+  // R2d — A claim this week's news rules out stands against the message,
+  // whatever confirms the claim beside it. R4c, below, used to be the only
+  // rule that looked at it, and only while news outlets confirmed the other
+  // claim: a fact-checker's "true" (R2c) or a reference entry (R6a) could
+  // make the message REAL first, lending the ruled-out claim the true one's
+  // credit, and fresh contradiction that evened the other claim out made the
+  // verdict milder (eval/counterfactualFaithfulness.js). Partly false while
+  // anything confirms the other claim; probably false once nothing does.
+  // An unreported claim (nothing rules it out either) keeps the message at
+  // "only partly confirmed" by the same token: a fact-checker's "true" for
+  // the other claim used to make the whole message REAL, until outlets also
+  // confirmed it and R4c took over — more evidence for, a milder verdict.
+  const u = ledger.unconfirmedClaim;
+  const otherConfirmed = Boolean(u) && (ledger.independentSupport > 0
+    || (ledger.factCheckStatus === 'confirmed' && ledger.factChecks.length > 0)
+    || (ledger.referenceCanConfirm && ledger.premiseConfirmations.length > 0));
+  if (u && u.outcome === 'unreported' && otherConfirmed) {
+    return decide('unverified', 'only-partly-confirmed', [
+      `Confirmed: ${u.confirmedClaim}`,
+      `Not reported by any outlet found: ${u.claim}`,
+      'The confirmed part does not vouch for the rest of the message.'
+    ], 'Part of this is confirmed and part is not. Share only what is confirmed.');
+  }
+  if (u && u.outcome !== 'unreported') {
+    if (otherConfirmed) {
+      return decide('mixed', 'true-claim-carrying-a-false-one', [
+        `Confirmed: ${u.confirmedClaim}`,
+        u.outcome === 'presupposedFalse'
+          ? `Not reported anywhere, and this week's news rules it out: ${u.claim}`
+          : `Not reported anywhere: ${u.claim} — though ${u.outletsRead} outlets covered ${u.subject} this week.`,
+        ...(u.evidence || []).map(h => `${h.source}: "${h.title}"`)
+      ], 'A true claim is being used to carry a false one. Do not share this message.');
+    }
+    return decide('likely-false', 'claim-ruled-out-by-current-coverage', [
+      u.outcome === 'presupposedFalse'
+        ? `This week's news rules it out: ${u.claim}`
+        : `Not reported anywhere: ${u.claim} — though ${u.outletsRead} outlets covered ${u.subject} this week.`,
+      ...(u.evidence || []).map(h => `${h.source}: "${h.title}"`),
+      'Nothing independent confirms the rest of the message either.'
     ]);
   }
 
@@ -811,6 +859,11 @@ const summarise = (verdict, ledger, rule = '') => {
       ? `Partly false: some of this is confirmed, but on “${wrong.claim.replace(/\.$/, '')}” outlets report “${wrong.reported}”.`
       : 'Partly false: some of this is confirmed by independent outlets and some is contradicted.';
   }
+  if (rule === 'claim-ruled-out-by-current-coverage') {
+    const u = ledger.unconfirmedClaim;
+    return u ? `Probably false: this week's coverage of ${u.subject} rules out “${u.claim.replace(/\.$/, '')}”, and nothing confirms the rest.`
+      : 'Probably false: this week\'s coverage rules out part of it, and nothing confirms the rest.';
+  }
   if (rule === 'confirmed-claim-on-a-false-premise') {
     const first = (ledger.premiseContradictions || [])[0];
     return first
@@ -902,6 +955,7 @@ const confidenceFor = (verdict, ledger, rule = '') => {
   if (rule === 'claims-partly-false') return cap(0.75);
   if (rule === 'true-claim-carrying-a-false-one') return cap(0.65);
   if (rule === 'confirmed-claim-on-a-false-premise') return cap(0.65);
+  if (rule === 'claim-ruled-out-by-current-coverage') return cap(0.6);
   if (rule === 'only-partly-confirmed') return cap(0.5);
   if (rule === 'old-news-presented-as-new') return cap(0.7);
   if (rule === 'confirmed-by-reference') return cap(0.7);

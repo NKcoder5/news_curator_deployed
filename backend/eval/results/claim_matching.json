@@ -1,13 +1,17 @@
 {
-  "ranAt": "2026-10-12T07:37:07.920Z",
+  "ranAt": "2026-10-13T15:36:38.090Z",
+  "suite": "claim_matching",
   "summary": {
     "pairs": 34,
     "exact": 33,
     "falseMerges": 0,
+    "variantsMerged": 0,
     "falseLinks": 0,
     "sameRecall": "10/11",
     "variantRecall": "8/8",
     "differentKeptApart": "15/15",
+    "decoysKeptApart": "0/0",
+    "ambiguous": 5,
     "modelConsulted": "off"
   },
   "rows": [
@@ -18,6 +22,7 @@
       "got": "same",
       "differences": [],
       "score": 1,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -27,6 +32,7 @@
       "got": "same",
       "differences": [],
       "score": 0.76,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -36,6 +42,7 @@
       "got": "same",
       "differences": [],
       "score": 0.8,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -45,6 +52,7 @@
       "got": "same",
       "differences": [],
       "score": 1,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -54,6 +62,7 @@
       "got": "same",
       "differences": [],
       "score": 0.87,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -63,6 +72,7 @@
       "got": "same",
       "differences": [],
       "score": 0.63,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -72,6 +82,7 @@
       "got": "same",
       "differences": [],
       "score": 0.84,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -81,6 +92,7 @@
       "got": "same",
       "differences": [],
       "score": 1,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -90,6 +102,7 @@
       "got": "same",
       "differences": [],
       "score": 0.87,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -99,6 +112,7 @@
       "got": "same",
       "differences": [],
       "score": 1,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -110,6 +124,7 @@
         "figure: 84 medal vs 85 medal"
       ],
       "score": 1,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -121,6 +136,7 @@
         "date: 2026 vs 2022"
       ],
       "score": 1,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -132,6 +148,7 @@
         "one says the opposite of the other"
       ],
       "score": 1,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -143,6 +160,7 @@
         "figure: 25 basis point vs 50 basis point"
       ],
       "score": 1,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -154,6 +172,7 @@
         "figure: 8 percent vs 20 percent"
       ],
       "score": 1,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -165,6 +184,7 @@
         "figure: 130000000000 rupee vs 13000000000 rupee"
       ],
       "score": 1,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -176,6 +196,7 @@
         "one says the opposite of the other"
       ],
       "score": 1,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -187,6 +208,7 @@
         "figure: 50 rupee vs 2 rupee"
       ],
       "score": 1,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -196,6 +218,7 @@
       "got": "different",
       "differences": [],
       "score": 0.7,
+      "ambiguous": true,
       "askedModel": false
     },
     {
@@ -205,6 +228,7 @@
       "got": "different",
       "differences": [],
       "score": 0.4,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -214,6 +238,7 @@
       "got": "different",
       "differences": [],
       "score": 0.36,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -223,6 +248,7 @@
       "got": "different",
       "differences": [],
       "score": 0.6,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -232,6 +258,7 @@
       "got": "different",
       "differences": [],
       "score": 0.6,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -241,6 +268,7 @@
       "got": "different",
       "differences": [],
       "score": 0.22,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -250,6 +278,7 @@
       "got": "different",
       "differences": [],
       "score": 0.64,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -259,6 +288,7 @@
       "got": "different",
       "differences": [],
       "score": 0.55,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -268,6 +298,7 @@
       "got": "different",
       "differences": [],
       "score": 0.21,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -277,6 +308,7 @@
       "got": "different",
       "differences": [],
       "score": 0.7,
+      "ambiguous": true,
       "askedModel": false
     },
     {
@@ -286,6 +318,7 @@
       "got": "different",
       "differences": [],
       "score": 0.6,
+      "ambiguous": true,
       "askedModel": false
     },
     {
@@ -295,6 +328,7 @@
       "got": "different",
       "differences": [],
       "score": 0.15,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -304,6 +338,7 @@
       "got": "different",
       "differences": [],
       "score": 0.64,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -313,6 +348,7 @@
       "got": "different",
       "differences": [],
       "score": 0.73,
+      "ambiguous": true,
       "askedModel": false
     },
     {
@@ -322,6 +358,7 @@
       "got": "different",
       "differences": [],
       "score": 0.6,
+      "ambiguous": false,
       "askedModel": false
     },
     {
@@ -331,6 +368,7 @@
       "got": "different",
       "differences": [],
       "score": 0.6,
+      "ambiguous": true,
       "askedModel": false
     }
   ]

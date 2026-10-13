@@ -157,7 +157,7 @@ const fileClaim = async (claimText, signature, { origin, subject }) => {
   if (!record) {
     record = new ClaimRecord({
       key: signature.key, claim: claimText,
-      signature: { entities: signature.entities, numbers: signature.numbers, years: signature.years, terms: signature.terms, negated: signature.negated },
+      signature: { entities: signature.entities, numbers: signature.numbers, years: signature.years, terms: signature.terms, negated: signature.negated, roles: signature.roles || [] },
       subjects: subject ? [subject] : [], origin, firstSeenAt: new Date(), timesSeen: 0
     });
   }
@@ -195,6 +195,13 @@ const lookupClaims = async ({ claims = [], understanding = null, trigger = 'user
     const { record, created, variants } = forRecheck
       ? { record: recheckRecord, created: false, variants: [] }
       : await fileClaim(claim, signature, { origin, subject: subjectIn(understanding, claim) });
+    // A reader asking about a claim the evaluation suites filed first makes it
+    // a real claim: public in the registry, and booked for re-checks. Left as
+    // test data, every reader's check of it was hidden.
+    if (origin === 'user' && !forRecheck && !created && record.origin === 'eval') {
+      await ClaimRecord.updateOne({ _id: record._id, origin: 'eval' }, { $set: { origin: 'user' } });
+      record.origin = 'user';
+    }
     const previous = !created && record.current?.assessmentId
       ? { call: record.current.call, oneLine: record.current.oneLine, at: record.current.at, assessmentId: record.current.assessmentId }
       : null;

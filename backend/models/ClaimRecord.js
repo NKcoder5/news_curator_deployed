@@ -22,7 +22,8 @@ const claimRecordSchema = new mongoose.Schema({
     numbers: [{ value: Number, unit: String, raw: String, _id: false }],
     years: [String],
     terms: [String],
-    negated: Boolean
+    negated: Boolean,
+    roles: [String]                // [who, to whom] for "X beat Y"; empty otherwise
   },
   subjects: [String],
   // The English sentences this claim has been read as, newest last.

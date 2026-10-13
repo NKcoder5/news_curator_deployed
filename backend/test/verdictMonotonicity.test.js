@@ -110,3 +110,20 @@ test('a confirmed claim on a contradicted premise is partly false, with or witho
   base.claims[1].contradictingEvidence = outlets(2, 'against', RECENT, 5);
   assert.strictEqual(replayVerdict(base).call, 'PARTLY FALSE');
 });
+
+// A second claim beside a confirmed one keeps the message from being REAL,
+// however the first claim is confirmed (agents/verdictEngine.js R2d).
+test('a claim this week rules out, or nobody reports, keeps a fact-checked message from being REAL', () => {
+  const ruling = { status: 'confirmed', matches: [{ publisher: 'Factly', finding: 'true', rating: 'True', claimReviewed: 'A', url: 'https://factly.test/a', via: 'claimreview' }] };
+  const input = (week, against) => ({
+    ...clone(grid[0].input),
+    claims: [{ claim: 'Narendra Modi inaugurated the Chennai airport terminal.', verdict: 'x', time: 'past', kind: 'event', supportingEvidence: outlets(1, 'for', RECENT), contradictingEvidence: outlets(against, 'against', RECENT, 5) }],
+    factCheckResult: ruling,
+    unconfirmedClaimResult: { claim: 'Free petrol for all students was announced.', confirmedClaim: 'Narendra Modi inaugurated the Chennai airport terminal.',
+      week: { status: week, subject: 'free petrol', headlinesRead: 20, outletsRead: 9, presupposingFalse: week === 'presupposed-false' ? outlets(2, 'week', RECENT, 7).slice(0, 1).concat(outlets(1, 'wk', RECENT, 3)) : [] } }
+  });
+  assert.strictEqual(replayVerdict(input('presupposed-false', 0)).call, 'PARTLY FALSE');
+  assert.strictEqual(replayVerdict(input('presupposed-false', 1)).call === 'REAL', false, 'fresh contradiction never makes it REAL');
+  assert.strictEqual(replayVerdict(input('silent', 0)).call, 'CANNOT VERIFY');
+});
+

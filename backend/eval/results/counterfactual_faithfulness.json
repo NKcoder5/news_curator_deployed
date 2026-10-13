@@ -1,5 +1,5 @@
 {
-  "ranAt": "2026-10-13T03:25:45.462Z",
+  "ranAt": "2026-10-13T15:41:49.566Z",
   "seed": 12,
   "sets": {
     "stored": {
@@ -49,8 +49,8 @@
     },
     "scenarios": {
       "ledgers": 380,
-      "statements": 4130,
-      "agree": 4130,
+      "statements": 4102,
+      "agree": 4102,
       "rate": 1,
       "byKind": {
         "verdict": {
@@ -74,12 +74,12 @@
           "agree": 435
         },
         "would change": {
-          "n": 510,
-          "agree": 510
+          "n": 496,
+          "agree": 496
         },
         "would change (smallest)": {
-          "n": 510,
-          "agree": 510
+          "n": 496,
+          "agree": 496
         },
         "would change (complete)": {
           "n": 760,
@@ -173,8 +173,8 @@
           "verdicts": "PARTLY FALSE"
         },
         "true claim carrying an invented one": {
-          "agree": 228,
-          "statements": 228,
+          "agree": 200,
+          "statements": 200,
           "verdicts": "PARTLY FALSE/CANNOT VERIFY"
         },
         "too recent to corroborate": {
@@ -191,8 +191,8 @@
     },
     "random": {
       "ledgers": 2000,
-      "statements": 27942,
-      "agree": 27942,
+      "statements": 27921,
+      "agree": 27921,
       "rate": 1,
       "byKind": {
         "verdict": {
@@ -212,16 +212,16 @@
           "agree": 2000
         },
         "rests on": {
-          "n": 5473,
-          "agree": 5473
+          "n": 5470,
+          "agree": 5470
         },
         "would change": {
-          "n": 2235,
-          "agree": 2235
+          "n": 2226,
+          "agree": 2226
         },
         "would change (smallest)": {
-          "n": 2235,
-          "agree": 2235
+          "n": 2226,
+          "agree": 2226
         },
         "would change (complete)": {
           "n": 4000,
@@ -251,77 +251,9 @@
         "name": "two more fresh outlets report otherwise",
         "direction": "against",
         "tried": 20000,
-        "broken": 12,
-        "transitions": {
-          "PARTLY FALSE (true-claim-carrying-a-false-one) -> REAL (rated-true-by-fact-checkers)": 2,
-          "CANNOT VERIFY (only-partly-confirmed) -> REAL (corroborated-by-multiple-independent-sources)": 1,
-          "PARTLY FALSE (true-claim-carrying-a-false-one) -> REAL (confirmed-by-reference)": 2,
-          "PARTLY FALSE (true-claim-carrying-a-false-one) -> CANNOT VERIFY (fact-checkers-and-reporting-disagree)": 4,
-          "PARTLY FALSE (true-claim-carrying-a-false-one) -> REAL (corroborated-by-multiple-independent-sources)": 1,
-          "PARTLY FALSE (true-claim-carrying-a-false-one) -> CANNOT VERIFY (no-independent-coverage)": 1,
-          "PARTLY FALSE (true-claim-carrying-a-false-one) -> CANNOT VERIFY (too-recent-to-corroborate)": 1
-        },
-        "examples": [
-          {
-            "key": "PARTLY FALSE (true-claim-carrying-a-false-one) -> REAL (rated-true-by-fact-checkers)",
-            "claims": [
-              {
-                "time": "now",
-                "for": 3,
-                "against": 1
-              },
-              {
-                "time": "now",
-                "for": 0,
-                "against": 0
-              },
-              {
-                "time": "now",
-                "for": 0,
-                "against": 0
-              }
-            ],
-            "factCheck": "confirmed",
-            "week": "silent",
-            "unconfirmed": true
-          },
-          {
-            "key": "CANNOT VERIFY (only-partly-confirmed) -> REAL (corroborated-by-multiple-independent-sources)",
-            "claims": [
-              {
-                "time": "now",
-                "for": 3,
-                "against": 1
-              },
-              {
-                "time": "timeless",
-                "for": 0,
-                "against": 0
-              }
-            ],
-            "factCheck": "none",
-            "week": "silent",
-            "unconfirmed": true
-          },
-          {
-            "key": "PARTLY FALSE (true-claim-carrying-a-false-one) -> REAL (confirmed-by-reference)",
-            "claims": [
-              {
-                "time": "past",
-                "for": 2,
-                "against": 0
-              },
-              {
-                "time": "timeless",
-                "for": 0,
-                "against": 0
-              }
-            ],
-            "factCheck": "none",
-            "week": "absent",
-            "unconfirmed": true
-          }
-        ]
+        "broken": 0,
+        "transitions": {},
+        "examples": []
       },
       {
         "name": "the encyclopedia contradicts it",

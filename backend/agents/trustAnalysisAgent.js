@@ -504,7 +504,19 @@ const analyzeTrust = async ({
   let unconfirmedClaimResult = null;
   if (Array.isArray(preparedClaims) && preparedClaims.length > 1) {
     const judged = verificationResult.claims || [];
-    const confirmed = judged.filter(c => c.verdict === 'supported');
+    // Any outlet reporting the other claim is enough, even if others dispute
+    // it, and so is a fact-checker's "true": the unreported claim is read
+    // either way. Read only beside a confirmed claim, a ruled-out claim was
+    // forgotten once fresh contradiction evened the confirmed one out, and the
+    // message could come out milder for the extra evidence against it
+    // (eval/counterfactualFaithfulness.js).
+    const confirmed = [
+      ...judged.filter(c => c.verdict === 'supported'),
+      ...judged.filter(c => c.verdict !== 'supported' && (c.supportingEvidence || []).length > 0)
+    ];
+    if (!confirmed.length && factCheckResult?.status === 'confirmed') {
+      confirmed.push(...judged.filter(c => !['no-coverage', 'unverified'].includes(c.verdict)).slice(0, 1));
+    }
     const unreported = preparedClaims.filter(p => judged.some(c => c.claim === p.claim && ['no-coverage', 'unverified'].includes(c.verdict)));
     if (confirmed.length > 0 && unreported.length > 0) {
       const target = unreported[0];

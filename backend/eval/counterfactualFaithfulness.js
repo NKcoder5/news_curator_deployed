@@ -290,7 +290,10 @@ function realistic(l) {
   if (!u) return l;
   const confirmed = l.claims.find(c => c.claim === u.confirmedClaim);
   const unreported = l.claims.find(c => c.claim === u.claim && c !== confirmed);
-  const ok = confirmed && unreported && confirmed.supportingEvidence.length > confirmed.contradictingEvidence.length
+  // The pipeline reads the unreported claim whenever any outlet reports the
+  // other one, disputed or not, or a fact-checker rated it true.
+  const ok = confirmed && unreported
+    && (confirmed.supportingEvidence.length > 0 || l.factCheckResult?.status === 'confirmed')
     && !unreported.supportingEvidence.length && !unreported.contradictingEvidence.length;
   if (!ok) l.unconfirmedClaimResult = null;
   return l;

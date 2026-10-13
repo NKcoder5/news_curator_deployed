@@ -1,0 +1,62 @@
+# Pure Press on one machine: database, API and web app.
+#
+#   cp backend/.env.example backend/.env      # then fill it in
+#   docker compose up --build
+#   open http://localhost:8080
+#
+# Compose reads a root-level .env for the ${...} values below (ports, API address);
+# the API's own settings come from backend/.env. See docs/engineering/configuration.md.
+name: pure-press
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    # Not published to the host: only the API needs it. Add
+    # "27017:27017" under ports to inspect it with a desktop client.
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      # This stack has its own database. MONGO_URI in backend/.env usually points
+      # at the Atlas cluster or a local Mongo; carrying that into a throwaway
+      # container would write test claims and accounts into it.
+      MONGO_URI: mongodb://mongo:27017/news_curator
+      PORT: "5000"
+      # The browser calls the API from the web app's address, which must be allowed.
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+    ports:
+      - "${BACKEND_PORT:-5000}:5000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    # Its health check (GET /health) is defined in backend/Dockerfile.
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Empty by default; see frontend/.env.example before setting it.
+        REACT_APP_API_URL: ${REACT_APP_API_URL:-}
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    # Its health check (GET /healthz) is defined in frontend/Dockerfile.
+
+volumes:
+  mongo-data:

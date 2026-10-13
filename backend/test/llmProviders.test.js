@@ -85,6 +85,7 @@ test('it sends the shape Ollama expects and returns the reply', async () => {
     assert.strictEqual(call.body.stream, false, 'the gateway reads one whole reply, not a stream');
     assert.strictEqual(call.body.options.num_predict, 500, 'Ollama calls the reply budget num_predict');
     assert.strictEqual(call.body.options.temperature, 0.2);
+    assert.strictEqual(call.body.keep_alive, '30m', 'the model stays loaded between checks minutes apart');
     assert.ok(call.config.timeout >= 120000,
       'a local model is slower per token than a hosted one; the caller timeout must not cancel it early');
   } finally {

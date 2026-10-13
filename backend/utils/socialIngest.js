@@ -22,6 +22,7 @@
 // the caption or upload a screenshot, and the screenshot path is implemented.
 const axios = require('axios');
 const { assertPublicUrl, FETCH_TIMEOUT } = require('./articleExtractor');
+const { safeGet } = require('./safeFetch');
 const { getSourceReputation, claimedOutlet } = require('../agents/sourceReputationAgent');
 
 const PLATFORMS = [
@@ -97,7 +98,9 @@ const fetchYoutubeTranscript = async (videoId) => {
   const track = chooseCaptionTrack(tracks);
   if (!track?.baseUrl) return null;
 
-  const { data: raw } = await axios.get(track.baseUrl, { timeout: FETCH_TIMEOUT });
+  // The caption address comes from YouTube's reply, not from us, so it is
+  // fetched through the same address guard as a reader's link.
+  const { data: raw } = await safeGet(track.baseUrl, { timeout: FETCH_TIMEOUT, maxBytes: 5 * 1024 * 1024 });
   const xml = typeof raw === 'string' ? raw : JSON.stringify(raw);
 
   // Two caption formats are served depending on the endpoint: <text> elements
@@ -193,11 +196,14 @@ const chooseCaptionTrack = (tracks) => {
 
 /** Open Graph tags, which most platforms still serve to unauthenticated clients. */
 const fetchOpenGraph = async (rawUrl) => {
-  const { data: html } = await axios.get(rawUrl, {
+  // A post link redirects (t.me, fb.watch) and every hop is a reader's
+  // address, so it goes through the address guard (utils/safeFetch.js).
+  const { data } = await safeGet(rawUrl, {
     timeout: FETCH_TIMEOUT,
-    maxContentLength: 2 * 1024 * 1024,
+    maxBytes: 2 * 1024 * 1024,
     headers: { 'User-Agent': 'Mozilla/5.0 (compatible; TrustAnalysis/1.0)' }
   });
+  const html = String(data || '');
   const meta = (property) => {
     const pattern = new RegExp(`<meta[^>]+(?:property|name)=["']${property}["'][^>]*content=["']([^"']*)["']`, 'i');
     const reversed = new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]*(?:property|name)=["']${property}["']`, 'i');

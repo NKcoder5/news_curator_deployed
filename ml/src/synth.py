@@ -12,6 +12,10 @@ The set targets the failure modes measured in this project:
   reversed_roles    "X beat Y" vs "Y beat X", acquirer/target, appointer/appointee
   debunk            "Video of X dancing is AI-generated" vs "A video shows X dancing"
   same_entity       same person or organisation, a different event -> neutral
+  sibling_event     same subject and verb, a different named event or place (the Dharapuram bypoll vs the
+                    Madurantakam bypoll, the Olympics vs the Chess Olympiad) -> neutral
+  swapped_actor     one seat, one winner: another party named as the winner -> contradiction (TVK vs DMK)
+  number_format     5.5% = 5.50 per cent, Rs 2,000 = 2000 rupees, Rs 5 lakh = Rs 5,00,000; other figures contradict
   paraphrase        passive voice, synonyms, number words, units, abbreviations -> entailment
   unsupported       the claim adds a detail the premise does not give -> neutral
   encyclopedic      reference-entry sentences that confirm, do not address, or conflict
@@ -240,7 +244,7 @@ def fill(templates, n, nw=None):
 
 def g_figure(c):
     o, r = Out("figure"), c.rng
-    which = r.choice(["medals", "toll", "wickets", "age", "rate", "money", "runs", "seats", "percent", "families"])
+    which = r.choice(["medals", "toll", "wickets", "age", "rate", "money", "projects", "runs", "seats", "percent", "families"])
     if which == "medals":
         team, ev, yr = c.pick("teams", TEAMS), c.pick("events", EVENTS), r.randint(2018, 2028)
         n = r.randint(8, 150)
@@ -248,6 +252,10 @@ def g_figure(c):
         prem = [f"{team} finished the {yr} {ev} with {{N}} medals", f"{team} bag {{N}} medals at {ev} {yr}",
                 f"A haul of {{N}} medals for {team} at the {yr} {ev}", f"{ev} {yr}: {team} end campaign with {{N}} medals"]
         m = c.other_num(n)
+        if r.random() < .4:  # the same tally for another edition of the games is a different claim
+            other_year = c.other_year(yr)
+            o.add(dress(r.choice(fill(prem, n)).replace(str(yr), str(other_year)), r), claim, CON, "medals-year")
+            o.add(dress(r.choice(fill(prem, n)), r), claim, ENT, "medals-year")
     elif which == "toll":
         inc, pl = c.pick("inc", INCIDENTS), c.pick("places", PLACES)
         n = r.randint(3, 120)
@@ -290,6 +298,17 @@ def g_figure(c):
         for _ in range(2):
             o.add(dress(r.choice(prem).replace("{M}", r.choice(forms)), r), claim, ENT, "money")
             o.add(dress(r.choice(prem).replace("{M}", r.choice(o_forms)), r), claim, CON, "money")
+        return o.rows
+    elif which == "projects":
+        (p, g), pl = c.person(), c.pick("places", PLACES)
+        x = r.choice([250, 500, 1300, 2400, 5400, 7500, 13000, 25000, 36000, 4700])
+        claim = f"{p} launched projects worth Rs {x:,} crore in {pl}."
+        forms = [f"Rs {x:,} crore", f"Rs {x} crore", f"₹{x:,} crore", f"Rs. {x:,} crore"]
+        shifted = r.choice([x * 10, max(10, x // 10), x + 100 * r.randint(1, 9), int(str(x)[::-1]) if str(x)[::-1] != str(x) else x * 2])
+        prem = [f"{p} launches projects worth {{M}} in {pl}", f"{{M}} projects for {pl}: {p} lays foundation", f"{p} inaugurates, lays foundation for works worth {{M}} in {pl}"]
+        for _ in range(2):
+            o.add(dress(r.choice(prem).replace("{M}", r.choice(forms)), r), claim, ENT, "projects")
+            o.add(dress(r.choice(prem).replace("{M}", f"Rs {shifted:,} crore"), r), claim, CON, "projects")
         return o.rows
     elif which == "runs":
         p, g = c.person()
@@ -555,7 +574,7 @@ def g_debunk(c):
 
 
 # ---------------------------------------------------------------- same entity unrelated
-def g_same_entity(c):
+def g_themes_unrelated(c):
     o, r = Out("same_entity"), c.rng
     if r.random() < .75:
         (p, g) = c.person()
@@ -593,7 +612,7 @@ def g_same_entity(c):
 # ---------------------------------------------------------------- paraphrase
 def g_paraphrase(c):
     o, r = Out("paraphrase"), c.rng
-    which = r.choice(["launch", "died", "won", "ban", "resign", "arrest", "bill", "appoint", "abbr", "sched"])
+    which = r.choice(["launch", "died", "won", "ban", "resign", "arrest", "bill", "appoint", "abbr", "sched", "ordinal"])
     if which == "launch":
         ag, (p, g) = c.pick("agencies", AGENCIES), c.person()
         sch = c.pick("schemes", SCHEMES)
@@ -635,6 +654,13 @@ def g_paraphrase(c):
                  (f"The Prime Minister inaugurated the new airport in {r.choice(PLACES)}.", None),
                  (f"The Supreme Court stayed the order of the High Court.", ["SC stays HC order", "Supreme Court puts High Court order on hold"])]
         claim, prem = r.choice([x for x in pairs if x[1]])
+    elif which == "ordinal":
+        (A, B), n, k, city = c.distinct("teams", TEAMS, 2), r.randint(1, 9), r.randint(1, 5), c.pick("places", PLACES)
+        ordinals = {1: ("first", "1st"), 2: ("second", "2nd"), 3: ("third", "3rd"), 4: ("fourth", "4th"), 5: ("fifth", "5th")}
+        fmt = r.choice(["T20I", "ODI", "Test"])
+        claim = f"{A} beat {B} by {words(n)} wickets in the {ordinals[k][0]} {fmt} in {city}."
+        prem = [f"{A} defeated {B} by {n} wickets in the {ordinals[k][1]} {fmt} at {city}", f"{B} lost to {A} by {n} wickets in the {ordinals[k][1]} {fmt} in {city}",
+                f"{A} win {ordinals[k][1]} {fmt} at {city} by {words(n)} wickets, beating {B}"]
     else:
         x, unit = r.randint(2, 90), r.choice(["crore", "lakh"])
         forms = money_forms(x, unit)
@@ -643,6 +669,9 @@ def g_paraphrase(c):
         prem = [f"{st} announces {f} compensation for each family" for f in forms[1:]]
     for _ in range(2):
         o.add(dress(r.choice(prem), r), claim, ENT, which)
+    if which == "ordinal":
+        m = r.choice([x for x in range(1, 10) if x != n])
+        o.add(dress(r.choice(prem).replace(f" {n} wickets", f" {m} wickets").replace(words(n) + " wickets", words(m) + " wickets"), r), claim, CON, "ordinal-figure")
     return o.rows
 
 
@@ -833,15 +862,178 @@ def g_multilingual(c):
     return o.rows
 
 
+# ---------------------------------------------------------------- sibling events, swapped actors, number formats
+BYPOLL_KINDS = ["bypoll", "by-election", "assembly seat"]
+
+
+def g_sibling(c):
+    """Same subject and verb, a different named event, place or object: two claims, neither supports the other."""
+    o, r = Out("sibling_event"), c.rng
+    which = r.choice(["bypoll", "match", "tournament", "scheme", "court", "company", "inaugurate", "visit"])
+    if which == "bypoll":
+        pa, (p1, p2), kind = c.pick("parties", PARTIES), c.distinct("places", PLACES, 2), r.choice(BYPOLL_KINDS)
+        claim = f"{pa} won the {p1} {kind}."
+        prem = r.choice([f"{pa} won the {p2} {kind}", f"{pa} wins {p2} {kind}", f"{p2} {kind}: {pa} victorious"])
+    elif which == "match":
+        (A, B), (m1, m2) = c.distinct("teams", TEAMS, 2), c.distinct("matches", MATCHES, 2)
+        claim = f"{A} beat {B} in the {m1}."
+        prem = r.choice([f"{A} beat {B} in the {m2}", f"{A} defeat {B} in the {m2}", f"{B} lose to {A} in the {m2}"])
+    elif which == "tournament":
+        A, (t1, t2), y = c.pick("teams", TEAMS), c.distinct("tourneys", TOURNEYS, 2), r.randint(1990, 2028)
+        claim = f"{A} won the {t1} in {y}."
+        prem = r.choice([f"{A} won the {t2} in {y}", f"{A} lift the {t2} in {y}", f"{y}: {A} crowned {t2} champions"])
+    elif which == "scheme":
+        st, (s1, s2) = c.pick("states", STATES), c.distinct("schemes", SCHEMES, 2)
+        claim = f"{st} launched the {s1}."
+        prem = r.choice([f"{st} launches {s2}", f"{st} unveils the {s2}", f"{st} rolls out {s2}"])
+    elif which == "court":
+        court, (p, _), st = c.pick("courts", COURTS), c.person(), c.pick("states", STATES)
+        claim = f"The {court} reserved orders on {p}'s petition."
+        prem = r.choice([f"{court} extends stay on by-elections in five {st} seats", f"{court} dismisses a plea on {st} school fees",
+                         f"{court} seeks the state's reply on a petition about {st} toll plazas"])
+    elif which == "inaugurate":
+        (p, _), (p1, p2), thing = c.person(), c.distinct("places", PLACES, 2), r.choice(["bridge", "hospital", "metro station", "flyover", "school", "bus terminus"])
+        claim = f"{p} inaugurated a {thing} in {p1}."
+        prem = r.choice([f"{p} inaugurates {thing} in {p2}", f"{p} opens a new {thing} in {p2}"])
+    elif which == "company":
+        (c1, c2), n, what = c.distinct("companies", COMPANIES, 2), r.randint(2, 40), r.choice(["profit", "revenue", "sales"])
+        claim = f"{c1} reported a {n} per cent rise in quarterly {what}."
+        prem = r.choice([f"{c2} reports {n}% rise in quarterly {what}", f"{c2} Q2 {what} up {n} per cent", f"{c2}'s {what} jumps {n}%"])
+    else:
+        (p, _), (p1, p2) = c.person(), c.distinct("places", PLACES, 2)
+        claim = f"{p} visited {p1}."
+        prem = r.choice([f"{p} visits {p2}", f"{p} arrives in {p2}", f"{p} to visit {p2} next week"])
+    o.add(dress(prem, r), claim, NEU, which)
+    return o.rows
+
+
+def g_swapped(c):
+    """One seat, one winner: a headline naming somebody else as the winner contradicts the claim; naming the same one supports it."""
+    o, r = Out("swapped_actor"), c.rng
+    which = r.choice(["bypoll", "title", "appoint", "award", "match"])
+    if which == "bypoll":
+        (A, B), pl, kind = c.distinct("parties", PARTIES, 2), c.pick("places", PLACES), r.choice(BYPOLL_KINDS)
+        claim = f"{A} won the {pl} {kind}."
+        same = [f"{A} wins {pl} {kind}", f"{pl} {kind}: {A} victorious", f"{A} bags the {pl} {kind}"]
+        other = [f"{B} wins {pl} {kind}", f"{pl} {kind}: {B} victorious", f"{B} bags the {pl} {kind}", f"{B} won the {pl} {kind}"]
+    elif which == "title":
+        (A, B), tn, y = c.distinct("teams", TEAMS, 2), c.pick("tourneys", TOURNEYS), r.randint(1990, 2028)
+        claim = f"{A} won the {tn} in {y}."
+        same = [f"{A} lift the {tn} in {y}", f"{y} {tn}: {A} crowned champions", f"{A} clinch the {y} {tn}"]
+        other = [f"{B} lift the {tn} in {y}", f"{y} {tn}: {B} crowned champions", f"{B} clinch the {y} {tn}", f"{B} won the {tn} in {y}"]
+    elif which == "appoint":
+        (A, _), (B, _), off, st = c.person(), c.person(), r.choice(OFFICES), c.pick("states", STATES)
+        if A == B:
+            return []
+        claim = f"{A} was appointed {off} of {st}."
+        same = [f"{A} named {off} of {st}", f"{A} takes charge as {off} of {st}", f"{st} gets {A} as {off}"]
+        other = [f"{B} named {off} of {st}", f"{B} takes charge as {off} of {st}", f"{st} gets {B} as {off}", f"{B} was appointed {off} of {st}"]
+    elif which == "award":
+        (A, _), (B, _), aw, y = c.person(), c.person(), r.choice(AWARDS), r.randint(1975, 2026)
+        if A == B:
+            return []
+        claim = f"{A} won the {aw} in {y}."
+        same = [f"{A} receives the {aw} for {y}", f"{y} {aw} goes to {A}", f"{A} named {aw} winner for {y}"]
+        other = [f"{B} receives the {aw} for {y}", f"{y} {aw} goes to {B}", f"{B} named {aw} winner for {y}", f"{B} won the {aw} in {y}"]
+    else:
+        (A, B), m = c.distinct("teams", TEAMS, 2), c.pick("matches", MATCHES)
+        claim = f"{A} won the {m}."
+        same = [f"{A} win the {m}", f"{A} clinch the {m}", f"{B} lose the {m}"]
+        other = [f"{B} win the {m}", f"{B} clinch the {m}", f"{A} lose the {m}"]
+    for _ in range(2):
+        o.add(dress(r.choice(same), r), claim, ENT, which)
+        o.add(dress(r.choice(other), r), claim, CON, which)
+    return o.rows
+
+
+def indian_group(n):
+    s = str(n)
+    if len(s) <= 3:
+        return s
+    head, tail = s[:-3], s[-3:]
+    parts = []
+    while len(head) > 2:
+        parts.insert(0, head[-2:])
+        head = head[:-2]
+    return ",".join(([head] if head else []) + parts + [tail])
+
+
+def g_numfmt(c):
+    """The same figure written differently is the same figure; a different figure is not."""
+    o, r = Out("number_format"), c.rng
+    which = r.choice(["percent", "rupees", "lakh", "count"])
+    if which == "percent":
+        vals = [x / 4 for x in range(14, 33)]
+        v = r.choice(vals)
+        w = r.choice([x for x in vals if x != v])
+        form = lambda x: r.choice([f"{x:g}%", f"{x:.2f}%", f"{x:g} per cent", f"{x:g} percent", f"{x:.1f} per cent" if x * 10 == int(x * 10) else f"{x:g}%"])  # noqa: E731
+        claim = f"The repo rate was raised to {form(v)}."
+        tmpl = ["RBI lifts repo rate to {X}", "Repo rate now {X} after RBI hike", "RBI raises the repo rate to {X}, says governor"]
+    elif which == "rupees":
+        vals = [50, 100, 200, 500, 1000, 2000, 2500, 5000, 10000, 25000, 50000, 100000]
+        v = r.choice(vals)
+        w = r.choice([x for x in vals if x != v])
+        form = lambda x: r.choice([f"Rs {x:,}", f"Rs {x}", f"₹{x:,}", f"INR {x:,}", f"{x:,} rupees", f"Rs. {x:,}"])  # noqa: E731
+        what = r.choice(["fine for the offence", "assistance to each family", "monthly pension", "entry fee"])
+        claim = f"The {what} is {form(v)}."
+        tmpl = ["The " + what + " has been set at {X}", "New " + what + ": {X}", "{X} as " + what + ", says government"]
+    elif which == "lakh":
+        vals = [1, 2, 3, 5, 8, 10, 12, 15, 20, 25, 50]
+        v = r.choice(vals)
+        w = r.choice([x for x in vals if x != v])
+        form = lambda x: r.choice([f"Rs {x} lakh", f"Rs {indian_group(x * 100000)}", f"Rs {x * 100000:,}", f"{x * 100000:,} rupees", f"₹{x} lakh", f"{x * 100000 // 1000} thousand rupees" if x < 10 else f"Rs {x} lakh"])  # noqa: E731
+        claim = f"Each family will receive {form(v)} as compensation."
+        tmpl = ["Compensation of {X} for each family", "Each affected family to get {X}", "{X} relief announced for every family"]
+    else:
+        vals = list(range(2, 20))
+        v = r.choice(vals)
+        w = r.choice([x for x in vals if x != v])
+        form = lambda x: r.choice([str(x), words(x)])  # noqa: E731
+        noun = r.choice(["people", "students", "workers", "passengers"])
+        claim = f"{v} {noun} were injured in the accident."
+        tmpl = ["{X} " + noun + " hurt in the accident", "Accident leaves {X} " + noun + " injured", "{X} " + noun + " were injured, police said"]
+    for _ in range(2):
+        o.add(dress(r.choice(tmpl).replace("{X}", form(v)), r), claim, ENT, which)
+        o.add(dress(r.choice(tmpl).replace("{X}", form(w)), r), claim, CON, which)
+    return o.rows
+
+
+# ---------------------------------------------------------------- same person, different attribute or event
+ATTRIBUTES = [  # claims about one person that do not bear on each other
+    "was born in {pl}", "died in {pl2}", "starred in a hit film", "studied at a college in {pl}", "founded a charity in {pl}",
+    "won the {aw} in {y}", "retired from public life", "wrote a memoir", "was appointed chairman of a state board",
+    "resigned as {off}", "was elected to the assembly", "was summoned by a court", "launched a foundation in {pl}"]
+
+
+SEQUENCES = [("resigned as {off}", "was appointed {off}"), ("was elected {off}", "resigned as {off}"),
+             ("was appointed {off}", "was removed as {off}"), ("took charge as {off}", "resigned as {off}")]
+
+
+def g_bio_unrelated(c):
+    o, r = Out("same_entity"), c.rng
+    (p, _) = c.person()
+    a, b = r.choice(SEQUENCES) if r.random() < .25 else r.sample(ATTRIBUTES, 2)
+    pl, pl2 = c.distinct("places", PLACES, 2)
+    slots = {"pl": pl, "pl2": pl2, "aw": r.choice(AWARDS), "y": r.randint(1975, 2026), "off": r.choice(OFFICES)}
+    o.add(dress(f"{p} {b.format(**slots)}", r), f"{p} {a.format(**slots)}.", NEU, "bio")
+    return o.rows
+
+
+def g_same_entity(c):
+    return g_themes_unrelated(c) if c.rng.random() < .5 else g_bio_unrelated(c)
+
+
 GENS = [  # (name, function, weight)
-    ("figure", g_figure, 11), ("date", g_date, 8), ("reversed_outcome", g_outcome, 10), ("reversed_roles", g_roles, 8),
-    ("debunk", g_debunk, 8), ("same_entity", g_same_entity, 16), ("paraphrase", g_paraphrase, 9),
-    ("unsupported", g_unsupported, 12), ("encyclopedic", g_encyclopedic, 14), ("multilingual", g_multilingual, 8),
+    ("figure", g_figure, 10), ("date", g_date, 7), ("reversed_outcome", g_outcome, 9), ("reversed_roles", g_roles, 7),
+    ("debunk", g_debunk, 7), ("same_entity", g_same_entity, 14), ("paraphrase", g_paraphrase, 8),
+    ("unsupported", g_unsupported, 10), ("encyclopedic", g_encyclopedic, 12), ("multilingual", g_multilingual, 7),
+    ("sibling_event", g_sibling, 14), ("swapped_actor", g_swapped, 9), ("number_format", g_numfmt, 6),
 ]
 
 # Frames held out of training entirely: a test over sentence shapes the model never saw.
 HELDOUT_SUBS = {"figure": {"runs", "seats"}, "reversed_roles": {"sue", "election"}, "reversed_outcome": {"scheme", "bail"},
-                "date": {"year-title"}, "encyclopedic": {"office", "award"}, "paraphrase": {"bill", "appoint"}}
+                "date": {"year-title"}, "encyclopedic": {"office", "award"}, "paraphrase": {"bill", "appoint"},
+                "sibling_event": {"court", "company"}, "swapped_actor": {"award"}, "number_format": {"count"}}
 
 
 def is_heldout(row):
@@ -878,7 +1070,7 @@ def build(split, n, seed):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
-    ap.add_argument("--train", type=int, default=80000)
+    ap.add_argument("--train", type=int, default=90000)
     ap.add_argument("--dev", type=int, default=2000)
     ap.add_argument("--test-seen", type=int, default=4000)
     ap.add_argument("--test-unseen", type=int, default=2500)

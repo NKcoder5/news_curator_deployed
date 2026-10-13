@@ -104,6 +104,13 @@ def claim_pairs():
     return rows
 
 
+# ---- hand-written pairs for the final check (ml/eval/blind_pairs.json), evaluation only
+def blind_pairs():
+    blind = json.load(open(Path(__file__).resolve().parents[1] / "eval" / "blind_pairs.json", encoding="utf-8"))
+    return [{"premise": p["premise"], "hypothesis": p["hypothesis"], "label": blind["labels"][p["label"]], "src": "blind",
+             "lang": "en", "cat": p["cat"]} for p in blind["pairs"]]
+
+
 train, dev = [], []
 
 # synthetic
@@ -125,14 +132,14 @@ write("eval_fever", fever_dev[300:])
 
 # MultiNLI replay
 mnli = pd.read_parquet(RAW / "multi_nli/data/train-00000-of-00001.parquet")
-train += pairs(balanced(mnli, 12000), "mnli", "en")
+train += pairs(balanced(mnli, 18000), "mnli", "en")
 write("eval_mnli", pairs(balanced(pd.read_parquet(RAW / "multi_nli/data/validation_matched-00000-of-00001.parquet"), 2400), "mnli", "en"))
 
 # XNLI Hindi and IndicXNLI Hindi / Tamil
-train += pairs(balanced(pd.read_parquet(RAW / "xnli_hi/hi/train-00000-of-00001.parquet"), 8000), "xnli_hi", "hi")
+train += pairs(balanced(pd.read_parquet(RAW / "xnli_hi/hi/train-00000-of-00001.parquet"), 10000), "xnli_hi", "hi")
 dev += pairs(balanced(pd.read_parquet(RAW / "xnli_hi/hi/validation-00000-of-00001.parquet"), 300), "xnli_hi", "hi")
 write("eval_xnli_hi", pairs(pd.read_parquet(RAW / "xnli_hi/hi/test-00000-of-00001.parquet"), "xnli_hi", "hi"))
-for lang, n in (("ta", 14000), ("hi", 6000)):
+for lang, n in (("ta", 16000), ("hi", 8000)):
     train += pairs(balanced(indic(lang, "train"), n), f"indic_{lang}", lang)
     dev += pairs(balanced(indic(lang, "dev"), 300), f"indic_{lang}", lang)
 write("eval_indic_ta", pairs(indic("ta", "test"), "indic_ta", "ta"))
@@ -149,6 +156,7 @@ write("eval_fnc1", fnc("competition_test_stances.csv", "competition_test_bodies.
                        {"agree": 1903, "disagree": 697, "discuss": 2500, "unrelated": 2500}))
 
 write("eval_claims", claim_pairs())
+write("eval_blind", blind_pairs())
 
 rng.shuffle(train)
 rng.shuffle(dev)

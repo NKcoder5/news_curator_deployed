@@ -1,0 +1,2534 @@
+{
+  "summary": {
+    "ranAt": "2026-10-13T16:28:47.610Z",
+    "suite": "heldout_v2",
+    "complete": true,
+    "stoppedBecause": null,
+    "checksThisRun": 51,
+    "cases": 51,
+    "overall": {
+      "n": 51,
+      "right": 20,
+      "safe": 7,
+      "missed": 21,
+      "wrong": 3
+    },
+    "byCategory": {
+      "true current event": {
+        "n": 9,
+        "right": 4,
+        "safe": 0,
+        "missed": 4,
+        "wrong": 1
+      },
+      "changed figure": {
+        "n": 3,
+        "right": 2,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 0
+      },
+      "reversed outcome": {
+        "n": 3,
+        "right": 1,
+        "safe": 0,
+        "missed": 2,
+        "wrong": 0
+      },
+      "changed detail": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "changed date": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "old news as today": {
+        "n": 7,
+        "right": 1,
+        "safe": 0,
+        "missed": 6,
+        "wrong": 0
+      },
+      "invented event": {
+        "n": 4,
+        "right": 0,
+        "safe": 4,
+        "missed": 0,
+        "wrong": 0
+      },
+      "viral rumour (fact-checked)": {
+        "n": 5,
+        "right": 2,
+        "safe": 0,
+        "missed": 3,
+        "wrong": 0
+      },
+      "evergreen myth (fact-checked)": {
+        "n": 2,
+        "right": 1,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 0
+      },
+      "Tamil": {
+        "n": 2,
+        "right": 1,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 0
+      },
+      "Hindi": {
+        "n": 2,
+        "right": 1,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 0
+      },
+      "Tanglish": {
+        "n": 2,
+        "right": 1,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 0
+      },
+      "question": {
+        "n": 2,
+        "right": 1,
+        "safe": 1,
+        "missed": 0,
+        "wrong": 0
+      },
+      "sarcasm": {
+        "n": 2,
+        "right": 0,
+        "safe": 1,
+        "missed": 0,
+        "wrong": 1
+      },
+      "opinion": {
+        "n": 3,
+        "right": 3,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "two claims": {
+        "n": 3,
+        "right": 0,
+        "safe": 1,
+        "missed": 1,
+        "wrong": 1
+      }
+    },
+    "medianSeconds": 28.788
+  },
+  "rows": [
+    {
+      "id": "v2-1",
+      "category": "true current event",
+      "language": "en",
+      "input": "Veteran actor Nana Patekar died in Goa at the age of 75",
+      "expected": "REAL",
+      "sources": [
+        "https://www.aljazeera.com/news/2026/10/8/acclaimed-indian-actor-nana-patekar-dies-aged-75",
+        "https://gulfnews.com/entertainment/nana-patekar-dies-at-75-in-goa-1.500702513"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "alarmist"
+        ],
+        "english": "Veteran actor Nana Patekar died in Goa at the age of 75",
+        "claims": [
+          {
+            "claim": "Nana Patekar died in Goa at the age of 75.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 31.471,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 2,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-2",
+      "category": "true current event",
+      "language": "en",
+      "input": "South African jurist Navi Pillay has won the 2026 Nobel Peace Prize",
+      "expected": "REAL",
+      "sources": [
+        "https://www.aljazeera.com/news/2026/10/9/2026-nobel-peace-prize-awarded-to-navi-pillay",
+        "https://www.khaleejtimes.com/world/navanethem-navi-pillay-wins-nobel-peace-prize-2026"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "South African jurist Navi Pillay has won the 2026 Nobel Peace Prize",
+        "claims": [
+          {
+            "claim": "Navi Pillay won the 2026 Nobel Peace Prize.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 25.782,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 3
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-3",
+      "category": "true current event",
+      "language": "en",
+      "input": "Francis Halzen won the 2026 Nobel Prize in Physics for his work on the IceCube neutrino observatory",
+      "expected": "REAL",
+      "sources": [
+        "https://nobelprize.org/prizes/physics/2026/summary",
+        "https://www.freepressjournal.in/world/nobel-prize-in-physics-2026-awarded-to-francis-halzen-for-high-energy-neutrino-discoveries"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Confirmed by 12 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Francis Halzen won the 2026 Nobel Prize in Physics for his work on the IceCube neutrino observatory",
+        "claims": [
+          {
+            "claim": "Francis Halzen won the 2026 Nobel Prize in Physics for his work on the IceCube neutrino observatory.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 21.962,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 3
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-4",
+      "category": "true current event",
+      "language": "en",
+      "input": "Shreyas Iyer hit his maiden T20I century as India beat West Indies by eight wickets in Lucknow",
+      "expected": "REAL",
+      "sources": [
+        "https://www.onmanorama.com/sports/cricket/2026/10/06/india-beat-west-indies-by-8-wickets-in-first-t20i-iyer-hits-maiden-ton.html",
+        "https://www.icc-cricket.com/news/iyer-s-blazing-century-sets-up-india-victory"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "CANNOT VERIFY",
+      "rule": "only-partly-confirmed",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "Only partly confirmed: “Shreyas Iyer hit his maiden T20I century in a match against West Indies in Lucknow” is reported, but nothing supports “India beat West Indies by eight wickets in a T20I match in Lucknow”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Shreyas Iyer hit his maiden T20I century as India beat West Indies by eight wickets in Lucknow",
+        "claims": [
+          {
+            "claim": "Shreyas Iyer hit his maiden T20I century in a match against West Indies in Lucknow.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          },
+          {
+            "claim": "India beat West Indies by eight wickets in a T20I match in Lucknow.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 23.242,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 4
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-5",
+      "category": "true current event",
+      "language": "en",
+      "input": "West Indies beat India by six wickets in the second T20I in Ranchi",
+      "expected": "REAL",
+      "sources": [
+        "https://morungexpress.com/2nd-t20i-hope-rutherford-power-west-indies-to-record-chase-against-india-in-ranchi",
+        "https://www.mykhel.com/cricket/ind-vs-wi-sack-gambhir-bring-back-sky-fans-react-as-west-indies-stun-india-to-chase-250-in-ranchi-455977.html"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Confirmed by 7 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "West Indies beat India by six wickets in the second T20I in Ranchi",
+        "claims": [
+          {
+            "claim": "West Indies beat India by six wickets in the second T20I in Ranchi.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 21.046,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 3,
+          "nim": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-6",
+      "category": "true current event",
+      "language": "en",
+      "input": "The Union Cabinet passed a resolution congratulating PM Modi on completing 25 years as head of government",
+      "expected": "REAL",
+      "sources": [
+        "https://newsonair.gov.in/pm-modi-completes-25-years-as-head-of-a-govt-union-cabinet-passes-resolution-to-commemorate-this-achievement/",
+        "https://openthemagazine.com/india/union-cabinet-passes-resolution-hailing-modis-25-years-as-head-of-government"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "FAKE",
+      "rule": "premise-contradicted-by-reference",
+      "confidence": 0.55,
+      "kind": null,
+      "detail": "The encyclopedia entry “Narendra Modi” says otherwise: “Narendra Damodardas Modi (born 17 September 1950) is an Indian politician and statesman who has served as the prime minister of India sin…”",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The Union Cabinet passed a resolution congratulating PM Modi on completing 25 years as head of government",
+        "claims": [
+          {
+            "claim": "The Union Cabinet passed a resolution congratulating Narendra Modi on completing 25 years as head of government.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 28.788,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    },
+    {
+      "id": "v2-7",
+      "category": "true current event",
+      "language": "en",
+      "input": "Tamil Nadu Chief Minister Vijay launched the Dream Olympics 2036 scheme in Chennai",
+      "expected": "REAL",
+      "sources": [
+        "https://www.dtnext.in/news/tamilnadu/dream-olympic-2036-cm-vijay-launches-scheme-with-eye-on-olympic-glory",
+        "https://theprint.in/india/tn-cm-unveils-dream-olympics-player-support-scheme/3066073/"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Tamil Nadu Chief Minister Vijay launched the Dream Olympics 2036 scheme in Chennai",
+        "claims": [
+          {
+            "claim": "Tamil Nadu Chief Minister Vijay launched the Dream Olympics 2036 scheme in Chennai.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 295.542,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-8",
+      "category": "true current event",
+      "language": "en",
+      "input": "The Madras High Court has reserved orders on Chief Minister Vijay's plea to dismiss the election petition against his Perambur win",
+      "expected": "REAL",
+      "sources": [
+        "https://www.dtnext.in/news/tamilnadu/madras-hc-reserves-orders-on-cm-vijays-plea-to-dismiss-perambur-election-petition",
+        "https://www.uniindia.com/south-india/law-tn-vijay-poll-pleas-orders-reserved/206979"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Confirmed by 5 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The Madras High Court has reserved orders on Chief Minister Vijay's plea to dismiss the election petition against his Perambur win",
+        "claims": [
+          {
+            "claim": "The Madras High Court has reserved orders on Chief Minister Vijay's plea to dismiss the election petition against his Perambur win.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 22.674,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-9",
+      "category": "true current event",
+      "language": "en",
+      "input": "ISRO successfully launched the EOS-05 satellite on the GSLV-F17 rocket",
+      "expected": "REAL",
+      "sources": [
+        "https://www.isro.gov.in/ISRO%5FEN/LaunchMissions.html",
+        "https://idsa.in/mpidsanews/ajey-leles-commentary-isros-comeback-with-the-successful-launch-of-eos-05-published-in-the-space-review"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "Launched 4 September 2026, so older than three weeks: tests a true past event, not this week's news.",
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Confirmed by 7 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "ISRO successfully launched the EOS-05 satellite on the GSLV-F17 rocket",
+        "claims": [
+          {
+            "claim": "ISRO successfully launched the EOS-05 satellite on the GSLV-F17 rocket.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 23.105,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-10",
+      "category": "changed figure",
+      "language": "en",
+      "input": "Nana Patekar died at the age of 82",
+      "expected": "FAKE",
+      "sources": [
+        "https://www.aljazeera.com/news/2026/10/8/acclaimed-indian-actor-nana-patekar-dies-aged-75",
+        "https://abcnews.com/amp/Entertainment/wireStory/indian-actor-filmmaker-nana-patekar-dies-75-137085718"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "He died at 75.",
+      "call": "FAKE",
+      "rule": "premise-contradicted-by-reference",
+      "confidence": 0.55,
+      "kind": null,
+      "detail": "The encyclopedia entry “Nana Patekar” says otherwise: “Vishwanath \"Nana\" Patekar (1 January 1951 – 8 October 2026) was an Indian actor and filmmaker, who mainly worked in Hindi and Marathi cin…”",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Nana Patekar died at the age of 82",
+        "claims": [
+          {
+            "claim": "Nana Patekar died at the age of 82.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 36.838,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 1,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-11",
+      "category": "reversed outcome",
+      "language": "en",
+      "input": "India lost the first T20I against West Indies in Lucknow by eight wickets",
+      "expected": "FAKE",
+      "sources": [
+        "https://www.onmanorama.com/sports/cricket/2026/10/06/india-beat-west-indies-by-8-wickets-in-first-t20i-iyer-hits-maiden-ton.html",
+        "https://www.khaleejtimes.com/cricket/iyer-hits-ton-as-india-hammer-west-indies-in-t20-opener-2"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "India won by eight wickets.",
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.77,
+      "kind": null,
+      "detail": "3 independent outlets report otherwise: “India beat West Indies by eight wickets”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "India lost the first T20I against West Indies in Lucknow by eight wickets",
+        "claims": [
+          {
+            "claim": "India lost the first T20I against West Indies in Lucknow by eight wickets.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 27.692,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 3,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-12",
+      "category": "reversed outcome",
+      "language": "en",
+      "input": "India beat West Indies in the second T20I at Ranchi",
+      "expected": "FAKE",
+      "sources": [
+        "https://morungexpress.com/2nd-t20i-hope-rutherford-power-west-indies-to-record-chase-against-india-in-ranchi",
+        "https://sportsdigest.in/west-indies-record-run-chase-vs-india/226428/"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "West Indies won by six wickets.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "India beat West Indies in the second T20I at Ranchi",
+        "claims": [
+          {
+            "claim": "India beat West Indies in the second T20I at Ranchi.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 21.531,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-13",
+      "category": "changed figure",
+      "language": "en",
+      "input": "PM Modi has completed 30 years as head of government",
+      "expected": "FAKE",
+      "sources": [
+        "https://www.tribuneindia.com/news/india/pm-modi-begins-25th-year-as-head-of-govt-thanks-citizens-for-continuous-blessings",
+        "https://newsonair.gov.in/pm-modi-completes-25-years-as-head-of-a-govt-union-cabinet-passes-resolution-to-commemorate-this-achievement/"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "25 years, on 7 October 2026.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "PM Modi has completed 30 years as head of government",
+        "claims": [
+          {
+            "claim": "Narendra Modi has completed 30 years as head of government.",
+            "time": "now",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 20.409,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 2,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-14",
+      "category": "changed detail",
+      "language": "en",
+      "input": "Francis Halzen won the 2026 Nobel Prize in Chemistry",
+      "expected": "FAKE",
+      "sources": [
+        "https://nobelprize.org/prizes/physics/2026/summary",
+        "https://dailymaverick.co.za/article/2026-10-06-francis-halzen-wins-2026-nobel-prize-in-physics"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "Physics, not Chemistry.",
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.91,
+      "kind": null,
+      "detail": "8 independent outlets report otherwise: “2026 Nobel Prize in Physics awarded to Francis Halzen”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Francis Halzen won the 2026 Nobel Prize in Chemistry",
+        "claims": [
+          {
+            "claim": "Francis Halzen won the 2026 Nobel Prize in Chemistry.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 44.983,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 3
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-15",
+      "category": "changed figure",
+      "language": "en",
+      "input": "Under the Dream Olympics scheme Tamil Nadu will give Rs 50 crore to every athlete from the state who wins an Olympic gold medal",
+      "expected": "FAKE",
+      "sources": [
+        "https://www.dtnext.in/news/tamilnadu/dream-olympic-2036-cm-vijay-launches-scheme-with-eye-on-olympic-glory",
+        "https://newstodaynet.com/2026/10/08/vijay-launches-dream-olympics-2036-scheme-to-groom-tamil-nadus-olympic-champions/"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "Rs 5 crore for gold, Rs 3 crore for silver, Rs 2 crore for bronze.",
+      "call": "FAKE",
+      "rule": "contradicted-by-one-independent-source",
+      "confidence": 0.62,
+      "kind": null,
+      "detail": "An independent outlet reports otherwise: “Rs 5 crore gold reward”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Under the Dream Olympics scheme Tamil Nadu will give Rs 50 crore to every athlete from the state who wins an Olympic gold medal",
+        "claims": [
+          {
+            "claim": "The Tamil Nadu government will give Rs 50 crore to every athlete from the state who wins an Olympic gold medal under the Dream Olympics scheme.",
+            "time": "now",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 38.634,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 4
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-16",
+      "category": "reversed outcome",
+      "language": "en",
+      "input": "ISRO's GSLV-F17 mission carrying the EOS-05 satellite failed",
+      "expected": "FAKE",
+      "sources": [
+        "https://www.isro.gov.in/ISRO%5FEN/LaunchMissions.html",
+        "https://idsa.in/mpidsanews/ajey-leles-commentary-isros-comeback-with-the-successful-launch-of-eos-05-published-in-the-space-review"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "ISRO's GSLV-F17 mission carrying the EOS-05 satellite failed",
+        "claims": [
+          {
+            "claim": "The ISRO GSLV-F17 mission carrying the EOS-05 satellite failed.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 22.432,
+      "modelCalls": {
+        "total": 5,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-17",
+      "category": "changed date",
+      "language": "en",
+      "input": "Navi Pillay won the Nobel Peace Prize in 2025",
+      "expected": "FAKE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/2026_Nobel_Peace_Prize",
+        "https://www.khaleejtimes.com/world/navanethem-navi-pillay-wins-nobel-peace-prize-2026"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "She won it in 2026; the 2025 prize went to Maria Corina Machado.",
+      "call": "FAKE",
+      "rule": "premise-contradicted-by-reference",
+      "confidence": 0.55,
+      "kind": null,
+      "detail": "The encyclopedia entry “Navi Pillay” says otherwise: “She was awarded the 2026 Nobel Peace Prize for her efforts to promote peace and international law.”",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Navi Pillay won the Nobel Peace Prize in 2025",
+        "claims": [
+          {
+            "claim": "Navi Pillay won the Nobel Peace Prize in 2025.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 29.695,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-18",
+      "category": "old news as today",
+      "language": "en",
+      "input": "BREAKING: India beat South Africa in the final to win the T20 World Cup today!",
+      "expected": "FAKE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/2024_ICC_Men%27s_T20_World_Cup_final"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "The final was on 29 June 2024.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "celebratory",
+          "urgent"
+        ],
+        "english": "BREAKING: India beat South Africa in the final to win the T20 World Cup today!",
+        "claims": [
+          {
+            "claim": "India beat South Africa in the final to win the T20 World Cup today.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 190.794,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-19",
+      "category": "old news as today",
+      "language": "en",
+      "input": "PM Modi inaugurates the Ram temple in Ayodhya today",
+      "expected": "FAKE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Ram_Mandir"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "Consecrated on 22 January 2024.",
+      "call": "FAKE",
+      "rule": "old-news-presented-as-new",
+      "confidence": 0.7,
+      "kind": null,
+      "detail": "This is old news: the latest report of it found is from 2024-01-23, not now.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "PM Modi inaugurates the Ram temple in Ayodhya today",
+        "claims": [
+          {
+            "claim": "Narendra Modi inaugurates the Ram temple in Ayodhya today.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 21.069,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 3,
+          "nim": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-20",
+      "category": "old news as today",
+      "language": "en",
+      "input": "Article 370 has been scrapped today and Jammu and Kashmir loses its special status",
+      "expected": "FAKE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Revocation_of_the_special_status_of_Jammu_and_Kashmir"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "5 August 2019.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Article 370 has been scrapped today and Jammu and Kashmir loses its special status",
+        "claims": [
+          {
+            "claim": "Article 370 was scrapped today and Jammu and Kashmir lost its special status.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 82.964,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-21",
+      "category": "old news as today",
+      "language": "en",
+      "input": "Ratan Tata passed away today at the age of 86",
+      "expected": "FAKE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Ratan_Tata"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "Died 9 October 2024. The second anniversary drew fresh coverage this week, which makes this the hard form of old news.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "emotional"
+        ],
+        "english": "Ratan Tata passed away today at the age of 86",
+        "claims": [
+          {
+            "claim": "Ratan Tata passed away today at the age of 86.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 29.758,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 1,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-22",
+      "category": "old news as today",
+      "language": "hi",
+      "input": "आज पुलवामा में आतंकी हमले में सीआरपीएफ के 40 जवान शहीद हो गए",
+      "expected": "FAKE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/2019_Pulwama_attack"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "14 February 2019.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "hi",
+        "languageName": "Hindi",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "emotional",
+          "urgent"
+        ],
+        "english": "Today 40 CRPF soldiers were martyred in a terrorist attack in Pulwama.",
+        "claims": [
+          {
+            "claim": "40 CRPF soldiers were killed in a terrorist attack in Pulwama today.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 30.294,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "gemini": 3,
+          "ollama": 4,
+          "nim": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-23",
+      "category": "old news as today",
+      "language": "ta",
+      "input": "கரூரில் விஜய் பிரச்சாரக் கூட்டத்தில் ஏற்பட்ட கூட்ட நெரிசலில் இன்று 41 பேர் உயிரிழந்தனர்",
+      "expected": "FAKE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/2025_Karur_crowd_crush",
+        "https://www.thestar.com.my/aseanplus/aseanplus-news/2026/09/27/41-lives-one-year-on-tamil-nadu039s-karur-remembers-deadly-crowd-crush-at-vijays-tvk-rally"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "27 September 2025. First-anniversary coverage on 27 September 2026 is recent enough to look like confirmation.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "urgent"
+        ],
+        "english": "41 people died today in a stampede at Vijay's campaign rally in Karur.",
+        "claims": [
+          {
+            "claim": "41 people died today in a stampede at Vijay's campaign rally in Karur.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 46.754,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 2,
+          "nim": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-24",
+      "category": "old news as today",
+      "language": "en",
+      "input": "Neeraj Chopra wins India's first Olympic gold in athletics today with a javelin throw of 87.58 m",
+      "expected": "FAKE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Neeraj_Chopra"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "Tokyo, 7 August 2021.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "celebratory"
+        ],
+        "english": "Neeraj Chopra wins India's first Olympic gold in athletics today with a javelin throw of 87.58 m",
+        "claims": [
+          {
+            "claim": "Neeraj Chopra won India's first Olympic gold in athletics today with a javelin throw of 87.58 m.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 23.783,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 1,
+          "nim": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-25",
+      "category": "invented event",
+      "language": "en",
+      "input": "The Madras High Court has set aside Chief Minister Vijay's election from Perambur",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "CANNOT VERIFY"
+      ],
+      "sources": [
+        "https://www.dtnext.in/news/tamilnadu/madras-hc-reserves-orders-on-cm-vijays-plea-to-dismiss-perambur-election-petition",
+        "https://supremetoday.ai/madras-high-court-reserves-order-on-cm-vijays-plea-to-reject-election-petition-over-assets-20261009079"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "Orders reserved; written submissions due 14 October. No judgment yet.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The Madras High Court has set aside Chief Minister Vijay's election from Perambur",
+        "claims": [
+          {
+            "claim": "The Madras High Court has set aside the election of Chief Minister Vijay from the Perambur constituency.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 41.211,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "v2-26",
+      "category": "invented event",
+      "language": "en",
+      "input": "Gaganyaan carried three Indian astronauts into space this week",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "CANNOT VERIFY"
+      ],
+      "sources": [
+        "https://en.wikipedia.org/wiki/Gaganyaan-1",
+        "https://telanganatoday.com/isro-eyes-first-uncrewed-gaganyaan-mission-launch-in-2026-v-narayanan"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "The first uncrewed flight is planned for late 2026; the crewed mission for 2027.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Gaganyaan carried three Indian astronauts into space this week",
+        "claims": [
+          {
+            "claim": "Gaganyaan carried three Indian astronauts into space this week.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 26.789,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 1,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "v2-27",
+      "category": "invented event",
+      "language": "en",
+      "input": "Tamil Nadu has withdrawn free bus travel for women from this month",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "CANNOT VERIFY"
+      ],
+      "sources": [
+        "https://www.dtnext.in/news/tamilnadu/cm-vijay-rides-76b-to-kick-off-vettri-payanam-20",
+        "https://thesouthfirst.com/tamilnadu/vettri-payanam-cm-vijay-launches-the-expanded-free-bus-travel-scheme/"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "The scheme was expanded on 2 October 2026.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "alarmist"
+        ],
+        "english": "Tamil Nadu has withdrawn free bus travel for women from this month",
+        "claims": [
+          {
+            "claim": "The Tamil Nadu government has withdrawn the free bus travel scheme for women starting from October 2026.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 25.518,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 1,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "v2-28",
+      "category": "invented event",
+      "language": "en",
+      "input": "The Union Cabinet passed a resolution asking PM Modi to step down",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "CANNOT VERIFY"
+      ],
+      "sources": [
+        "https://openthemagazine.com/india/union-cabinet-passes-resolution-hailing-modis-25-years-as-head-of-government"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "The Cabinet's resolution of 7 October hailed his 25 years in office.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The Union Cabinet passed a resolution asking PM Modi to step down",
+        "claims": [
+          {
+            "claim": "The Union Cabinet passed a resolution asking Prime Minister Narendra Modi to step down.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 25.084,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "v2-29",
+      "category": "viral rumour (fact-checked)",
+      "language": "en",
+      "input": "Video shows Army chief General Dhiraj Seth urging soldiers to drink cow urine",
+      "expected": "FAKE",
+      "sources": [
+        "https://cyberpeace.org/resources/blogs/factcheck-digitally-altered-video-falsely-attributes-cow-urine-remark-to-army-chief-general-dhiraj-seth",
+        "https://www.thequint.com/news/webqoof/video-of-general-dhiraj-seth-stating-major-pratap-drank-urine-is-altered-fact-check"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "Audio fabricated over footage of a Kupwara visit (25 September 2026).",
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.84,
+      "kind": null,
+      "detail": "4 independent outlets report otherwise: “Clip of COAS Dhiraj Seth Stating That Major Pratap Drank Urine Is Altered”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist"
+        ],
+        "english": "Video shows Army chief General Dhiraj Seth urging soldiers to drink cow urine",
+        "claims": [
+          {
+            "claim": "Army chief General Dhiraj Seth urged soldiers to drink cow urine.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 39.064,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 3
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-30",
+      "category": "viral rumour (fact-checked)",
+      "language": "en",
+      "input": "Delhi Police DCP Sumit Jha resigned in protest against the action on student protesters, video shows",
+      "expected": "FAKE",
+      "sources": [
+        "https://www.altnews.in/delhi-dcp-resigned-to-support-students-protest-no-viral-video-is-a-deepfake/",
+        "https://www.boomlive.in/fact-check/video-of-delhi-dcp-quitting-over-framing-cjp-protesters-is-a-deepfake-31946"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "urgent"
+        ],
+        "english": "Delhi Police DCP Sumit Jha resigned in protest against the action on student protesters, video shows",
+        "claims": [
+          {
+            "claim": "Delhi Police DCP Sumit Jha resigned in protest against the action on student protesters.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 40.524,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 1,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-31",
+      "category": "viral rumour (fact-checked)",
+      "language": "en",
+      "input": "Instagram will be banned in India from the night of 25 August, says the government",
+      "expected": "FAKE",
+      "sources": [
+        "https://newsonair.gov.in/pib-fact-check-dismisses-social-media-claim-of-instagram-ban-in-india/",
+        "https://organiser.org/2026/07/28/372135/bharat/fact-check-pib-slams-fake-social-media-claim-alleging-nationwide-ban-on-instagram/"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "PIB Fact Check: no such announcement.",
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.94,
+      "kind": null,
+      "detail": "Rated false by The Quint, vishvasnews.com, FACTLY and 2 more after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "urgent"
+        ],
+        "english": "Instagram will be banned in India from the night of 25 August, says the government",
+        "claims": [
+          {
+            "claim": "The Indian government has announced that Instagram will be banned in India from the night of 25 August 2026.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 31.133,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 1,
+          "gemini": 3
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-32",
+      "category": "viral rumour (fact-checked)",
+      "language": "en",
+      "input": "Video shows S Jaishankar asking the US to hand over the Cockroach Janta Party founder to India",
+      "expected": "FAKE",
+      "sources": [
+        "https://www.altnews.in/video-of-jaishankar-requesting-us-to-hand-over-cockroach-janata-party-founder-to-india-is-a-deepfake/",
+        "https://www.boomlive.in/fact-check/viral-video-external-affairs-minister-jaishankar-cockroach-janta-party-31629"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Video shows S Jaishankar asking the US to hand over the Cockroach Janta Party founder to India",
+        "claims": [
+          {
+            "claim": "S. Jaishankar asked the United States to hand over the founder of the Cockroach Janta Party to India.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 42.696,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-33",
+      "category": "viral rumour (fact-checked)",
+      "language": "en",
+      "input": "Video shows Bangladeshi infiltrators hoisting Bangladesh flags in Virar, Maharashtra",
+      "expected": "FAKE",
+      "sources": [
+        "https://www.thequint.com/news/webqoof/bangladesh-flag-in-mumbai-protests-false-claim-fact-check"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "Police: a film shoot with permission; no Bangladeshi nationals involved.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "urgent"
+        ],
+        "english": "Video shows Bangladeshi infiltrators hoisting Bangladesh flags in Virar, Maharashtra",
+        "claims": [
+          {
+            "claim": "Bangladeshi infiltrators hoisted Bangladesh flags in Virar, Maharashtra.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 22.835,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-34",
+      "category": "evergreen myth (fact-checked)",
+      "language": "en",
+      "input": "UNESCO has declared Jana Gana Mana the best national anthem in the world",
+      "expected": "FAKE",
+      "sources": [
+        "https://factly.in/indias-jana-gana-mana-was-not-declared-as-the-worlds-best-anthem-by-unesco",
+        "https://english.factcrescendo.com/2024/03/14/unesco-did-not-declare-indias-national-anthem-the-best-in-the-world/"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.91,
+      "kind": null,
+      "detail": "6 independent outlets report otherwise: “India’s ‘Jana Gana Mana’ was not declared as “the World’s Best Anthem” by UNESCO”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "celebratory"
+        ],
+        "english": "UNESCO has declared Jana Gana Mana the best national anthem in the world",
+        "claims": [
+          {
+            "claim": "UNESCO has declared Jana Gana Mana the best national anthem in the world.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 32.616,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 1,
+          "gemini": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-35",
+      "category": "evergreen myth (fact-checked)",
+      "language": "en",
+      "input": "The new 2000 rupee note has a GPS nano chip that lets the government track it",
+      "expected": "FAKE",
+      "sources": [
+        "https://www.thenewsminute.com/news/rbi-rubbishes-rumours-gps-tracking-chip-rs-2000-note-52652",
+        "https://www.thequint.com/amp/story/news/india/its-official-new-rs-2000-note-does-not-come-with-nano-gps-chip-narendra-modi"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The new 2000 rupee note has a GPS nano chip that lets the government track it",
+        "claims": [
+          {
+            "claim": "The new 2000 rupee note contains a GPS nano chip that allows the government to track it.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 25.219,
+      "modelCalls": {
+        "total": 5,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-36",
+      "category": "Tamil",
+      "language": "ta",
+      "input": "முதலமைச்சர் விஜய் 'ட்ரீம் ஒலிம்பிக்ஸ் 2036' திட்டத்தை சென்னையில் தொடங்கி வைத்தார்",
+      "expected": "REAL",
+      "sources": [
+        "https://www.dtnext.in/news/tamilnadu/dream-olympic-2036-cm-vijay-launches-scheme-with-eye-on-olympic-glory"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Confirmed by 8 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Chief Minister Vijay launched the 'Dream Olympics 2036' project in Chennai.",
+        "claims": [
+          {
+            "claim": "Chief Minister Vijay launched the 'Dream Olympics 2036' project in Chennai.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 77.308,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 4,
+          "nim": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-37",
+      "category": "Tamil",
+      "language": "ta",
+      "input": "நடிகர் நானா படேகர் கோவாவில் காலமானார்",
+      "expected": "REAL",
+      "sources": [
+        "https://gulfnews.com/entertainment/nana-patekar-dies-at-75-in-goa-1.500702513"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "emotional"
+        ],
+        "english": "Actor Nana Patekar passed away in Goa.",
+        "claims": [
+          {
+            "claim": "Actor Nana Patekar passed away in Goa.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 23.212,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 1,
+          "nim": 1,
+          "cached": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-38",
+      "category": "Hindi",
+      "language": "hi",
+      "input": "नाना पाटेकर का 75 वर्ष की आयु में गोवा में निधन",
+      "expected": "REAL",
+      "sources": [
+        "https://www.aljazeera.com/news/2026/10/8/acclaimed-indian-actor-nana-patekar-dies-aged-75"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Confirmed by 9 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "hi",
+        "languageName": "Hindi",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "emotional"
+        ],
+        "english": "Nana Patekar passed away in Goa at the age of 75.",
+        "claims": [
+          {
+            "claim": "Nana Patekar died in Goa at the age of 75.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 84.408,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 4,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-39",
+      "category": "Hindi",
+      "language": "hi",
+      "input": "सरकार 25 अगस्त से भारत में इंस्टाग्राम पर प्रतिबंध लगाने जा रही है",
+      "expected": "FAKE",
+      "sources": [
+        "https://newsonair.gov.in/govt-refutes-false-claim-on-sm-of-banning-instagram-from-next-month/"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "REFUSED",
+      "rule": null,
+      "confidence": null,
+      "kind": "too-vague",
+      "detail": "This does not name anyone, anywhere or any figure, so there is nothing specific to look up.",
+      "readAs": null,
+      "memory": null,
+      "seconds": 3.331,
+      "modelCalls": {
+        "total": 2,
+        "byProvider": {
+          "ollama": 1,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-40",
+      "category": "Tanglish",
+      "language": "ta-Latn",
+      "input": "Ranchi T20 la West Indies 250 runs chase panni India va tholaichitaanga",
+      "expected": "REAL",
+      "sources": [
+        "https://www.mykhel.com/cricket/ind-vs-wi-sack-gambhir-bring-back-sky-fans-react-as-west-indies-stun-india-to-chase-250-in-ranchi-455977.html",
+        "https://sportsdigest.in/west-indies-record-run-chase-vs-india/226428/"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": true,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "West Indies chased 250 runs in a T20 match in Ranchi and defeated India.",
+        "claims": [
+          {
+            "claim": "West Indies defeated India in a T20 match in Ranchi by chasing 250 runs.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 20.912,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 2,
+          "nim": 3
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-41",
+      "category": "Tanglish",
+      "language": "ta-Latn",
+      "input": "Oct 2 la irundhu ladies ku express bus layum free nu CM Vijay start pannitaaru",
+      "expected": "REAL",
+      "sources": [
+        "https://www.dtnext.in/news/tamilnadu/tns-vetri-payanam-scheme-how-far-can-women-travel-for-free-on-express-lss-and-deluxe-buses",
+        "https://telanganatoday.com/tamil-nadu-cm-expands-free-bus-travel-scheme-for-women-transgender-persons"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Confirmed by 8 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": true,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "From October 2, Chief Minister Vijay has started free travel for women in express buses too.",
+        "claims": [
+          {
+            "claim": "Chief Minister Vijay has started free travel for women in express buses effective from October 2.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 23.758,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 2,
+          "nim": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-42",
+      "category": "question",
+      "language": "en",
+      "input": "Did Karl Deisseroth share the 2026 Nobel Prize in Medicine?",
+      "expected": "REAL",
+      "sources": [
+        "https://www.nobelprize.org/prizes/medicine/2026/summary/",
+        "https://www.euronews.com/2026/10/05/nobel-prize-2026-kicks-off-who-will-win-the-medicine-award"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "Shared with Peter Hegemann and Georg Nagel, 5 October 2026.",
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.9,
+      "kind": null,
+      "detail": "Confirmed by 4 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Did Karl Deisseroth share the 2026 Nobel Prize in Medicine?",
+        "claims": [
+          {
+            "claim": "Karl Deisseroth shared the 2026 Nobel Prize in Medicine.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 41.343,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 3
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-43",
+      "category": "question",
+      "language": "en",
+      "input": "Has Vijay resigned as Tamil Nadu Chief Minister?",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "CANNOT VERIFY"
+      ],
+      "sources": [
+        "https://www.dtnext.in/news/tamilnadu/dream-olympic-2036-cm-vijay-launches-scheme-with-eye-on-olympic-glory",
+        "https://www.dtnext.in/news/tamilnadu/madras-hc-reserves-orders-on-cm-vijays-plea-to-dismiss-perambur-election-petition"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "Still Chief Minister on 8 October.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Has Vijay resigned as Tamil Nadu Chief Minister?",
+        "claims": [
+          {
+            "claim": "Vijay has resigned as the Chief Minister of Tamil Nadu.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 26.816,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 1,
+          "nim": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "v2-44",
+      "category": "sarcasm",
+      "language": "en",
+      "input": "Oh sure, Shreyas Iyer can't play T20 cricket — he only hit a maiden hundred against West Indies in Lucknow 🙄",
+      "expected": "REAL",
+      "sources": [
+        "https://www.icc-cricket.com/news/iyer-s-blazing-century-sets-up-india-victory"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "Sarcasm round a true event: the event is what is checked.",
+      "call": "FAKE",
+      "rule": "premise-contradicted-by-reference",
+      "confidence": 0.55,
+      "kind": null,
+      "detail": "The encyclopedia entry “Shreyas Iyer” says otherwise: “Iyer captains India in T20Is and serves as the vice-captain in ODIs.”",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "sarcasm",
+        "tone": [
+          "sarcastic"
+        ],
+        "english": "Oh sure, Shreyas Iyer can't play T20 cricket — he only hit a maiden hundred against West Indies in Lucknow",
+        "claims": [
+          {
+            "claim": "Shreyas Iyer hit a maiden hundred against West Indies in Lucknow.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 104.772,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    },
+    {
+      "id": "v2-45",
+      "category": "sarcasm",
+      "language": "en",
+      "input": "Yeah right, and the Madras High Court has already thrown Vijay out of office 😂",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "CANNOT VERIFY"
+      ],
+      "sources": [
+        "https://www.dtnext.in/news/tamilnadu/madras-hc-reserves-orders-on-cm-vijays-plea-to-dismiss-perambur-election-petition"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "Mocks a claim that is false.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "sarcasm",
+        "tone": [
+          "sarcastic"
+        ],
+        "english": "Yeah right, and the Madras High Court has already thrown Vijay out of office",
+        "claims": [
+          {
+            "claim": "The Madras High Court has removed Vijay from office.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 40.466,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "v2-46",
+      "category": "opinion",
+      "language": "en",
+      "input": "Shreyas Iyer is the best T20 captain India has ever had",
+      "expected": "REFUSED",
+      "alsoAcceptable": [
+        "NOT A FACTUAL CLAIM"
+      ],
+      "sources": [],
+      "labelledOn": "2026-10-12",
+      "call": "REFUSED",
+      "rule": null,
+      "confidence": null,
+      "kind": "opinion",
+      "detail": "The message expresses a subjective opinion about a person's performance as a captain, which cannot be objectively verified as true or false.",
+      "readAs": null,
+      "memory": null,
+      "seconds": 13.131,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-47",
+      "category": "opinion",
+      "language": "en",
+      "input": "Free bus travel for women is the best thing any Tamil Nadu government has ever done",
+      "expected": "REFUSED",
+      "alsoAcceptable": [
+        "NOT A FACTUAL CLAIM"
+      ],
+      "sources": [],
+      "labelledOn": "2026-10-12",
+      "call": "REFUSED",
+      "rule": null,
+      "confidence": null,
+      "kind": "opinion",
+      "detail": "The message expresses a subjective opinion about a government policy rather than making a verifiable factual claim.",
+      "readAs": null,
+      "memory": null,
+      "seconds": 42.948,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 1,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-48",
+      "category": "opinion",
+      "language": "ta-Latn",
+      "input": "Nana Patekar dhaan Bollywood la best actor, no doubt",
+      "expected": "REFUSED",
+      "alsoAcceptable": [
+        "NOT A FACTUAL CLAIM"
+      ],
+      "sources": [],
+      "labelledOn": "2026-10-12",
+      "call": "REFUSED",
+      "rule": null,
+      "confidence": null,
+      "kind": "opinion",
+      "detail": "The message expresses a subjective opinion about an actor's quality, which cannot be factually verified.",
+      "readAs": null,
+      "memory": null,
+      "seconds": 18.988,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "v2-49",
+      "category": "two claims",
+      "language": "en",
+      "input": "Nana Patekar died in Goa, and Navi Pillay won the Nobel Peace Prize",
+      "expected": "REAL",
+      "sources": [
+        "https://gulfnews.com/entertainment/nana-patekar-dies-at-75-in-goa-1.500702513",
+        "https://www.aljazeera.com/news/2026/10/9/2026-nobel-peace-prize-awarded-to-navi-pillay"
+      ],
+      "labelledOn": "2026-10-12",
+      "call": "FAKE",
+      "rule": "premise-contradicted-by-reference",
+      "confidence": 0.55,
+      "kind": null,
+      "detail": "The encyclopedia entry “Nana Patekar” says otherwise: “Vishwanath \"Nana\" Patekar (1 January 1951 – 8 October 2026) was an Indian actor and filmmaker, who mainly worked in Hindi and Marathi cin…”",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Nana Patekar died in Goa, and Navi Pillay won the Nobel Peace Prize",
+        "claims": [
+          {
+            "claim": "Nana Patekar died in Goa.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          },
+          {
+            "claim": "Navi Pillay won the Nobel Peace Prize.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 44.348,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    },
+    {
+      "id": "v2-50",
+      "category": "two claims",
+      "language": "en",
+      "input": "Francis Halzen won the Nobel Prize in Physics and India beat West Indies in the Ranchi T20I",
+      "expected": "PARTLY FALSE",
+      "alsoAcceptable": [
+        "FAKE"
+      ],
+      "sources": [
+        "https://nobelprize.org/prizes/physics/2026/summary",
+        "https://morungexpress.com/2nd-t20i-hope-rutherford-power-west-indies-to-record-chase-against-india-in-ranchi"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "One true, one reversed. REAL would be wrong.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Francis Halzen won the Nobel Prize in Physics and India beat West Indies in the Ranchi T20I",
+        "claims": [
+          {
+            "claim": "Francis Halzen won the Nobel Prize in Physics.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          },
+          {
+            "claim": "India beat West Indies in the Ranchi T20I.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 27.47,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "v2-51",
+      "category": "two claims",
+      "language": "en",
+      "input": "CM Vijay launched the Dream Olympics 2036 scheme and the Madras High Court set aside his Perambur election",
+      "expected": "PARTLY FALSE",
+      "alsoAcceptable": [
+        "CANNOT VERIFY",
+        "FAKE"
+      ],
+      "sources": [
+        "https://www.dtnext.in/news/tamilnadu/dream-olympic-2036-cm-vijay-launches-scheme-with-eye-on-olympic-glory",
+        "https://www.dtnext.in/news/tamilnadu/madras-hc-reserves-orders-on-cm-vijays-plea-to-dismiss-perambur-election-petition"
+      ],
+      "labelledOn": "2026-10-12",
+      "note": "A true claim carrying an invented one.",
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "CM Vijay launched the Dream Olympics 2036 scheme and the Madras High Court set aside his Perambur election",
+        "claims": [
+          {
+            "claim": "Chief Minister Vijay launched the Dream Olympics 2036 scheme.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          },
+          {
+            "claim": "The Madras High Court set aside the election of Vijay in Perambur.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 69.565,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    }
+  ]
+}

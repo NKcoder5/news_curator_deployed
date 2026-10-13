@@ -1,0 +1,1688 @@
+{
+  "summary": {
+    "ranAt": "2026-10-13T18:40:56.741Z",
+    "memory": "off",
+    "complete": false,
+    "stoppedBecause": "model quota: two checks in a row failed or fell back from Gemini",
+    "checksThisRun": 34,
+    "claims": 12,
+    "claimsFinished": 8,
+    "identicalCalls": "6/8",
+    "allPhrasingsRight": "0/8",
+    "filedTogether": "memory off",
+    "phrasings": {
+      "n": 34,
+      "right": 1,
+      "safe": 0,
+      "missed": 32,
+      "wrong": 1
+    },
+    "byStyle": {
+      "plain": {
+        "n": 9,
+        "rightOrSafe": 0,
+        "wrong": 0
+      },
+      "question": {
+        "n": 9,
+        "rightOrSafe": 1,
+        "wrong": 0
+      },
+      "native": {
+        "n": 8,
+        "rightOrSafe": 0,
+        "wrong": 1
+      },
+      "forward": {
+        "n": 8,
+        "rightOrSafe": 0,
+        "wrong": 0
+      }
+    },
+    "seconds": {
+      "median": 75.7105,
+      "p90": 209.958
+    },
+    "perClaim": [
+      {
+        "id": "k-1",
+        "claim": "Nana Patekar died at his home in Goa.",
+        "expected": "REAL",
+        "phrasings": 4,
+        "calls": {
+          "plain": "CANNOT VERIFY",
+          "question": "CANNOT VERIFY",
+          "native": "CANNOT VERIFY",
+          "forward": "CANNOT VERIFY"
+        },
+        "identical": true,
+        "allRight": false,
+        "wrong": 0,
+        "filed": null
+      },
+      {
+        "id": "k-2",
+        "claim": "Navi Pillay won the 2026 Nobel Peace Prize.",
+        "expected": "REAL",
+        "phrasings": 4,
+        "calls": {
+          "plain": "CANNOT VERIFY",
+          "question": "REAL",
+          "native": "PARTLY FALSE",
+          "forward": "CANNOT VERIFY"
+        },
+        "identical": false,
+        "allRight": false,
+        "wrong": 1,
+        "filed": null
+      },
+      {
+        "id": "k-3",
+        "claim": "West Indies beat India by six wickets in the second T20I in Ranchi.",
+        "expected": "REAL",
+        "phrasings": 4,
+        "calls": {
+          "plain": "CANNOT VERIFY",
+          "question": "CANNOT VERIFY",
+          "native": "CANNOT VERIFY",
+          "forward": "CANNOT VERIFY"
+        },
+        "identical": true,
+        "allRight": false,
+        "wrong": 0,
+        "filed": null
+      },
+      {
+        "id": "k-4",
+        "claim": "Narendra Modi completed 25 years as head of government.",
+        "expected": "REAL",
+        "phrasings": 4,
+        "calls": {
+          "plain": "CANNOT VERIFY",
+          "question": "CANNOT VERIFY",
+          "native": "CANNOT VERIFY",
+          "forward": "CANNOT VERIFY"
+        },
+        "identical": true,
+        "allRight": false,
+        "wrong": 0,
+        "filed": null
+      },
+      {
+        "id": "k-5",
+        "claim": "Vijay launched the Dream Olympics 2036 scheme.",
+        "expected": "REAL",
+        "phrasings": 4,
+        "calls": {
+          "plain": "CANNOT VERIFY",
+          "question": "CANNOT VERIFY",
+          "native": "CANNOT VERIFY",
+          "forward": "CANNOT VERIFY"
+        },
+        "identical": true,
+        "allRight": false,
+        "wrong": 0,
+        "filed": null
+      },
+      {
+        "id": "k-6",
+        "claim": "Francis Halzen won the 2026 Nobel Prize in Physics.",
+        "expected": "REAL",
+        "phrasings": 4,
+        "calls": {
+          "plain": "CANNOT VERIFY",
+          "question": "CANNOT VERIFY",
+          "native": "CANNOT VERIFY",
+          "forward": "CANNOT VERIFY"
+        },
+        "identical": true,
+        "allRight": false,
+        "wrong": 0,
+        "filed": null
+      },
+      {
+        "id": "k-7",
+        "claim": "The government will ban Instagram in India from 25 August.",
+        "expected": "FAKE",
+        "phrasings": 4,
+        "calls": {
+          "plain": "REFUSED",
+          "question": "CANNOT VERIFY",
+          "native": "CANNOT VERIFY",
+          "forward": "CANNOT VERIFY"
+        },
+        "identical": false,
+        "allRight": false,
+        "wrong": 0,
+        "filed": null
+      },
+      {
+        "id": "k-8",
+        "claim": "UNESCO declared Jana Gana Mana the best national anthem in the world.",
+        "expected": "FAKE",
+        "phrasings": 4,
+        "calls": {
+          "plain": "CANNOT VERIFY",
+          "question": "CANNOT VERIFY",
+          "native": "CANNOT VERIFY",
+          "forward": "CANNOT VERIFY"
+        },
+        "identical": true,
+        "allRight": false,
+        "wrong": 0,
+        "filed": null
+      },
+      {
+        "id": "k-9",
+        "claim": "The 2000 rupee note has a GPS nano chip.",
+        "expected": "FAKE",
+        "phrasings": 2,
+        "calls": {
+          "plain": "CANNOT VERIFY",
+          "question": "CANNOT VERIFY"
+        },
+        "identical": false,
+        "allRight": false,
+        "wrong": 0,
+        "filed": null
+      },
+      {
+        "id": "k-10",
+        "claim": "The Madras High Court set aside Vijay's election from Perambur.",
+        "expected": "FAKE",
+        "phrasings": 0,
+        "calls": {},
+        "identical": false,
+        "allRight": false,
+        "wrong": 0,
+        "filed": null
+      },
+      {
+        "id": "k-11",
+        "claim": "A video shows Army chief Dhiraj Seth asking soldiers to drink cow urine.",
+        "expected": "FAKE",
+        "phrasings": 0,
+        "calls": {},
+        "identical": false,
+        "allRight": false,
+        "wrong": 0,
+        "filed": null
+      },
+      {
+        "id": "k-12",
+        "claim": "India won the T20 World Cup today by beating South Africa.",
+        "expected": "FAKE",
+        "phrasings": 0,
+        "calls": {},
+        "identical": false,
+        "allRight": false,
+        "wrong": 0,
+        "filed": null
+      }
+    ]
+  },
+  "rows": [
+    {
+      "claimId": "k-1",
+      "style": "plain",
+      "language": "en",
+      "input": "Actor Nana Patekar has died at his home in Goa",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Actor Nana Patekar has died at his home in Goa",
+        "claims": [
+          {
+            "claim": "Actor Nana Patekar has died at his home in Goa.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 28.887,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 1,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-1",
+      "style": "question",
+      "language": "en",
+      "input": "Is it true that Nana Patekar passed away?",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Is it true that Nana Patekar passed away?",
+        "claims": [
+          {
+            "claim": "Nana Patekar passed away.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 24.682,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 1,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-1",
+      "style": "native",
+      "language": "hi",
+      "input": "अभिनेता नाना पाटेकर का गोवा स्थित घर पर निधन हो गया",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "hi",
+        "languageName": "Hindi",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "emotional"
+        ],
+        "english": "Actor Nana Patekar has passed away at his home in Goa.",
+        "claims": [
+          {
+            "claim": "Actor Nana Patekar passed away at his home in Goa.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 46.153,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 4,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-1",
+      "style": "forward",
+      "language": "ta-Latn",
+      "input": "Nana Patekar sir passed away 😢🙏 Goa la avar veetla irundhapo nadandhuchu, RIP",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": true,
+        "speechAct": "assertion",
+        "tone": [
+          "emotional"
+        ],
+        "english": "Nana Patekar sir passed away, it happened when he was at his house in Goa, RIP",
+        "claims": [
+          {
+            "claim": "Nana Patekar passed away.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 38.089,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 3,
+          "gemini": 1,
+          "cached": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-2",
+      "style": "plain",
+      "language": "en",
+      "input": "Navi Pillay is the winner of the Nobel Peace Prize for 2026",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Navi Pillay is the winner of the Nobel Peace Prize for 2026",
+        "claims": [
+          {
+            "claim": "Navi Pillay won the Nobel Peace Prize for 2026.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 32.474,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-2",
+      "style": "question",
+      "language": "en",
+      "input": "Was the 2026 Nobel Peace Prize given to Navi Pillay?",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Confirmed by 11 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Was the 2026 Nobel Peace Prize given to Navi Pillay?",
+        "claims": [
+          {
+            "claim": "The 2026 Nobel Peace Prize was given to Navi Pillay.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 31.046,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 4,
+          "nim": 2
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "right"
+    },
+    {
+      "claimId": "k-2",
+      "style": "native",
+      "language": "ta",
+      "input": "2026-ஆம் ஆண்டுக்கான அமைதிக்கான நோபல் பரிசு நவி பிள்ளைக்கு வழங்கப்பட்டது",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "PARTLY FALSE",
+      "rule": "confirmed-claim-on-a-false-premise",
+      "confidence": 0.65,
+      "kind": null,
+      "detail": "Partly false: some of this is confirmed, but a reference entry on Nobel Peace Prize contradicts what it takes for granted.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The 2026 Nobel Peace Prize was awarded to Navi Pillay.",
+        "claims": [
+          {
+            "claim": "The 2026 Nobel Peace Prize was awarded to Navi Pillay.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 53.264,
+      "modelCalls": {
+        "total": 11,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 5,
+          "nim": 2
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "wrong"
+    },
+    {
+      "claimId": "k-2",
+      "style": "forward",
+      "language": "ta-Latn",
+      "input": "South Africa vin Navi Pillay ku indha varusham Nobel Peace Prize kidaichirukku 🎉 forward pannunga",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": true,
+        "speechAct": "assertion",
+        "tone": [
+          "celebratory"
+        ],
+        "english": "Navi Pillay from South Africa has received the Nobel Peace Prize this year. Forward it.",
+        "claims": [
+          {
+            "claim": "Navi Pillay has been awarded the Nobel Peace Prize this year.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 40.167,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 3,
+          "gemini": 2
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-3",
+      "style": "plain",
+      "language": "en",
+      "input": "West Indies won the second T20 international against India at Ranchi",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "West Indies won the second T20 international against India at Ranchi",
+        "claims": [
+          {
+            "claim": "West Indies won the second T20 international against India at Ranchi.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 74.84,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-3",
+      "style": "question",
+      "language": "en",
+      "input": "Did West Indies beat India in the Ranchi T20I?",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Did West Indies beat India in the Ranchi T20I?",
+        "claims": [
+          {
+            "claim": "West Indies beat India in the Ranchi T20I.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 60.334,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-3",
+      "style": "native",
+      "language": "hi",
+      "input": "रांची में दूसरे टी20 मुकाबले में वेस्टइंडीज ने भारत को छह विकेट से हराया",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "hi",
+        "languageName": "Hindi",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "West Indies defeated India by six wickets in the second T20 match in Ranchi.",
+        "claims": [
+          {
+            "claim": "West Indies defeated India by six wickets in the second T20 match in Ranchi.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 458.18,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 3,
+          "cached": 1
+        }
+      },
+      "degraded": [
+        "input understanding"
+      ],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-3",
+      "style": "forward",
+      "language": "ta-Latn",
+      "input": "Ranchi match la India thothuduchu, West Indies 6 wicket la jeichitanga 😡",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": true,
+        "speechAct": "assertion",
+        "tone": [
+          "angry",
+          "emotional"
+        ],
+        "english": "India lost the match in Ranchi, West Indies won by 6 wickets.",
+        "claims": [
+          {
+            "claim": "West Indies defeated India by 6 wickets in the match in Ranchi.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 189.881,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 3,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-4",
+      "style": "plain",
+      "language": "en",
+      "input": "Narendra Modi completed 25 years as a head of government on October 7",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Narendra Modi completed 25 years as a head of government on October 7",
+        "claims": [
+          {
+            "claim": "Narendra Modi completed 25 years as a head of government on October 7",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 203.81,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2
+        }
+      },
+      "degraded": [
+        "input understanding"
+      ],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-4",
+      "style": "question",
+      "language": "en",
+      "input": "Has PM Modi completed 25 years as head of government?",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Has PM Modi completed 25 years as head of government?",
+        "claims": [
+          {
+            "claim": "Narendra Modi has completed 25 years as head of government.",
+            "time": "now",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 147.655,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 1,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-4",
+      "style": "native",
+      "language": "hi",
+      "input": "प्रधानमंत्री मोदी ने शासन प्रमुख के रूप में 25 वर्ष पूरे किए",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "hi",
+        "languageName": "Hindi",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "celebratory",
+          "neutral"
+        ],
+        "english": "Prime Minister Modi has completed 25 years as head of government.",
+        "claims": [
+          {
+            "claim": "Narendra Modi has completed 25 years as head of government.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 86.088,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 1,
+          "cached": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-4",
+      "style": "forward",
+      "language": "ta-Latn",
+      "input": "Modi ji head of government ah 25 years complete pannitaaru nu Cabinet resolution pass pannirukaanga",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": true,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A Cabinet resolution has been passed stating that Modi Ji has completed 25 years as head of government.",
+        "claims": [
+          {
+            "claim": "The Indian Cabinet has passed a resolution stating that Narendra Modi has completed 25 years as head of government.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 75.049,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-5",
+      "style": "plain",
+      "language": "en",
+      "input": "The Tamil Nadu government has launched a scheme called Dream Olympics 2036",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The Tamil Nadu government has launched a scheme called Dream Olympics 2036",
+        "claims": [
+          {
+            "claim": "The Tamil Nadu government has launched a scheme called Dream Olympics 2036.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 87.435,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-5",
+      "style": "question",
+      "language": "en",
+      "input": "Did Vijay launch the Dream Olympics 2036 scheme?",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Did Vijay launch the Dream Olympics 2036 scheme?",
+        "claims": [
+          {
+            "claim": "Vijay launched the Dream Olympics 2036 scheme.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 80.424,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-5",
+      "style": "native",
+      "language": "ta",
+      "input": "தமிழக அரசு 'ட்ரீம் ஒலிம்பிக்ஸ் 2036' என்ற திட்டத்தை அறிமுகப்படுத்தியது",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The Tamil Nadu government introduced the scheme named 'Dream Olympics 2036'.",
+        "claims": [
+          {
+            "claim": "The Tamil Nadu government introduced the scheme named 'Dream Olympics 2036'.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 134.174,
+      "modelCalls": {
+        "total": 11,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 5,
+          "nim": 2
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-5",
+      "style": "forward",
+      "language": "ta-Latn",
+      "input": "Namma CM Vijay Dream Olympics 2036 scheme launch pannitaaru, Olympic gold ku 5 crore 🔥",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": true,
+        "speechAct": "assertion",
+        "tone": [
+          "celebratory"
+        ],
+        "english": "Our CM Vijay has launched the Dream Olympics 2036 scheme, 5 crore for Olympic gold",
+        "claims": [
+          {
+            "claim": "Tamil Nadu Chief Minister Vijay launched the Dream Olympics 2036 scheme with 5 crore rupees for Olympic gold medals.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 69.643,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 4,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-6",
+      "style": "plain",
+      "language": "en",
+      "input": "The Nobel Prize in Physics this year went to Francis Halzen",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The Nobel Prize in Physics this year went to Francis Halzen",
+        "claims": [
+          {
+            "claim": "The Nobel Prize in Physics this year went to Francis Halzen.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 53.583,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-6",
+      "style": "question",
+      "language": "en",
+      "input": "Did Francis Halzen win the Nobel Prize in Physics?",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Did Francis Halzen win the Nobel Prize in Physics?",
+        "claims": [
+          {
+            "claim": "Francis Halzen won the Nobel Prize in Physics.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 51.069,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-6",
+      "style": "native",
+      "language": "hi",
+      "input": "फ्रांसिस हाल्ज़ेन को 2026 का भौतिकी का नोबेल पुरस्कार मिला",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "hi",
+        "languageName": "Hindi",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Francis Halzen received the 2026 Nobel Prize in Physics.",
+        "claims": [
+          {
+            "claim": "Francis Halzen received the 2026 Nobel Prize in Physics.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 152.027,
+      "modelCalls": {
+        "total": 11,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 5,
+          "nim": 2
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-6",
+      "style": "forward",
+      "language": "ta-Latn",
+      "input": "IceCube neutrino research ku Francis Halzen ku Physics Nobel kidaichiruku 👏",
+      "expected": "REAL",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": true,
+        "speechAct": "assertion",
+        "tone": [
+          "celebratory"
+        ],
+        "english": "Francis Halzen has received the Physics Nobel for IceCube neutrino research",
+        "claims": [
+          {
+            "claim": "Francis Halzen received the Nobel Prize in Physics for IceCube neutrino research.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 69.578,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 4,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-7",
+      "style": "plain",
+      "language": "en",
+      "input": "The government is going to ban Instagram across India from 25 August",
+      "expected": "FAKE",
+      "alsoAcceptable": [],
+      "call": "REFUSED",
+      "rule": null,
+      "confidence": null,
+      "kind": "prediction",
+      "detail": "This is about the future, so there is nothing yet for anyone to confirm or deny.",
+      "readAs": null,
+      "seconds": 63.186,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-7",
+      "style": "question",
+      "language": "en",
+      "input": "Is Instagram being banned in India from August 25?",
+      "expected": "FAKE",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Is Instagram being banned in India from August 25?",
+        "claims": [
+          {
+            "claim": "Instagram is being banned in India from August 25.",
+            "time": "future",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 84.846,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-7",
+      "style": "native",
+      "language": "ta",
+      "input": "ஆகஸ்ட் 25 முதல் இந்தியாவில் இன்ஸ்டாகிராம் தடை செய்யப்படும் என அரசு அறிவிப்பு",
+      "expected": "FAKE",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "urgent"
+        ],
+        "english": "Government announces that Instagram will be banned in India starting August 25.",
+        "claims": [
+          {
+            "claim": "The Indian government announced that Instagram will be banned in India starting August 25.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 76.372,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 1,
+          "nim": 2,
+          "cached": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-7",
+      "style": "forward",
+      "language": "ta-Latn",
+      "input": "Aug 25 la irundhu India la Instagram ban!!! Ungal photos ellam backup eduthukonga, share to all groups",
+      "expected": "FAKE",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": true,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "urgent"
+        ],
+        "english": "Instagram is banned in India from August 25! Take backup of all your photos, share to all groups.",
+        "claims": [
+          {
+            "claim": "Instagram is banned in India from August 25.",
+            "time": "future",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 97.881,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 3,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-8",
+      "style": "plain",
+      "language": "en",
+      "input": "Jana Gana Mana was named the world's best national anthem by UNESCO",
+      "expected": "FAKE",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "celebratory",
+          "neutral"
+        ],
+        "english": "Jana Gana Mana was named the world's best national anthem by UNESCO",
+        "claims": [
+          {
+            "claim": "UNESCO named Jana Gana Mana the world's best national anthem.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 74.237,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-8",
+      "style": "question",
+      "language": "en",
+      "input": "Did UNESCO declare India's national anthem the best in the world?",
+      "expected": "FAKE",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Did UNESCO declare India's national anthem the best in the world?",
+        "claims": [
+          {
+            "claim": "UNESCO declared India's national anthem the best in the world.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 212.232,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 3
+        }
+      },
+      "degraded": [
+        "input understanding"
+      ],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-8",
+      "style": "native",
+      "language": "hi",
+      "input": "यूनेस्को ने जन गण मन को दुनिया का सबसे अच्छा राष्ट्रगान घोषित किया",
+      "expected": "FAKE",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "hi",
+        "languageName": "Hindi",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "celebratory",
+          "neutral"
+        ],
+        "english": "UNESCO declared Jana Gana Mana as the best national anthem in the world",
+        "claims": [
+          {
+            "claim": "UNESCO declared Jana Gana Mana as the best national anthem in the world.",
+            "time": "now",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 125.48,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 1,
+          "nim": 1,
+          "cached": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-8",
+      "style": "forward",
+      "language": "ta-Latn",
+      "input": "Proud moment 🇮🇳 UNESCO namma Jana Gana Mana va world best anthem nu declare pannirukaanga, share pannunga",
+      "expected": "FAKE",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "ta",
+        "languageName": "Tamil",
+        "romanized": true,
+        "speechAct": "assertion",
+        "tone": [
+          "celebratory",
+          "emotional"
+        ],
+        "english": "Proud moment! UNESCO has declared Jana Gana Mana as the world's best anthem, please share.",
+        "claims": [
+          {
+            "claim": "UNESCO declared the Indian national anthem Jana Gana Mana as the best anthem in the world.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 160.572,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 2,
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-9",
+      "style": "plain",
+      "language": "en",
+      "input": "Rs 2000 notes carry a nano GPS chip for tracking",
+      "expected": "FAKE",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist"
+        ],
+        "english": "Rs 2000 notes carry a nano GPS chip for tracking",
+        "claims": [
+          {
+            "claim": "Indian 2000-rupee notes contain a nano GPS chip for tracking.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 209.958,
+      "modelCalls": {
+        "total": 5,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 1
+        }
+      },
+      "degraded": [
+        "input understanding"
+      ],
+      "filed": null,
+      "outcome": "missed"
+    },
+    {
+      "claimId": "k-9",
+      "style": "question",
+      "language": "en",
+      "input": "Does the 2000 rupee note have a GPS chip in it?",
+      "expected": "FAKE",
+      "alsoAcceptable": [],
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "question",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Does the 2000 rupee note have a GPS chip in it?",
+        "claims": [
+          {
+            "claim": "The 2000 rupee note has a GPS chip in it.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "seconds": 217.771,
+      "modelCalls": {
+        "total": 5,
+        "byProvider": {
+          "ollama": 4,
+          "nim": 1
+        }
+      },
+      "degraded": [
+        "input understanding"
+      ],
+      "filed": null,
+      "outcome": "missed"
+    }
+  ]
+}

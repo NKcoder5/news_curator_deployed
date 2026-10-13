@@ -358,14 +358,22 @@ const analyzeTrust = async ({
   // Settles with the channel's result, or with its unread value once the
   // deadline passes. The work itself cannot be cancelled and is left to finish;
   // only the answer stops waiting for it.
+  // The news search is the evidence most verdicts rest on, so it waits much
+  // longer than the other channels: three times their deadline. Measured on
+  // 13 Oct, with Gemini timing out and the stance judgements falling back to
+  // slower providers, a 15-second limit cut the search off in 26 of 51
+  // held-out checks and each came back "we could not complete the search".
+  // A reader would rather wait than get no answer.
+  const PRIMARY = new Set(['verification']);
   const beforeDeadline = (name, promise, unread) => {
     if (!deadlineAt || !unread) return promise;
+    const until = PRIMARY.has(name) ? startedAt + 3 * (deadlineAt - startedAt) : deadlineAt;
     let timer;
     const late = new Promise(resolve => {
       timer = setTimeout(() => {
         unreadChannels.push(name);
         resolve(unread());
-      }, Math.max(0, deadlineAt - Date.now()));
+      }, Math.max(0, until - Date.now()));
     });
     return Promise.race([promise, late]).finally(() => clearTimeout(timer));
   };

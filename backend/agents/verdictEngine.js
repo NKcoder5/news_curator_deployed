@@ -272,6 +272,9 @@ const buildEvidenceLedger = ({
     // model outage would silently reclassify every article as commentary, which
     // carries a far higher ceiling than an unverified report.
     verificationRan: verificationStatus !== 'error' && !tooRecentToCorroborate,
+    // The search itself failed or was not read in time (not merely too
+    // recent for the index): nothing was observed, either way.
+    searchFailed: verificationStatus === 'error',
     tooRecentToCorroborate,
     articleAgeHours,
     indexLagHours,
@@ -520,7 +523,14 @@ const decideVerdict = (ledger) => {
   // Stated as "probably false" rather than "false". The encyclopedia entry may
   // be out of date, or may be about a different person of the same name, and
   // neither is visible from here. It is strong evidence, not proof.
-  if (ledger.premiseContradictions.length > 0) {
+  //
+  // Only when the news search ran. The rule's reasoning is that nobody reports
+  // an event built on a false premise; when the search could not run, that
+  // silence was never observed, and a model's reading of an encyclopedia entry
+  // is all that is left. Measured on 13 Oct, with the search failing and the
+  // reading done by fallback models, it called three true claims FAKE: "Nana
+  // Patekar died in Goa" against an entry that gives his death date.
+  if (ledger.premiseContradictions.length > 0 && !ledger.searchFailed) {
     const first = ledger.premiseContradictions[0];
     return decide('likely-false', 'premise-contradicted-by-reference', [
       `This article states: ${first.articleStates}`,
@@ -574,7 +584,10 @@ const decideVerdict = (ledger) => {
   // R2c — A fact-checking desk rated this same claim true, and no outlet
   // contradicts it. Short of two independent newsrooms (R5 still applies when
   // they exist), so stated as probably true.
-  if (ledger.factCheckStatus === 'confirmed' && ledger.factChecks.length > 0 && ledger.independentSupport < 2) {
+  // Not against an encyclopedia entry that contradicts it: with the news search
+  // failed (R2b stands aside), the two disagree and nothing settles it.
+  if (ledger.factCheckStatus === 'confirmed' && ledger.factChecks.length > 0 && ledger.independentSupport < 2
+    && !(ledger.searchFailed && ledger.premiseContradictions.length > 0)) {
     return decide('likely-true', 'rated-true-by-fact-checkers', [
       ...ledger.factChecks.slice(0, 3).map(describeReview),
       ledger.independentSupport === 1

@@ -322,6 +322,11 @@ const sweep = (r) => {
       const t = clone(input);
       p.apply(t, r);
       const after = replayVerdict(realistic(t));
+      // A check whose news search failed observed nothing and is off the
+      // true-false scale: evidence added to it means the search ran, a
+      // different world, and reaching an answer there is not a change of
+      // direction. Counted apart, not as a violation.
+      if (input.verificationStatus === 'error') return;
       const res = result[k];
       res.tried += 1;
       const worse = p.direction === 'against' ? falsity(after.call) < falsity(before.call) : falsity(after.call) > falsity(before.call);

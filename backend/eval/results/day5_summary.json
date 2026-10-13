@@ -1,0 +1,228 @@
+{
+  "ranAt": "2026-10-13T18:40:56.804Z",
+  "tag": null,
+  "stoppedAt": "nomemory",
+  "steps": [
+    {
+      "step": "matching",
+      "code": 0,
+      "seconds": 68,
+      "checks": null
+    },
+    {
+      "step": "heldout",
+      "code": 0,
+      "seconds": 2484,
+      "checks": 51
+    },
+    {
+      "step": "memory",
+      "code": 0,
+      "seconds": 3857,
+      "checks": 48
+    },
+    {
+      "step": "nomemory",
+      "code": 75,
+      "seconds": 3832,
+      "checks": 34
+    }
+  ],
+  "heldoutV2": {
+    "complete": true,
+    "overall": {
+      "n": 51,
+      "right": 20,
+      "safe": 7,
+      "missed": 21,
+      "wrong": 3
+    },
+    "byCategory": {
+      "true current event": {
+        "n": 9,
+        "right": 4,
+        "safe": 0,
+        "missed": 4,
+        "wrong": 1
+      },
+      "changed figure": {
+        "n": 3,
+        "right": 2,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 0
+      },
+      "reversed outcome": {
+        "n": 3,
+        "right": 1,
+        "safe": 0,
+        "missed": 2,
+        "wrong": 0
+      },
+      "changed detail": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "changed date": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "old news as today": {
+        "n": 7,
+        "right": 1,
+        "safe": 0,
+        "missed": 6,
+        "wrong": 0
+      },
+      "invented event": {
+        "n": 4,
+        "right": 0,
+        "safe": 4,
+        "missed": 0,
+        "wrong": 0
+      },
+      "viral rumour (fact-checked)": {
+        "n": 5,
+        "right": 2,
+        "safe": 0,
+        "missed": 3,
+        "wrong": 0
+      },
+      "evergreen myth (fact-checked)": {
+        "n": 2,
+        "right": 1,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 0
+      },
+      "Tamil": {
+        "n": 2,
+        "right": 1,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 0
+      },
+      "Hindi": {
+        "n": 2,
+        "right": 1,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 0
+      },
+      "Tanglish": {
+        "n": 2,
+        "right": 1,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 0
+      },
+      "question": {
+        "n": 2,
+        "right": 1,
+        "safe": 1,
+        "missed": 0,
+        "wrong": 0
+      },
+      "sarcasm": {
+        "n": 2,
+        "right": 0,
+        "safe": 1,
+        "missed": 0,
+        "wrong": 1
+      },
+      "opinion": {
+        "n": 3,
+        "right": 3,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "two claims": {
+        "n": 3,
+        "right": 0,
+        "safe": 1,
+        "missed": 1,
+        "wrong": 1
+      }
+    },
+    "medianSeconds": 28.788
+  },
+  "consistency": {
+    "withMemory": {
+      "complete": true,
+      "identicalCalls": "3/12",
+      "allPhrasingsRight": "1/12",
+      "filedTogether": "4/12",
+      "phrasings": {
+        "n": 48,
+        "right": 12,
+        "safe": 3,
+        "missed": 32,
+        "wrong": 1
+      },
+      "seconds": {
+        "median": 36.123000000000005,
+        "p90": 171.4
+      }
+    },
+    "noMemory": {
+      "complete": false,
+      "identicalCalls": "6/8",
+      "allPhrasingsRight": "0/8",
+      "filedTogether": "memory off",
+      "phrasings": {
+        "n": 34,
+        "right": 1,
+        "safe": 0,
+        "missed": 32,
+        "wrong": 1
+      },
+      "seconds": {
+        "median": 75.7105,
+        "p90": 209.958
+      }
+    }
+  },
+  "claimMatchingWithModel": {
+    "pairs": 46,
+    "exact": 45,
+    "falseMerges": 0,
+    "variantsMerged": 0,
+    "falseLinks": 0,
+    "sameRecall": "13/14",
+    "variantRecall": "12/12",
+    "differentKeptApart": "20/20",
+    "decoysKeptApart": "18/18",
+    "ambiguous": 6,
+    "modelConsulted": 6
+  },
+  "heldOutCalibration": {
+    "coverage": {
+      "k": 44,
+      "n": 47,
+      "rate": 0.936,
+      "low": 0.828,
+      "high": 0.978
+    },
+    "accuracyWhenAnswered": {
+      "k": 43,
+      "n": 44,
+      "rate": 0.977,
+      "low": 0.882,
+      "high": 0.996
+    },
+    "wrongDirection": {
+      "k": 0,
+      "n": 44,
+      "rate": 0,
+      "low": 0,
+      "high": 0.08
+    }
+  }
+}

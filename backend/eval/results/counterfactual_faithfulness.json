@@ -1,5 +1,5 @@
 {
-  "ranAt": "2026-10-13T15:41:49.566Z",
+  "ranAt": "2026-10-13T19:15:09.908Z",
   "seed": 12,
   "sets": {
     "stored": {
@@ -191,8 +191,8 @@
     },
     "random": {
       "ledgers": 2000,
-      "statements": 27921,
-      "agree": 27921,
+      "statements": 27938,
+      "agree": 27938,
       "rate": 1,
       "byKind": {
         "verdict": {
@@ -212,16 +212,16 @@
           "agree": 2000
         },
         "rests on": {
-          "n": 5470,
-          "agree": 5470
+          "n": 5455,
+          "agree": 5455
         },
         "would change": {
-          "n": 2226,
-          "agree": 2226
+          "n": 2242,
+          "agree": 2242
         },
         "would change (smallest)": {
-          "n": 2226,
-          "agree": 2226
+          "n": 2242,
+          "agree": 2242
         },
         "would change (complete)": {
           "n": 4000,
@@ -242,7 +242,7 @@
       {
         "name": "a fact-checker rates it false",
         "direction": "against",
-        "tried": 13886,
+        "tried": 13227,
         "broken": 0,
         "transitions": {},
         "examples": []
@@ -250,7 +250,7 @@
       {
         "name": "two more fresh outlets report otherwise",
         "direction": "against",
-        "tried": 20000,
+        "tried": 19059,
         "broken": 0,
         "transitions": {},
         "examples": []
@@ -258,7 +258,7 @@
       {
         "name": "the encyclopedia contradicts it",
         "direction": "against",
-        "tried": 17019,
+        "tried": 16222,
         "broken": 0,
         "transitions": {},
         "examples": []
@@ -266,7 +266,7 @@
       {
         "name": "two more fresh outlets confirm it",
         "direction": "for",
-        "tried": 20000,
+        "tried": 19059,
         "broken": 0,
         "transitions": {},
         "examples": []
@@ -274,7 +274,7 @@
       {
         "name": "a fact-checker rates it true",
         "direction": "for",
-        "tried": 13886,
+        "tried": 13227,
         "broken": 0,
         "transitions": {},
         "examples": []

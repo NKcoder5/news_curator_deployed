@@ -79,6 +79,7 @@ const runDueRechecks = async ({ check = null, limit = PER_TICK, now = Date.now()
 };
 
 let timer = null;
+let firstTick = null;
 
 /** Start the ticking. Called once the database is connected (app.js). */
 const startRecheckScheduler = () => {
@@ -86,11 +87,22 @@ const startRecheckScheduler = () => {
   const tick = () => runDueRechecks()
     .then(done => done.forEach(d => console.log(`Re-check: "${d.claim.slice(0, 70)}" ${d.before} -> ${d.after || `failed (${d.error})`}`)))
     .catch(err => console.warn('Re-check tick failed:', err.message));
-  setTimeout(tick, FIRST_TICK_MS).unref();
+  firstTick = setTimeout(tick, FIRST_TICK_MS);
+  firstTick.unref();
   timer = setInterval(tick, TICK_MS);
   timer.unref();
   console.log(`Re-checks of unsettled claims: on, at most ${dailyCap()} a day.`);
   return true;
 };
 
-module.exports = { runDueRechecks, startRecheckScheduler, remainingToday, dailyCap };
+/** Stop the ticking, for a shutdown: no new re-check starts after this. */
+const stopRecheckScheduler = () => {
+  if (firstTick) clearTimeout(firstTick);
+  if (timer) clearInterval(timer);
+  const wasRunning = Boolean(timer);
+  timer = null;
+  firstTick = null;
+  return wasRunning;
+};
+
+module.exports = { runDueRechecks, startRecheckScheduler, stopRecheckScheduler, remainingToday, dailyCap };

@@ -14,6 +14,7 @@ const { askPlainModel } = require('../agents/plainModelBaseline');
 const { resolveArticleText, limitText, TEXT_BUDGET, fingerprintText } = require('../utils/articleText');
 const TrustReportCache = require('../models/TrustReportCache');
 const SummaryCache = require('../models/SummaryCache');
+const { validate } = require('../middleware/validate');
 
 /**
  * Is this report a result, or a record of our own failure?
@@ -176,7 +177,7 @@ const sanitizeContent = (text) => {
   return text.replace(/\[\+\d+\s*chars?\]/gi, '').trim();
 };
 
-router.post('/summarize', async (req, res) => {
+router.post('/summarize', validate.article, async (req, res) => {
   const { article, url, title } = req.body;
   if (!article) {
     return res.status(400).json({ error: 'Article content is required' });
@@ -198,7 +199,7 @@ router.post('/summarize', async (req, res) => {
 // cross-source claim verification, aggregated into a weighted trust score.
 // Results are cached by article URL so the analysis runs once per article
 // and every later reader gets it instantly.
-router.post('/trust-analysis', async (req, res) => {
+router.post('/trust-analysis', validate.article, async (req, res) => {
   const { title, content, source, url, publishedAt } = req.body;
   if (!title) {
     return res.status(400).json({ error: 'Article title is required.' });
@@ -267,11 +268,23 @@ router.post('/trust-analysis', async (req, res) => {
 // plus optional { account } and { languageHint } for the screenshot case.
 const { runContentCheck } = require('../services/contentCheck');
 
-router.post('/analyze-content', async (req, res) => {
+// A refusal (4xx) or an outage the reader can wait out (503) carries a
+// message written for the reader. Anything else is a fault of ours, and its
+// message was written for the log: it can name a file, a library or a model,
+// so the reader gets a plain sentence and the request id instead.
+const checkFailure = (err, req) => {
+  const status = err.status || 500;
+  if (status < 500 || status === 503) return { status, body: err.payload || { error: 'Failed to analyse that content.' } };
+  console.error(`Content check failed (${req.id}):`, err.message);
+  return { status, body: { error: 'Failed to analyse that content.', code: 'INTERNAL_ERROR', requestId: req.id } };
+};
+
+router.post('/analyze-content', validate.contentCheck, async (req, res) => {
   try {
     res.json(await runContentCheck(req.body));
   } catch (err) {
-    res.status(err.status || 500).json(err.payload || { error: 'Failed to analyse that content.' });
+    const { status, body } = checkFailure(err, req);
+    res.status(status).json(body);
   }
 });
 
@@ -293,7 +306,7 @@ router.get('/claims/:id', async (req, res) => {
 // What a plain language model says about the same text, with nothing to read.
 // Shown beside the verdict on request, so the difference evidence makes is
 // visible rather than asserted. See agents/plainModelBaseline.js.
-router.post('/plain-answer', async (req, res) => {
+router.post('/plain-answer', validate.plainAnswer, async (req, res) => {
   const text = String(req.body?.text || '').trim();
   if (!text) return res.status(400).json({ error: 'Send the text to ask about.' });
   res.json(await askPlainModel(text));
@@ -302,7 +315,7 @@ router.post('/plain-answer', async (req, res) => {
 // The same check, streamed: what was read, then each evidence channel as it
 // lands with its one-line finding, then the report. Newline-delimited JSON,
 // for the same reason as the article stream below — the input is POSTed.
-router.post('/analyze-content/stream', async (req, res) => {
+router.post('/analyze-content/stream', validate.contentCheck, async (req, res) => {
   res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('X-Accel-Buffering', 'no');
@@ -325,7 +338,8 @@ router.post('/analyze-content/stream', async (req, res) => {
   } catch (err) {
     // A refusal travels with its status so the page can show it as a refusal,
     // not as a fault.
-    emit({ type: 'error', status: err.status || 500, ...(err.payload || { error: 'Failed to analyse that content.' }) });
+    const { status, body } = checkFailure(err, req);
+    emit({ type: 'error', status, ...body });
   }
   res.end();
 });
@@ -339,7 +353,7 @@ router.post('/analyze-content/stream', async (req, res) => {
 // Newline-delimited JSON rather than Server-Sent Events, because the article
 // body has to be POSTed and the browser's EventSource is GET-only. The client
 // reads it with fetch() and a stream reader.
-router.post('/trust-analysis/stream', async (req, res) => {
+router.post('/trust-analysis/stream', validate.article, async (req, res) => {
   const { title, content, source, url, publishedAt } = req.body;
   if (!title) {
     return res.status(400).json({ error: 'Article title is required.' });
@@ -404,7 +418,7 @@ router.post('/trust-analysis/stream', async (req, res) => {
 // Read any news link the user pastes (e.g. shared on WhatsApp) and return it
 // in the same shape as a feed article, so the normal article flow — summary,
 // trust check, coverage comparison — works on it unchanged.
-router.post('/extract-article', async (req, res) => {
+router.post('/extract-article', validate.link, async (req, res) => {
   const { url } = req.body;
   if (!url || typeof url !== 'string') {
     return res.status(400).json({ error: 'Please paste a news link.' });
@@ -439,7 +453,7 @@ router.post('/extract-article', async (req, res) => {
 // the full cached score when the article has been analyzed before, otherwise
 // an instant source-reputation hint. No LLM calls, so this stays fast enough
 // to run for a whole page of articles.
-router.post('/trust-badges', async (req, res) => {
+router.post('/trust-badges', validate.badges, async (req, res) => {
   const { articles } = req.body;
   if (!Array.isArray(articles)) {
     return res.status(400).json({ error: 'articles array is required.' });
@@ -495,7 +509,7 @@ router.post('/trust-badges', async (req, res) => {
 
 // Compare Coverage: how different outlets reported the same story, each with
 // its source reputation and headline quality, plus a framing comparison.
-router.post('/compare-coverage', async (req, res) => {
+router.post('/compare-coverage', validate.coverage, async (req, res) => {
   const { title, query, source, url } = req.body;
   if (!title && !query) {
     return res.status(400).json({ error: 'An article title or a search query is required.' });
@@ -515,7 +529,7 @@ router.post('/compare-coverage', async (req, res) => {
   }
 });
 
-router.post('/detailed-summary', async (req, res) => {
+router.post('/detailed-summary', validate.article, async (req, res) => {
   try {
     const { article, url, title } = req.body;
     if (!article) {

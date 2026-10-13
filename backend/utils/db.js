@@ -15,12 +15,9 @@ const connectDB = async () => {
       console.log('MongoDB disconnected');
     });
 
-    // Handle process termination
-    process.on('SIGINT', async () => {
-      await mongoose.connection.close();
-      process.exit(0);
-    });
-
+    // Closing on SIGINT/SIGTERM is app.js's job: it stops taking requests
+    // first and closes the connection last. A handler here closed the
+    // database under requests still in flight and exited before they ended.
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
     process.exit(1);

@@ -13,6 +13,7 @@ const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { searchCoverageBroadening } = require('../utils/newsFetcher');
 const { getSourceReputation } = require('./sourceReputationAgent');
 const { analyzeClickbait } = require('./clickbaitAgent');
+const { UNTRUSTED_NOTICE, fence, oneOf, clip, clipList } = require('../utils/untrusted');
 
 // How the lightweight per-outlet coverage score is composed.
 const COVERAGE_WEIGHTS = { reputation: 0.6, headline: 0.4 };
@@ -27,7 +28,9 @@ const deriveKeywords = async (title) => {
   // distinctive words (names, places) retrieve far more coverage than a long list.
   const prompt = `A news article has this headline:
 
-"${title}"
+${fence(title, { label: 'headline', max: 400 })}
+
+${UNTRUSTED_NOTICE}
 
 Give the search keywords another news website would use for the SAME story.
 
@@ -35,7 +38,8 @@ Return a JSON object with one key, "keywords": a string of exactly 3 or 4 of the
 
   try {
     const result = await callNimApiJson(prompt, { maxTokens: 120, requiredKeys: ['keywords'], label: 'coverage keywords' });
-    const kw = String(result.keywords || '').trim();
+    // Keywords go to the news search, so they are a short line of words.
+    const kw = clip(result.keywords, 120).replace(/\s+/g, ' ');
     if (kw) return kw;
   } catch (err) {
     console.error('Keyword derivation failed:', err.message);
@@ -56,12 +60,14 @@ Return a JSON object with one key, "keywords": a string of exactly 3 or 4 of the
  */
 const compareFraming = async (outlets) => {
   const list = outlets
-    .map((o, i) => `[${i + 1}] ${o.source}: "${o.title}" — ${(o.description || '').slice(0, 200)}`)
+    .map((o, i) => `[${i + 1}] ${o.source}: "${o.title}" — ${(o.description || '').slice(0, 200)}`.replace(/\s+/g, ' '))
     .join('\n');
 
   const prompt = `You are a media analysis assistant. Below is how different news outlets reported the same story.
 
-${list}
+${UNTRUSTED_NOTICE}
+
+${fence(list, { label: 'coverage', max: MAX_OUTLETS * 600 })}
 
 Compare the coverage. Return a JSON object with these keys:
 - "topic": a neutral description of the story in at most 12 words.
@@ -73,17 +79,17 @@ Compare the coverage. Return a JSON object with these keys:
   try {
     const result = await callNimApiJson(prompt, { maxTokens: 900, requiredKeys: ['agreement'], label: 'coverage comparison' });
     return {
-      topic: String(result.topic || ''),
-      agreement: ['high', 'mixed', 'low'].includes(result.agreement) ? result.agreement : 'mixed',
-      sharedFacts: (Array.isArray(result.shared_facts) ? result.shared_facts : []).map(String).slice(0, 3),
+      topic: clip(result.topic, 120),
+      agreement: oneOf(result.agreement, ['high', 'mixed', 'low'], 'mixed'),
+      sharedFacts: clipList(result.shared_facts, 3, 300),
       differences: (Array.isArray(result.differences) ? result.differences : [])
-        .filter(d => d && d.point)
+        .filter(d => d && typeof d === 'object' && clip(d.point, 400))
         .map(d => ({
-          point: String(d.point),
-          outlets: (Array.isArray(d.outlets) ? d.outlets : []).map(String)
+          point: clip(d.point, 400),
+          outlets: clipList(d.outlets, MAX_OUTLETS, 80)
         }))
         .slice(0, 3),
-      summary: String(result.summary || '')
+      summary: clip(result.summary, 600)
     };
   } catch (err) {
     console.error('Framing comparison failed:', err.message);

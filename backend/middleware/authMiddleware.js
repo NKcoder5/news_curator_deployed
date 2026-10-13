@@ -24,7 +24,9 @@ const authMiddleware = async (req, res, next) => {
 
     try {
       // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      // The algorithm is pinned: a token that names a different one (or
+      // "none") is refused rather than checked the way it asks to be.
+      const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
       
       // Get user from database
       const user = await User.findById(decoded.userId);

@@ -22,7 +22,12 @@ const apiAccess = (req, res, next) => {
   if (expected && given) {
     const a = Buffer.from(String(given));
     const b = Buffer.from(String(expected));
-    if (a.length === b.length && crypto.timingSafeEqual(a, b)) return next();
+    if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
+      // The evaluation scripts run whole suites back to back; the per-reader
+      // rate limits (middleware/rateLimits.js) do not apply to them.
+      req.internalCaller = true;
+      return next();
+    }
   }
   return authMiddleware(req, res, next);
 };

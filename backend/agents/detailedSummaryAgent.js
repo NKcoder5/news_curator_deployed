@@ -10,6 +10,7 @@
 // "Detailed" means it uses more of what is in the text — not that it adds
 // anything the text does not contain.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
+const { UNTRUSTED_NOTICE, fence, clip } = require('../utils/untrusted');
 
 const REASONING_LEAK = /^\s*(we (need|must|should|can)\b|let me\b|first,? I\b|the text (is|appears)\b|okay,?\s|so we\b|i('| a)m going to\b)/i;
 
@@ -44,14 +45,14 @@ Cover only what the text actually says. If it breaks off mid-story, summarise th
 
 Return a JSON object with exactly one key, "summary", whose value is that summary as a plain-prose string.
 
+${UNTRUSTED_NOTICE}
+
 Text:
-"""
-${text}
-"""`;
+${fence(text, { label: 'news text', max: 6000 })}`;
 
   const data = await callNimApiJson(prompt, { maxTokens: 1100, temperature: 0.2, requiredKeys: ['summary'], label: 'detailed summary' });
 
-  const summary = String(data?.summary || '').trim();
+  const summary = clip(data?.summary, 3000);
   if (!summary) throw new Error('The model returned no summary text.');
   if (REASONING_LEAK.test(summary)) {
     throw new Error('The model narrated its instructions instead of summarising.');

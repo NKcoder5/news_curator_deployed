@@ -15,6 +15,7 @@
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { languageDirective } = require('../utils/language');
 const { manipulationByRules } = require('./heuristics');
+const { UNTRUSTED_NOTICE, fence, oneOf, clip } = require('../utils/untrusted');
 
 const TECHNIQUES = {
   'loaded language': 'Emotionally charged words chosen to provoke a reaction rather than inform.',
@@ -61,10 +62,10 @@ const detectManipulation = async (title, content, language) => {
   // object with named keys, the same model answers correctly.
   const prompt = `You are a propaganda-technique analyst. Identify persuasion techniques used in this news text.
 
+${UNTRUSTED_NOTICE}
+
 Text:
-"""
-${text}
-"""
+${fence(text, { label: 'news text', max: 3000 })}
 
 Techniques to look for:
 ${catalogue}
@@ -86,21 +87,20 @@ Return a JSON object with these keys:
     const result = await callNimApiJson(prompt, { maxTokens: 1000, requiredKeys: ['techniques'], label: 'manipulation' });
 
     const techniques = (Array.isArray(result.techniques) ? result.techniques : [])
-      .filter(t => t && t.quote && t.technique)
+      .filter(t => t && typeof t === 'object' && clip(t.quote, 600) && clip(t.technique, 60))
       .map(t => {
-        const name = String(t.technique).toLowerCase().trim();
+        const name = oneOf(t.technique, TECHNIQUE_NAMES, 'loaded language');
         return {
-          technique: TECHNIQUE_NAMES.includes(name) ? name : 'loaded language',
+          technique: name,
           definition: TECHNIQUES[name] || '',
-          quote: String(t.quote),
-          effect: String(t.effect || '')
+          quote: clip(t.quote, 600),
+          effect: clip(t.effect, 300)
         };
       })
       .slice(0, 3);
 
-    const intensity = ['none', 'light', 'moderate', 'heavy'].includes(result.intensity)
-      ? result.intensity
-      : (techniques.length === 0 ? 'none'
+    const intensity = oneOf(result.intensity, ['none', 'light', 'moderate', 'heavy'], null)
+      || (techniques.length === 0 ? 'none'
         : techniques.length === 1 ? 'light'
         : techniques.length === 2 ? 'moderate' : 'heavy');
 
@@ -114,7 +114,7 @@ Return a JSON object with these keys:
       score,
       intensity,
       techniques,
-      summary: String(result.summary || ''),
+      summary: clip(result.summary, 500),
       distinctCount: new Set(techniques.map(t => t.technique)).size,
       method: 'model'
     };

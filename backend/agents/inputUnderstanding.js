@@ -27,10 +27,17 @@
 // works — less well — rather than not at all.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { findAnchors } = require('./checkability');
+const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip, clipList } = require('../utils/untrusted');
 
 const SPEECH_ACTS = new Set(['assertion', 'question', 'hedged', 'sarcasm', 'opinion', 'exhortation', 'prediction', 'mixed']);
 const TIMES = new Set(['now', 'past', 'timeless', 'future']);
 const KINDS = new Set(['event', 'figure', 'quote', 'standing_fact', 'prediction', 'opinion']);
+const TONES = new Set(['neutral', 'alarmist', 'emotional', 'celebratory', 'sarcastic', 'angry', 'urgent']);
+
+// Every field of the reading is shown to the reader or searched for, so each
+// is held to what the prompt asked for. A claim is one sentence, not an essay
+// a message talked the model into writing.
+const MAX_CLAIM_CHARS = 300;
 
 const LANGUAGE_NAMES = {
   en: 'English', ta: 'Tamil', hi: 'Hindi', te: 'Telugu', kn: 'Kannada', ml: 'Malayalam', bn: 'Bengali',
@@ -65,10 +72,10 @@ const buildPrompt = (text) => {
 
 Today is ${today}. Judge every date against today, not against what you remember: events dated in 2026 up to today have already happened, and the user is asking about them.
 
+${UNTRUSTED_NOTICE}
+
 Message:
-"""
-${String(text).slice(0, 1800)}
-"""
+${fence(text, { label: 'message', max: 1800 })}
 
 Return a JSON object with these keys:
 - "language": the ISO 639-1 code of the message's main language ("ta", "hi", "en", ...). Tamil or Hindi typed in English letters is still "ta" or "hi".
@@ -106,20 +113,28 @@ const understandInput = async (text) => {
     return null;
   }
 
-  const language = String(result.language || 'en').toLowerCase().slice(0, 2);
-  const romanized = Boolean(result.romanized) && language !== 'en';
-  const speechAct = SPEECH_ACTS.has(result.speech_act) ? result.speech_act : 'assertion';
+  // A language code is two letters; anything else is not one, and the reader
+  // is not shown it as the name of their language.
+  // A model that answers "Tamil" for "ta" has still said Tamil.
+  const code = clip(result.language, 12).toLowerCase();
+  const language = /^[a-z]{2}(?:[-_][a-z]{2,4})?$/.test(code) ? code.slice(0, 2)
+    : (Object.keys(LANGUAGE_NAMES).find(k => LANGUAGE_NAMES[k].toLowerCase() === code) || 'en');
+  // Booleans are read as booleans: Boolean("false") is true.
+  const romanized = asBool(result.romanized) === true && language !== 'en';
+  const speechAct = oneOf(result.speech_act, SPEECH_ACTS, 'assertion');
 
   const claims = (Array.isArray(result.claims) ? result.claims : [])
-    .filter(c => c && c.claim)
+    .filter(c => c && typeof c === 'object' && typeof c.claim === 'string' && c.claim.trim())
     .slice(0, 3)
     .map(c => {
-      const claim = String(c.claim).trim();
-      const keywordsEn = asWords(c.search_keywords_en) || null;
+      const claim = clip(c.claim, MAX_CLAIM_CHARS);
+      const keywordsEn = clip(asWords(c.search_keywords_en), 120) || null;
       // Romanised Tamil keywords match nothing: the press writes Tamil in Tamil
       // script and English in English. Search in English for those.
-      const native = asWords(c.search_keywords);
+      const native = clip(asWords(c.search_keywords), 120);
       const keywords = romanized || !native ? (keywordsEn || claim) : native;
+      const kind = oneOf(c.kind, KINDS, 'event');
+      const time = oneOf(c.time, TIMES, null);
       // A claim the model calls checkable must still name something: a model
       // can talk itself into "checkable" about "something big is coming".
       const anchors = findAnchors(claim);
@@ -128,20 +143,20 @@ const understandInput = async (text) => {
         || (/^\p{Lu}/u.test(firstWord) && firstWord.length > 2 && !/^(The|This|That|There|They|It|A|An|Some|Something|Everyone|People)$/.test(firstWord));
       return {
         claim,
-        headline: c.headline ? String(c.headline).slice(0, 160) : null,
-        subject: c.subject ? String(c.subject).slice(0, 60) : null,
-        otherSubject: c.other_subject ? String(c.other_subject).slice(0, 60) : null,
+        headline: clip(c.headline, 160) || null,
+        subject: clip(c.subject, 60) || null,
+        otherSubject: clip(c.other_subject, 60) || null,
         keywords,
         keywordsEn,
-        time: presentedAsNow(claim, body, c.kind) && c.time !== 'future' ? 'now' : (TIMES.has(c.time) ? c.time : 'past'),
-        kind: KINDS.has(c.kind) ? c.kind : 'event',
+        time: presentedAsNow(claim, body, kind) && time !== 'future' ? 'now' : (time || 'past'),
+        kind,
         // The model's own "checkable" is advisory. It has marked a claim about
         // the 2026 Asian Games uncheckable because, from its training, 2026
         // had not happened yet. A named factual claim goes to the evidence; if
         // nothing bears on it the verdict says so, which is safe. Only
         // opinions and forecasts are held back.
-        checkable: named && !['prediction', 'opinion'].includes(c.kind)
-          && (Boolean(c.checkable) || ['event', 'figure', 'quote', 'standing_fact'].includes(c.kind))
+        checkable: named && !['prediction', 'opinion'].includes(kind)
+          && (asBool(c.checkable) === true || ['event', 'figure', 'quote', 'standing_fact'].includes(kind))
       };
     });
 
@@ -150,11 +165,11 @@ const understandInput = async (text) => {
     languageName: LANGUAGE_NAMES[language] || language,
     romanized,
     speechAct,
-    tone: (Array.isArray(result.tone) ? result.tone : []).map(String).slice(0, 3),
-    english: String(result.english || '').trim() || body,
+    tone: clipList(result.tone, 3, 20).map(t => t.toLowerCase()).filter(t => TONES.has(t)),
+    english: clip(result.english, 2000) || body,
     claims,
     checkableClaims: claims.filter(c => c.checkable),
-    notCheckableReason: String(result.not_checkable_reason || '').trim()
+    notCheckableReason: clip(result.not_checkable_reason, 300)
   };
 };
 

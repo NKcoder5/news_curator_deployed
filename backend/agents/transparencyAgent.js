@@ -21,6 +21,7 @@
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { languageDirective } = require('../utils/language');
 const { transparencyByRules } = require('./heuristics');
+const { UNTRUSTED_NOTICE, fence, clip, clipList } = require('../utils/untrusted');
 
 // Each check contributes to the score. Weights reflect how strongly the
 // practice separates reported journalism from fabricated copy.
@@ -65,10 +66,10 @@ const assessTransparency = async (title, content, language) => {
   // object with named keys, the same model answers correctly.
   const prompt = `You are a journalism standards analyst. Judge how VERIFIABLE this news text is — whether a reader could go and check what it says. Judge only what is present in the text, not whether the story sounds true.
 
+${UNTRUSTED_NOTICE}
+
 Text:
-"""
-${text}
-"""
+${fence(text, { label: 'news text', max: 3000 })}
 
 Assess each check as true or false:
 ${checklist}
@@ -85,7 +86,7 @@ Return a JSON object with these keys:
 
   try {
     const result = await callNimApiJson(prompt, { maxTokens: 900, requiredKeys: ['checks'], label: 'transparency' });
-    const raw = result.checks || {};
+    const raw = result.checks && typeof result.checks === 'object' && !Array.isArray(result.checks) ? result.checks : {};
 
     const checks = CHECKS.map(c => ({
       id: c.id,
@@ -100,10 +101,7 @@ Return a JSON object with these keys:
     const total = CHECKS.reduce((sum, c) => sum + c.weight, 0);
     let score = (earned / total) * 10;
 
-    const vagueAttributions = (Array.isArray(result.vague_attributions) ? result.vague_attributions : [])
-      .filter(Boolean)
-      .map(String)
-      .slice(0, 5);
+    const vagueAttributions = clipList(result.vague_attributions, 5, 200);
 
     // Each unattributable appeal costs a little beyond the checklist itself:
     // it is the signature move of fabricated copy.
@@ -122,10 +120,9 @@ Return a JSON object with these keys:
       checks,
       passedCount,
       totalChecks: CHECK_IDS.length,
-      namedExamples: (Array.isArray(result.named_examples) ? result.named_examples : [])
-        .filter(Boolean).map(String).slice(0, 4),
+      namedExamples: clipList(result.named_examples, 4, 120),
       vagueAttributions,
-      summary: String(result.summary || ''),
+      summary: clip(result.summary, 500),
       method: 'model'
     };
   } catch (err) {

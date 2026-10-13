@@ -10,6 +10,7 @@
 // fact-check matching and the verdict rules add.
 const { PROVIDERS } = require('../utils/llmProviders');
 const { extractJson } = require('../utils/nvidiaNimApi');
+const { UNTRUSTED_NOTICE, fence, oneOf, clip } = require('../utils/untrusted');
 
 /**
  * @param {string} claim
@@ -24,18 +25,22 @@ const askPlainModel = async (claim) => {
     return { call: 'ERROR', reason: 'No hosted model is configured.', model, ms: 0 };
   }
   const today = new Date().toISOString().slice(0, 10);
+  // The reader's text is fenced like every other prompt's: the comparison is
+  // with a plain model asked plainly, not with one that obeys the message.
   const prompt = `Today is ${today}. Is the following claim true or false?
 
-"${String(claim).slice(0, 1200)}"
+${UNTRUSTED_NOTICE}
+
+${fence(claim, { label: 'claim', max: 1200 })}
 
 Answer with a JSON object: {"answer": "TRUE" | "FALSE" | "UNSURE", "reason": "<one sentence>"}. Answer UNSURE if you cannot tell.`;
   try {
     const raw = await gemini.send({ model, prompt, maxTokens: 300, temperature: 0, topP: 1, timeout: 30000, json: true });
     const parsed = extractJson(raw);
-    const answer = String(parsed?.answer || '').toUpperCase();
+    const answer = oneOf(parsed?.answer, ['true', 'false', 'unsure'], 'unsure');
     return {
-      call: answer === 'TRUE' ? 'REAL' : answer === 'FALSE' ? 'FAKE' : 'CANNOT VERIFY',
-      reason: String(parsed?.reason || ''),
+      call: answer === 'true' ? 'REAL' : answer === 'false' ? 'FAKE' : 'CANNOT VERIFY',
+      reason: clip(parsed?.reason, 400),
       model,
       ms: Date.now() - started
     };

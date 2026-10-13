@@ -8,6 +8,7 @@
 const axios = require('axios');
 const dns = require('dns').promises;
 const net = require('net');
+const { safeGet, isBlockedAddress, isRefusal } = require('./safeFetch');
 
 const MAX_BYTES = 2 * 1024 * 1024; // 2 MB is far more than any article page needs
 const FETCH_TIMEOUT = 12000;
@@ -34,7 +35,12 @@ const assertPublicUrl = async (rawUrl) => {
     throw scheme;
   }
 
-  const { address } = await dns.lookup(parsed.hostname).catch(() => {
+  // Every address the name resolves to, not only the first: a name with one
+  // public and one private record is a private address half the time. The
+  // ranges are utils/safeFetch.js's, which also checks the address actually
+  // connected to, on every redirect.
+  const host = parsed.hostname.replace(/^\[|\]$/g, '');
+  const addresses = net.isIP(host) ? [{ address: host }] : await dns.lookup(host, { all: true }).catch(() => {
     // A host that does not resolve is not a fault on our side, and it is not
     // a finding about the article either. Reported as 500 it told monitoring
     // the server had broken; the reader now gets 422 and the two things they
@@ -44,20 +50,7 @@ const assertPublicUrl = async (rawUrl) => {
     throw unreachable;
   });
 
-  const isPrivate = (ip) => {
-    if (net.isIPv4(ip)) {
-      const [a, b] = ip.split('.').map(Number);
-      return a === 10 || a === 127 || a === 0 ||
-        (a === 172 && b >= 16 && b <= 31) ||
-        (a === 192 && b === 168) ||
-        (a === 169 && b === 254) ||
-        (a === 100 && b >= 64 && b <= 127);
-    }
-    const lower = ip.toLowerCase();
-    return lower === '::1' || lower.startsWith('fc') || lower.startsWith('fd') || lower.startsWith('fe80');
-  };
-
-  if (isPrivate(address)) {
+  if (addresses.length === 0 || addresses.some(a => isBlockedAddress(a.address))) {
     // Refusing to fetch our own network is a guard working, not a crash.
     const priv = new Error('That link points to a private address and cannot be checked.');
     priv.code = 'BAD_URL';
@@ -189,15 +182,22 @@ const extractArticle = async (rawUrl, { headlineFallback = true, readerTimeout =
 
   let html;
   try {
-    const response = await axios.get(parsed.href, {
+    const response = await safeGet(parsed.href, {
       timeout: FETCH_TIMEOUT,
-      maxContentLength: MAX_BYTES,
+      maxBytes: MAX_BYTES,
       maxRedirects: 3,
       responseType: 'text',
       headers: BROWSER_HEADERS
     });
     html = String(response.data || '');
   } catch (err) {
+    // The guard refusing a redirect into a private network is an answer, not
+    // a page that failed to load: no fallback is tried on its behalf.
+    if (isRefusal(err)) {
+      const refused = new Error(err.message);
+      refused.code = 'BAD_URL';
+      throw refused;
+    }
     const hostname = parsed.hostname.replace(/^www\./, '');
     // Both fallbacks start at once; the reader's text is preferred when it works.
     const headlinePromise = headlineFallback ? headlineFromAddress(parsed).catch(() => null) : Promise.resolve(null);

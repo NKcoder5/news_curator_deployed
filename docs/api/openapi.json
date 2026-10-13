@@ -46,6 +46,24 @@
         }
       }
     },
+    "/ready": {
+      "get": {
+        "tags": ["Operations"],
+        "operationId": "getReady",
+        "summary": "Readiness check",
+        "description": "Answers `200` only when MongoDB is connected and at least one language-model provider is configured; otherwise `503`, with which of the two is missing. Use it to decide whether to send readers to this instance; use `/health` to decide whether to restart it.",
+        "responses": {
+          "200": {
+            "description": "Ready to serve checks.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Readiness" } } }
+          },
+          "503": {
+            "description": "The database is not connected or no model provider is configured.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Readiness" } } }
+          }
+        }
+      }
+    },
 
     "/api/auth/signup": {
       "post": {
@@ -58,12 +76,13 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Credentials" } } }
         },
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "201": {
             "description": "Account created.",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SignupResponse" } } }
           },
           "400": {
-            "description": "The email is not valid, the password is too short, or the account already exists (`User already exists`).",
+            "description": "The email is not valid, the password is shorter than 8 or longer than 72 characters, or an account cannot be created with that email (it already has one).",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
           },
           "500": { "$ref": "#/components/responses/ServerError" }
@@ -80,6 +99,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Credentials" } } }
         },
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "Signed in.",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginResponse" } } }
@@ -394,6 +414,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CheckAnythingRequest" } } }
         },
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "The finished check.",
             "content": {
@@ -435,6 +456,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CheckAnythingRequest" } } }
         },
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "A stream of JSON objects, one per line. The schema describes one line.",
             "content": {
@@ -473,6 +495,7 @@
           }
         },
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "The model's answer. A model that is not configured or cannot be reached is reported as `call: ERROR` with status 200, not as a fault.",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PlainAnswer" } } }
@@ -494,6 +517,7 @@
         "security": [{ "bearerAuth": [] }, { "internalKey": [] }],
         "parameters": [{ "$ref": "#/components/parameters/ClaimId" }],
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "The claim's history.",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ClaimHistory" } } }
@@ -520,6 +544,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TrustAnalysisRequest" } } }
         },
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "The trust report.",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TrustReportResponse" } } }
@@ -545,6 +570,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TrustAnalysisRequest" } } }
         },
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "A stream of JSON objects, one per line. The schema describes one line.",
             "content": { "application/x-ndjson": { "schema": { "$ref": "#/components/schemas/TrustStreamEvent" } } }
@@ -569,6 +595,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SummaryRequest" } } }
         },
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "The summary.",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SummaryResponse" } } }
@@ -594,6 +621,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SummaryRequest" } } }
         },
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "The summary.",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SummaryResponse" } } }
@@ -627,6 +655,7 @@
           }
         },
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "The article.",
             "content": {
@@ -688,6 +717,7 @@
           }
         },
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "One badge per article, in order.",
             "content": {
@@ -734,6 +764,7 @@
           }
         },
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "The comparison, or `status: insufficient-coverage` when fewer than two outlets covered it.",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CoverageComparison" } } }
@@ -775,6 +806,7 @@
           { "name": "cursor", "in": "query", "description": "The `nextCursor` of the previous page. Opaque; valid only with the same `sort`.", "schema": { "type": "string", "maxLength": 200 } }
         ],
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "A page of claims.",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ClaimList" } } }
@@ -793,6 +825,7 @@
         "description": "Counted from the stored checks, so a claim checked ten times today outranks one checked a hundred times last year. Re-checks by the scheduler and evaluation runs are not counted.",
         "parameters": [{ "$ref": "#/components/parameters/RegistryLimit10" }],
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "The most-checked claims.",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TrendingClaims" } } }
@@ -811,6 +844,7 @@
         "description": "The latest checks whose verdict differs from the one before, newest first, each with the reason in terms of the evidence that appeared or disappeared.",
         "parameters": [{ "$ref": "#/components/parameters/RegistryLimit10" }],
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "Recent changes.",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ChangedVerdicts" } } }
@@ -827,6 +861,7 @@
         "operationId": "registryStats",
         "summary": "Headline numbers for the registry",
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "Totals.",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegistryStats" } } }
@@ -844,6 +879,7 @@
         "description": "The claim, its latest verdict and the evidence it rests on, the rule that decided it with that rule's measured record, every verdict reached on it, and related wordings that have their own page. Contains no message text and nothing that identifies a reader.",
         "parameters": [{ "$ref": "#/components/parameters/ClaimId" }],
         "responses": {
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "200": {
             "description": "The claim.",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ClaimDetail" } } }
@@ -899,7 +935,12 @@
     },
 
     "responses": {
-      "Unauthorized": {
+      "TooManyRequests": {
+      "description": "Over the caller's allowance (per reader on `/api/ai`, per address on sign-in, signup and the registry; see `backend/middleware/rateLimits.js`). `Retry-After` gives the seconds to wait. Not applied to callers presenting `x-internal-key`.",
+      "headers": { "Retry-After": { "schema": { "type": "integer" }, "description": "Seconds until the allowance resets." } },
+      "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+    },
+    "Unauthorized": {
         "description": "No token, a malformed header, or a token that is invalid, expired or belongs to a deleted account. On `/api/ai`, also returned when `x-internal-key` is wrong.",
         "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
       },
@@ -1089,7 +1130,26 @@
       "Error": {
         "type": "object",
         "required": ["error"],
-        "properties": { "error": { "type": "string", "description": "A message written for the reader." } }
+        "properties": {
+          "error": { "type": "string", "description": "A message written for the reader." },
+          "code": { "type": "string", "description": "Machine-readable, where the server sets one.", "examples": ["RATE_LIMITED", "INVALID_INPUT", "TOO_LONG", "INVALID_JSON", "PAYLOAD_TOO_LARGE", "INVALID_FIELD_NAME", "NOT_FOUND", "INTERNAL_ERROR"] },
+          "field": { "type": "string", "description": "For INVALID_INPUT and TOO_LONG: the request field at fault." },
+          "requestId": { "type": "string", "description": "The same value as the X-Request-Id response header; quote it when reporting a fault." }
+        }
+      },
+      "Readiness": {
+        "type": "object",
+        "required": ["status", "checks"],
+        "properties": {
+          "status": { "type": "string", "enum": ["READY", "NOT READY"] },
+          "checks": {
+            "type": "object",
+            "properties": {
+              "database": { "type": "string", "enum": ["connected", "not connected"] },
+              "models": { "type": "string", "enum": ["configured", "none configured"] }
+            }
+          }
+        }
       },
       "NewsError": {
         "type": "object",

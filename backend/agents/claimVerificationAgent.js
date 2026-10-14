@@ -8,6 +8,53 @@ const { getSourceReputation } = require('./sourceReputationAgent');
 const { isSearchable } = require('../utils/language');
 const { filterRelevant, anchorTerms, distinctiveTerms } = require('./evidenceRelevance');
 const { judgePairs } = require('../services/localNli');
+const { signatureOf } = require('../services/claimSignature');
+
+// A changed figure is a comparison, not a judgement. "CJP leaders Saurav Das
+// and Ashutosh Ranka were sent to 4 days in judicial custody" against nine
+// headlines saying "5 days", "five days" and "5-Day" came back UNPROVEN when
+// every hosted model was out of quota and the stance judgement could not run.
+// Headlines that name the claim's people or places and state a different
+// figure for the same unit, while none states the claim's own figure, are
+// read here directly (figures and units as services/claimSignature.js reads
+// them): used when the judgement fails, and to overrule a judgement that
+// found such headlines in agreement.
+const figureConflicts = (claim, coverage) => {
+  const sc = signatureOf(claim);
+  // Names are matched as the relevance check matches them (agents/
+  // evidenceRelevance.js): headlines are in Title Case, where every word looks
+  // like a name, so the claim's names are looked for among the headline's.
+  const names = anchorTerms(claim);
+  if (!sc.numbers.length || !names.size) return null;
+  const needNames = Math.min(2, names.size);
+  const conflicting = [];
+  let stated = 0;
+  for (const item of coverage) {
+    const sh = signatureOf(item.title || '');
+    const words = anchorTerms(item.title || '');
+    if ([...names].filter(n => words.has(n)).length < needNames) continue;
+    for (const n of sc.numbers) {
+      const same = sh.numbers.filter(h => h.unit && h.unit === n.unit);
+      if (same.some(h => h.value === n.value)) stated += 1;
+      const other = same.find(h => h.value !== n.value);
+      if (other) { conflicting.push({ item, reported: other.raw, unit: n.unit }); break; }
+    }
+  }
+  const outlets = new Set(conflicting.map(c => String(c.item.source || '').toLowerCase()));
+  if (stated > 0 || outlets.size < 2) return null;
+  return conflicting.map(c => ({
+    source: c.item.source, title: c.item.title, description: c.item.description || '', url: c.item.url,
+    publishedAt: c.item.publishedAt, reported: c.reported,
+    reliability: getSourceReputation(c.item.source, c.item.url).score
+  }));
+};
+const byFigures = (claim, coverage, why) => {
+  const against = figureConflicts(claim, coverage);
+  if (!against) return null;
+  return { verdict: 'contradicted', supportingEvidence: [], contradictingEvidence: against, discardedEvidence: [],
+    explanation: `${why}${against.length} headline${against.length > 1 ? 's' : ''} about the same people report a different figure: "${against[0].reported}".`,
+    figures: true };
+};
 
 // Headlines in an Indian script cannot share words with an English claim, so
 // the word-overlap relevance check (agents/evidenceRelevance.js) set every one
@@ -310,6 +357,8 @@ Return a JSON object with these keys:
     });
   } catch (err) {
     console.error('Claim judgement failed:', err.message);
+    const figured = byFigures(claim, coverage, 'The headlines could not be judged by a model, but ');
+    if (figured) return figured;
     return { verdict: 'undetermined', failed: true, supportingEvidence: [], contradictingEvidence: [],
       discardedEvidence: [], explanation: 'This claim could not be judged against the coverage that was found.' };
   }
@@ -327,6 +376,8 @@ Return a JSON object with these keys:
     // used to fail in silence: the only trace was the reader being told the
     // check had not run.
     console.error('Claim judgement unusable: items was', JSON.stringify(result?.items)?.slice(0, 80));
+    const figured = byFigures(claim, coverage, 'The model\'s judgement was unreadable, but ');
+    if (figured) return figured;
     return { verdict: 'undetermined', failed: true, supportingEvidence: [], contradictingEvidence: [],
       discardedEvidence: [], explanation: 'The judgement of this claim came back unreadable, so it was not counted.' };
   }
@@ -393,6 +444,12 @@ Return a JSON object with these keys:
   contradiction.kept.push(...await acrossScripts(claim, notKept(contradictionItems, contradiction.kept), 'contradiction'));
 
   if (verdict === 'supported' && support.kept.length === 0) verdict = 'unverified';
+  // A "supported" from a model, against headlines about the same people that
+  // all give a different figure, is overruled by the figures themselves.
+  if (verdict === 'supported') {
+    const figured = byFigures(claim, coverage, '');
+    if (figured) return { ...figured, explanation: `${figured.explanation} The model's reading of them as agreeing was set aside.` };
+  }
   if (verdict === 'contradicted' && contradiction.kept.length === 0) {
     verdict = support.kept.length > 0 ? 'supported' : 'unverified';
   }
@@ -704,5 +761,5 @@ module.exports = {
   extractClaims,
   // Exposed for the regression tests that cover what happens when the search
   // or the judgement cannot run. Not part of the pipeline's interface.
-  __test: { judgeClaim, gatherCoverage, summariseResults, deriveKeywords }
+  __test: { judgeClaim, gatherCoverage, summariseResults, deriveKeywords, figureConflicts }
 };

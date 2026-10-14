@@ -239,11 +239,11 @@
     },
     "premise check": {
       "chain": [
-        "nim",
         "gemini",
+        "nim",
         "ollama"
       ],
-      "reason": "local returns well-formed replies but got the known answer right 0% of the time, below the 80% gate",
+      "reason": "set by hand on 2026-10-14: on the reviewer probe the NIM model, chosen for article premises, found no conflict between \"The Taj Mahal is in Chennai\" and an entry placing it in Agra, nor between \"India got independence in 1950\" and the India entry; reading a claim against an entry is a judgement of meaning, routed with the other judgements",
       "measured": {
         "nim": {
           "validity": 1,
@@ -267,7 +267,8 @@
           "runs": 3
         }
       },
-      "scoreDrift": null
+      "scoreDrift": null,
+      "overriddenAt": "2026-10-14"
     },
     "coverage keywords": {
       "chain": [

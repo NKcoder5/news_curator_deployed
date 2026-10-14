@@ -1,17 +1,17 @@
 {
-  "ranAt": "2026-10-13T15:36:38.271Z",
+  "ranAt": "2026-10-14T10:36:17.387Z",
   "suite": "claim_matching_heldout",
   "summary": {
     "pairs": 46,
-    "exact": 43,
+    "exact": 41,
     "falseMerges": 0,
     "variantsMerged": 0,
     "falseLinks": 0,
-    "sameRecall": "11/14",
-    "variantRecall": "12/12",
+    "sameRecall": "10/14",
+    "variantRecall": "11/12",
     "differentKeptApart": "20/20",
     "decoysKeptApart": "18/18",
-    "ambiguous": 6,
+    "ambiguous": 17,
     "modelConsulted": "off"
   },
   "rows": [
@@ -31,9 +31,11 @@
       "a": "Navi Pillay won the 2026 Nobel Peace Prize.",
       "b": "The 2026 Nobel Peace Prize was awarded to Navi Pillay.",
       "label": "same",
-      "got": "same",
-      "differences": [],
-      "score": 0.84,
+      "got": "variant",
+      "differences": [
+        "roles reversed: navi over nobel vs nobel over navi"
+      ],
+      "score": 1,
       "ambiguous": false,
       "askedModel": false
     },
@@ -99,7 +101,7 @@
       "label": "same",
       "got": "same",
       "differences": [],
-      "score": 0.91,
+      "score": 0.87,
       "ambiguous": false,
       "askedModel": false
     },
@@ -121,7 +123,7 @@
       "label": "same",
       "got": "different",
       "differences": [],
-      "score": 0.6,
+      "score": 0.63,
       "ambiguous": true,
       "askedModel": false
     },
@@ -305,11 +307,9 @@
       "a": "Navi Pillay accepted the Nobel Peace Prize.",
       "b": "Navi Pillay did not accept the Nobel Peace Prize.",
       "label": "variant",
-      "got": "variant",
-      "differences": [
-        "one says the opposite of the other"
-      ],
-      "score": 0.84,
+      "got": "different",
+      "differences": [],
+      "score": 0.6,
       "ambiguous": false,
       "askedModel": false
     },
@@ -334,8 +334,8 @@
       "decoy": true,
       "got": "different",
       "differences": [],
-      "score": 0.1,
-      "ambiguous": false,
+      "score": 0.55,
+      "ambiguous": true,
       "askedModel": false
     },
     {
@@ -347,7 +347,7 @@
       "got": "different",
       "differences": [],
       "score": 0.29,
-      "ambiguous": false,
+      "ambiguous": true,
       "askedModel": false
     },
     {
@@ -371,7 +371,7 @@
       "got": "different",
       "differences": [],
       "score": 0.28,
-      "ambiguous": false,
+      "ambiguous": true,
       "askedModel": false
     },
     {
@@ -383,7 +383,7 @@
       "got": "different",
       "differences": [],
       "score": 0.23,
-      "ambiguous": false,
+      "ambiguous": true,
       "askedModel": false
     },
     {
@@ -419,7 +419,7 @@
       "got": "different",
       "differences": [],
       "score": 0.12,
-      "ambiguous": false,
+      "ambiguous": true,
       "askedModel": false
     },
     {
@@ -430,7 +430,7 @@
       "decoy": true,
       "got": "different",
       "differences": [],
-      "score": 0.48,
+      "score": 0.4,
       "ambiguous": true,
       "askedModel": false
     },
@@ -442,7 +442,7 @@
       "decoy": true,
       "got": "different",
       "differences": [],
-      "score": 0.46,
+      "score": 0.45,
       "ambiguous": true,
       "askedModel": false
     },
@@ -455,7 +455,7 @@
       "got": "different",
       "differences": [],
       "score": 0.09,
-      "ambiguous": false,
+      "ambiguous": true,
       "askedModel": false
     },
     {
@@ -467,7 +467,7 @@
       "got": "different",
       "differences": [],
       "score": 0.64,
-      "ambiguous": false,
+      "ambiguous": true,
       "askedModel": false
     },
     {
@@ -479,7 +479,7 @@
       "got": "different",
       "differences": [],
       "score": 0.5,
-      "ambiguous": false,
+      "ambiguous": true,
       "askedModel": false
     },
     {
@@ -515,7 +515,7 @@
       "got": "different",
       "differences": [],
       "score": 0.2,
-      "ambiguous": false,
+      "ambiguous": true,
       "askedModel": false
     },
     {
@@ -526,8 +526,8 @@
       "decoy": true,
       "got": "different",
       "differences": [],
-      "score": 0.23,
-      "ambiguous": false,
+      "score": 0.16,
+      "ambiguous": true,
       "askedModel": false
     },
     {
@@ -539,7 +539,7 @@
       "got": "different",
       "differences": [],
       "score": 0.43,
-      "ambiguous": false,
+      "ambiguous": true,
       "askedModel": false
     },
     {

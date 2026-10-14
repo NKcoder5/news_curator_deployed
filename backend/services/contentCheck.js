@@ -10,6 +10,7 @@ const { extractArticle } = require('../utils/articleExtractor');
 const { ingestSocialContent } = require('../utils/socialIngest');
 const { readImageText, packForLanguage } = require('../utils/ocr');
 const { assessCheckability } = require('../agents/checkability');
+const { arithmeticReport } = require('./arithmetic');
 const { limitText, TEXT_BUDGET } = require('../utils/articleText');
 const { understandInput } = require('../agents/inputUnderstanding');
 const { lookupClaims, prepareRecord, stillCurrent, noteSeenAgain, ENGINE_VERSION } = require('./claimMemory');
@@ -200,6 +201,13 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
     // that answers the questions it cannot answer teaches people to distrust
     // the answers it gets right, so this refuses instead, and says what would
     // make the input usable.
+    // An equation is worked out, not searched for (services/arithmetic.js).
+    const worked = arithmeticReport(ingested.content);
+    if (worked) {
+      stage({ id: 'understood', name: 'Understood', languageName: 'English', speechAct: 'assertion', claims: [worked.understanding.english] });
+      return worked;
+    }
+
     const checkability = assessCheckability(ingested.content, ingested.title);
 
     // The same message, checked minutes ago, for a reader.

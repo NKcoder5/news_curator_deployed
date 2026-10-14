@@ -39,7 +39,11 @@ const { judgePairs } = require('../services/localNli');
 // 0.00-0.01, and the real ones ("Chennai is the capital of Karnataka",
 // "Rahul Gandhi is the Prime Minister") 0.86-1.00. Without the model files
 // (CI, a fresh clone) the model's opinion is absent and nothing is filtered.
-const SECOND_OPINION_MIN = 0.5;
+// The bar is low on purpose: at 0.5 it also vetoed real contradictions the
+// model reads less surely ("Humans have three hearts" against "the heart is
+// divided into four chambers", 0.10), while the invented ones all scored
+// 0.015 or less.
+const SECOND_OPINION_MIN = 0.05;
 const secondOpinion = async (contradictions) => {
   if (!contradictions.length) return { kept: contradictions, overruled: [] };
   const pairs = contradictions.map(c => ({ premise: c.referenceStates || '', hypothesis: c.articleStates || '' }));
@@ -160,8 +164,11 @@ const checkPremises = async (title, content, subjects = []) => {
     return { status: 'no-entities', checked: [], contradictions: [], explanation: 'This article names no person or organisation to look up.' };
   }
 
+  // Both: "Chennai is the capital of Tamil Nadu and the giraffe is a fish"
+  // names Chennai in capitals, and the giraffe was never looked up.
   const named = anchors.names.length ? rankEntities(groupNames(text), title) : [];
-  const entities = named.length ? named : given;
+  const seen = new Set(named.map(e => String(e).toLowerCase()));
+  const entities = [...named, ...given.filter(g => !seen.has(g.toLowerCase()))].slice(0, 3);
   if (entities.length === 0) {
     return { status: 'no-entities', checked: [], contradictions: [], explanation: 'This article names no person or organisation to look up.' };
   }
@@ -270,7 +277,7 @@ ${fence(`Title: ${title}\nText: ${String(content || '').slice(0, 900)}`, { label
 
 First decide whether the entry is even about the same ${entity} the article means. Names are shared: a local council officer, a cricketer and an actress can carry the same name, and an entry about one of them says nothing about another. If the entry describes a person or thing in a plainly different walk of life from the one the article describes, they are different subjects and there is no contradiction.
 
-The encyclopedia will not mention most of what the article says. That is normal and is NOT a contradiction. Answer "contradicts": true ONLY when the entry is about the SAME subject AND states something that directly conflicts with a fact the article asserts about ${entity} — for example a different office holder, a different date, a different organisation.
+The encyclopedia will not mention most of what the article says. That is normal and is NOT a contradiction. Answer "contradicts": true ONLY when the entry is about the SAME subject AND states something that directly conflicts with a fact the article asserts about ${entity} — for example a different office holder, a different date, a different organisation, a different place ("The Taj Mahal is in Chennai" against an entry placing it in Agra), or a different kind of thing ("Giraffe is a fish" against an entry calling giraffes mammals). The "article" may be a single sentence stating a general fact; judge that sentence the same way.
 
 Return a JSON object with these keys:
 - "same_subject": true when the entry is about the same ${entity} the article means, false when it is a different person or thing that happens to share the name.

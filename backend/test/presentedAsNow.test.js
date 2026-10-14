@@ -20,3 +20,14 @@ test('a standing fact or a dated event is not turned into a claim about now', ()
   assert.strictEqual(presentedAsNow('India won the Cricket World Cup in 2011.', 'Today I learnt India won the World Cup in 2011'), false);
   assert.strictEqual(presentedAsNow('TVK won both bypolls.', 'TVK won both bypolls'), false);
 });
+
+const { claimTime } = require('../agents/inputUnderstanding');
+
+test('a claim is about now only when the message places it in the present', () => {
+  assert.strictEqual(claimTime('now', 'ISRO launched the EOS-05 satellite.', 'ISRO successfully launched the EOS-05 satellite on the GSLV-F17 rocket', '', 'event'), 'past');
+  assert.strictEqual(claimTime('now', 'RBI cut the repo rate.', 'RBI cut the repo rate by 50 basis points this week', '', 'event'), 'now');
+  assert.strictEqual(claimTime('now', 'Instagram will be banned.', 'Instagram will be banned in India from 25 August', '', 'event'), 'now');
+  assert.strictEqual(claimTime('now', 'Banks will stay shut.', 'Banks shut from Monday!!', '', 'event'), 'now');
+  assert.strictEqual(claimTime('past', 'Chandrayaan-3 landed on the Moon.', 'Chandrayaan-3 lands on the Moon today', '', 'event'), 'now');
+  assert.strictEqual(claimTime('timeless', 'Giraffe is a mammal.', 'Giraffe is a mammal', '', 'standing_fact'), 'timeless');
+});

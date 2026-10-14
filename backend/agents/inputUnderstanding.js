@@ -61,6 +61,21 @@ const presentedAsNow = (claim, message, kind = 'event') => {
     && !/\b(?:19|20)\d{2}\b/.test(claim);
 };
 
+// A claim is about now only when the message says so. The model's "time"
+// varies from one call to the next, and a September launch read as "now"
+// made its September coverage look like old news passed off as new: "ISRO
+// successfully launched the EOS-05 satellite" came back FAKE on one run of
+// the held-out suite and REAL on the next. Without a word placing it in the
+// present — today, this week, breaking, from tomorrow, will — "now" is read
+// as "past".
+const NOW_MARKERS = /\b(?:today|tonight|now|currently|just|breaking|latest|live|ongoing|tomorrow|will|announce[sd]?|this (?:week|morning|evening|afternoon|month|year)|(?:on|from|by|till|until|before) (?:tomorrow|today|tonight|midnight|next|this|monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december|\d))\b|is being|are being|இன்று|இப்போது|நாளை|आज|अभी|कल/i;
+const claimTime = (modelTime, claim, message, english, kind) => {
+  if (presentedAsNow(claim, message, kind) && modelTime !== 'future') return 'now';
+  const time = modelTime || 'past';
+  if (time === 'now' && !NOW_MARKERS.test(`${message} ${english || ''}`)) return 'past';
+  return time;
+};
+
 // Keywords arrive as a string or as a list, sometimes comma-separated; the
 // search wants plain words.
 const asWords = (value) => (Array.isArray(value) ? value.join(' ') : String(value || ''))
@@ -87,7 +102,8 @@ Return a JSON object with these keys:
   - "claim": one neutral, declarative English sentence. Spell names in full and in their usual English form ("Modi ji" → "Narendra Modi", "தவெக" → "TVK"; keep abbreviations such as TVK, DMK, RBI). For a question, the proposition asked about ("Did India win 84 medals?" → "India won 84 medals at the Asian Games 2026."). For a hedge, the claim being passed on, not the hedge. For sarcasm, the literal claim being mocked ("Oh sure, and Musk bought Jio too" → "Elon Musk bought Reliance Jio."). Keep negation exactly as stated ("TVK did not lose" stays negative). Keep every figure, place and date the message gives, and add none it does not.
   - "time": "now" if presented as happening today or this week — even when the event itself happened long ago ("Chandrayaan-3 lands on the Moon today" is "now": the message presents it as today's news, and that is what must be checked). Keep "today" as the word "today" in the claim; do not replace it with a date, "past" for an earlier event, "timeless" for a standing fact, "future" only for a forecast of something that has not happened ("RBI will cut rates in December"). An announcement or decision reported as made, even one that takes effect later ("gazette declares holidays from November", "notes invalid from midnight"), is "now": the claim is that the announcement was made.
   - "kind": "event", "figure", "quote", "standing_fact", "prediction" (a forecast, not a reported decision) or "opinion". A message that states as settled that an authority or organisation will do something soon — a power cut in Madurai from tomorrow, banks shut from Monday, notes invalid from midnight — is claiming the decision has been announced: write the claim as that announcement ("A week-long power cut in Madurai from tomorrow has been announced"), with time "now" and kind "event". Only a forecast of an outcome nobody has yet decided ("RBI will cut rates in December", "petrol prices will rise") is a "prediction".
-  - "checkable": true if it names a specific person, organisation, place, event or figure, or states a general fact about something a reference work describes — an animal, a plant, a substance, a natural phenomenon, a body in space, a country ("Giraffe is a fish", "The sun rises in the west", "Water boils at 100 degrees Celsius") — so that news reports or a reference work could confirm or refute it. A general fact is kind "standing_fact", time "timeless", and its subject is the thing it is about ("giraffe", "Sun"). Opinions, predictions and vague statements are false.
+  - "checkable": true if it names a specific person, organisation, place, event or figure, or states a general fact about something a reference work describes — an animal, a plant, a substance, a natural phenomenon, a body in space, a country ("Giraffe is a fish", "The sun rises in the west", "Water boils at 100 degrees Celsius") — so that news reports or a reference work could confirm or refute it. A general fact is kind "standing_fact", time "timeless", and its subject is the thing it is about ("giraffe", "Sun"). Opinions, predictions and vague statements are false, and so is anything about a private person known only to the sender ("my neighbour Ramesh bought a car", "my friend's son got a job"): no news report or reference work covers private lives.
+  A forward that tells the reader to act ("register now", "forward to everyone", "apply before Sunday") still asserts what it urges about: "Government is giving free laptops to all students, register at the link" claims that the government is giving free laptops to all students. List that claim, with time "now" and kind "event", even when the message's speech act is an exhortation.
   - "headline": the claim as a short English news headline.
   - "subject": the specific person, organisation, event or thing it is about, in 1 to 4 English words a news search would use — not a whole country on its own.
   - "other_subject": a second person, organisation or thing the claim is about, in the same form, or an empty string ("Elon Musk bought Reliance Jio": subject "Elon Musk", other_subject "Reliance Jio").
@@ -162,7 +178,7 @@ const understandInput = async (text) => {
         keywordsEn,
         regionLanguage: keywordsRegional ? regionLanguage : null,
         keywordsRegional,
-        time: presentedAsNow(claim, body, kind) && time !== 'future' ? 'now' : (time || 'past'),
+        time: claimTime(time, claim, body, result.english, kind),
         kind,
         // The model's own "checkable" is advisory. It has marked a claim about
         // the 2026 Asian Games uncheckable because, from its training, 2026
@@ -187,4 +203,4 @@ const understandInput = async (text) => {
   };
 };
 
-module.exports = { understandInput, LANGUAGE_NAMES, presentedAsNow };
+module.exports = { understandInput, LANGUAGE_NAMES, presentedAsNow, claimTime };

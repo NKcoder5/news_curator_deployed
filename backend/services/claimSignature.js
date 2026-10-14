@@ -172,7 +172,9 @@ const readEntities = (text) => {
     // in an institution's word. People's names with a title before them
     // ("Army Chief Dhiraj Seth", "General Dhiraj Seth") became initials that
     // shared nothing with each other, and one claim was filed twice.
-    const organisation = /\s(?:of|and|for)\s/.test(run)
+    // "and" alone joins people as often as it names a body ("Saurav Das and
+    // Ashutosh Ranka" became the initials "sdar"), so it does not count.
+    const organisation = /\s(?:of|for)\s/.test(run)
       || /\b(?:Bank|Court|Board|Commission|Corporation|Committee|Council|Ministry|Department|Authority|Agency|Organi[sz]ation|Institute|University|Party|Federation|Association|Union|Limited|Ltd|Services|Assembly|Parliament|Tribunal|Police|Forces?)$/.test(run);
     if (organisation && words.length >= 3 && words.length <= 6) {
       names.add(words.map(w => w[0]).join('').toLowerCase());

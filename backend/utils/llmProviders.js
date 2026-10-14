@@ -77,7 +77,14 @@ const nim = {
       // produced 2,238 characters of "Let's examine each…" and no JSON at all,
       // which the pipeline then had to report as an unrun check. Constrained
       // decoding removes the prose rather than asking the model to skip it.
-      ...(json ? { response_format: { type: 'json_object' } } : {})
+      ...(json ? { response_format: { type: 'json_object' } } : {}),
+      // Nemotron thinks before it answers unless told not to, and the thinking
+      // comes out of the same token budget. Measured on 14 Oct on a stance
+      // judgement of twelve headlines: thinking on, 368 tokens of reasoning
+      // and 16.9 s; on the real, longer prompts it ran out before the JSON,
+      // and every fallback that day failed as "Invalid response format".
+      // Thinking off: 0 reasoning tokens, a complete reply, 9.1 s.
+      ...(/nemotron/i.test(String(model)) ? { chat_template_kwargs: { enable_thinking: false } } : {})
     }, {
       headers: {
         Authorization: `Bearer ${process.env.NIM_API_KEY}`,

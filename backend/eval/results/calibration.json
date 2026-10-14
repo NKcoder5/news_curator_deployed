@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-12T15:46:22.771Z",
+  "generatedAt": "2026-10-14T06:26:38.178Z",
   "sources": [
     {
       "file": "robustness_final.json",
@@ -18,8 +18,22 @@
     {
       "file": "checkAnything_benchmark.json",
       "suite": "benchmark",
-      "ranAt": "2026-10-12T08:18:00.807Z",
+      "ranAt": "2026-10-13T19:09:59.402Z",
       "cases": 22,
+      "droppedAsQuota": 0
+    },
+    {
+      "file": "robustness_heldout_v2.json",
+      "suite": "heldout_v2",
+      "ranAt": "2026-10-14T06:04:08.145Z",
+      "cases": 51,
+      "droppedAsQuota": 0
+    },
+    {
+      "file": "consistency_with_memory.json",
+      "suite": "consistency (memory on)",
+      "ranAt": "2026-10-14T06:24:37.642Z",
+      "cases": 48,
       "droppedAsQuota": 0
     }
   ],
@@ -95,105 +109,105 @@
       "confidence": null
     },
     "held-out": {
-      "cases": 49,
-      "right": 46,
+      "cases": 100,
+      "right": 93,
       "coverage": {
-        "k": 44,
-        "n": 47,
-        "rate": 0.936,
-        "low": 0.828,
-        "high": 0.978
+        "k": 88,
+        "n": 95,
+        "rate": 0.926,
+        "low": 0.856,
+        "high": 0.964
       },
       "accuracyWhenAnswered": {
-        "k": 43,
-        "n": 44,
-        "rate": 0.977,
-        "low": 0.882,
-        "high": 0.996
+        "k": 87,
+        "n": 88,
+        "rate": 0.989,
+        "low": 0.938,
+        "high": 0.998
       },
       "wrongDirection": {
         "k": 0,
-        "n": 44,
+        "n": 88,
         "rate": 0,
         "low": 0,
-        "high": 0.08
+        "high": 0.042
       },
       "abstentionsDue": {
-        "k": 3,
-        "n": 5,
-        "rate": 0.6,
-        "low": 0.231,
-        "high": 0.882
+        "k": 6,
+        "n": 12,
+        "rate": 0.5,
+        "low": 0.254,
+        "high": 0.746
       },
       "perCall": {
         "REAL": {
-          "k": 22,
-          "n": 22,
+          "k": 37,
+          "n": 37,
           "rate": 1,
-          "low": 0.851,
+          "low": 0.906,
           "high": 1
         },
         "FAKE": {
-          "k": 20,
-          "n": 20,
+          "k": 47,
+          "n": 47,
           "rate": 1,
-          "low": 0.839,
+          "low": 0.924,
           "high": 1
         },
         "PARTLY FALSE": {
-          "k": 1,
-          "n": 2,
-          "rate": 0.5,
-          "low": 0.095,
-          "high": 0.905
+          "k": 3,
+          "n": 4,
+          "rate": 0.75,
+          "low": 0.301,
+          "high": 0.954
         },
         "CANNOT VERIFY": {
           "k": 2,
-          "n": 4,
-          "rate": 0.5,
-          "low": 0.15,
-          "high": 0.85
+          "n": 7,
+          "rate": 0.286,
+          "low": 0.082,
+          "high": 0.641
         },
         "REFUSED": {
-          "k": 1,
-          "n": 1,
-          "rate": 1,
-          "low": 0.207,
-          "high": 1
+          "k": 4,
+          "n": 5,
+          "rate": 0.8,
+          "low": 0.376,
+          "high": 0.964
         }
       },
       "confidence": {
-        "n": 21,
-        "ece": 0.144,
+        "n": 65,
+        "ece": 0.163,
         "bins": [
           {
             "bin": "0.0-0.6",
-            "n": 1,
-            "meanConfidence": 0.55,
+            "n": 3,
+            "meanConfidence": 0.56,
             "accuracy": 1
           },
           {
             "bin": "0.6-0.7",
-            "n": 2,
-            "meanConfidence": 0.6,
+            "n": 4,
+            "meanConfidence": 0.622,
             "accuracy": 1
           },
           {
             "bin": "0.7-0.8",
-            "n": 3,
-            "meanConfidence": 0.77,
+            "n": 17,
+            "meanConfidence": 0.738,
             "accuracy": 1
           },
           {
             "bin": "0.8-0.9",
-            "n": 1,
-            "meanConfidence": 0.84,
+            "n": 8,
+            "meanConfidence": 0.85,
             "accuracy": 1
           },
           {
             "bin": "0.9-1.0",
-            "n": 14,
-            "meanConfidence": 0.934,
+            "n": 33,
+            "meanConfidence": 0.936,
             "accuracy": 1
           }
         ],
@@ -202,25 +216,25 @@
             "coverage": 0.25,
             "minConfidence": 0.95,
             "accuracy": 1,
-            "n": 5
+            "n": 16
           },
           {
             "coverage": 0.5,
-            "minConfidence": 0.91,
+            "minConfidence": 0.9,
             "accuracy": 1,
-            "n": 11
+            "n": 33
           },
           {
             "coverage": 0.75,
-            "minConfidence": 0.77,
+            "minConfidence": 0.75,
             "accuracy": 1,
-            "n": 16
+            "n": 49
           },
           {
             "coverage": 1,
             "minConfidence": 0.55,
             "accuracy": 1,
-            "n": 21
+            "n": 65
           }
         ]
       }
@@ -351,7 +365,7 @@
       },
       "confidence": {
         "n": 21,
-        "ece": 0.144,
+        "ece": 0.159,
         "bins": [
           {
             "bin": "0.0-0.6",
@@ -367,20 +381,20 @@
           },
           {
             "bin": "0.7-0.8",
-            "n": 3,
-            "meanConfidence": 0.77,
+            "n": 4,
+            "meanConfidence": 0.773,
             "accuracy": 1
           },
           {
             "bin": "0.8-0.9",
-            "n": 1,
+            "n": 3,
             "meanConfidence": 0.84,
             "accuracy": 1
           },
           {
             "bin": "0.9-1.0",
-            "n": 14,
-            "meanConfidence": 0.934,
+            "n": 11,
+            "meanConfidence": 0.936,
             "accuracy": 1
           }
         ],
@@ -393,7 +407,7 @@
           },
           {
             "coverage": 0.5,
-            "minConfidence": 0.91,
+            "minConfidence": 0.9,
             "accuracy": 1,
             "n": 11
           },
@@ -408,6 +422,261 @@
             "minConfidence": 0.55,
             "accuracy": 1,
             "n": 21
+          }
+        ]
+      }
+    },
+    "heldout_v2": {
+      "cases": 51,
+      "right": 47,
+      "coverage": {
+        "k": 44,
+        "n": 48,
+        "rate": 0.917,
+        "low": 0.804,
+        "high": 0.967
+      },
+      "accuracyWhenAnswered": {
+        "k": 44,
+        "n": 44,
+        "rate": 1,
+        "low": 0.92,
+        "high": 1
+      },
+      "wrongDirection": {
+        "k": 0,
+        "n": 44,
+        "rate": 0,
+        "low": 0,
+        "high": 0.08
+      },
+      "abstentionsDue": {
+        "k": 3,
+        "n": 7,
+        "rate": 0.429,
+        "low": 0.158,
+        "high": 0.75
+      },
+      "perCall": {
+        "REAL": {
+          "k": 15,
+          "n": 15,
+          "rate": 1,
+          "low": 0.796,
+          "high": 1
+        },
+        "FAKE": {
+          "k": 27,
+          "n": 27,
+          "rate": 1,
+          "low": 0.875,
+          "high": 1
+        },
+        "PARTLY FALSE": {
+          "k": 2,
+          "n": 2,
+          "rate": 1,
+          "low": 0.342,
+          "high": 1
+        },
+        "CANNOT VERIFY": {
+          "k": 0,
+          "n": 3,
+          "rate": 0,
+          "low": 0,
+          "high": 0.562
+        },
+        "REFUSED": {
+          "k": 3,
+          "n": 4,
+          "rate": 0.75,
+          "low": 0.301,
+          "high": 0.954
+        }
+      },
+      "confidence": {
+        "n": 44,
+        "ece": 0.165,
+        "bins": [
+          {
+            "bin": "0.0-0.6",
+            "n": 2,
+            "meanConfidence": 0.565,
+            "accuracy": 1
+          },
+          {
+            "bin": "0.6-0.7",
+            "n": 2,
+            "meanConfidence": 0.645,
+            "accuracy": 1
+          },
+          {
+            "bin": "0.7-0.8",
+            "n": 13,
+            "meanConfidence": 0.728,
+            "accuracy": 1
+          },
+          {
+            "bin": "0.8-0.9",
+            "n": 5,
+            "meanConfidence": 0.856,
+            "accuracy": 1
+          },
+          {
+            "bin": "0.9-1.0",
+            "n": 22,
+            "meanConfidence": 0.936,
+            "accuracy": 1
+          }
+        ],
+        "curve": [
+          {
+            "coverage": 0.25,
+            "minConfidence": 0.95,
+            "accuracy": 1,
+            "n": 11
+          },
+          {
+            "coverage": 0.5,
+            "minConfidence": 0.9,
+            "accuracy": 1,
+            "n": 22
+          },
+          {
+            "coverage": 0.75,
+            "minConfidence": 0.72,
+            "accuracy": 1,
+            "n": 33
+          },
+          {
+            "coverage": 1,
+            "minConfidence": 0.55,
+            "accuracy": 1,
+            "n": 44
+          }
+        ]
+      }
+    },
+    "consistency (memory on)": {
+      "cases": 48,
+      "right": 46,
+      "coverage": {
+        "k": 46,
+        "n": 48,
+        "rate": 0.958,
+        "low": 0.86,
+        "high": 0.988
+      },
+      "accuracyWhenAnswered": {
+        "k": 46,
+        "n": 46,
+        "rate": 1,
+        "low": 0.923,
+        "high": 1
+      },
+      "wrongDirection": {
+        "k": 0,
+        "n": 46,
+        "rate": 0,
+        "low": 0,
+        "high": 0.077
+      },
+      "abstentionsDue": {
+        "k": 0,
+        "n": 2,
+        "rate": 0,
+        "low": 0,
+        "high": 0.658
+      },
+      "perCall": {
+        "REAL": {
+          "k": 23,
+          "n": 23,
+          "rate": 1,
+          "low": 0.857,
+          "high": 1
+        },
+        "FAKE": {
+          "k": 23,
+          "n": 23,
+          "rate": 1,
+          "low": 0.857,
+          "high": 1
+        },
+        "CANNOT VERIFY": {
+          "k": 0,
+          "n": 1,
+          "rate": 0,
+          "low": 0,
+          "high": 0.793
+        },
+        "REFUSED": {
+          "k": 0,
+          "n": 1,
+          "rate": 0,
+          "low": 0,
+          "high": 0.793
+        }
+      },
+      "confidence": {
+        "n": 46,
+        "ece": 0.099,
+        "bins": [
+          {
+            "bin": "0.0-0.6",
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "bin": "0.6-0.7",
+            "n": 0,
+            "meanConfidence": null,
+            "accuracy": null
+          },
+          {
+            "bin": "0.7-0.8",
+            "n": 6,
+            "meanConfidence": 0.713,
+            "accuracy": 1
+          },
+          {
+            "bin": "0.8-0.9",
+            "n": 6,
+            "meanConfidence": 0.853,
+            "accuracy": 1
+          },
+          {
+            "bin": "0.9-1.0",
+            "n": 34,
+            "meanConfidence": 0.942,
+            "accuracy": 1
+          }
+        ],
+        "curve": [
+          {
+            "coverage": 0.25,
+            "minConfidence": 0.95,
+            "accuracy": 1,
+            "n": 12
+          },
+          {
+            "coverage": 0.5,
+            "minConfidence": 0.95,
+            "accuracy": 1,
+            "n": 23
+          },
+          {
+            "coverage": 0.75,
+            "minConfidence": 0.89,
+            "accuracy": 1,
+            "n": 35
+          },
+          {
+            "coverage": 1,
+            "minConfidence": 0.7,
+            "accuracy": 1,
+            "n": 46
           }
         ]
       }

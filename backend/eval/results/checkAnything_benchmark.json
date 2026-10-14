@@ -1,19 +1,19 @@
 {
   "summary": {
-    "ranAt": "2026-10-13T19:09:59.402Z",
+    "ranAt": "2026-10-14T06:34:19.739Z",
     "plainModel": "gemini-3.1-flash-lite, zero-shot, temperature 0",
     "claims": 22,
     "plain": {
-      "right": 1,
-      "abstained": 21,
+      "right": 0,
+      "abstained": 22,
       "wrong": 0,
-      "accuracy": 0.045454545454545456
+      "accuracy": 0
     },
     "ours": {
-      "right": 21,
-      "abstained": 1,
+      "right": 22,
+      "abstained": 0,
       "wrong": 0,
-      "accuracy": 0.9545454545454546
+      "accuracy": 1
     },
     "byKind": {
       "figure": {
@@ -38,16 +38,16 @@
       },
       "invented": {
         "n": 4,
-        "plain": 1,
+        "plain": 0,
         "ours": 4
       },
       "premise": {
         "n": 2,
         "plain": 0,
-        "ours": 1
+        "ours": 2
       }
     },
-    "medianSecondsOurs": 19.8
+    "medianSecondsOurs": 11.8
   },
   "rows": [
     {
@@ -59,14 +59,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 625
+        "ms": 761
       },
       "ours": {
         "call": "FAKE",
-        "reason": "3 independent outlets report otherwise: “85 medals”.",
+        "reason": "5 independent outlets report otherwise: “85 Medals”.",
         "rule": "contradicted-by-multiple-independent-sources",
-        "confidence": 0.77,
-        "ms": 362600
+        "confidence": 0.91,
+        "ms": 12304
       }
     },
     {
@@ -78,14 +78,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 393
+        "ms": 365
       },
       "ours": {
         "call": "FAKE",
-        "reason": "4 independent outlets report otherwise: “India wins six golds on Asian Games penultimate day, totals 76 medals”.",
+        "reason": "4 independent outlets report otherwise: “85-Medal Campaign”.",
         "rule": "contradicted-by-multiple-independent-sources",
         "confidence": 0.84,
-        "ms": 258326
+        "ms": 9143
       }
     },
     {
@@ -97,14 +97,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 344
+        "ms": 548
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 2 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 4 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
-        "confidence": 0.78,
-        "ms": 553470
+        "confidence": 0.9,
+        "ms": 13419
       }
     },
     {
@@ -113,17 +113,17 @@
       "kind": "outcome",
       "basis": "TVK won both seats",
       "plain": {
-        "call": "CANNOT VERIFY",
-        "reason": "There is no widely recognized political entity or specific election event known as 'TVK' that held bye-elections in October 2026, making the claim unverifiable.",
+        "call": "ERROR",
+        "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 5446
+        "ms": 547
       },
       "ours": {
         "call": "FAKE",
-        "reason": "8 independent outlets report otherwise: “TVK wins Dharapuram and Madurantakam by-elections”.",
+        "reason": "7 independent outlets report otherwise: “TVK wins Dharapuram and Madurantakam by-elections”.",
         "rule": "contradicted-by-multiple-independent-sources",
         "confidence": 0.91,
-        "ms": 11073
+        "ms": 10456
       }
     },
     {
@@ -135,14 +135,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 539
+        "ms": 496
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 7 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 8 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.95,
-        "ms": 15673
+        "ms": 8490
       }
     },
     {
@@ -154,14 +154,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 495
+        "ms": 992
       },
       "ours": {
         "call": "FAKE",
-        "reason": "5 independent outlets report otherwise: “RBI raises repo rate by 25 basis points”.",
+        "reason": "5 independent outlets report otherwise: “Slashes Repo Rate By 25 Basis Points”.",
         "rule": "contradicted-by-multiple-independent-sources",
         "confidence": 0.91,
-        "ms": 46536
+        "ms": 10481
       }
     },
     {
@@ -173,14 +173,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 603
+        "ms": 524
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 8 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 7 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.95,
-        "ms": 22556
+        "ms": 8898
       }
     },
     {
@@ -192,14 +192,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 670
+        "ms": 559
       },
       "ours": {
         "call": "FAKE",
         "reason": "Rated false by The Quint, Newschecker, Livemint and 1 more after checking this exact claim.",
         "rule": "rated-false-by-fact-checkers",
         "confidence": 0.95,
-        "ms": 22325
+        "ms": 17075
       }
     },
     {
@@ -211,14 +211,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 462
+        "ms": 457
       },
       "ours": {
         "call": "FAKE",
-        "reason": "Rated false by India Today, AFP Fact Check, PTI and 3 more after checking this exact claim.",
+        "reason": "Rated false by India Today, AFP Fact Check, PTI and 4 more after checking this exact claim.",
         "rule": "rated-false-by-fact-checkers",
         "confidence": 0.95,
-        "ms": 24351
+        "ms": 11478
       }
     },
     {
@@ -230,14 +230,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 519
+        "ms": 638
       },
       "ours": {
         "call": "FAKE",
-        "reason": "Rated false by The Quint, Boom Live and Alt News after checking this exact claim.",
+        "reason": "Rated false by The Quint, Boom Live, Alt News and 3 more after checking this exact claim.",
         "rule": "rated-false-by-fact-checkers",
-        "confidence": 0.93,
-        "ms": 17402
+        "confidence": 0.95,
+        "ms": 9774
       }
     },
     {
@@ -249,14 +249,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 727
+        "ms": 400
       },
       "ours": {
         "call": "FAKE",
-        "reason": "Rated false by CyberPeace Foundation, The Week and The Times of India after checking this exact claim.",
+        "reason": "Rated false by CyberPeace Foundation and The Week after checking this exact claim.",
         "rule": "rated-false-by-fact-checkers",
-        "confidence": 0.9,
-        "ms": 18413
+        "confidence": 0.86,
+        "ms": 23486
       }
     },
     {
@@ -268,14 +268,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 342
+        "ms": 471
       },
       "ours": {
         "call": "FAKE",
         "reason": "No outlet reports this, and this week's news says otherwise: “Form 26 Under India’s Income Tax Act 2025: Tax Audit Requirements Explained” (India Briefing).",
         "rule": "contradicted-by-current-coverage",
         "confidence": 0.77,
-        "ms": 19362
+        "ms": 9277
       }
     },
     {
@@ -287,14 +287,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 399
+        "ms": 482
       },
       "ours": {
         "call": "FAKE",
-        "reason": "No outlet reports this, and this week's news says otherwise: “India's Jio Platforms targets $106 billion valuation in IPO, sources say” (Reuters).",
-        "rule": "contradicted-by-current-coverage",
-        "confidence": 0.77,
-        "ms": 24036
+        "reason": "11 independent outlets report otherwise: “Elon Musk to make Starlink affordable in India to compete with Ambani's Jio”.",
+        "rule": "contradicted-by-multiple-independent-sources",
+        "confidence": 0.91,
+        "ms": 11911
       }
     },
     {
@@ -303,17 +303,17 @@
       "kind": "invented",
       "basis": "Pichai announced EmbeddingGemma 2 as CEO",
       "plain": {
-        "call": "FAKE",
-        "reason": "As of October 13, 2026, there have been no credible reports or official announcements regarding Sundar Pichai resigning as CEO of Google.",
+        "call": "ERROR",
+        "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 28530
+        "ms": 542
       },
       "ours": {
         "call": "FAKE",
-        "reason": "4 independent outlets report otherwise: “Will Be Fired Or He Will Resign”.",
+        "reason": "5 independent outlets report otherwise: “Calls grow for Sundar Pichai to step down”.",
         "rule": "contradicted-by-multiple-independent-sources",
-        "confidence": 0.84,
-        "ms": 18853
+        "confidence": 0.91,
+        "ms": 9238
       }
     },
     {
@@ -325,14 +325,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 535
+        "ms": 488
       },
       "ours": {
-        "call": "CANNOT VERIFY",
-        "reason": "No other outlet is reporting this, so nothing supports it either way.",
-        "rule": "no-independent-coverage",
-        "confidence": 0.5,
-        "ms": 23972
+        "call": "FAKE",
+        "reason": "No outlet reports this, and this week's news says otherwise: “Indian opposition leader Rahul Gandhi” (Al Jazeera).",
+        "rule": "contradicted-by-current-coverage",
+        "confidence": 0.77,
+        "ms": 11819
       }
     },
     {
@@ -344,14 +344,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 563
+        "ms": 639
       },
       "ours": {
         "call": "FAKE",
-        "reason": "The encyclopedia entry “Karnataka” says otherwise: “The capital of the state, Bengaluru, is known as the Silicon Valley of India, for its immense contributi”",
+        "reason": "The encyclopedia entry “Karnataka” says otherwise: “The state capital, Bengaluru, is the largest city in Karnataka.”",
         "rule": "premise-contradicted-by-reference",
         "confidence": 0.55,
-        "ms": 19802
+        "ms": 8907
       }
     },
     {
@@ -363,14 +363,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 793
+        "ms": 403
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 11 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 8 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.95,
-        "ms": 16299
+        "ms": 60358
       }
     },
     {
@@ -382,14 +382,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 837
+        "ms": 460
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 9 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 7 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.95,
-        "ms": 16355
+        "ms": 8225
       }
     },
     {
@@ -401,14 +401,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 558
+        "ms": 453
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 11 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 12 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.95,
-        "ms": 23697
+        "ms": 13170
       }
     },
     {
@@ -420,14 +420,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 630
+        "ms": 479
       },
       "ours": {
         "call": "REAL",
         "reason": "Confirmed by 3 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.84,
-        "ms": 18739
+        "ms": 13273
       }
     },
     {
@@ -439,14 +439,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 331
+        "ms": 434
       },
       "ours": {
         "call": "REAL",
         "reason": "One independent outlet reports the same facts.",
         "rule": "corroborated-by-one-independent-source",
         "confidence": 0.6,
-        "ms": 14145
+        "ms": 13491
       }
     },
     {
@@ -458,14 +458,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 539
+        "ms": 748
       },
       "ours": {
         "call": "REAL",
         "reason": "One independent outlet reports the same facts.",
         "rule": "corroborated-by-one-independent-source",
         "confidence": 0.6,
-        "ms": 11785
+        "ms": 18532
       }
     }
   ]

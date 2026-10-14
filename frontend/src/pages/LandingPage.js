@@ -14,12 +14,13 @@ import '../styles/LandingPage.css';
  * does, shows a real result, and states the measured record.
  */
 
-// Measured on the labelled test sets (backend/eval), 12 Oct 2026.
+// Measured on the labelled test sets (backend/eval/results), 14 Oct 2026, on
+// the final code; the plain-model comparison is from the run of 12 Oct.
 const RECORD = [
-  { figure: '21 / 22', label: 'benchmark claims answered correctly, none wrong' },
+  { figure: '22 / 22', label: 'benchmark claims answered correctly, none wrong' },
   { figure: '0', label: 'verdicts in the wrong direction across every test set' },
-  { figure: '24 / 27', label: 'held-out claims, never used to tune the rules' },
-  { figure: '13 / 22', label: 'for a plain AI model on the same benchmark — 5 of them wrong' }
+  { figure: '47 / 51', label: 'held-out claims written after tuning; the other 4 left unanswered, none wrong' },
+  { figure: '13 / 22', label: 'for a plain AI model on the same benchmark (12 Oct) — 5 of them wrong' }
 ];
 
 const STEPS = [
@@ -99,7 +100,7 @@ const LandingPage = ({ signedIn = false }) => {
               </div>
             ))}
           </dl>
-          <p className="landing-record__note">Counted on labelled test messages, 12 October 2026. Every verdict shows its rule’s own record.</p>
+          <p className="landing-record__note">Counted on labelled test messages, 14 October 2026. Every verdict shows its rule’s own record.</p>
         </div>
       </section>
 

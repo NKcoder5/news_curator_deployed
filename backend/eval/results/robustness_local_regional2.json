@@ -1,0 +1,111 @@
+{
+  "summary": {
+    "ranAt": "2026-10-14T07:18:31.517Z",
+    "suite": "robustness",
+    "complete": true,
+    "stoppedBecause": null,
+    "checksThisRun": 2,
+    "cases": 2,
+    "overall": {
+      "n": 2,
+      "right": 2,
+      "safe": 0,
+      "missed": 0,
+      "wrong": 0
+    },
+    "byCategory": {
+      "local news": {
+        "n": 2,
+        "right": 2,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      }
+    },
+    "medianSeconds": 8.1585
+  },
+  "rows": [
+    {
+      "id": "local-1",
+      "category": "local news",
+      "input": "A female elephant stuck in mud at Gunderipallam dam near Erode was rescued",
+      "expected": "REAL",
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.9,
+      "kind": null,
+      "detail": "Confirmed by 4 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "celebratory"
+        ],
+        "english": "A female elephant stuck in mud at Gunderipallam dam near Erode was rescued",
+        "claims": [
+          {
+            "claim": "A female elephant stuck in mud at Gunderipallam dam near Erode was rescued.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 6.889,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 4,
+          "nim": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "local-2",
+      "category": "local news",
+      "input": "Coimbatore police sealed 61 shops and arrested 40 people in a crackdown on banned tobacco",
+      "expected": "REAL",
+      "call": "REAL",
+      "rule": "corroborated-by-one-independent-source",
+      "confidence": 0.6,
+      "kind": null,
+      "detail": "One independent outlet reports the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Coimbatore police sealed 61 shops and arrested 40 people in a crackdown on banned tobacco",
+        "claims": [
+          {
+            "claim": "Coimbatore police sealed 61 shops and arrested 40 people in a crackdown on banned tobacco.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.428,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 3,
+          "ollama": 4
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    }
+  ]
+}

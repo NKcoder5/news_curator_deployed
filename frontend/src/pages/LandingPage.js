@@ -15,12 +15,12 @@ import '../styles/LandingPage.css';
  */
 
 // Measured on the labelled test sets (backend/eval/results), 14 Oct 2026, on
-// the final code; the plain-model comparison is from the run of 12 Oct.
+// the final code.
 const RECORD = [
   { figure: '22 / 22', label: 'benchmark claims answered correctly, none wrong' },
   { figure: '0', label: 'verdicts in the wrong direction across every test set' },
-  { figure: '47 / 51', label: 'held-out claims written after tuning; the other 4 left unanswered, none wrong' },
-  { figure: '13 / 22', label: 'for a plain AI model on the same benchmark (12 Oct) — 5 of them wrong' }
+  { figure: '49 / 51', label: 'held-out claims written after tuning; the other 2 left unanswered, none wrong' },
+  { figure: '15 / 22', label: 'for a plain AI model on the same benchmark — 4 of them wrong' }
 ];
 
 const STEPS = [

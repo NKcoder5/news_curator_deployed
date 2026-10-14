@@ -93,6 +93,8 @@ Return a JSON object with these keys:
   - "other_subject": a second person, organisation or thing the claim is about, in the same form, or an empty string ("Elon Musk bought Reliance Jio": subject "Elon Musk", other_subject "Reliance Jio").
   - "search_keywords": 3 or 4 distinctive words in the message's own language and script.
   - "search_keywords_en": 3 or 4 distinctive English words, names first.
+  - "region_language": when the claim is about a particular Indian state, district, city or town, the ISO 639-1 code of that region's main language ("Coimbatore" → "ta", "Pune" → "mr", "Hyderabad" → "te", "Kochi" → "ml", "Bengaluru" → "kn", "Kolkata" → "bn", "Lucknow" → "hi"); otherwise an empty string.
+  - "search_keywords_regional": when region_language is set, 3 or 4 distinctive words for the claim in that language's own script, names written as the local press writes them; otherwise an empty string.
 - "not_checkable_reason": if no claim is checkable, one plain sentence to the user saying why; otherwise an empty string.`;
 };
 
@@ -129,6 +131,11 @@ const understandInput = async (text) => {
     .map(c => {
       const claim = clip(c.claim, MAX_CLAIM_CHARS);
       const keywordsEn = clip(asWords(c.search_keywords_en), 120) || null;
+      // The regional press of the place the claim is about, in its own
+      // language: local stories rarely reach the national editions (see
+      // agents/claimVerificationAgent.js, gatherCoverage).
+      const regionLanguage = /^(?:ta|hi|te|kn|ml|mr|bn)$/.test(String(c.region_language || '')) ? c.region_language : null;
+      const keywordsRegional = regionLanguage ? (clip(asWords(c.search_keywords_regional), 120) || null) : null;
       // Romanised Tamil keywords match nothing: the press writes Tamil in Tamil
       // script and English in English. Search in English for those.
       const native = clip(asWords(c.search_keywords), 120);
@@ -148,6 +155,8 @@ const understandInput = async (text) => {
         otherSubject: clip(c.other_subject, 60) || null,
         keywords,
         keywordsEn,
+        regionLanguage: keywordsRegional ? regionLanguage : null,
+        keywordsRegional,
         time: presentedAsNow(claim, body, kind) && time !== 'future' ? 'now' : (time || 'past'),
         kind,
         // The model's own "checkable" is advisory. It has marked a claim about

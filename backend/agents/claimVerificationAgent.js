@@ -3,10 +3,27 @@
 // claims, search for coverage from OTHER outlets, and have the LLM judge
 // whether that independent coverage supports or contradicts each claim.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
-const { searchCoverageBroadening, searchGoogleNews } = require('../utils/newsFetcher');
+const { searchCoverageBroadening, searchGoogleNews, searchGdelt } = require('../utils/newsFetcher');
 const { getSourceReputation } = require('./sourceReputationAgent');
 const { isSearchable } = require('../utils/language');
 const { filterRelevant, anchorTerms, distinctiveTerms } = require('./evidenceRelevance');
+const { judgePairs } = require('../services/localNli');
+
+// Headlines in an Indian script cannot share words with an English claim, so
+// the word-overlap relevance check (agents/evidenceRelevance.js) set every one
+// of them aside. Our own multilingual pair model reads the headline against
+// the claim instead: kept as support only if it entails the claim, as
+// contradiction only if it contradicts it. Without the model they stay aside.
+const INDIC_SCRIPT = /[\u0900-\u0D7F]/;
+const acrossScripts = async (claim, items, label) => {
+  const candidates = items.filter(it => INDIC_SCRIPT.test(`${it.title || ''}`));
+  if (!candidates.length) return [];
+  let verdicts = null;
+  try { verdicts = await judgePairs(candidates.map(it => ({ premise: `${it.title}`, hypothesis: claim }))); } catch (_) { verdicts = null; }
+  if (!Array.isArray(verdicts)) return [];
+  return candidates.filter((it, i) => verdicts[i] && verdicts[i].scores && verdicts[i].scores[label] >= 0.5)
+    .map(it => ({ ...it, sharedTerms: ['(read across languages by our own model)'] }));
+};
 const { UNTRUSTED_NOTICE, fence, addressesModel, asBool, oneOf, clip, numberedItems } = require('../utils/untrusted');
 
 /** A claim is one sentence; a reply that writes an essay into it is cut back. */
@@ -367,8 +384,13 @@ Return a JSON object with these keys:
   // fabrication into "likely true". Evidence that shares no distinctive terms
   // with the claim is therefore discarded before it can count, and a verdict
   // left with no surviving evidence falls back to unverified.
-  const support = filterRelevant(claim, pick(supportingIndices));
-  const contradiction = filterRelevant(claim, pick(contradictingIndices));
+  const supportItems = pick(supportingIndices);
+  const contradictionItems = pick(contradictingIndices);
+  const support = filterRelevant(claim, supportItems);
+  const contradiction = filterRelevant(claim, contradictionItems);
+  const notKept = (list, kept) => list.filter(it => !kept.some(k => k.url === it.url && k.title === it.title));
+  support.kept.push(...await acrossScripts(claim, notKept(supportItems, support.kept), 'entailment'));
+  contradiction.kept.push(...await acrossScripts(claim, notKept(contradictionItems, contradiction.kept), 'contradiction'));
 
   if (verdict === 'supported' && support.kept.length === 0) verdict = 'unverified';
   if (verdict === 'contradicted' && contradiction.kept.length === 0) {
@@ -399,7 +421,7 @@ Return a JSON object with these keys:
  * @returns {Promise<Array>} deduplicated coverage, each item tagged with the
  *          search language that found it
  */
-const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, sourceName, language }) => {
+const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, keywordsRegional = null, regionLanguage = null, sourceName, language }) => {
   const code = language?.code || 'en';
   const searches = [];
 
@@ -415,6 +437,16 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, sourceNam
     // Only when the branch above did not already add it: English text used to
     // run the identical search twice.
     searches.push({ query: keywords, lang: 'en' });
+  }
+
+  // Local stories. "Coimbatore district police seized drugs, gutkha and
+  // weapons" came back CANNOT VERIFY: the national English edition carried
+  // nothing about it, while the Tamil press of Coimbatore did. When a claim is
+  // about a particular Indian place, the Google News edition of that region's
+  // language is searched too, in its own script. That edition aggregates the
+  // region's papers, so no list of local outlets is kept or needed.
+  if (regionLanguage && keywordsRegional && !searches.some(s => s.lang === regionLanguage)) {
+    searches.push({ query: keywordsRegional, lang: regionLanguage });
   }
 
   // A search that could not run is recorded as such rather than as an empty
@@ -487,6 +519,25 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, sourceNam
   };
   addAll(interleaved);
 
+  // Local stories. National search editions carry little of what a district
+  // reports — "Coimbatore district police seized drugs, gutkha and weapons"
+  // came back CANNOT VERIFY with nothing about it in the results, though the
+  // regional press covered it. When fewer than two results even mention the
+  // claim's distinctive words, the translingual GDELT index is asked once
+  // (utils/newsFetcher.js), which reaches regional and regional-language
+  // outlets without a list of them. Its results go through the same relevance
+  // gate, stance judgement and independence count as any other.
+  const distinctive = [...new Set(String(claim || '').toLowerCase().match(/\p{L}{4,}/gu) || [])]
+    .filter(w => !/^(?:that|this|with|from|have|been|were|will|would|their|there|which|about|after|before|said|says)$/.test(w));
+  const mentions = (a) => {
+    const t = String(a.title || '').toLowerCase();
+    return distinctive.filter(w => t.includes(w)).length;
+  };
+  if (distinctive.length >= 2 && merged.filter(a => mentions(a) >= 2).length < 2) {
+    const regional = await searchGdelt(keywordsEn || keywords || asQuery(claim), sourceName, 10).catch(() => []);
+    addAll(regional.map(a => ({ ...a, foundIn: 'en' })));
+  }
+
   // When the coverage states a different figure for the same quantity — the
   // claim says 84 medals, a headline says 85 — that figure is searched for
   // directly, so every outlet reporting it is found and judged, not only the
@@ -497,7 +548,15 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, sourceNam
       .catch(() => [])));
   for (const found of probes) addAll(found.map(a => ({ ...a, foundIn: 'en' })));
   return {
-    articles: rankForClaim(claim, merged).slice(0, JUDGED_HEADLINES),
+    // Up to three places are kept for the regional-language press: ranked by
+    // shared English words, a Tamil headline always came last and was never
+    // judged.
+    articles: (() => {
+      const ranked = rankForClaim(claim, merged);
+      const regional = regionLanguage ? ranked.filter(a => a.foundIn === regionLanguage).slice(0, 3) : [];
+      const rest = ranked.filter(a => !regional.includes(a)).slice(0, JUDGED_HEADLINES - regional.length);
+      return [...rest, ...regional];
+    })(),
     searchFailed: batches.every(b => b.failed) && (fromClaim.failed || fromClaim.lists.every(l => l.length === 0))
   };
 };
@@ -582,8 +641,8 @@ const verifyClaims = async (title, content, sourceName, preExtractedClaims = nul
     // — search, wait, judge, wait, then the same again for the next claim —
     // which made verification the slowest factor in the pipeline at ~28s.
     // The model gateway still caps how many calls are actually in flight.
-    const results = await Promise.all(claims.map(async ({ claim, headline, keywords, keywordsEn, time, kind }) => {
-      const { articles: coverage, searchFailed } = await gatherCoverage({ claim, headline, keywords, keywordsEn, sourceName, language });
+    const results = await Promise.all(claims.map(async ({ claim, headline, keywords, keywordsEn, keywordsRegional, regionLanguage, time, kind }) => {
+      const { articles: coverage, searchFailed } = await gatherCoverage({ claim, headline, keywords, keywordsEn, keywordsRegional, regionLanguage, sourceName, language });
       // The time frame and kind the reader's message gave the claim, when it
       // was read by the understanding step: the verdict needs them to tell old
       // news passed off as new, and a standing fact, from an ordinary event.

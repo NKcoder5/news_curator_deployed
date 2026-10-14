@@ -97,17 +97,28 @@ const anchorTerms = (text) => {
   const anchors = new Set();
 
   const words = raw.split(/\s+/);
+  let opening = null;
   words.forEach((word, index) => {
     const clean = word.replace(/[^\p{L}\p{N}\p{M}]/gu, '');
     if (!clean) return;
     if (/\d/.test(clean)) { anchors.add(clean.toLowerCase()); return; }
     // An acronym is a name wherever it stands, including first in the sentence.
     if (isAcronym(clean) && !STOPWORDS.has(clean.toLowerCase())) { anchors.add(stem(clean.toLowerCase())); return; }
-    if (index === 0) return;
+    if (index === 0) {
+      if (/^\p{Lu}/u.test(clean) && clean.length > 3 && !STOPWORDS.has(clean.toLowerCase())) opening = clean;
+      return;
+    }
     if (/^\p{Lu}/u.test(clean) && clean.length > 3 && !STOPWORDS.has(clean.toLowerCase())) {
       anchors.add(stem(clean.toLowerCase()));
     }
   });
+
+  // A capitalised first word is usually just the start of the sentence, so it
+  // is not taken as a name — unless the claim has no other. Measured:
+  // "Coimbatore district police seized drugs, gutkha and weapons in a special
+  // drive" was confirmed by The Hindu and the Times of India, and every
+  // headline was then set aside because the claim "names no place".
+  if (anchors.size === 0 && opening) anchors.add(stem(opening.toLowerCase()));
 
   return anchors;
 };

@@ -354,6 +354,76 @@ const searchGoogleNews = async (query, excludeSourceName = '', pageSize = 10, la
   return items;
 };
 
+// GDELT: a free, keyless index of the world's news in 65 languages, each
+// article machine-translated into English, so one English query also finds a
+// story only the Tamil, Telugu or Hindi press carried. It reaches regional
+// outlets without anyone keeping a list of them — the coverage grows as the
+// press does. Used only as a fallback for local stories (agents/
+// claimVerificationAgent.js), limited to Indian outlets and its three-month
+// window. Its errors, rate limits included, come back as plain text; any of
+// them means "nothing found here", never a failed check.
+const GDELT_URL = 'https://api.gdeltproject.org/api/v2/doc/doc';
+
+const gdeltQuery = (text) => {
+  const words = String(text || '').replace(/[^\p{L}\p{N}\s]/gu, ' ').split(/\s+/)
+    .filter(w => w.length >= 3).slice(0, 6);
+  return words.length >= 2 ? `${words.join(' ')} sourcecountry:india` : null;
+};
+
+const gdeltDate = (value) => {
+  const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/.exec(String(value || ''));
+  return m ? `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}Z` : null;
+};
+
+const fromGdelt = (json, excludeSourceName = '', pageSize = 10) => {
+  const exclude = String(excludeSourceName || '').toLowerCase();
+  const seen = new Set();
+  const items = [];
+  for (const a of (json && Array.isArray(json.articles) ? json.articles : [])) {
+    const title = String(a.title || '').replace(/\s+/g, ' ').trim();
+    const url = String(a.url || '').trim();
+    const source = String(a.domain || '').replace(/^www\./, '').trim();
+    if (!title || !/^https?:\/\//.test(url) || !source || source.toLowerCase() === exclude || seen.has(title.toLowerCase())) continue;
+    seen.add(title.toLowerCase());
+    items.push({ title, description: '', url, source, publishedAt: gdeltDate(a.seendate), sourceUrl: `https://${source}`, language: a.language || null, via: 'gdelt' });
+    if (items.length >= pageSize) break;
+  }
+  return items;
+};
+
+// GDELT refuses a client that asks more than once every five seconds, so
+// every request from this process waits its turn, six seconds apart; a turn
+// further off than that is skipped rather than holding a reader's check.
+const GDELT_GAP_MS = 6000;
+let gdeltTurn = Promise.resolve();
+let gdeltLastAt = 0;
+const gdeltSlot = (fn) => {
+  const run = gdeltTurn.then(async () => {
+    const wait = gdeltLastAt + GDELT_GAP_MS - Date.now();
+    if (wait > GDELT_GAP_MS) return [];
+    if (wait > 0) await new Promise(resolve => setTimeout(resolve, wait));
+    gdeltLastAt = Date.now();
+    return fn();
+  });
+  gdeltTurn = run.catch(() => []);
+  return run;
+};
+
+const searchGdelt = async (query, excludeSourceName = '', pageSize = 10) => {
+  const q = gdeltQuery(query);
+  if (!q) return [];
+  const url = `${GDELT_URL}?query=${encodeURIComponent(q)}&mode=artlist&format=json&sort=hybridrel&timespan=3months&maxrecords=${Math.min(50, pageSize * 3)}`;
+  try {
+    const json = await cached(`gdelt|${url}`, () => gdeltSlot(async () => {
+      const response = await axios.get(url, { timeout: 8000, responseType: 'text' });
+      return JSON.parse(String(response.data || '{}'));
+    }));
+    return fromGdelt(json, excludeSourceName, pageSize);
+  } catch (_) {
+    return [];
+  }
+};
+
 /**
  * NewsAPI search, progressively broadening the query until enough outlets
  * are found. NewsAPI requires EVERY term in `q` to match, so a long keyword
@@ -434,5 +504,7 @@ const searchCoverageBroadening = async (query, excludeSourceName = '', pageSize 
 
 module.exports = {
   INDEX_LAG_HOURS, fetchTopNews, searchNewsCoverage, searchGoogleNews, searchCoverageBroadening, SearchUnavailableError,
-  cached, withRetry, isNetworkError
+  cached, withRetry, isNetworkError,
+  searchGdelt,
+  _gdelt: { gdeltQuery, gdeltDate, fromGdelt }
 };

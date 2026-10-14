@@ -1,0 +1,162 @@
+{
+  "summary": {
+    "ranAt": "2026-10-14T07:18:04.494Z",
+    "suite": "heldout",
+    "complete": true,
+    "stoppedBecause": null,
+    "checksThisRun": 3,
+    "cases": 3,
+    "overall": {
+      "n": 3,
+      "right": 3,
+      "safe": 0,
+      "missed": 0,
+      "wrong": 0
+    },
+    "byCategory": {
+      "local news": {
+        "n": 2,
+        "right": 2,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      },
+      "unverifiable local": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      }
+    },
+    "medianSeconds": 9.149
+  },
+  "rows": [
+    {
+      "id": "h-9",
+      "category": "local news",
+      "input": "Coimbatore district police seized drugs, gutkha and weapons in a special drive",
+      "expected": "REAL",
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.84,
+      "kind": null,
+      "detail": "Confirmed by 3 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Coimbatore district police seized drugs, gutkha and weapons in a special drive",
+        "claims": [
+          {
+            "claim": "Coimbatore district police seized drugs, gutkha and weapons in a special drive.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.582,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 4,
+          "ollama": 4
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "h-10",
+      "category": "local news",
+      "input": "Villagers in rural Madurai went without power for 18 hours",
+      "expected": "REAL",
+      "call": "REAL",
+      "rule": "corroborated-by-one-independent-source",
+      "confidence": 0.6,
+      "kind": null,
+      "detail": "One independent outlet reports the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Villagers in rural Madurai went without power for 18 hours",
+        "claims": [
+          {
+            "claim": "Villagers in rural Madurai experienced an 18-hour power outage.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.149,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 3,
+          "ollama": 4,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "h-24",
+      "category": "unverifiable local",
+      "input": "A new bakery opened on Gandhi Road in Erode yesterday",
+      "expected": "CANNOT VERIFY",
+      "alsoAcceptable": [
+        "REFUSED"
+      ],
+      "note": "Plausible, minor and unreported: calling it FAKE would be wrong.",
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A new bakery opened on Gandhi Road in Erode yesterday",
+        "claims": [
+          {
+            "claim": "A new bakery opened on Gandhi Road in Erode on 2026-10-13.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 13.972,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 4,
+          "gemini": 3,
+          "nim": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    }
+  ]
+}

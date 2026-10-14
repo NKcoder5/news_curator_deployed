@@ -85,7 +85,7 @@ test('the timeline lists every verdict in order and says why the verdict changed
   const timeline = screen.getByRole('list', { name: /verdict history/i });
   const entries = within(timeline).getAllByRole('listitem');
   expect(entries).toHaveLength(2);
-  expect(within(entries[0]).getByText('Cannot verify')).toBeInTheDocument();
+  expect(within(entries[0]).getByText('Unproven')).toBeInTheDocument();
   expect(within(entries[1]).getByText('Re-checked automatically')).toBeInTheDocument();
   expect(within(entries[1]).getByText(/3 new sources confirm it/)).toBeInTheDocument();
   expect(within(entries[1]).getByText(/3 for, 0 against, 1 fact-check ruling/)).toBeInTheDocument();

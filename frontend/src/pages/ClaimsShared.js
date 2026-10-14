@@ -12,7 +12,7 @@ const CALL_CLASS = { REAL: 'for', FAKE: 'against', 'PARTLY FALSE': 'mixed', 'CAN
 export const callClass = (call) => `call-${CALL_CLASS[call] || 'none'}`;
 
 export const CALL_NAMES = {
-  REAL: 'Real', FAKE: 'Fake', 'PARTLY FALSE': 'Partly false', 'CANNOT VERIFY': 'Cannot verify'
+  REAL: 'Real', FAKE: 'Fake', 'PARTLY FALSE': 'Partly false', 'CANNOT VERIFY': 'Unproven'
 };
 
 /** The design system's verdict badge, named as the registry names verdicts. */

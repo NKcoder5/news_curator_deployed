@@ -15,7 +15,8 @@ describe('VerdictBadge', () => {
     ['SATIRE', 'info']
   ])('%s is shown in words with the %s tone and an icon', (call, tone) => {
     const { container } = render(<VerdictBadge call={call} />);
-    expect(screen.getByText(call)).toBeInTheDocument();
+    // CANNOT VERIFY is shown to readers as UNPROVEN; every other call as it is.
+    expect(screen.getByText(call === 'CANNOT VERIFY' ? 'UNPROVEN' : call)).toBeInTheDocument();
     expect(container.firstChild).toHaveAttribute('data-verdict', tone);
     expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
   });

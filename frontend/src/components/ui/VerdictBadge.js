@@ -27,9 +27,12 @@ export const VERDICTS = {
     tone: 'misleading', icon: TriangleAlert, label: 'Misleading',
     description: 'True in part, but presented so as to give a false impression.'
   },
+  // Shown as UNPROVEN, the word fact-checkers use (Snopes among them): it says
+  // what is true of the claim — nothing reliable proves it — where "cannot
+  // verify" read as a failing of the checker. The engine's value is unchanged.
   'CANNOT VERIFY': {
-    tone: 'unknown', icon: CircleHelp, label: 'Cannot verify',
-    description: 'Nothing independent supports it yet. Not a finding that it is false.'
+    tone: 'unknown', icon: CircleHelp, label: 'Unproven', display: 'UNPROVEN',
+    description: 'No reliable evidence proves it. Not a finding that it is false.'
   },
   SATIRE: {
     tone: 'info', icon: Info, label: 'Satire',
@@ -65,7 +68,7 @@ const VerdictBadge = ({ call, size = 'md', label, className, ...rest }) => {
       {...rest}
     >
       <Icon className="ui-verdict__icon" aria-hidden="true" />
-      <span className="ui-verdict__label">{label || call}</span>
+      <span className="ui-verdict__label">{label || verdict.display || call}</span>
     </span>
   );
 };

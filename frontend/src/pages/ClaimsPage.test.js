@@ -69,7 +69,7 @@ test('the registry shows its figures, the claims, and the trending and changed s
 
   const changed = screen.getByRole('region', { name: /verdicts that changed/i });
   expect(within(changed).getByText(/3 new sources confirm it/i)).toBeInTheDocument();
-  expect(within(changed).getByText('Cannot verify')).toBeInTheDocument();
+  expect(within(changed).getByText('Unproven')).toBeInTheDocument();
 });
 
 test('searching asks the registry for the words typed', async () => {

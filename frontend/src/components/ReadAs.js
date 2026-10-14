@@ -27,7 +27,7 @@ const TONE_TEXT = {
 };
 
 // A question gets a direct answer as well as a verdict.
-const ANSWER = { FAKE: 'No — this is false.', REAL: 'Yes — this is true.', 'PARTLY FALSE': 'Partly — some of it is false.', 'CANNOT VERIFY': 'We cannot say yet.' };
+const ANSWER = { FAKE: 'No — this is false.', REAL: 'Yes — this is true.', 'PARTLY FALSE': 'Partly — some of it is false.', 'CANNOT VERIFY': 'Unproven — nothing reliable confirms it.' };
 
 const RESULT_TONE = { against: 'fake', for: 'real', none: 'unknown' };
 

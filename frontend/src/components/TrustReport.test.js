@@ -149,7 +149,7 @@ test('what decided it: the evidence the verdict depends on, and what would chang
   };
   render(<TrustReport report={report} evidenceFirst />);
   const region = screen.getByRole('region', { name: 'What decided it' });
-  expect(region).toHaveTextContent(/Without the outlets reporting otherwise, the answer would be CANNOT VERIFY/);
+  expect(region).toHaveTextContent(/Without the outlets reporting otherwise, the answer would be UNPROVEN/);
   expect(region).toHaveTextContent(/Without the encyclopedia entry, it would still be FAKE/);
   expect(region).toHaveTextContent(/4 more independent outlets confirming it → REAL/);
 });

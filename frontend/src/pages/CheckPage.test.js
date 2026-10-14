@@ -130,10 +130,10 @@ test('switching input mode clears the previous result', async () => {
   renderPage();
   typeClaim('The council approved the riverfront plan on Tuesday in Chennai.');
   submit();
-  await screen.findByText('UNPROVEN');
+  await screen.findByText('CANNOT VERIFY');
 
   fireEvent.click(screen.getByRole('tab', { name: /paste a link/i }));
   await waitFor(() => {
-    expect(screen.queryByText('UNPROVEN')).not.toBeInTheDocument();
+    expect(screen.queryByText('CANNOT VERIFY')).not.toBeInTheDocument();
   });
 });

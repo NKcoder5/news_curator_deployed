@@ -1,83 +1,1053 @@
-/* ============================================================================
-   An article from the feed: its trust check first, then the story.
-   ========================================================================= */
-
-.article-page { display: grid; gap: var(--space-6); }
-
-.article-back { font-size: var(--text-sm); }
-.article-back a { display: inline-flex; align-items: center; gap: var(--space-1); font-weight: var(--weight-medium); text-decoration: none; }
-.article-back a:hover { text-decoration: underline; }
-
-.article-header { display: grid; gap: var(--space-3); }
-.article-meta { font-size: var(--text-sm); color: var(--color-fg-subtle); }
-.article-source { font-weight: var(--weight-semibold); color: var(--color-fg-muted); }
-
-.article-title {
-  font-size: var(--text-3xl);
-  font-weight: var(--weight-bold);
-  letter-spacing: -0.02em;
-  line-height: var(--leading-tight);
+.article-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  animation: fadeIn 0.5s ease-out;
+  background-color: var(--paper-aged); /* Off-white newspaper background */
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23dfdbd2' fill-opacity='0.3' fill-rule='evenodd'/%3E%3C/svg%3E");
 }
-
-.article-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-2); }
-
-.article-section-title { margin-bottom: var(--space-3); font-size: var(--text-lg); font-weight: var(--weight-semibold); }
-
-.article-checking {
-  display: grid;
-  gap: var(--space-3);
-  padding: var(--space-5);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+@keyframes fadeIn {from {
+    opacity: 0;
+    transform: translateY(20px);
+  }to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-
-.article-checking__head { display: flex; align-items: center; gap: var(--space-2); font-weight: var(--weight-semibold); color: var(--color-fg-strong); }
-.article-checking__head .ui-spinner { color: var(--color-accent); }
-.article-checking .pipeline-progress { margin: 0; }
-
-.article-checking__done { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); font-size: var(--text-sm); }
-.article-checking__done li { display: flex; align-items: center; gap: var(--space-2); color: var(--color-fg); }
-.article-checking__done svg { color: var(--verdict-real-fg); }
-.article-checking__note { font-size: var(--text-sm); color: var(--color-fg-subtle); }
-
-.article-image {
+/* Torn paper effect mixin */
+@property --torn-offset {
+  syntax: '<length>';
+  initial-value: 0px;
+  inherits: false;
+}
+.article-page .torn-paper {/* Slight paper texture */
+/* Torn edge effect */
+/* Top torn edge */
+position: relative;
+  background-color: var(--paper);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  
+  
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0l26-26v2L54 40h-2zm4 0l22-22v2L58 40h-2zm4 0l18-18v2L62 40h-2zm4 0l14-14v2L66 40h-2zm4 0l10-10v2L70 40h-2zm4 0l6-6v2l-4 4h-2zm4 0l2-2v2h-2z' fill='%23f5f3e6' fill-opacity='0.08' fill-rule='evenodd'/%3E%3C/svg%3E");
+  
+  
+  --edge-size: 15px;
+  --torn-offset: 8px;
+  
+  
+  &::before {
+    content: "";
+    position: absolute;
+    top: calc(-1 * var(--edge-size));
+    left: 0;
+    right: 0;
+    height: var(--edge-size);
+    background-image: 
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 15px,
+        var(--paper) 15px,
+        var(--paper) 30px
+      ),
+      repeating-radial-gradient(
+        circle at 15px 0,
+        transparent 0,
+        transparent 5px,
+        var(--paper) 5px,
+        var(--paper) 10px
+      );
+    background-size: 30px var(--edge-size);
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+    clip-path: polygon(
+      0% 0%, 
+      5% 100%, 
+      15% 40%, 
+      25% 90%, 
+      35% 50%, 
+      45% 95%, 
+      55% 40%, 
+      65% 100%, 
+      75% 30%, 
+      85% 90%, 
+      95% 20%, 
+      100% 100%, 
+      100% 0%
+    );
+  }
+/* Bottom torn edge */
+&::after {
+    content: "";
+    position: absolute;
+    bottom: calc(-1 * var(--edge-size));
+    left: 0;
+    right: 0;
+    height: var(--edge-size);
+    background-image: 
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 15px,
+        var(--paper) 15px,
+        var(--paper) 30px
+      ),
+      repeating-radial-gradient(
+        circle at 15px 0,
+        transparent 0,
+        transparent 5px,
+        var(--paper) 5px,
+        var(--paper) 10px
+      );
+    background-size: 30px var(--edge-size);
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+    clip-path: polygon(
+      0% 0%,
+      5% 60%,
+      15% 100%,
+      25% 50%,
+      35% 100%,
+      45% 40%,
+      55% 100%,
+      65% 50%,
+      75% 100%,
+      85% 30%,
+      95% 100%,
+      100% 0%
+    );
+  }
+}
+/* Top Article Section */
+.article-page .article-header {/* Newspaper texture */
+/* Torn paper effect */
+position: relative;
+  background: var(--paper);
+  border-radius: 4px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+  z-index: 1;
+  
+  
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0l26-26v2L54 40h-2zm4 0l22-22v2L58 40h-2zm4 0l18-18v2L62 40h-2zm4 0l14-14v2L66 40h-2zm4 0l10-10v2L70 40h-2zm4 0l6-6v2l-4 4h-2zm4 0l2-2v2h-2z' fill='%23000000' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+  
+  
+  &::after, &::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 20px;
+    left: 0;
+    background-color: var(--paper);
+    z-index: -1;
+  }
+&::after {
+    bottom: -15px;
+    clip-path: polygon(
+      0% 0%,
+      5% 60%,
+      10% 0%,
+      15% 80%,
+      20% 10%,
+      25% 70%,
+      30% 0%,
+      35% 60%,
+      40% 20%,
+      45% 90%,
+      50% 10%,
+      55% 80%,
+      60% 0%,
+      65% 70%,
+      70% 20%,
+      75% 90%,
+      80% 0%,
+      85% 60%,
+      90% 30%,
+      95% 100%,
+      100% 0%
+    );
+    box-shadow: 0 5px 5px -5px rgba(0, 0, 0, 0.3);
+  }
+&::before {
+    top: -15px;
+    clip-path: polygon(
+      0% 100%,
+      5% 40%,
+      10% 100%,
+      15% 20%,
+      20% 100%,
+      25% 40%,
+      30% 100%,
+      35% 20%,
+      40% 100%,
+      45% 40%,
+      50% 100%,
+      55% 30%,
+      60% 100%,
+      65% 40%,
+      70% 100%,
+      75% 20%,
+      80% 100%,
+      85% 50%,
+      90% 100%,
+      95% 30%,
+      100% 100%
+    );
+    box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, 0.3);
+  }
+}
+.article-page .article-title {
+  font-family: "Times New Roman", Times, serif;
+  /* Was a flat 3.2rem, which ran a long headline to three lines of capitals and
+     pushed the summary and the trust report off the first screen entirely. It
+     now scales with the viewport and tops out well below that. */
+  font-size: clamp(1.5rem, 2.6vw, 2.3rem);
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 1rem;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.1);
+  border-bottom: 3px double #999;
+  padding-bottom: 0.75rem;
+}
+.article-page .article-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--rule-strong);
+  margin-bottom: 1.25rem;
+  font-family: "Times New Roman", Times, serif;
+}
+.article-page .article-source {
+  font-weight: 600;
+  color: var(--ink-body);
+  font-size: 1.1rem;
+  font-style: italic;
+}
+.article-page .article-date {
+  color: var(--ink-soft);
+  font-size: 1rem;
+  font-style: italic;
+}
+.article-page .article-image {
   width: 100%;
-  max-height: 440px;
+  /* A newspaper runs a photo as a band above the columns. At 400px it filled
+     the screen on its own. */
+  /* Capped in both directions. A fixed 240px meant the header was the same
+     height on every screen, so on anything shorter than about 700px the action
+     buttons fell below the fold and were cut in half. */
+  max-height: min(240px, 28vh);
   object-fit: cover;
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-sunken);
+  object-position: center 32%;
+  border-radius: 2px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--rule);
+  filter: sepia(10%);
+}
+.article-page .article-content {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: var(--ink);
+  margin-bottom: 2rem;
+  column-count: 2;
+  column-gap: 2.5rem;
+  column-rule: 1px solid var(--rule-strong);
+  text-align: justify;
+  hyphens: auto;
 }
 
-.article-standfirst { font-size: var(--text-md); color: var(--color-fg); max-width: var(--measure); }
-
-.article-summary {
-  display: grid;
-  gap: var(--space-3);
-  justify-items: start;
-  padding: var(--space-5) var(--space-6);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+/* A short wire story leaves the column box almost empty; let it shrink to the
+   text rather than reserving the full two-column height. */
+.article-page .article-content:empty { display: none; }
+/* Bottom Section Layout */
+/* The verdict, directly under the headline.
+   It used to be the last thing in the right-hand column, below the summary and
+   the reader comments. A page whose purpose is to answer "can I trust this?"
+   should not make you scroll for the answer. */
+.article-page .article-verdict {
+  margin: 2rem 0 2.5rem;
 }
 
-.article-summary .article-section-title { margin-bottom: 0; }
-.article-summary .ui-loading-region { width: 100%; }
-.article-summary__text { color: var(--color-fg); max-width: var(--measure); }
-
-.article-note {
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--text-sm);
-  color: var(--color-fg-muted);
-  background: var(--color-surface-sunken);
-  border-radius: var(--radius-md);
+/* With the verdict lifted out, what remains below is the summary and the
+   reader comments in a single column. */
+.article-page .article-bottom-section {
+  display: block;
+  margin-top: 3rem;
 }
 
-.article-detailed { display: grid; gap: var(--space-2); padding-top: var(--space-3); border-top: 1px solid var(--color-border); width: 100%; }
-.article-detailed h3 { font-size: var(--text-base); }
+/* The summary and the reader feedback are one continuous column.
+   They were previously two separate grid items, and an earlier attempt to fix
+   the gap with grid-template-areas did not: a report spanning two rows makes
+   the grid grow BOTH rows to fit it, so the taller the report, the further down
+   the feedback was pushed. Putting them in one container removes the row
+   coupling altogether — the left column now simply stacks. */
+.article-page .article-left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  min-width: 0;
+}
+/* Summary Section */
+.article-page .summary-section {/* Newspaper texture */
+/* Torn paper effect */
+position: relative;
+  background: var(--paper);
+  border-radius: 4px;
+  padding: 2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+  z-index: 1;
+  
+  
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0l26-26v2L54 40h-2zm4 0l22-22v2L58 40h-2zm4 0l18-18v2L62 40h-2zm4 0l14-14v2L66 40h-2zm4 0l10-10v2L70 40h-2zm4 0l6-6v2l-4 4h-2zm4 0l2-2v2h-2z' fill='%23000000' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+  
+  
+  &::after, &::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 20px;
+    left: 0;
+    background-color: var(--paper);
+    z-index: -1;
+  }
+&::after {
+    bottom: -15px;
+    clip-path: polygon(
+      0% 0%,
+      5% 60%,
+      10% 0%,
+      15% 80%,
+      20% 10%,
+      25% 70%,
+      30% 0%,
+      35% 60%,
+      40% 20%,
+      45% 90%,
+      50% 10%,
+      55% 80%,
+      60% 0%,
+      65% 70%,
+      70% 20%,
+      75% 90%,
+      80% 0%,
+      85% 60%,
+      90% 30%,
+      95% 100%,
+      100% 0%
+    );
+    box-shadow: 0 5px 5px -5px rgba(0, 0, 0, 0.3);
+  }
+&::before {
+    top: -15px;
+    clip-path: polygon(
+      0% 100%,
+      5% 40%,
+      10% 100%,
+      15% 20%,
+      20% 100%,
+      25% 40%,
+      30% 100%,
+      35% 20%,
+      40% 100%,
+      45% 40%,
+      50% 100%,
+      55% 30%,
+      60% 100%,
+      65% 40%,
+      70% 100%,
+      75% 20%,
+      80% 100%,
+      85% 50%,
+      90% 100%,
+      95% 30%,
+      100% 100%
+    );
+    box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, 0.3);
+  }
+}
+.article-page .summary-title {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #999;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.article-page .summary-content {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--ink-body);
+  text-align: justify;
+}
+.article-page .summary-actions {
+  display: flex;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  justify-content: center;
+}
+.article-page .action-button {
+  padding: 0.6rem 1.35rem;
+  border: 2px solid var(--ink-body);
+  border-radius: 0;
+  background-color: var(--paper-card);
+  color: var(--ink-body);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: "Times New Roman", Times, serif;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+.article-page .action-button:hover {
+  background-color: var(--ink-body);
+  color: var(--paper-card);
+}
+.article-page .action-button:disabled {
+  background-color: var(--rule);
+  border-color: #ccc;
+  color: #999;
+  cursor: not-allowed;
+}
+.article-page .detailed-summary {/* Aged paper effect */
+margin-top: 1.5rem;
+  padding: 1.2rem;
+  background-color: var(--paper-card);
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  position: relative;
+  
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      repeating-linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.01) 0,
+        rgba(0, 0, 0, 0.01) 1px,
+        transparent 1px,
+        transparent 5px
+      );
+    z-index: -1;
+  }
+}
+.article-page .detailed-summary h3 {
+  margin-bottom: 0.8rem;
+  color: var(--ink);
+  font-size: 1.2rem;
+  font-family: "Times New Roman", Times, serif;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--rule-strong);
+  padding-bottom: 0.5rem;
+}
+.article-page .detailed-summary p {
+  line-height: 1.6;
+  color: var(--ink-body);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  text-align: justify;
+}
 
-@media (max-width: 600px) {
-  .article-title { font-size: var(--text-2xl); }
-  .article-actions .ui-btn { flex: 1; }
-  .article-summary { padding: var(--space-4); }
+/* Do not make a short publisher feed excerpt look like a fully extracted
+   article. This explains why a requested "long" summary may correctly be
+   close to the initial overview. */
+.article-page .summary-source-note {
+  margin: 0.8rem 0 0;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.82rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  background: var(--paper-aged);
+  border-left: 3px solid var(--rule-heavy);
+  text-align: left;
+}
+/* Right Section Cards */
+.article-page .right-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+/* Credibility Card */
+.article-page .credibility-card {/* Newspaper texture */
+/* Torn paper effect */
+position: relative;
+  background: var(--paper);
+  border-radius: 4px;
+  padding: 2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+  z-index: 1;
+  
+  
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0l26-26v2L54 40h-2zm4 0l22-22v2L58 40h-2zm4 0l18-18v2L62 40h-2zm4 0l14-14v2L66 40h-2zm4 0l10-10v2L70 40h-2zm4 0l6-6v2l-4 4h-2zm4 0l2-2v2h-2z' fill='%23000000' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+  
+  
+  &::after, &::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 20px;
+    left: 0;
+    background-color: var(--paper);
+    z-index: -1;
+  }
+&::after {
+    bottom: -15px;
+    clip-path: polygon(
+      0% 0%,
+      5% 60%,
+      10% 0%,
+      15% 80%,
+      20% 10%,
+      25% 70%,
+      30% 0%,
+      35% 60%,
+      40% 20%,
+      45% 90%,
+      50% 10%,
+      55% 80%,
+      60% 0%,
+      65% 70%,
+      70% 20%,
+      75% 90%,
+      80% 0%,
+      85% 60%,
+      90% 30%,
+      95% 100%,
+      100% 0%
+    );
+    box-shadow: 0 5px 5px -5px rgba(0, 0, 0, 0.3);
+  }
+&::before {
+    top: -15px;
+    clip-path: polygon(
+      0% 100%,
+      5% 40%,
+      10% 100%,
+      15% 20%,
+      20% 100%,
+      25% 40%,
+      30% 100%,
+      35% 20%,
+      40% 100%,
+      45% 40%,
+      50% 100%,
+      55% 30%,
+      60% 100%,
+      65% 40%,
+      70% 100%,
+      75% 20%,
+      80% 100%,
+      85% 50%,
+      90% 100%,
+      95% 30%,
+      100% 100%
+    );
+    box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, 0.3);
+  }
+}
+.article-page .credibility-title {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #999;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.article-page .credibility-content {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--ink-body);
+  text-align: justify;
+}
+/* Feedback Card */
+.article-page .feedback-card {/* Newspaper texture */
+/* Torn paper effect */
+position: relative;
+  background: var(--paper);
+  border-radius: 4px;
+  padding: 2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+  z-index: 1;
+  
+  
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0l26-26v2L54 40h-2zm4 0l22-22v2L58 40h-2zm4 0l18-18v2L62 40h-2zm4 0l14-14v2L66 40h-2zm4 0l10-10v2L70 40h-2zm4 0l6-6v2l-4 4h-2zm4 0l2-2v2h-2z' fill='%23000000' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+  
+  
+  &::after, &::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 20px;
+    left: 0;
+    background-color: var(--paper);
+    z-index: -1;
+  }
+&::after {
+    bottom: -15px;
+    clip-path: polygon(
+      0% 0%,
+      5% 60%,
+      10% 0%,
+      15% 80%,
+      20% 10%,
+      25% 70%,
+      30% 0%,
+      35% 60%,
+      40% 20%,
+      45% 90%,
+      50% 10%,
+      55% 80%,
+      60% 0%,
+      65% 70%,
+      70% 20%,
+      75% 90%,
+      80% 0%,
+      85% 60%,
+      90% 30%,
+      95% 100%,
+      100% 0%
+    );
+    box-shadow: 0 5px 5px -5px rgba(0, 0, 0, 0.3);
+  }
+&::before {
+    top: -15px;
+    clip-path: polygon(
+      0% 100%,
+      5% 40%,
+      10% 100%,
+      15% 20%,
+      20% 100%,
+      25% 40%,
+      30% 100%,
+      35% 20%,
+      40% 100%,
+      45% 40%,
+      50% 100%,
+      55% 30%,
+      60% 100%,
+      65% 40%,
+      70% 100%,
+      75% 20%,
+      80% 100%,
+      85% 50%,
+      90% 100%,
+      95% 30%,
+      100% 100%
+    );
+    box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, 0.3);
+  }
+}
+.article-page .feedback-title {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #999;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.article-page .feedback-content {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--ink-body);
+  text-align: justify;
+}
+.article-page .feedback-button {
+  display: inline-block;
+  padding: 0.7rem 1.2rem;
+  margin-top: 1rem;
+  border: 2px solid var(--ink-body);
+  border-radius: 0;
+  background-color: var(--paper-card);
+  color: var(--ink-body);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: "Times New Roman", Times, serif;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+.article-page .feedback-button:hover {
+  background-color: var(--ink-body);
+  color: var(--paper-card);
+}
+/* Loading state styles */
+.article-page .loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+.article-page .spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-left-color: var(--ink);
+  animation: spin 1s ease infinite;
+  margin-bottom: 1rem;
+}
+@keyframes spin {0% {
+    transform: rotate(0deg);
+  }100% {
+    transform: rotate(360deg);
+  }
+}
+.article-page .loading-text {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+/* Error message styles */
+.article-page .error-message {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  color: var(--press-red-bright);
+  text-align: center;
+  padding: 1rem;
+  border: 1px dashed var(--press-red-bright);
+  margin: 1rem 0;
+  background-color: rgba(218, 44, 56, 0.05);
+}
+/* Credibility score circle */
+.article-page .credibility-score {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+}
+.article-page .score-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.article-page .score-inner {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--paper);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: "Times New Roman", Times, serif;
+}
+.article-page .score-inner span:first-child {
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 1;
+}
+.article-page .score-label {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+.article-page .credibility-reasoning {
+  margin-top: 1.5rem;
+  font-style: italic;
+  border-top: 1px solid var(--rule-strong);
+  padding-top: 1rem;
+}
+/* Article actions */
+.article-page .article-actions {
+  display: flex;
+  justify-content: center;
+  /* Without a gap the two buttons met edge to edge and read as one control
+     with a divider down the middle. */
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+/* These two are marked up as .feedback-button, so the sizing has to be set
+   here rather than on .action-button. */
+.article-page .article-actions .feedback-button {
+  padding: 0.6rem 1.35rem;
+}
+/* Modal styles for feedback */
+.article-page .modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.article-page .modal-content {
+  position: relative;
+  width: 80%;
+  max-width: 600px;
+  background: var(--paper);
+  padding: 2rem;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--rule);
+  
+  /* Newspaper texture */
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0l26-26v2L54 40h-2zm4 0l22-22v2L58 40h-2zm4 0l18-18v2L62 40h-2zm4 0l14-14v2L66 40h-2zm4 0l10-10v2L70 40h-2zm4 0l6-6v2l-4 4h-2zm4 0l2-2v2h-2z' fill='%23000000' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+.article-page .modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-body);
+}
+.article-page .modal-title {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 1.8rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 2px solid #999;
+}
+.article-page .feedback-form textarea {
+  width: 100%;
+  height: 150px;
+  padding: 0.8rem;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1rem;
+  border: 1px solid var(--rule-strong);
+  background-color: var(--paper);
+  resize: vertical;
+  margin-bottom: 1.2rem;
+}
+.article-page .feedback-form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+/* Responsive styles */
+@media (max-width: 1024px) {.article-page .article-content {
+    column-count: 1;
+  }
+.article-page .article-bottom-section {
+    margin-top: 2rem;
+  }
+.article-page .right-cards {
+    gap: 2rem;
+  }
+}
+@media (max-width: 768px) {.article-page {
+    padding: 1rem;
+  }
+.article-page .article-header {
+    padding: 1.25rem;
+  }
+.article-page .article-title {
+    font-size: 1.6rem;
+  }
+.article-page .summary-section, .article-page .credibility-card, .article-page .feedback-card {
+    padding: 1.5rem;
+  }
+}
+@media (max-width: 480px) {.article-page .article-title {
+    font-size: 1.35rem;
+  }
+.article-page .article-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+.article-page .summary-actions, .article-page .article-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.8rem;
+  }
+.article-page .action-button, .article-page .feedback-button {
+    width: 100%;
+  }
+}
+/* Article Feedbacks Section */
+.article-page .article-feedbacks-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--paper);
+  border-radius: 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--rule);
+}
+.article-page .article-feedbacks {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+.article-page .feedback-item {
+  padding: 1rem;
+  background: #fff;
+  border-radius: 4px;
+  border: 1px solid var(--rule);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.article-page .feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--ink-muted);
+}
+.article-page .feedback-user {
+  font-weight: 600;
+  color: var(--ink-body);
+}
+.article-page .feedback-date {
+  font-style: italic;
+}
+.article-page .feedback-rating {
+  color: var(--trust-caution);
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+.article-page .feedback-text {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink-body);
+  margin: 0;
+}
+.article-page .no-feedbacks {
+  text-align: center;
+  color: var(--ink-muted);
+  font-style: italic;
+  padding: 1rem;
+}/* Page-level notice — a stop-press bar so failures are never silent */
+.article-page .page-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 1100px;
+  margin: 0 auto 1.25rem;
+  padding: 0.7rem 1rem;
+  background: var(--trust-low-soft);
+  border-left: 4px solid var(--trust-low);
+  font-size: 0.9rem;
+  color: var(--trust-low);
+}
+.article-page .page-notice button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.25rem;
+}
+.article-page .page-notice button:hover { opacity: 0.7; }
+/* Success variant of the page notice */
+.article-page .page-notice-good {
+  background: var(--trust-high-soft);
+  border-left-color: var(--trust-high);
+  color: var(--trust-high);
+}
+
+/* The six checks ticking off while the report is built. Set as a printer's
+   checklist rather than a progress bar — the reader sees what was examined. */
+.article-page .check-progress {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  text-align: left;
+  display: inline-block;
+}
+
+.article-page .check-progress .check-done {
+  position: relative;
+  padding-left: 1.4rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  animation: check-appear 0.25s ease-out;
+}
+
+.article-page .check-progress .check-done::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--trust-high);
+  font-weight: 700;
+}
+
+@keyframes check-appear {
+  from { opacity: 0; transform: translateX(-4px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Short viewports (laptops, split screens): the headline, photo and actions
+   must still land above the fold together, so the header tightens rather than
+   pushing its buttons off the bottom. */
+@media (max-height: 760px) {
+  .article-page {
+    padding: 1rem 2rem;
+  }
+
+  .article-page .article-header {
+    padding: 1.25rem 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .article-page .article-title {
+    font-size: clamp(1.3rem, 2vw, 1.8rem);
+    margin-bottom: 0.7rem;
+    padding-bottom: 0.6rem;
+  }
+
+  .article-page .article-meta {
+    padding: 0.4rem 0;
+    margin-bottom: 0.9rem;
+  }
+
+  .article-page .article-image {
+    margin-bottom: 1rem;
+  }
+
+  .article-page .article-actions {
+    margin-top: 1rem;
+  }
 }

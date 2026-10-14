@@ -1,35 +1,12 @@
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Newspaper, RefreshCw, Sparkles } from 'lucide-react';
 import api from '../services/api';
 import NewsCard from '../components/NewsCard';
-import { Alert, Button, EmptyState, LoadingRegion, PageHeader, Skeleton, SkeletonText } from '../components/ui';
-import useDocumentTitle from '../hooks/useDocumentTitle';
 import '../styles/HomePage.css';
-
-const SECTIONS = ['general', 'business', 'technology', 'entertainment', 'sports', 'science', 'health'];
-const sectionName = (category) => category.charAt(0).toUpperCase() + category.slice(1);
-
-/** Six cards in the shape of the feed, while it loads. */
-const FeedSkeleton = () => (
-  <LoadingRegion label="Loading the latest stories" className="news-grid">
-    {Array.from({ length: 6 }, (_, i) => (
-      <div key={i} className="news-card news-card--skeleton">
-        <Skeleton height="auto" radius="0" style={{ aspectRatio: '16 / 9' }} />
-        <div className="news-card__body">
-          <Skeleton width="40%" height="10px" />
-          <SkeletonText lines={2} />
-          <SkeletonText lines={3} />
-        </div>
-      </div>
-    ))}
-  </LoadingRegion>
-);
 
 const HomePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  useDocumentTitle('News');
   const [articles, setArticles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -111,9 +88,8 @@ const HomePage = () => {
     return () => { cancelled = true; };
   }, [articles]);
 
-  // Fetch the section again, rather than reloading the whole application.
   const handleRetry = () => {
-    fetchNews();
+    window.location.reload();
   };
 
   const trackCategoryClick = async (category) => {
@@ -150,54 +126,124 @@ const HomePage = () => {
     navigate(`/home?category=${category}`);
   };
 
-  const today = currentDate.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const getCategoryEmoji = (category) => {
+    const emojiMap = {
+      'general': '🌐',
+      'technology': '💻',
+      'business': '💼',
+      'sports': '⚽',
+      'science': '🔬',
+      'health': '🏥',
+      'entertainment': '🎬'
+    };
+    return emojiMap[category] || '📰';
+  };
+
+  const getCategoryTitle = (category) => {
+    const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
+    return `${categoryName} Daily`;
+  };
+
+  const formatCurrentDate = () => {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    return currentDate.toLocaleDateString(undefined, options);
+  };
 
   return (
-    <div className="page news-page">
-      <PageHeader
-        eyebrow={today}
-        title={selectedCategory === 'general' ? 'Today’s news' : `${sectionName(selectedCategory)} news`}
-        description="Today’s stories, each marked with what the checks already know about it. Open one for the full check, the summary and other outlets’ coverage."
-      />
-
-      <nav className="news-sections" aria-label="Sections">
-        {SECTIONS.map((category) => (
-          <button
-            key={category}
-            type="button"
-            className={`news-section ${selectedCategory === category ? 'is-active' : ''}`}
-            aria-pressed={selectedCategory === category}
-            onClick={() => chooseCategory(category)}
+    <div className="newspaper-container">
+      <div className="newspaper-masthead">
+        <div className="newspaper-date">{formatCurrentDate()}</div>
+        <h1 className="newspaper-name">The Daily Chronicle</h1>
+        <div className="newspaper-tagline">All the News That's Fit to Print</div>
+      </div>
+      
+      <div className="newspaper-categories">
+        <div className="category-label">SECTIONS:</div>
+        <div className="categories-list">
+          <button 
+            className={`category-btn ${selectedCategory === 'general' ? 'active' : ''}`}
+            onClick={() => chooseCategory('general')}
           >
-            {sectionName(category)}
+            General
           </button>
-        ))}
-      </nav>
-
+          <button 
+            className={`category-btn ${selectedCategory === 'business' ? 'active' : ''}`}
+            onClick={() => chooseCategory('business')}
+          >
+            Business
+          </button>
+          <button 
+            className={`category-btn ${selectedCategory === 'technology' ? 'active' : ''}`}
+            onClick={() => chooseCategory('technology')}
+          >
+            Technology
+          </button>
+          <button 
+            className={`category-btn ${selectedCategory === 'entertainment' ? 'active' : ''}`}
+            onClick={() => chooseCategory('entertainment')}
+          >
+            Entertainment
+          </button>
+          <button 
+            className={`category-btn ${selectedCategory === 'sports' ? 'active' : ''}`}
+            onClick={() => chooseCategory('sports')}
+          >
+            Sports
+          </button>
+          <button 
+            className={`category-btn ${selectedCategory === 'science' ? 'active' : ''}`}
+            onClick={() => chooseCategory('science')}
+          >
+            Science
+          </button>
+          <button 
+            className={`category-btn ${selectedCategory === 'health' ? 'active' : ''}`}
+            onClick={() => chooseCategory('health')}
+          >
+            Health
+          </button>
+        </div>
+      </div>
+      
+      <div className="section-header">
+        <div className="section-divider"></div>
+        <h2 className="section-title">
+          {getCategoryEmoji(selectedCategory)} {getCategoryTitle(selectedCategory)}
+        </h2>
+        <div className="section-divider"></div>
+      </div>
+      
       {personalizedMessage && (
-        <Alert tone="info" className="news-personal">
-          <span className="news-personal__text"><Sparkles size={14} aria-hidden="true" /> {personalizedMessage}</span>
-        </Alert>
+        <div className="editor-note">
+          <div className="editor-note-inner">
+            <h3 className="editor-title">Editor's Pick</h3>
+            <p>{personalizedMessage}</p>
+          </div>
+        </div>
       )}
 
       {isLoading ? (
-        <FeedSkeleton />
+        <div className="newspaper-loading">
+          <div className="typewriter">
+            <div className="typewriter-text">Loading latest headlines...</div>
+          </div>
+          <div className="loading-text">Please wait while we prepare your newspaper</div>
+        </div>
       ) : error ? (
-        <Alert
-          tone="danger"
-          title="The news could not be loaded"
-          action={<Button size="sm" variant="secondary" icon={RefreshCw} onClick={handleRetry}>Try again</Button>}
-        >
-          {error}
-        </Alert>
+        <div className="newspaper-error">
+          <div className="error-headline">BREAKING: NEWS UNAVAILABLE</div>
+          <p className="error-subheading">Our press machines are experiencing technical difficulties</p>
+          <p>{error}</p>
+          <button onClick={handleRetry} className="retry-button">Refresh Paper</button>
+        </div>
       ) : articles.length === 0 ? (
-        <EmptyState
-          icon={Newspaper}
-          title="No stories in this section yet"
-          description="The feed has nothing for this section right now. Try another section, or come back later."
-        />
+        <div className="newspaper-empty">
+          <h3 className="empty-headline">SLOW NEWS DAY</h3>
+          <p>Our reporters are currently investigating stories for this section.</p>
+          <p>Please check back in our evening edition.</p>
+        </div>
       ) : (
-        <div className="news-grid">
+        <div className="newspaper-grid">
           {articles.map((article, index) => (
             // Feed stories carry no section of their own, so every read was
             // filed under "general", which personalisation ignores. The
@@ -210,6 +256,12 @@ const HomePage = () => {
           ))}
         </div>
       )}
+      
+      <div className="newspaper-footer">
+        <div className="footer-divider"></div>
+        <p>© {currentDate.getFullYear()} The Daily Chronicle • All Rights Reserved</p>
+        <p>Our reporters strive to deliver accurate, fair, and thorough news reporting</p>
+      </div>
     </div>
   );
 };

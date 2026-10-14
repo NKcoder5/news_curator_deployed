@@ -893,9 +893,21 @@ const summarise = (verdict, ledger, rule = '') => {
     return `The encyclopedia entry on ${first?.entity} confirms it: “${says.length > 140 ? `${says.slice(0, 137)}…` : says}”`;
   }
   if (rule === 'contradicted-by-current-coverage') {
-    const h = (ledger.presupposingFalse || [])[0];
+    // Quote the newest headline, and one that names no earlier year: "MS Dhoni
+    // passed away" was answered with "MS Dhoni Auction Price & Team - IPL 2025",
+    // a page that reads as old news even when it was this week's.
+    const list = ledger.presupposingFalse || [];
+    const at = (x) => Date.parse(x.publishedAt) || 0;
+    const ref = new Date(Math.max(0, ...list.map(at))).getUTCFullYear();
+    const dated = (x) => ((`${x.title || ''} ${x.reported || ''}`).match(/\b(?:19|20)\d{2}\b/g) || []).some(y => Number(y) < ref);
+    const h = [...list].sort((a, b) => (dated(a) - dated(b)) || (at(b) - at(a)))[0];
+    // The short quote must be the outlet's own words: a model shortening a
+    // headline once turned "IPL 2025" into "IPL 2026". When it is not in the
+    // headline, the headline itself is quoted.
+    const squash = (t) => String(t || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    const quote = h && h.title && !squash(h.title).includes(squash(h.reported)) ? h.title : h && h.reported;
     return h
-      ? `No outlet reports this, and this week's news says otherwise: “${h.reported}” (${h.source}).`
+      ? `No outlet reports this, and this week's news says otherwise: “${quote}” (${h.source}).`
       : 'No outlet reports this, and this week\'s news about the subject says otherwise.';
   }
   if (rule === 'absent-from-heavy-coverage') {

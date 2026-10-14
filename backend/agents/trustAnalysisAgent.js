@@ -364,7 +364,11 @@ const analyzeTrust = async ({
   // slower providers, a 15-second limit cut the search off in 26 of 51
   // held-out checks and each came back "we could not complete the search".
   // A reader would rather wait than get no answer.
-  const PRIMARY = new Set(['verification']);
+  // This week's coverage is the evidence that an invented event about a
+  // well-covered person is false ("MS Dhoni passed away" against a week of
+  // reports of him alive and active); cut off, the same message came back
+  // CANNOT VERIFY on one run in four.
+  const PRIMARY = new Set(['verification', 'currentCoverage']);
   const beforeDeadline = (name, promise, unread) => {
     if (!deadlineAt || !unread) return promise;
     const until = PRIMARY.has(name) ? startedAt + 3 * (deadlineAt - startedAt) : deadlineAt;

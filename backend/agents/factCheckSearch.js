@@ -258,7 +258,7 @@ Return a JSON object: {"items": [{"n": <review number>, "same_claim": true or fa
 
 // Words that turn a statement about a video, photo or event into its denial:
 // "the video is fake" says the opposite of "the video is genuine".
-const FALSITY_WORDS = /\b(?:fake|false|hoax|morphed|doctored|edited|deepfake|ai[\s-]generated|fabricated|untrue|misleading|old)\b/gi;
+const FALSITY_WORDS = /\b(?:fake|false|falsely|wrongly|hoax|morphed|doctored|edited|deepfake|ai[\s-]generated|fabricated|untrue|misleading|old)\b/gi;
 
 /** Which way a sentence points: false for a plain assertion, true for its denial. */
 const deniesIt = (text) => {

@@ -17,6 +17,7 @@ const { detectManipulation } = require('./manipulationAgent');
 const { assessTransparency } = require('./transparencyAgent');
 const { checkPremises } = require('./referenceCheck');
 const { checkFactCheckers } = require('./factCheckSearch');
+const { factCheckDeskOf } = require('../utils/factCheckDesks');
 const { checkCurrentCoverage } = require('./currentCoverage');
 const { buildEvidenceLedger, decideVerdict, applyCeiling, compactLedgerInput } = require('./verdictEngine');
 const { assessProbability } = require('./weightOfEvidence');
@@ -586,6 +587,10 @@ const analyzeTrust = async ({
     transparencyResult,
     manipulationResult,
     title,
+    // The page's own address: a fact-checking desk's ruling, submitted as a
+    // link, is found in the fact-check record at this same address.
+    pageUrl: url || null,
+    pageDesk: factCheckDeskOf(url),
     // So the ledger can tell "no outlet reports this" apart from "the index we
     // search does not carry anything this recent". See verdictEngine R3a.
     publishedAt,

@@ -160,11 +160,25 @@ const looksHighImpact = (text) => HIGH_IMPACT_PATTERNS.some(pattern => pattern.t
  * @param {string} [input.title]
  * @returns {Object} the ledger the verdict rules read
  */
+/** A page's address without scheme, "www.", query or trailing slash. */
+const pageKey = (u) => {
+  try {
+    const x = new URL(String(u || ''));
+    return x.hostname.replace(/^www\./, '').toLowerCase() + x.pathname.replace(/\/+$/, '').toLowerCase();
+  } catch (_) { return null; }
+};
+const pageRulingOf = (pageUrl, matches = []) => {
+  const key = pageUrl && pageKey(pageUrl);
+  return (key && (matches || []).find(m => m.via !== 'news-search' && pageKey(m.url) === key)) || null;
+};
+
+const { denies } = require('../utils/factCheckDesks');
+
 const buildEvidenceLedger = ({
   claims = [], sourceResult = {}, transparencyResult = {}, manipulationResult = {}, title = '',
   verificationStatus = 'unverified', premiseResult = null, factCheckResult = null, currentCoverageResult = null,
   unconfirmedClaimResult = null,
-  publishedAt = null, indexLagHours = INDEX_LAG_HOURS, domainAge = null,
+  publishedAt = null, indexLagHours = INDEX_LAG_HOURS, domainAge = null, pageUrl = null, pageDesk = null,
   // The moment the verdict is reached. Everything time-dependent below (how
   // old the story is, whether a report is recent enough to contradict a claim
   // about now, whether confirming coverage is old news) is measured from it,
@@ -301,6 +315,13 @@ const buildEvidenceLedger = ({
     // event, and the rumours it rules on are the ones newsrooms never cover.
     factCheckStatus: factCheckResult?.status || 'not-run',
     factChecks: factCheckResult?.matches || [],
+    // The desk's review published at the submitted page's own address: the
+    // page is that ruling, not a message repeating the claim it rules on.
+    pageRuling: pageRulingOf(pageUrl, factCheckResult?.matches),
+    // The recognised desk that published the submitted page, if one did.
+    pageDesk: pageDesk || null,
+    // Whether that page's title denies what it examines, as a debunk does.
+    pageDenies: Boolean(pageDesk) && denies(title),
     currentCoverageOutcome,
     // An unreported claim riding with a confirmed one, and what this week's
     // coverage of its subject says about it.
@@ -416,6 +437,55 @@ const decideVerdict = (ledger) => {
     ]);
   }
 
+  const describeReview = (m) => {
+    const when = m.reviewedAt ? ` on ${m.reviewedAt}` : '';
+    // Found through the news search: a headline, not a structured ruling.
+    if (m.via === 'news-search') {
+      return `${m.publisher || 'A fact-checker'} reported${when}: "${String(m.claimReviewed || '').slice(0, 160)}".`;
+    }
+    const checked = m.claimReviewed ? ` "${String(m.claimReviewed).slice(0, 160)}"` : ' this claim';
+    const rating = m.rating && m.rating.length <= 40 ? m.rating : m.finding;
+    return `${m.publisher || m.site || 'A fact-checker'} reviewed${checked}${when} and rated it ${rating}.`;
+  };
+
+  // R0a — The page is itself a desk's published ruling. "Viral Social Media
+  // Posts Offer False Coronavirus Tips", submitted as a FactCheck.org link,
+  // came back FAKE: the rumour it quotes was extracted as its claim, and its
+  // own ruling on that rumour was then held against it. A review the
+  // fact-check record lists at this very address is the page; what it
+  // asserts is the ruling. It stands unless another desk rules the other way.
+  //
+  // Without a ruling at this address (the record lookup can fail or miss), a
+  // page a recognised desk published counts only when independent evidence
+  // agrees with it: outlets or the encyclopedia reject the claim it examines.
+  // On such a page evidence against the quoted claim is evidence for the
+  // page, which is why this rule sits before every rule that reads it the
+  // other way.
+  const own = ledger.pageRuling;
+  const desk = (own && (own.publisher || own.site)) || ledger.pageDesk;
+  // Only the quoted claim agrees by being rejected: the page's own denial,
+  // rejected, would mean the page is wrong. And on a page whose title denies
+  // what it examines, another desk's "false" on the same claim agrees with it.
+  const examined = (ledger.contradictedClaims || []).find(c => !denies(c.claim)) || null;
+  const otherDesks = ledger.pageDenies && ['debunked', 'misleading'].includes(ledger.factCheckStatus)
+    ? ledger.factChecks.filter(m => m !== own && m.finding !== 'true') : [];
+  const rejectedElsewhere = Boolean(examined) || otherDesks.length > 0
+    || (ledger.premiseContradictions || []).some(p => !denies(p.articleStates));
+  if (desk && (own || rejectedElsewhere)) {
+    const opposed = Boolean(own) && ledger.factChecks.some(m => m !== own && m.finding && own.finding
+      && ((m.finding === 'true') !== (own.finding === 'true')));
+    if (!opposed) {
+      return decide('likely-true', 'page-is-a-published-fact-check', [
+        own ? `This page is ${desk}'s own fact-check, listed at this address in the fact-checking record.`
+          : `This page is a fact-check published by ${desk}, a recognised fact-checking desk.`,
+        ...(own ? [describeReview(own)] : []),
+        ...(examined ? [`The claim it examines — ${examined.claim} — is reported otherwise by independent outlets${examined.reported ? `: "${examined.reported}"` : ''}, which agrees with its finding.`] : []),
+        ...otherDesks.slice(0, 2).map(m => `Another desk agrees: ${describeReview(m)}`),
+        'A fact-check reports what was examined and what was found; the claim it quotes is not what it asserts.'
+      ], 'This is a genuine published fact-check. Share its finding, not the claim it examines.');
+    }
+  }
+
   // R0b — A professional fact-checking desk has already ruled on this claim.
   //
   // This comes before the news rules because it answers what they cannot. A
@@ -431,16 +501,6 @@ const decideVerdict = (ledger) => {
   // one this code should settle by picking a side.
   const factCheckOvertaken = ledger.supportBeyondDebunks >= 2
     && ledger.supportBeyondDebunks > ledger.independentContradiction;
-  const describeReview = (m) => {
-    const when = m.reviewedAt ? ` on ${m.reviewedAt}` : '';
-    // Found through the news search: a headline, not a structured ruling.
-    if (m.via === 'news-search') {
-      return `${m.publisher || 'A fact-checker'} reported${when}: "${String(m.claimReviewed || '').slice(0, 160)}".`;
-    }
-    const checked = m.claimReviewed ? ` "${String(m.claimReviewed).slice(0, 160)}"` : ' this claim';
-    const rating = m.rating && m.rating.length <= 40 ? m.rating : m.finding;
-    return `${m.publisher || m.site || 'A fact-checker'} reviewed${checked}${when} and rated it ${rating}.`;
-  };
   if (['debunked', 'misleading'].includes(ledger.factCheckStatus) && ledger.factChecks.length > 0) {
     if (factCheckOvertaken) {
       // The ruling is set aside, not reversed: the verdict is what the other
@@ -869,6 +929,24 @@ const summarise = (verdict, ledger, rule = '') => {
   if (rule === 'rated-misleading-by-fact-checkers') {
     return `Fact-checkers (${desks(ledger.factChecks.filter(m => m.finding !== 'true'))}) found this misleading.`;
   }
+  if (rule === 'page-is-a-published-fact-check') {
+    const own = ledger.pageRuling;
+    const desk = (own && (own.publisher || own.site)) || ledger.pageDesk || 'a fact-checking desk';
+    if (own) {
+      const rating = own.rating && own.rating.length <= 40 ? own.rating : own.finding;
+      // Desks quote the rumour with its own quotation marks; cut at a word.
+      const reviewed = String(own.claimReviewed || '').replace(/["“”]/g, '').replace(/\s+/g, ' ').trim();
+      const shortened = reviewed.length > 110 ? `${reviewed.slice(0, 110).replace(/\s+\S*$/, '')}…` : reviewed;
+      const rates = shortened ? ` It rates the claim “${shortened}” ${rating}.` : '';
+      return `A genuine fact-check by ${desk}, found in the fact-checking record at this address.${rates}`;
+    }
+    const ex = (ledger.contradictedClaims || []).find(c => !denies(c.claim));
+    const others = ledger.pageDenies ? ledger.factChecks.filter(m => m.finding !== 'true') : [];
+    if (!ex && others.length > 0) return `A fact-check by ${desk}, and ${desks(others)} reached the same finding on the claim it examines.`;
+    return ex
+      ? `A fact-check by ${desk}, and independent outlets agree with it: the claim it examines, “${ex.claim.replace(/\.$/, '')}”, is reported otherwise.`
+      : `A fact-check by ${desk}, and the reference record agrees with its finding.`;
+  }
   if (rule === 'rated-true-by-fact-checkers') {
     return `Checked and rated true by ${desks(ledger.factChecks)}.`;
   }
@@ -995,6 +1073,7 @@ const confidenceFor = (verdict, ledger, rule = '') => {
     const base = rule === 'rated-false-by-fact-checkers' ? 0.82 : 0.68;
     return cap(base + 0.04 * Math.min(desks - 1, 3) + (ledger.independentContradiction > 0 ? 0.03 : 0));
   }
+  if (rule === 'page-is-a-published-fact-check') return cap(0.82);
   if (rule === 'rated-true-by-fact-checkers') return cap(0.65 + 0.05 * Math.min(ledger.factChecks.length - 1, 2));
   if (rule === 'contradicted-by-current-coverage') return cap(0.62 + 0.05 * Math.min(ledger.presupposedAgainst - 2, 3));
   if (rule === 'claims-partly-false') return cap(0.75);
@@ -1092,6 +1171,8 @@ const compactLedgerInput = (input) => ({
   manipulationResult: { techniques: (input.manipulationResult?.techniques || []).map(t => ({ technique: t.technique || t })) },
   title: input.title || '',
   publishedAt: input.publishedAt || null,
+  pageUrl: input.pageUrl || null,
+  pageDesk: input.pageDesk || null,
   indexLagHours: input.indexLagHours ?? INDEX_LAG_HOURS,
   domainAge: input.domainAge || null,
   asOf: input.asOf ?? Date.now()

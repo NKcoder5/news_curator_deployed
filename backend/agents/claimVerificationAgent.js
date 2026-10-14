@@ -156,7 +156,7 @@ const extractClaims = async (title, content, maxClaims = 2, language = null) => 
 - "search_keywords_en": one string of the same 3 or 4 distinctive terms in English, proper nouns transliterated.`
     : '- "search_keywords": one string of exactly 3 or 4 of the most distinctive words — names, places or events — most important first, no quotes or operators.';
 
-  const prompt = `You are a fact-checking assistant. Extract the most important CHECKABLE factual claims from this news article — concrete statements about events, numbers, or actions that other news outlets would also report if true. Skip opinions and vague statements.
+  const prompt = `You are a fact-checking assistant. Extract the most important CHECKABLE factual claims from this news article — concrete statements about events, numbers, or actions that other news outlets would also report if true. Skip opinions and vague statements. An article that quotes or describes a claim in order to refute it — a fact-check, or a report that a viral claim is false — asserts the refutation: write its claim as the denial ("Drinking water does not wash the coronavirus into the stomach to be killed"), never as the rumour it refutes.
 
 ${UNTRUSTED_NOTICE}
 

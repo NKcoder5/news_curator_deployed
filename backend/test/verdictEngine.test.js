@@ -197,3 +197,61 @@ test('every verdict states the rule that produced it', () => {
   assert.ok(Array.isArray(decision.grounds) && decision.grounds.length > 0);
   assert.ok(decision.confidence > 0 && decision.confidence < 1, 'the system never claims certainty');
 });
+
+// A fact-checking desk's article quotes a rumour in order to rule on it. The
+// rumour is not what the page asserts, so it must never be held against it.
+const RUMOUR = 'Water consumption can kill the coronavirus.';
+const FC_PAGE = 'https://www.factcheck.org/2020/03/viral-social-media-posts-offer-false-coronavirus-tips/';
+const fcRuling = { publisher: 'FactCheck.org', finding: 'false', rating: 'False', claimReviewed: 'Drinking water washes the virus into the stomach.', url: FC_PAGE, via: 'claimreview' };
+const rumourClaim = { claim: RUMOUR, verdict: 'contradicted', supportingEvidence: [],
+  contradictingEvidence: [evidence('alpha', 'Drinking water does not prevent coronavirus'), evidence('beta', 'No, water does not kill the virus'), evidence('gamma', 'Water will not flush out coronavirus')] };
+
+test('a ruling found at the submitted page\'s own address is the page, not evidence against it', () => {
+  const decision = decideVerdict(ledgerFor({
+    claims: [{ claim: RUMOUR, verdict: 'no-coverage', supportingEvidence: [], contradictingEvidence: [] }],
+    factCheckResult: { status: 'debunked', matches: [fcRuling] },
+    pageUrl: `${FC_PAGE}?utm_source=chatgpt.com`
+  }));
+  assert.strictEqual(decision.call, 'REAL');
+  assert.strictEqual(decision.rule, 'page-is-a-published-fact-check');
+});
+
+test('a recognised desk\'s page counts when outlets also reject the claim it examines', () => {
+  const decision = decideVerdict(ledgerFor({ claims: [rumourClaim], pageDesk: 'FactCheck.org', pageUrl: FC_PAGE }));
+  assert.strictEqual(decision.call, 'REAL');
+  assert.strictEqual(decision.rule, 'page-is-a-published-fact-check');
+});
+
+test('a desk\'s page with nothing agreeing with it is judged by the ordinary rules', () => {
+  const decision = decideVerdict(ledgerFor({
+    claims: [{ claim: RUMOUR, verdict: 'no-coverage', supportingEvidence: [], contradictingEvidence: [] }],
+    pageDesk: 'FactCheck.org', pageUrl: FC_PAGE
+  }));
+  assert.notStrictEqual(decision.rule, 'page-is-a-published-fact-check');
+});
+
+test('the same rumour forwarded as a message is still false', () => {
+  const ruled = decideVerdict(ledgerFor({ claims: [{ claim: RUMOUR, verdict: 'no-coverage', supportingEvidence: [], contradictingEvidence: [] }],
+    factCheckResult: { status: 'debunked', matches: [fcRuling] } }));
+  assert.strictEqual(ruled.call, 'FAKE');
+  assert.strictEqual(decideVerdict(ledgerFor({ claims: [rumourClaim] })).call, 'FAKE');
+});
+
+test('on a desk\'s debunking page, another desk\'s "false" on the same claim agrees with it', () => {
+  const afp = { publisher: 'AFP Fact Check', finding: 'false', rating: 'False', claimReviewed: 'Drinking water prevents coronavirus.', url: 'https://factcheck.afp.com/x', via: 'claimreview' };
+  const page = { claims: [{ claim: 'Posts falsely suggest that water consumption can kill the virus.', verdict: 'no-coverage', supportingEvidence: [], contradictingEvidence: [] }],
+    factCheckResult: { status: 'debunked', matches: [afp] }, pageUrl: FC_PAGE };
+  const onDesk = decideVerdict(ledgerFor({ ...page, pageDesk: 'FactCheck.org', title: 'Viral Social Media Posts Offer False Coronavirus Tips' }));
+  assert.strictEqual(onDesk.call, 'REAL');
+  assert.strictEqual(onDesk.rule, 'page-is-a-published-fact-check');
+  // The same ruling against an ordinary page is still a ruling against it.
+  assert.strictEqual(decideVerdict(ledgerFor({ ...page, title: 'Water kills the virus, posts say' })).call, 'FAKE');
+});
+
+test('a desk\'s page whose own denial is contradicted is not vouched for', () => {
+  const decision = decideVerdict(ledgerFor({
+    claims: [{ ...rumourClaim, claim: 'Walmart has not adopted a staggered shopping schedule.' }],
+    pageDesk: 'FactCheck.org', pageUrl: FC_PAGE, title: "Walmart Hasn't Adopted 'Staggered Shopping'"
+  }));
+  assert.notStrictEqual(decision.rule, 'page-is-a-published-fact-check');
+});

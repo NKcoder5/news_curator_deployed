@@ -19,13 +19,43 @@ const { signatureOf } = require('../services/claimSignature');
 // read here directly (figures and units as services/claimSignature.js reads
 // them): used when the judgement fails, and to overrule a judgement that
 // found such headlines in agreement.
+// A number is also matched by the word beside it: a code, a flight or a
+// section is written "code 7500", "squawk 7500", with the word before the
+// number, where a quantity is written "5 days". Measured: "the pilot
+// squawked code 7400" was called REAL against headlines reading "Squawk Code
+// 7500", "Code 7500" and "Hijack code 7500". Years are left to the date
+// checks; a number inside an identifier ("AI-2030") is not a figure.
+const CONTEXT_STOP = new Set(['the', 'and', 'for', 'with', 'after', 'before', 'from', 'was', 'were', 'are', 'has', 'had', 'its', 'his', 'her', 'their', 'into', 'over', 'than']);
+// The two words before a number and the one after, with plain endings taken
+// off, so "squawked code 7400" meets "Squawk 7500".
+const contextWord = (w) => {
+  let x = String(w || '').toLowerCase();
+  if (x.length < 3 || CONTEXT_STOP.has(x)) return '';
+  if (x.length > 4) x = x.replace(/(?:ing|ed|es|s)$/, '');
+  return x;
+};
+const numbersInContext = (text) => {
+  const out = [];
+  const re = /(?:([\p{L}]+)[\s'’:-]+)?(?:([\p{L}]+)[\s'’:-]+)?(?<![\p{L}\p{N}]-?)(\d[\d,]*(?:\.\d+)?)(?![\p{L}]*\d)(?:[\s-]+([\p{L}]+))?/gu;
+  for (const m of String(text || '').matchAll(re)) {
+    const digits = m[3].replace(/,/g, '');
+    if (/^(?:19|20)\d{2}$/.test(digits)) continue;
+    const before = [m[2], m[1]].map(contextWord).filter(Boolean);
+    const after = [m[4]].map(contextWord).filter(Boolean);
+    out.push({ value: Number(digits), raw: m[0].trim(), words: new Set([...before, ...after]), label: before[0] || after[0] || '' });
+  }
+  return out;
+};
+const sameContext = (a, b) => [...a.words].some(w => b.words.has(w));
+
 const figureConflicts = (claim, coverage) => {
   const sc = signatureOf(claim);
   // Names are matched as the relevance check matches them (agents/
   // evidenceRelevance.js): headlines are in Title Case, where every word looks
   // like a name, so the claim's names are looked for among the headline's.
   const names = anchorTerms(claim);
-  if (!sc.numbers.length || !names.size) return null;
+  const claimContext = numbersInContext(claim);
+  if ((!sc.numbers.length && !claimContext.length) || !names.size) return null;
   const needNames = Math.min(2, names.size);
   const conflicting = [];
   let stated = 0;
@@ -33,12 +63,23 @@ const figureConflicts = (claim, coverage) => {
     const sh = signatureOf(item.title || '');
     const words = anchorTerms(item.title || '');
     if ([...names].filter(n => words.has(n)).length < needNames) continue;
+    let found = null;
     for (const n of sc.numbers) {
       const same = sh.numbers.filter(h => h.unit && h.unit === n.unit);
       if (same.some(h => h.value === n.value)) stated += 1;
       const other = same.find(h => h.value !== n.value);
-      if (other) { conflicting.push({ item, reported: other.raw, unit: n.unit }); break; }
+      if (other) { found = { item, reported: other.raw, unit: n.unit }; break; }
     }
+    if (!found) {
+      const headlineContext = numbersInContext(item.title || '');
+      for (const n of claimContext) {
+        const beside = headlineContext.filter(h => sameContext(n, h));
+        if (beside.some(h => h.value === n.value)) stated += 1;
+        const other = beside.find(h => h.value !== n.value);
+        if (other) { found = { item, reported: other.raw, unit: n.label }; break; }
+      }
+    }
+    if (found) conflicting.push(found);
   }
   const outlets = new Set(conflicting.map(c => String(c.item.source || '').toLowerCase()));
   if (stated > 0 || outlets.size < 2) return null;
@@ -604,6 +645,21 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, keywordsR
     searchGoogleNews(`${c.value} ${c.unit} ${withoutFigures(claim)}`.split(/\s+/).slice(0, 14).join(' '), sourceName, 8, 'en')
       .catch(() => [])));
   for (const found of probes) addAll(found.map(a => ({ ...a, foundIn: 'en' })));
+
+  // The same for a figure named by the word beside it: one headline reading
+  // "Code 7500" against a claim of "code 7400" is searched for directly, so
+  // every outlet giving it is found (searched with "7400", only one was).
+  const claimFigures = numbersInContext(claim);
+  const besideValues = new Map();
+  for (const a of merged) {
+    for (const h of numbersInContext(a.title)) {
+      const n = claimFigures.find(c => sameContext(c, h));
+      if (n && h.value !== n.value && besideValues.size < 2) besideValues.set(`${n.label} ${h.value}`, true);
+    }
+  }
+  const besideProbes = await Promise.all([...besideValues.keys()].map(v =>
+    searchGoogleNews(`${v} ${withoutFigures(claim)}`.split(/\s+/).slice(0, 14).join(' '), sourceName, 8, 'en').catch(() => [])));
+  for (const found of besideProbes) addAll(found.map(a => ({ ...a, foundIn: 'en' })));
   return {
     // Up to three places are kept for the regional-language press: ranked by
     // shared English words, a Tamil headline always came last and was never
@@ -611,8 +667,16 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, keywordsR
     articles: (() => {
       const ranked = rankForClaim(claim, merged);
       const regional = regionLanguage ? ranked.filter(a => a.foundIn === regionLanguage).slice(0, 3) : [];
-      const rest = ranked.filter(a => !regional.includes(a)).slice(0, JUDGED_HEADLINES - regional.length);
-      return [...rest, ...regional];
+      // Headlines giving a figure beside the same word as the claim's ("code
+      // 7500" for a claim of "code 7400") are kept among the judged ones:
+      // ranked by shared words they fell below the twelve, and the figure
+      // check never saw them (the claim came back REAL).
+      const claimFigures = numbersInContext(claim);
+      const figured = claimFigures.length ? ranked.filter(a => !regional.includes(a) && numbersInContext(a.title)
+        .some(h => claimFigures.some(n => sameContext(n, h)))).slice(0, 4) : [];
+      const reserved = [...regional, ...figured];
+      const rest = ranked.filter(a => !reserved.includes(a)).slice(0, JUDGED_HEADLINES - reserved.length);
+      return [...rest, ...reserved];
     })(),
     searchFailed: batches.every(b => b.failed) && (fromClaim.failed || fromClaim.lists.every(l => l.length === 0))
   };

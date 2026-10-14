@@ -27,3 +27,18 @@ test('no conflict when an outlet states the claim\'s own figure, when only one o
     item('B', 'Accused remanded to 5 days custody in Pune case')
   ]), null);
 });
+
+test('a code is matched by the word beside it: "code 7400" against headlines reading "Code 7500"', () => {
+  const air = 'Air India flight AI-2030 from Frankfurt to Delhi was diverted to Jaipur after the pilot squawked code 7400.';
+  const against = figureConflicts(air, [
+    item('Livemint', "Why was Air India's Frankfurt-Delhi flight diverted to Jaipur? All about 'Squawk Code 7500'"),
+    item('Hindustan Times', 'Hijack scare on Air India flight: Code 7500 and the protocols it sets in motion'),
+    item('The Times of India', "Hijack code 7500 appeared, pilots said all normal: The mystery behind Air India's Frankfurt-Delhi flight"),
+    item('Gulf Business', 'Air India Frankfurt-Delhi flight diverted to Jaipur after hijack alert')
+  ]);
+  assert.deepStrictEqual(against.map(a => a.source), ['Livemint', 'Hindustan Times', 'The Times of India']);
+  assert.strictEqual(figureConflicts(air.replace('7400', '7500'), [
+    item('Livemint', "Air India Frankfurt-Delhi flight diverted to Jaipur: Squawk Code 7500"),
+    item('Hindustan Times', 'Air India Jaipur diversion: Code 7500 explained')
+  ]), null, 'the true code is never contradicted');
+});

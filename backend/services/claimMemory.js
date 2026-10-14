@@ -21,7 +21,7 @@ const mongoose = require('mongoose');
 const ClaimRecord = require('../models/ClaimRecord');
 const ClaimAssessment = require('../models/ClaimAssessment');
 const { signatureOf, compareSignatures } = require('./claimSignature');
-const { sameClaim } = require('./claimMatchJudge');
+const { sameClaim, ownModelSays } = require('./claimMatchJudge');
 const { replayVerdict } = require('../agents/verdictEngine');
 
 const sha1 = (text) => crypto.createHash('sha1').update(text).digest('hex').slice(0, 12);
@@ -142,13 +142,16 @@ const fileClaim = async (claimText, signature, { origin, subject }) => {
       const cmp = compareSignatures(signature, candidate.signature);
       if (cmp.relation === 'same' && (!best || cmp.score > best.score)) best = { record: candidate, score: cmp.score };
       if (cmp.relation === 'variant') variants.push({ record: candidate, differences: cmp.differences });
-      if (cmp.ambiguous) ambiguous.push({ record: candidate, score: cmp.score });
+      if (cmp.ambiguous) ambiguous.push({ record: candidate, score: cmp.score, modelOnly: cmp.ambiguous === 'model' });
     }
     // Same names, same figures, different wording: a model settles at most
     // three of these, best first. It is told a false merge is the worse error.
     if (!best) {
       for (const a of ambiguous.sort((x, y) => y.score - x.score).slice(0, 3)) {
-        if (await sameClaim(claimText, a.record.claim)) { best = a; break; }
+        // Pairs with few shared names go to our own model only: no language
+        // model is asked to merge claims the signature could barely compare.
+        const same = a.modelOnly ? (await ownModelSays(claimText, a.record.claim)) === true : await sameClaim(claimText, a.record.claim);
+        if (same) { best = a; break; }
       }
     }
     if (best) record = best.record;

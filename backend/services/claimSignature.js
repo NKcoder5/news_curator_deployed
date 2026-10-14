@@ -33,7 +33,8 @@ const NOT_NAMES = new Set([
   'dr', 'ji', 'shri', 'sri',
   // Titles and roles written before a name: "Actor Nana Patekar" and "Chief
   // Minister Vijay" were read as three-word names and became initials.
-  'actor', 'actress', 'singer', 'director', 'former', 'veteran', 'late', 'cricketer', 'star', 'leader', 'justice'
+  'actor', 'actress', 'singer', 'director', 'former', 'veteran', 'late', 'cricketer', 'star', 'leader', 'justice',
+  'general'
 ]);
 // Unit and scale words belong to the figure, not to the predicate.
 const UNIT_WORDS = new Set(['thousand', 'lakh', 'crore', 'million', 'billion', 'percent', 'per', 'cent', 'basi',
@@ -79,6 +80,11 @@ const ORDINALS = { 1: 'first', 2: 'second', 3: 'third', 4: 'fourth', 5: 'fifth',
 const MONTH_NAME = '(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)';
 const SYNONYM = {
   hike: 'raise', hiked: 'raise', hikes: 'raise',
+  // Measured on the consistency suite (one claim asked four ways): "troops" and
+  // "soldiers", "asked", "told" and "ordered", "won", "was awarded" and
+  // "received" a prize split one claim across records.
+  troop: 'soldier', troops: 'soldier', asked: 'tell', asks: 'tell', ask: 'tell', told: 'tell', tells: 'tell',
+  ordered: 'tell', orders: 'tell', order: 'tell', awarded: 'win', award: 'win', received: 'win', receives: 'win',
   acquire: 'buy', acquired: 'buy', acquires: 'buy', acquisition: 'buy', purchased: 'buy', purchase: 'buy'
 };
 
@@ -162,7 +168,13 @@ const readEntities = (text) => {
   const runs = String(text || '').match(/(?:\p{Lu}[\p{L}\p{M}]+)(?:\s+(?:of|and|for|the)?\s*\p{Lu}[\p{L}\p{M}]+)+/gu) || [];
   for (const run of runs) {
     const words = run.split(/\s+/).filter(w => /^\p{Lu}/u.test(w) && !/^(?:The|A|An)$/.test(w) && !NOT_NAMES.has(w.toLowerCase()));
-    if (words.length >= 3 && words.length <= 6) {
+    // Only organisations: a run with "of", "and" or "for" in it, or one ending
+    // in an institution's word. People's names with a title before them
+    // ("Army Chief Dhiraj Seth", "General Dhiraj Seth") became initials that
+    // shared nothing with each other, and one claim was filed twice.
+    const organisation = /\s(?:of|and|for)\s/.test(run)
+      || /\b(?:Bank|Court|Board|Commission|Corporation|Committee|Council|Ministry|Department|Authority|Agency|Organi[sz]ation|Institute|University|Party|Federation|Association|Union|Limited|Ltd|Services|Assembly|Parliament|Tribunal|Police|Forces?)$/.test(run);
+    if (organisation && words.length >= 3 && words.length <= 6) {
       names.add(words.map(w => w[0]).join('').toLowerCase());
       words.forEach(w => absorbed.add(w));
     }
@@ -260,7 +272,12 @@ const compareSignatures = (a, b) => {
   const words = jaccard(a.terms, b.terms);
   const score = Math.round((0.6 * names + 0.4 * words) * 100) / 100;
   // Different people, organisations or places: different claims, whatever the wording.
-  if (!sharedName || names < 0.5) return { relation: 'different', differences: [], score };
+  if (!sharedName) return { relation: 'different', differences: [], score };
+  // A shared name, but too few to compare: "The Madras High Court cancelled
+  // Vijay's election" against "The High Court has cancelled Vijay's election
+  // win". Left as different here; the caller may ask our own pair model, which
+  // runs locally and must find each statement entailing the other.
+  if (names < 0.5) return { relation: 'different', differences: [], score, ambiguous: 'model' };
 
   const differences = [];
   const unitsA = new Map(a.numbers.map(n => [n.unit, n.value]));

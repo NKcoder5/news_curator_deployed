@@ -27,7 +27,7 @@
 // works — less well — rather than not at all.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { findAnchors } = require('./checkability');
-const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip, clipList } = require('../utils/untrusted');
+const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip, clipList, addressesModel } = require('../utils/untrusted');
 
 const SPEECH_ACTS = new Set(['assertion', 'question', 'hedged', 'sarcasm', 'opinion', 'exhortation', 'prediction', 'mixed']);
 const TIMES = new Set(['now', 'past', 'timeless', 'future']);
@@ -103,6 +103,7 @@ Return a JSON object with these keys:
   - "time": "now" if presented as happening today or this week — even when the event itself happened long ago ("Chandrayaan-3 lands on the Moon today" is "now": the message presents it as today's news, and that is what must be checked). Keep "today" as the word "today" in the claim; do not replace it with a date, "past" for an earlier event, "timeless" for a standing fact, "future" only for a forecast of something that has not happened ("RBI will cut rates in December"). An announcement or decision reported as made, even one that takes effect later ("gazette declares holidays from November", "notes invalid from midnight"), is "now": the claim is that the announcement was made.
   - "kind": "event", "figure", "quote", "standing_fact", "prediction" (a forecast, not a reported decision) or "opinion". A message that states as settled that an authority or organisation will do something soon — a power cut in Madurai from tomorrow, banks shut from Monday, notes invalid from midnight — is claiming the decision has been announced: write the claim as that announcement ("A week-long power cut in Madurai from tomorrow has been announced"), with time "now" and kind "event". Only a forecast of an outcome nobody has yet decided ("RBI will cut rates in December", "petrol prices will rise") is a "prediction".
   - "checkable": true if it names a specific person, organisation, place, event or figure, or states a general fact about something a reference work describes — an animal, a plant, a substance, a natural phenomenon, a body in space, a country ("Giraffe is a fish", "The sun rises in the west", "Water boils at 100 degrees Celsius") — so that news reports or a reference work could confirm or refute it. A general fact is kind "standing_fact", time "timeless", and its subject is the thing it is about ("giraffe", "Sun"). Opinions, predictions and vague statements are false, and so is anything about a private person known only to the sender ("my neighbour Ramesh bought a car", "my friend's son got a job"): no news report or reference work covers private lives.
+  A title or label at the start of the message ("Punjab Anti-Drug Activist Saved: ...") is a claim the message makes, and is listed as its own claim even when the text after it says something else — a false title over true details is how such forwards mislead.
   A forward that tells the reader to act ("register now", "forward to everyone", "apply before Sunday") still asserts what it urges about: "Government is giving free laptops to all students, register at the link" claims that the government is giving free laptops to all students. List that claim, with time "now" and kind "event", even when the message's speech act is an exhortation.
   - "headline": the claim as a short English news headline.
   - "subject": the specific person, organisation, event or thing it is about, in 1 to 4 English words a news search would use — not a whole country on its own.
@@ -189,6 +190,27 @@ const understandInput = async (text) => {
           && (asBool(c.checkable) === true || ['event', 'figure', 'quote', 'standing_fact'].includes(kind))
       };
     });
+
+  // The title before a colon is checked even if the model left it out:
+  // "Punjab Anti-Drug Activist Saved: Following the killing of ..." was read
+  // as the true sentence after the colon alone, and came back REAL.
+  const title = (body.match(/^\s*([^:\n]{8,90}):\s+\S/) || [])[1];
+  if (title && claims.length < 3 && !addressesModel(body)) {
+    const words = (t) => new Set(String(t).toLowerCase().match(/\p{L}{4,}/gu) || []);
+    const own = [...words(title)];
+    // Covered only when a claim keeps every word of it: "Activist Saved" read as
+    // "activist was killed" keeps the name and drops the claim.
+    const covered = claims.some(c => { const w = words(c.claim); return own.every(x => w.has(x)); });
+    // Text addressed to a model is never a claim (utils/untrusted.js).
+    const instructing = /(?:system|ignore|instructions?|assistant|prompt|override|developer)/i.test(title);
+    const titleWords = title.trim().split(/\s+/).length;
+    if (!covered && !instructing && titleWords >= 2 && titleWords <= 10 && findAnchors(title).names.length + (/^\p{Lu}/u.test(title.trim()) ? 1 : 0) > 0) {
+      const base = claims[0] || {};
+      claims.push({ ...base, claim: `${title.trim().replace(/[.!?]+$/, '')}.`, headline: title.trim(),
+        keywords: base.keywords || title.trim(), keywordsEn: base.keywordsEn || title.trim(),
+        time: base.time || 'past', kind: 'event', checkable: true, fromTitle: true });
+    }
+  }
 
   return {
     language,

@@ -69,6 +69,7 @@ export const RULE_LABELS = {
   'confirmed-claim-on-a-false-premise': 'Confirmed, but on a false premise',
   'claim-ruled-out-by-current-coverage': 'This week’s news rules part of it out',
   arithmetic: 'Worked out',
+  'title-contradicted': 'The title is contradicted',
   'old-news-presented-as-new': 'Old news shared as new',
   'confirmed-by-reference': 'A reference work confirms it',
   'true-claim-carrying-a-false-one': 'A true claim carrying a false one',

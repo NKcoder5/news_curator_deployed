@@ -772,12 +772,12 @@ const verifyClaims = async (title, content, sourceName, preExtractedClaims = nul
     // — search, wait, judge, wait, then the same again for the next claim —
     // which made verification the slowest factor in the pipeline at ~28s.
     // The model gateway still caps how many calls are actually in flight.
-    const results = await Promise.all(claims.map(async ({ claim, headline, keywords, keywordsEn, keywordsRegional, regionLanguage, time, kind }) => {
+    const results = await Promise.all(claims.map(async ({ claim, headline, keywords, keywordsEn, keywordsRegional, regionLanguage, time, kind, fromTitle }) => {
       const { articles: coverage, searchFailed } = await gatherCoverage({ claim, headline, keywords, keywordsEn, keywordsRegional, regionLanguage, sourceName, language });
       // The time frame and kind the reader's message gave the claim, when it
       // was read by the understanding step: the verdict needs them to tell old
       // news passed off as new, and a standing fact, from an ordinary event.
-      const framing = { time: time || null, kind: kind || null };
+      const framing = { time: time || null, kind: kind || null, fromTitle: Boolean(fromTitle) };
       if (searchFailed) {
         return {
           claim,

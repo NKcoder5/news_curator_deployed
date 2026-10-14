@@ -218,6 +218,7 @@ const buildEvidenceLedger = ({
       verdict: claim.verdict,
       time: claim.time || null,
       kind: claim.kind || null,
+      fromTitle: Boolean(claim.fromTitle),
       stale,
       newestSupport: newestSupport ? new Date(newestSupport).toISOString() : null,
       independentSupport: forCount > againstCount ? forCount : 0,
@@ -292,7 +293,7 @@ const buildEvidenceLedger = ({
     staleClaims: perClaim.filter(c => c.stale).map(c => ({ claim: c.claim, newestSupport: c.newestSupport })),
     confirmedClaims: perClaim.filter(c => c.independentSupport > 0).map(c => c.claim),
     contradictedClaims: perClaim.filter(c => c.independentContradiction > 0)
-      .map(c => ({ claim: c.claim, reported: c.reportedAgainst.filter(q => q.length <= 80).sort((x, y) => y.length - x.length)[0] || null })),
+      .map(c => ({ claim: c.claim, fromTitle: c.fromTitle, reported: c.reportedAgainst.filter(q => q.length <= 80).sort((x, y) => y.length - x.length)[0] || null })),
     premiseStatus: premiseResult?.status || 'not-run',
     // A professional fact-checking desk's published ruling on this same claim.
     // Kept apart from the news count for the same reason as the premise check:
@@ -474,6 +475,19 @@ const decideVerdict = (ledger) => {
   // R0c — Several claims, and the evidence splits between them: one confirmed
   // by independent outlets, another contradicted. Neither "true" nor "false"
   // describes the message, and calling it true would be the harmful error.
+  // A message whose title is contradicted is false, whatever its body
+  // confirms: the title is what it asserts, and true details under a false
+  // title are how such forwards are made believable. "Punjab Anti-Drug
+  // Activist Saved: Following the killing of ..." came back PARTLY FALSE.
+  const falseTitle = ledger.contradictedClaims.find(c => c.fromTitle);
+  if (falseTitle) {
+    return decide('false', 'title-contradicted', [
+      `The message's title says: ${falseTitle.claim}`,
+      falseTitle.reported ? `Independent outlets report: "${falseTitle.reported}".` : 'Independent outlets report otherwise.',
+      ...ledger.confirmedClaims.slice(0, 2).map(c => `The details beneath it are confirmed: ${c}`)
+    ], 'The headline of this message is false. Do not share it.');
+  }
+
   if (ledger.confirmedClaims.length > 0 && ledger.contradictedClaims.length > 0) {
     return decide('mixed', 'claims-partly-false', [
       ...ledger.confirmedClaims.slice(0, 2).map(c => `Confirmed by independent outlets: ${c}`),
@@ -866,6 +880,12 @@ const summarise = (verdict, ledger, rule = '') => {
     const u = ledger.unconfirmedClaim;
     return `Only partly confirmed: “${u.confirmedClaim.replace(/\.$/, '')}” is reported, but nothing supports “${u.claim.replace(/\.$/, '')}”.`;
   }
+  if (rule === 'title-contradicted') {
+    const t = (ledger.contradictedClaims || []).find(c => c.fromTitle);
+    return t && t.reported
+      ? `False: the title says “${t.claim.replace(/\.$/, '')}”, but outlets report “${t.reported}”.`
+      : 'False: the title of this message is contradicted by independent reporting.';
+  }
   if (rule === 'claims-partly-false') {
     const wrong = (ledger.contradictedClaims || [])[0];
     return wrong?.reported
@@ -978,6 +998,7 @@ const confidenceFor = (verdict, ledger, rule = '') => {
   if (rule === 'rated-true-by-fact-checkers') return cap(0.65 + 0.05 * Math.min(ledger.factChecks.length - 1, 2));
   if (rule === 'contradicted-by-current-coverage') return cap(0.62 + 0.05 * Math.min(ledger.presupposedAgainst - 2, 3));
   if (rule === 'claims-partly-false') return cap(0.75);
+  if (rule === 'title-contradicted') return cap(0.8);
   if (rule === 'true-claim-carrying-a-false-one') return cap(0.65);
   if (rule === 'confirmed-claim-on-a-false-premise') return cap(0.65);
   if (rule === 'claim-ruled-out-by-current-coverage') return cap(0.6);
@@ -1044,7 +1065,7 @@ const pickEvidence = (e) => ({
 
 const compactLedgerInput = (input) => ({
   claims: (input.claims || []).map(c => ({
-    claim: c.claim, verdict: c.verdict, time: c.time || null, kind: c.kind || null,
+    claim: c.claim, verdict: c.verdict, time: c.time || null, kind: c.kind || null, fromTitle: Boolean(c.fromTitle),
     supportingEvidence: (c.supportingEvidence || []).map(pickEvidence),
     contradictingEvidence: (c.contradictingEvidence || []).map(pickEvidence)
   })),

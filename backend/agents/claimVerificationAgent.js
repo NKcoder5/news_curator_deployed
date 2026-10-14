@@ -429,10 +429,19 @@ Return a JSON object with these keys:
   // three on offer and booleans that are booleans.
   const items = numberedItems(result.items, shown.length);
   const stance = (it) => oneOf(it.stance, STANCES, null);
+  // A question reports nothing. WHIO's fact-check headline "Has Walmart
+  // adopted 'staggered shopping' days based on age?" was read as saying
+  // Walmart had, against a FactCheck.org article saying it had not, and made
+  // that true article PARTLY FALSE. What an outlet reports must be a
+  // statement: the words the model quotes, or the headline if it quotes none.
+  const asksOnly = (it) => {
+    const quoted = clip(it.reported, 200).trim() || String(coverage[it.n - 1]?.title || '').trim();
+    return /\?["'”’)\]]*$/.test(quoted);
+  };
   // A disagreement counts only about the same event, and only when the two
   // statements cannot both hold: the same guard the premise check uses.
   const supportingIndices = items
-    .filter(it => stance(it) === 'agree' && asBool(it.same_event) !== false)
+    .filter(it => stance(it) === 'agree' && asBool(it.same_event) !== false && !asksOnly(it))
     .map(it => it.n);
   // A contradiction has to be found in the headline itself: the words the
   // model quotes as what the outlet reports must actually be there. A quote
@@ -444,7 +453,7 @@ Return a JSON object with these keys:
     return Boolean(item) && norm(item.title + ' ' + (item.description || '')).includes(quoted);
   };
   const contradictingIndices = items
-    .filter(it => stance(it) === 'disagree' && asBool(it.same_event) === true && asBool(it.both_can_be_true) === false && inHeadline(it))
+    .filter(it => stance(it) === 'disagree' && asBool(it.same_event) === true && asBool(it.both_can_be_true) === false && inHeadline(it) && !asksOnly(it))
     .map(it => it.n);
   reportedByItem = new Map(items.map(it => [it.n, clip(it.reported, 200)]));
   const judged = contradictingIndices.length > supportingIndices.length

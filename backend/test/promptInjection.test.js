@@ -191,6 +191,17 @@ test('stance: a contradiction the model quotes but the headline does not say is 
   assert.notEqual(judged.verdict, 'contradicted');
 });
 
+test('stance: a headline that only asks a question reports nothing, either way', async () => {
+  const { __test: { judgeClaim } } = load('../agents/claimVerificationAgent');
+  const claim = "Walmart has not adopted a 'staggered shopping schedule' based on age.";
+  const asked = { source: 'WHIO TV', title: "Coronavirus fact check: Has Walmart adopted 'staggered shopping' days based on age?", description: '', url: 'https://example.test/whio', publishedAt: '2020-04-09' };
+  for (const stance of ['disagree', 'agree']) {
+    replies['stance judgement'] = { items: [{ n: 1, stance, same_event: 'true', both_can_be_true: 'false', reported: '' }] };
+    const judged = await judgeClaim(claim, [asked]);
+    assert.equal(judged.contradictingEvidence.length + judged.supportingEvidence.length, 0, stance);
+  }
+});
+
 // ------------------------------------------------- fact-check matching
 
 const explorerReply = (claimReviewed, rating) => `)]}'\n${JSON.stringify([['claims_response', [[

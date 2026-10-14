@@ -87,7 +87,7 @@ Return a JSON object with these keys:
   - "claim": one neutral, declarative English sentence. Spell names in full and in their usual English form ("Modi ji" → "Narendra Modi", "தவெக" → "TVK"; keep abbreviations such as TVK, DMK, RBI). For a question, the proposition asked about ("Did India win 84 medals?" → "India won 84 medals at the Asian Games 2026."). For a hedge, the claim being passed on, not the hedge. For sarcasm, the literal claim being mocked ("Oh sure, and Musk bought Jio too" → "Elon Musk bought Reliance Jio."). Keep negation exactly as stated ("TVK did not lose" stays negative). Keep every figure, place and date the message gives, and add none it does not.
   - "time": "now" if presented as happening today or this week — even when the event itself happened long ago ("Chandrayaan-3 lands on the Moon today" is "now": the message presents it as today's news, and that is what must be checked). Keep "today" as the word "today" in the claim; do not replace it with a date, "past" for an earlier event, "timeless" for a standing fact, "future" only for a forecast of something that has not happened ("RBI will cut rates in December"). An announcement or decision reported as made, even one that takes effect later ("gazette declares holidays from November", "notes invalid from midnight"), is "now": the claim is that the announcement was made.
   - "kind": "event", "figure", "quote", "standing_fact", "prediction" (a forecast, not a reported decision) or "opinion". A message that states as settled that an authority or organisation will do something soon — a power cut in Madurai from tomorrow, banks shut from Monday, notes invalid from midnight — is claiming the decision has been announced: write the claim as that announcement ("A week-long power cut in Madurai from tomorrow has been announced"), with time "now" and kind "event". Only a forecast of an outcome nobody has yet decided ("RBI will cut rates in December", "petrol prices will rise") is a "prediction".
-  - "checkable": true only if it names a specific person, organisation, place, event or figure, so that news reports or a reference work could confirm or refute it. Opinions, predictions and vague statements are false.
+  - "checkable": true if it names a specific person, organisation, place, event or figure, or states a general fact about something a reference work describes — an animal, a plant, a substance, a natural phenomenon, a body in space, a country ("Giraffe is a fish", "The sun rises in the west", "Water boils at 100 degrees Celsius") — so that news reports or a reference work could confirm or refute it. A general fact is kind "standing_fact", time "timeless", and its subject is the thing it is about ("giraffe", "Sun"). Opinions, predictions and vague statements are false.
   - "headline": the claim as a short English news headline.
   - "subject": the specific person, organisation, event or thing it is about, in 1 to 4 English words a news search would use — not a whole country on its own.
   - "other_subject": a second person, organisation or thing the claim is about, in the same form, or an empty string ("Elon Musk bought Reliance Jio": subject "Elon Musk", other_subject "Reliance Jio").
@@ -146,7 +146,12 @@ const understandInput = async (text) => {
       // can talk itself into "checkable" about "something big is coming".
       const anchors = findAnchors(claim);
       const firstWord = (claim.split(/\s+/)[0] || '').replace(/[^\p{L}\p{N}]/gu, '');
-      const named = anchors.names.length + anchors.numbers.length + anchors.dates.length > 0
+      // A general fact names its subject in lower case ("The sun rises in the
+      // west"): the subject the model gives is the thing a reference work is
+      // asked about. Measured: "Giraffe is a fish" was refused as naming
+      // nothing, the worst answer to a plainly false statement.
+      const named = (kind === 'standing_fact' && Boolean(clip(c.subject, 60)))
+        || anchors.names.length + anchors.numbers.length + anchors.dates.length > 0
         || (/^\p{Lu}/u.test(firstWord) && firstWord.length > 2 && !/^(The|This|That|There|They|It|A|An|Some|Something|Everyone|People)$/.test(firstWord));
       return {
         claim,

@@ -150,14 +150,18 @@ const groupNames = (text) => {
  * @param {string} content
  * @returns {Promise<{status: string, checked: Array, contradictions: Array, explanation: string}>}
  */
-const checkPremises = async (title, content) => {
+const checkPremises = async (title, content, subjects = []) => {
   const text = `${title}. ${content || ''}`;
   const anchors = findAnchors(text);
-  if (anchors.names.length === 0) {
+  // A general fact has no proper name ("Giraffe is a fish", "The sun rises in
+  // the west"); the subject the message-reading step found is looked up.
+  const given = [...new Set((subjects || []).map(s => String(s || '').trim()).filter(s => s.length > 1))].slice(0, 2);
+  if (anchors.names.length === 0 && !given.length) {
     return { status: 'no-entities', checked: [], contradictions: [], explanation: 'This article names no person or organisation to look up.' };
   }
 
-  const entities = rankEntities(groupNames(text), title);
+  const named = anchors.names.length ? rankEntities(groupNames(text), title) : [];
+  const entities = named.length ? named : given;
   if (entities.length === 0) {
     return { status: 'no-entities', checked: [], contradictions: [], explanation: 'This article names no person or organisation to look up.' };
   }

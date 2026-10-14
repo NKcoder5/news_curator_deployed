@@ -146,7 +146,13 @@ const gemini = {
   label: 'Google Gemini',
   get models() {
     const models = [...new Set(GEMINI_MODELS)];
-    return geminiKeys().flatMap((_, k) => models.map(m => (k === 0 ? m : `${m}#${k}`)));
+    // Each model on every key before the next model: the same model judging
+    // keeps verdicts consistent. Key by key, a spent quota on the first key
+    // handed the stance judgements to a weaker model while the same model
+    // still had a full day on the second key — and on 14 Oct that weaker
+    // model read four headlines as confirming "RBI cut the repo rate by 50
+    // basis points this week", which a rerun on the first model called FAKE.
+    return models.flatMap(m => geminiKeys().map((_, k) => (k === 0 ? m : `${m}#${k}`)));
   },
   // Gemini does not degrade the same way. Six identical calls, all valid:
   //     parallelism 2 -> 37.5s wall

@@ -268,7 +268,8 @@ test('a message read in another language has its reference check run on the Engl
     const english = 'Coimbatore district police seized drugs, gutkha and weapons.';
     await agent.analyzeTrust({ ...tamil, preparedClaims: PREPARED, evidenceText: english, early });
     assert.strictEqual(calls.premises.length, 2);
-    assert.deepStrictEqual(calls.premises[1], [english.slice(0, 140), english]);
+    // The third argument is the subjects for a general fact; none here.
+    assert.deepStrictEqual(calls.premises[1].slice(0, 2), [english.slice(0, 140), english]);
   } finally {
     restore();
   }

@@ -490,9 +490,16 @@ const analyzeTrust = async ({
     // structurally cannot. "Prime Minister Rahul Gandhi announced X" describes
     // an event no outlet reports, so the news channel correctly returns nothing
     // — while a reference work settles the premise in one lookup.
-    timed('premises', () => earlyPremises || checkPremises(evidenceText ? evidenceText.slice(0, 140) : title, evidenceText || text)
-      .catch(() => ({ status: 'error', checked: [], contradictions: [], explanation: 'The reference check could not run.' })),
-    { from: earlyPremises ? usable.startedAt : null, unread: UNREAD.premises }),
+    // The subjects the message-reading step found: a general fact ("Giraffe is
+    // a fish") names none in capitals, and the early check finds nothing to
+    // look up, so it is asked again with them.
+    timed('premises', async () => {
+      const subjects = understanding ? (understanding.checkableClaims || []).map(c => c.subject).filter(Boolean) : [];
+      const early = earlyPremises ? await earlyPremises : null;
+      if (early && !(early.status === 'no-entities' && subjects.length)) return early;
+      return checkPremises(evidenceText ? evidenceText.slice(0, 140) : title, evidenceText || text, subjects)
+        .catch(() => ({ status: 'error', checked: [], contradictions: [], explanation: 'The reference check could not run.' }));
+    }, { from: earlyPremises ? usable.startedAt : null, unread: UNREAD.premises }),
     // The third channel, beside the news search and the reference check: has a
     // professional fact-checking desk already ruled on this claim? A viral
     // rumour is never reported as news, so the news channel can only say

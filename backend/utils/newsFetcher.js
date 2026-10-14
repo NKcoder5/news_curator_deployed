@@ -354,6 +354,44 @@ const searchGoogleNews = async (query, excludeSourceName = '', pageSize = 10, la
   return items;
 };
 
+// Bing News RSS: free, keyless, and each result carries a snippet of the
+// article's own text — where the details a headline leaves out are written.
+// "Sent to judicial custody" is the headline; "remanded to five days'
+// judicial custody" is the snippet. A reader who changes one detail of a real
+// story ("4 days", "code 7400") is caught on the snippet when no headline
+// states the detail. Used for claims that carry a figure or a code.
+const bingField = (block, tag) => ((block.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`)) || [])[1] || '');
+const searchBingNews = async (query, excludeSourceName = '', pageSize = 10) => {
+  const q = String(query || '').trim();
+  if (!q) return [];
+  const url = `https://www.bing.com/news/search?q=${encodeURIComponent(q)}&format=rss`;
+  let xml;
+  try {
+    xml = await cached(`bing|${url}`, async () => {
+      const response = await axios.get(url, { timeout: 8000, responseType: 'text', headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } });
+      return String(response.data || '');
+    });
+  } catch (_) {
+    return [];
+  }
+  const exclude = String(excludeSourceName || '').toLowerCase();
+  const items = [];
+  for (const block of xml.match(/<item>[\s\S]*?<\/item>/g) || []) {
+    const clean = (t) => decodeXml(t).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    const title = clean(bingField(block, 'title'));
+    const description = clean(bingField(block, 'description')).slice(0, 400);
+    const link = decodeXml(bingField(block, 'link')).trim();
+    const real = (() => { try { return new URL(link).searchParams.get('url') || link; } catch (_) { return link; } })();
+    let source = clean(bingField(block, 'News:Source'));
+    if (!source) { try { source = new URL(real).hostname.replace(/^www\./, ''); } catch (_) { source = ''; } }
+    if (!title || !/^https?:\/\//.test(real) || !source || source.toLowerCase() === exclude || NOT_AN_OUTLET.test(source)) continue;
+    const published = new Date(bingField(block, 'pubDate'));
+    items.push({ title, description, url: real, source, publishedAt: Number.isNaN(published.getTime()) ? null : published.toISOString(), sourceUrl: '', via: 'bing-news' });
+    if (items.length >= pageSize) break;
+  }
+  return items;
+};
+
 // GDELT: a free, keyless index of the world's news in 65 languages, each
 // article machine-translated into English, so one English query also finds a
 // story only the Tamil, Telugu or Hindi press carried. It reaches regional
@@ -506,5 +544,6 @@ module.exports = {
   INDEX_LAG_HOURS, fetchTopNews, searchNewsCoverage, searchGoogleNews, searchCoverageBroadening, SearchUnavailableError,
   cached, withRetry, isNetworkError,
   searchGdelt,
+  searchBingNews,
   _gdelt: { gdeltQuery, gdeltDate, fromGdelt }
 };

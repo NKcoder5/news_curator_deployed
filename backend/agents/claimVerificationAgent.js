@@ -3,7 +3,7 @@
 // claims, search for coverage from OTHER outlets, and have the LLM judge
 // whether that independent coverage supports or contradicts each claim.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
-const { searchCoverageBroadening, searchGoogleNews, searchGdelt } = require('../utils/newsFetcher');
+const { searchCoverageBroadening, searchGoogleNews, searchGdelt, searchBingNews } = require('../utils/newsFetcher');
 const { getSourceReputation } = require('./sourceReputationAgent');
 const { isSearchable } = require('../utils/language');
 const { filterRelevant, anchorTerms, distinctiveTerms } = require('./evidenceRelevance');
@@ -60,8 +60,10 @@ const figureConflicts = (claim, coverage) => {
   const conflicting = [];
   let stated = 0;
   for (const item of coverage) {
-    const sh = signatureOf(item.title || '');
-    const words = anchorTerms(item.title || '');
+    // Headline and the article's own snippet, where one is given (Bing).
+    const text = `${item.title || ''}. ${item.description || ''}`;
+    const sh = signatureOf(text);
+    const words = anchorTerms(text);
     if ([...names].filter(n => words.has(n)).length < needNames) continue;
     let found = null;
     for (const n of sc.numbers) {
@@ -71,7 +73,7 @@ const figureConflicts = (claim, coverage) => {
       if (other) { found = { item, reported: other.raw, unit: n.unit }; break; }
     }
     if (!found) {
-      const headlineContext = numbersInContext(item.title || '');
+      const headlineContext = numbersInContext(text);
       for (const n of claimContext) {
         const beside = headlineContext.filter(h => sameContext(n, h));
         if (beside.some(h => h.value === n.value)) stated += 1;
@@ -616,6 +618,14 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, keywordsR
     }
   };
   addAll(interleaved);
+
+  // A claim with a figure or a code is also searched where results carry the
+  // article's own text (utils/newsFetcher.js, searchBingNews), without the
+  // figure, so reports giving the true one are found.
+  if (hasFigure(claim) || numbersInContext(claim).length) {
+    const snippets = await searchBingNews(asQuery(withoutFigures(claim)), sourceName, 10).catch(() => []);
+    addAll(snippets.map(a => ({ ...a, foundIn: 'en' })));
+  }
 
   // Local stories. National search editions carry little of what a district
   // reports — "Coimbatore district police seized drugs, gutkha and weapons"

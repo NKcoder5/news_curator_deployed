@@ -1,282 +1,302 @@
 /* ============================================================================
-   The Verification Desk — paste anything and get a verdict, or an honest
-   refusal.
-   ============================================================================
-
-   This page was the odd one out. Every other page is a bordered sheet of aged
-   paper with a double-ruled masthead and an ink-black button; this one was a
-   plain 720px column with a left-aligned heading and a steel-blue submit. It
-   read as a different application.
-
-   The sheet, the masthead, the inputs and the button now come from
-   newsprint.css, the same primitives the front page and the comparison use.
-   What is left here is what belongs only to this page: the three input modes,
-   the upload control, and the refusal card.
-   ========================================================================= */
-
-/* The sheet is the standard 1400px, like the front page, the comparison, the
-   article and the dashboard.
-
-   Width alone was not the fix. At 820px the page had bare desk down both
-   sides; widened to 1400 it had bare paper instead, because a single narrow
-   form cannot fill a broadsheet. The page needed a layout, not a measurement:
-   the form on the left, and on the right the thing a reader most needs before
-   they submit — which of three answers they might get, and the fact that some
-   input gets none. That only appeared afterwards before, inside a refusal
-   nobody could anticipate.
+   Check anything — the form, the live check and the refusal.
+   The result itself is styled in TrustReport.css and EvidenceBoard.css.
    ========================================================================= */
 
 .check-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-  gap: 2.5rem;
-  /* Stretch, not start. Sizing the textarea to match the aside's height was
-     guesswork that broke the moment either column's content changed; letting
-     the grid equalise them and the textarea take up the slack holds whatever
-     goes in either side. */
-  align-items: stretch;
-  margin-bottom: 2.5rem;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: var(--space-6);
+  align-items: start;
 }
 
-/* -------------------------------------------------------------- The form */
+/* ------------------------------------------------------------------ Form */
 
-.check-page .check-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  padding: 1.5rem 1.75rem;
-  background: var(--paper-aged);
-  border-top: 1px solid var(--rule-heavy);
-  border-bottom: 1px solid var(--rule-heavy);
+.check-form {
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
 }
 
-/* The three ways in, set as section tabs rather than buttons — the same
-   uppercase label type the section rules use elsewhere. */
-.check-page .check-modes {
+.check-panel { margin-top: 0; display: grid; gap: var(--space-4); }
+
+.check-textarea { min-height: 168px; font-size: var(--text-base); }
+
+.check-examples {
   display: flex;
-  gap: 1.25rem;
   flex-wrap: wrap;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px solid var(--rule-heavy);
-}
-
-.check-page .check-mode {
-  display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.2rem 0;
-  font-family: var(--label-font);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-muted);
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
+  gap: var(--space-2);
+  margin-top: calc(-1 * var(--space-1));
+}
+
+.check-examples__label { font-size: var(--text-sm); color: var(--color-fg-subtle); }
+
+.check-example {
+  min-height: 30px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-fg-muted);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
+}
+
+.check-example:hover { color: var(--color-accent); border-color: var(--color-accent); }
+
+.check-upload { position: relative; }
+
+.check-upload-label {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--color-fg-muted);
+  background: var(--color-surface-sunken);
+  border: 1px dashed var(--color-border-control);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 
-.check-page .check-mode:hover { color: var(--ink); }
+.check-upload-label:hover { border-color: var(--color-accent); color: var(--color-accent); }
 
-.check-page .check-mode.active {
-  color: var(--press-red);
-  border-bottom-color: var(--press-red);
+.check-upload input:focus-visible + .check-upload-label {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
-.check-page .check-hint {
-  margin: 0;
-  font-size: 0.82rem;
-  font-style: italic;
-  color: var(--ink-muted);
+.check-upload-name { font-weight: var(--weight-semibold); color: var(--color-fg-strong); word-break: break-all; }
+.check-upload-hint { font-size: var(--text-sm); color: var(--color-fg-subtle); }
+
+.check-submit-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
 }
 
-/* Takes the slack so both columns finish level, whatever the aside holds. */
-.check-page .check-textarea {
-  flex: 1;
-  min-height: 12rem;
-  line-height: 1.6;
-  resize: vertical;
-}
+.check-submit { min-width: 160px; }
 
-.check-page .check-account { font-size: 0.88rem; }
+.check-submit-note { font-size: var(--text-sm); color: var(--color-fg-subtle); flex: 1; min-width: 200px; }
 
-.check-page .check-submit { align-self: flex-start; }
-
-/* ------------------------------------------------------------- The aside */
+/* ----------------------------------------------------------------- Aside */
 
 .check-aside {
-  padding: 1.5rem 1.75rem;
-  background: var(--paper);
-  border: 1px solid var(--rule-strong);
-  border-top: 4px double var(--ink);
+  padding: var(--space-5);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
 }
 
 .check-aside__head {
-  font-family: var(--headline-font);
-  font-size: 0.84rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin: 0 0 0.9rem;
-  padding-bottom: 0.4rem;
-  border-bottom: 1px solid var(--rule);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-fg-strong);
+  margin-bottom: var(--space-3);
 }
 
-.check-aside__head + .check-aside__note { margin-top: 0; }
+.check-aside__head:not(:first-child) { margin-top: var(--space-5); }
 
-.check-aside__note {
-  font-size: 0.86rem;
-  line-height: 1.65;
-  color: var(--ink-soft);
-  margin: 1.1rem 0 1.75rem;
+.check-verdicts { display: grid; gap: var(--space-3); margin: 0; }
+.check-verdict { display: grid; gap: var(--space-1); }
+.check-verdict dt { margin: 0; }
+.check-verdict dd { margin: 0; font-size: var(--text-sm); color: var(--color-fg-muted); }
+
+.check-aside__note { margin-top: var(--space-3); font-size: var(--text-sm); color: var(--color-fg-muted); }
+
+/* ---------------------------------------------------------- Result area */
+
+.check-result-area {
+  display: grid;
+  gap: var(--space-5);
+  margin-top: var(--space-8);
+  scroll-margin-top: 80px;
 }
 
-/* What the page accepts, listed where a reader looks before deciding what to
-   paste. Set tighter than the verdict list below it, which carries more
-   weight. */
-.check-inputs {
-  list-style: none;
-  margin: 0 0 1.75rem;
-  padding: 0;
-  font-size: 0.85rem;
-  line-height: 1.55;
-  color: var(--ink-soft);
+.check-result-area:empty { display: none; }
+
+.check-again { display: flex; justify-content: center; margin-top: var(--space-8); }
+
+/* --------------------------------------------------------------- Pipeline */
+
+.pipeline {
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
 }
 
-.check-inputs li {
-  padding: 0.35rem 0 0.35rem 0.85rem;
-  border-left: 2px solid var(--rule-strong);
+.pipeline-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
 }
 
-.check-inputs li + li { margin-top: 0.3rem; }
-
-.check-inputs strong { color: var(--ink); font-weight: 600; }
-
-.check-verdicts { margin: 0; }
-
-.check-verdict {
-  padding: 0.6rem 0 0.6rem 0.85rem;
-  border-left: 3px solid var(--trust-unknown);
+.pipeline-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--weight-semibold);
+  color: var(--color-fg-strong);
 }
 
-.check-verdict + .check-verdict { margin-top: 0.5rem; }
+.pipeline-spinner { color: var(--color-accent); }
 
-.check-verdict--real { border-left-color: var(--trust-high); }
-.check-verdict--fake { border-left-color: var(--trust-low); }
-.check-verdict--unknown { border-left-color: var(--trust-unknown); }
+.pipeline-count { font-size: var(--text-sm); color: var(--color-fg-subtle); }
 
-.check-verdict dt {
-  font-family: var(--label-font);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 0.2rem;
+.pipeline-progress {
+  height: 4px;
+  margin: var(--space-3) 0 var(--space-4);
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
 }
 
-.check-verdict--real dt { color: var(--trust-high); }
-.check-verdict--fake dt { color: var(--trust-low); }
-.check-verdict--unknown dt { color: var(--trust-unknown); }
-
-.check-verdict dd {
-  margin: 0;
-  font-size: 0.85rem;
-  line-height: 1.55;
-  color: var(--ink-soft);
-}
-
-/* ------------------------------------------------------------ The upload */
-
-.check-page .check-upload input[type="file"] {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-}
-
-.check-page .check-upload-label {
+.pipeline-progress span {
   display: block;
-  padding: 1.1rem;
-  text-align: center;
-  font-family: var(--label-font);
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
-  color: var(--ink-soft);
-  background: var(--paper);
-  border: 1px dashed var(--rule-heavy);
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: inherit;
+  transition: width var(--duration-slow) var(--ease-standard);
 }
 
-.check-page .check-upload-label:hover {
-  border-color: var(--ink);
-  color: var(--ink);
+.pipeline-stage { font-size: var(--text-sm); color: var(--color-fg-muted); margin-bottom: var(--space-2); }
+
+.pipeline-steps { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: grid; gap: var(--space-1); }
+
+.pipeline-step {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  column-gap: var(--space-2);
+  align-items: start;
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--color-border);
 }
 
-/* ------------------------------------------------------------- The reply */
+.pipeline-step:first-child { border-top: 0; }
 
-.check-page .check-error {
-  max-width: 860px;
-  margin: 0 auto 1.5rem;
-  padding: 1rem 1.2rem;
-  color: var(--press-red);
-  background: var(--trust-low-soft);
-  border: 1px solid var(--press-red);
-  text-align: center;
+.pipeline-dot { display: grid; place-items: center; height: 22px; color: var(--verdict-real-fg); }
+
+.pipeline-pending {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-border-strong);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: pp-spin 0.9s linear infinite;
 }
 
-/* A refusal is a result, not a failure, so it is presented as one — set like
-   a boxed editor's note rather than an error. */
-.check-page .check-refusal {
-  max-width: 860px;
-  margin: 0 auto 1.5rem;
-  padding: 1.75rem;
-  background: var(--paper-aged);
-  border: 1px solid var(--rule-heavy);
-  border-top: 4px double var(--ink);
+.pipeline-name { font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--color-fg-strong); line-height: 22px; }
+.pipeline-step.is-running .pipeline-name { color: var(--color-fg-muted); }
+.pipeline-ms { font-size: var(--text-xs); color: var(--color-fg-subtle); line-height: 22px; }
+.pipeline-summary { grid-column: 2 / -1; font-size: var(--text-sm); color: var(--color-fg-muted); }
+
+.pipeline-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
 }
 
-.check-page .check-refusal h2 {
-  margin: 0 0 0.6rem;
-  font-family: var(--headline-font);
-  font-size: 1.4rem;
-  font-weight: 900;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--trust-unknown);
+.pipeline-toggle:hover { background: var(--color-accent-soft); }
+.pipeline-toggle .is-open { transform: rotate(180deg); }
+
+.pipeline-folded {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+  box-shadow: none;
+  background: var(--color-surface-sunken);
 }
 
-.check-page .check-refusal p {
-  margin: 0 0 0.6rem;
-  line-height: 1.7;
-  color: var(--ink-body);
+.pipeline-folded__icon { color: var(--verdict-real-fg); flex: none; }
+.pipeline-folded span { flex: 1; min-width: 200px; }
+.pipeline-folded .pipeline-toggle { margin-top: 0; }
+
+/* ------------------------------------------------------------- Skeleton */
+
+.check-skeleton { display: grid; gap: var(--space-5); }
+
+.check-skeleton__card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
 }
 
-.check-page .check-missing {
-  font-size: 0.9rem;
-  color: var(--ink-soft);
+.check-skeleton__row { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: var(--space-5); align-items: center; }
+.check-skeleton__grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+
+/* --------------------------------------------------------------- Refusal */
+
+.check-refusal {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--verdict-unknown-solid);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
 }
 
-.check-page .check-missing li { margin-bottom: 0.25rem; }
-
-.check-page .check-result {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem;
-  background: var(--paper);
-  border: 1px solid var(--rule-strong);
-  border-top: 4px double var(--ink);
+.check-refusal__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  color: var(--verdict-unknown-fg);
+  background: var(--verdict-unknown-bg);
+  border-radius: var(--radius-pill);
 }
 
-@media (max-width: 900px) {
-  .check-layout { grid-template-columns: 1fr; gap: 1.75rem; }
+.check-refusal__body { display: grid; gap: var(--space-2); min-width: 0; }
+.check-refusal h2 { font-size: var(--text-xl); }
+.check-refusal__reason { font-size: var(--text-md); color: var(--color-fg); }
+.check-refusal__read { font-size: var(--text-sm); color: var(--color-fg-muted); }
+.check-refusal__missing { font-size: var(--text-sm); }
+.check-refusal__missing ul { margin: var(--space-1) 0 0; padding-left: var(--space-5); color: var(--color-fg-muted); }
+
+/* ------------------------------------------------------------ Responsive */
+
+@media (max-width: 1000px) {
+  .check-layout { grid-template-columns: 1fr; }
+  /* Once there is a result, the legend would sit between the form and the
+     answer on a narrow screen; the result matters more. */
+  .check-page.has-result .check-aside { display: none; }
 }
 
-@media (max-width: 640px) {
-  .check-page .check-modes { gap: 0.85rem; }
-  .check-page .check-form,
-  .check-aside { padding: 1.1rem 1.2rem; }
+@media (max-width: 600px) {
+  .check-form { padding: var(--space-4); gap: var(--space-4); }
+  .check-submit { width: 100%; }
+  .check-skeleton__row, .check-skeleton__grid { grid-template-columns: 1fr; }
+  .check-refusal { flex-direction: column; padding: var(--space-5); }
+  .pipeline { padding: var(--space-4); }
+  .ui-tab { padding: 0 var(--space-2); font-size: var(--text-xs); }
 }

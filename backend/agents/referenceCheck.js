@@ -300,7 +300,7 @@ ${UNTRUSTED_NOTICE}
 Subject: ${entity}
 
 Encyclopedia entry:
-${fence(reference.content, { label: 'encyclopedia entry', max: 1200 })}
+${fence(reference.content, { label: 'encyclopedia entry', max: 3500 })}
 
 News article:
 ${fence(`Title: ${title}\nText: ${String(content || '').slice(0, 900)}`, { label: 'article', max: 1300 })}
@@ -310,6 +310,7 @@ First decide whether the entry is even about the same ${entity} the article mean
 The encyclopedia will not mention most of what the article says. That is normal and is NOT a contradiction. Answer "contradicts": true ONLY when the entry is about the SAME subject AND states something that directly conflicts with a fact the article asserts about ${entity} — for example a different office holder, a different date, a different organisation, a different place ("The Taj Mahal is in Chennai" against an entry placing it in Agra), or a different kind of thing ("Giraffe is a fish" against an entry calling giraffes mammals). The "article" may be a single sentence stating a general fact; judge that sentence the same way.
 
 Return a JSON object with these keys:
+- "why": one short sentence explaining what the encyclopedia entry states about this and whether it conflicts with the article.
 - "same_subject": true when the entry is about the same ${entity} the article means, false when it is a different person or thing that happens to share the name.
 - "contradicts": true or false.
 - "both_can_be_true": true when the article's statement and the entry could both be true of the same ${entity} at once, false only when accepting one means rejecting the other. Being born in one place and having ancestors from another can both be true; holding an office and never having held it cannot.

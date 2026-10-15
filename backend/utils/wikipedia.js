@@ -54,10 +54,12 @@ async function fetchWikipediaContent(query, limit = 3) {
 
         const contentResponse = await axios.get(contentUrl, { headers, timeout: TIMEOUT_MS });
         const page = contentResponse.data.query.pages[pageId];
+        const rawContent = String(page.extract || '');
+        const cleanContent = rawContent.replace(/^(?:%[0-9A-Fa-f]{2}|[{}\[\]\s\n]|Wikipedia:[^\n]+)+\s*/g, '').trim();
 
         return {
           title: page.title,
-          content: page.extract,
+          content: cleanContent || rawContent,
           url: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/\s+/g, '_'))}`,
           source: 'Wikipedia',
           similarity: 1.0 // Default similarity score

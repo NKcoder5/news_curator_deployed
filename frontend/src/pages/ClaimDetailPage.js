@@ -110,14 +110,14 @@ const NotFound = ({ missing }) => (
 );
 
 const ClaimDetailPage = () => {
-  const { id } = useParams();
-  const load = useCallback(() => getClaim(id), [id]);
+  const { claimId } = useParams();
+  const load = useCallback(() => getClaim(claimId), [claimId]);
   const [state, retry] = useLoaded(load);
   const claim = state.data;
   useDocumentTitle(claim ? claim.claim : 'Claim');
 
   // Arriving from the list (or from a variant) should start at the top of the page.
-  useEffect(() => { window.scrollTo?.(0, 0); }, [id]);
+  useEffect(() => { window.scrollTo?.(0, 0); }, [claimId]);
 
   return (
     <div className="page page--narrow claims-page claim-detail">

@@ -2,8 +2,8 @@
    Same sheet, masthead, rules and stock as the front page. */
 .newspaper-dashboard {
   max-width: 1400px;
-  margin: 2rem auto;
-  padding: 2rem;
+  margin: 1rem auto;
+  padding: 1.25rem 2rem 2rem;
   position: relative;
   background-color: var(--paper-card);
   border: 1px solid var(--rule-strong);
@@ -24,8 +24,8 @@
 /* ============================== Masthead ================================= */
 .newspaper-dashboard .newspaper-header {
   text-align: center;
-  padding: 1.25rem 0;
-  margin-bottom: 2rem;
+  padding: 0.75rem 0;
+  margin-bottom: 1.25rem;
   border-bottom: 3px double var(--ink);
 }
 .newspaper-dashboard .newspaper-date {

@@ -33,10 +33,12 @@ const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const CheckPage = () => {
   // A video or social link pasted into the feed's link box is redirected here,
   // arriving prefilled so the reader does not have to paste it twice.
-  const handedOver = useLocation().state?.url;
+  const handedOverState = useLocation().state || {};
+  const handedOver = handedOverState.url;
+  const handedOverText = handedOverState.text || '';
 
   const [mode, setMode] = useState(handedOver ? 'link' : 'text');
-  const [text, setText] = useState('');
+  const [text, setText] = useState(handedOverText);
   const [url, setUrl] = useState(handedOver || '');
   const [account, setAccount] = useState('');
   const [imageName, setImageName] = useState('');

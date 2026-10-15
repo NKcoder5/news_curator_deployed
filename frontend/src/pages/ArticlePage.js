@@ -348,7 +348,7 @@ const ArticlePage = () => {
               </p>
             </div>
           ) : credibility ? (
-            <TrustReport report={credibility} />
+            <TrustReport report={credibility} evidenceFirst />
           ) : (
             <div className="error-message">
               <p>We couldn&apos;t check this article just now.</p>

@@ -2,8 +2,8 @@
    Built on the shared .press-* newsprint layer so it matches the front page. */
 .compare-page {
   max-width: 1400px;
-  margin: 2rem auto;
-  padding: 2rem;
+  margin: 1rem auto;
+  padding: 1.25rem 2rem 2rem;
   position: relative;
   background-color: var(--paper-card);
   border: 1px solid var(--rule-strong);
@@ -24,8 +24,8 @@
 /* ============================== Masthead ================================= */
 .compare-page .compare-masthead {
   text-align: center;
-  padding: 1.5rem 0;
-  margin-bottom: 2rem;
+  padding: 0.75rem 0;
+  margin-bottom: 1.25rem;
   border-bottom: 3px double var(--ink);
 }
 /* The thin rules that top and tail the masthead */
@@ -70,7 +70,7 @@
   display: flex;
   gap: 0.5rem;
   max-width: 660px;
-  margin: 0 auto 2rem;
+  margin: 0 auto 1.25rem;
   padding: 0.85rem;
   background: var(--paper-aged);
   border-top: 1px solid var(--rule-heavy);

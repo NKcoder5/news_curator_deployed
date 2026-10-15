@@ -1,267 +1,185 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { BookOpen, RefreshCw } from 'lucide-react';
 import api from '../services/api';
 import NewsCard from '../components/NewsCard';
+import { Alert, Button, EmptyState, LoadingRegion, PageHeader, Skeleton } from '../components/ui';
 import '../styles/HomePage.css';
+
+const CATEGORIES = [
+  ['general', 'Top stories'],
+  ['business', 'Business'],
+  ['technology', 'Technology'],
+  ['entertainment', 'Entertainment'],
+  ['sports', 'Sports'],
+  ['science', 'Science'],
+  ['health', 'Health']
+];
+
+const validCategory = (value) => CATEGORIES.some(([key]) => key === value) ? value : 'general';
 
 const HomePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const selectedCategory = validCategory(new URLSearchParams(location.search).get('category'));
   const [articles, setArticles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [personalizedMessage, setPersonalizedMessage] = useState('');
-  const [currentDate] = useState(new Date());
   const [trustBadges, setTrustBadges] = useState({});
-
-  // The section is read from the address and nowhere else. It used to be kept
-  // in state as well, starting at "general" and corrected from the address
-  // afterwards, so a link to ?category=technology fetched the general feed
-  // first and then technology — two requests against a daily allowance of 100
-  // for one page view. With the address as the only source, a visit fetches
-  // once, and a refresh stays on the section the reader chose.
-  const selectedCategory = new URLSearchParams(location.search).get('category') || 'general';
+  const [badgeError, setBadgeError] = useState(false);
 
   const fetchNews = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     try {
-      setIsLoading(true);
-      
-      // Check if user is logged in
       const token = localStorage.getItem('token');
-      
-      // If user is logged in and on general category, fetch personalized news
+      let response;
       if (token && selectedCategory === 'general') {
         try {
-          const response = await api.get('/news/personalized');
-          
-          if (response.data.articles && response.data.articles.length > 0) {
-            setArticles(response.data.articles);
-            setPersonalizedMessage(response.data.message);
-          } else {
-            // Fallback to regular news if no personalized articles
-            const res = await api.get(`/news?category=${selectedCategory}`);
-            setArticles(res.data.articles || []);
-            setPersonalizedMessage('');
-          }
-        } catch (personalizedError) {
-          // If personalized news fails, fallback to regular news
-          const res = await api.get(`/news?category=${selectedCategory}`);
-          setArticles(res.data.articles || []);
-          setPersonalizedMessage('');
+          response = await api.get('/news/personalized');
+          if (!response.data.articles?.length) response = await api.get(`/news?category=${selectedCategory}`);
+        } catch (_) {
+          response = await api.get(`/news?category=${selectedCategory}`);
         }
       } else {
-        // Regular news fetch for non-logged in users or specific categories
-        const res = await api.get(`/news?category=${selectedCategory}`);
-        setArticles(res.data.articles || []);
-        setPersonalizedMessage('');
+        response = await api.get(`/news?category=${selectedCategory}`);
       }
-      
-      setError(null);
+      setArticles(response.data.articles || []);
+      setPersonalizedMessage(response.data.message || '');
     } catch (err) {
-      // The backend explains recoverable causes (a used-up daily quota, a bad
-      // key). Show that rather than a generic failure the reader can't act on.
-      setError(err.response?.data?.error || 'Failed to load news. Please try again later.');
-      console.error('News fetch error:', err);
+      setArticles([]);
+      setPersonalizedMessage('');
+      setError(err.response?.data?.error || 'The news desk could not load this section.');
     } finally {
       setIsLoading(false);
     }
   }, [selectedCategory]);
 
-  // Trust stamps for the visible clippings. Cheap on the server (cache lookup
-  // plus the source database), so every card can carry a verdict without the
-  // reader clicking anything.
+  useEffect(() => { fetchNews(); }, [fetchNews]);
+
   useEffect(() => {
-    if (!articles.length) return;
+    if (!articles.length) {
+      setTrustBadges({});
+      return undefined;
+    }
     let cancelled = false;
-
-    api.post('/ai/trust-badges', {
-      articles: articles.map(a => ({ url: a.url, source: a.source }))
-    })
-      .then(res => {
+    setBadgeError(false);
+    api.post('/ai/trust-badges', { articles: articles.map(article => ({ url: article.url, source: article.source })) })
+      .then(response => {
         if (cancelled) return;
-        const map = {};
-        (res.data.badges || []).forEach(b => { if (b.url) map[b.url] = b; });
-        setTrustBadges(map);
+        const badges = {};
+        (response.data.badges || []).forEach(badge => { if (badge.url) badges[badge.url] = badge; });
+        setTrustBadges(badges);
       })
-      .catch(err => console.error('Trust badge fetch failed:', err));
-
+      .catch(() => {
+        if (!cancelled) setBadgeError(true);
+      });
     return () => { cancelled = true; };
   }, [articles]);
 
-  const handleRetry = () => {
-    window.location.reload();
-  };
+  const categoryLabel = useMemo(
+    () => CATEGORIES.find(([key]) => key === selectedCategory)?.[1] || 'Top stories',
+    [selectedCategory]
+  );
 
-  const trackCategoryClick = async (category) => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      await api.post('/tracking/activity', {
-        articleId: `category_${category}`,
-        title: `${category} News`,
-        category: category,
-        source: 'Category Selection',
-        activityType: 'category',
-        duration: 0,
-        completed: true
-      });
-    } catch (error) {
-      console.error('Error tracking category click:', error);
-    }
-  };
-
-  // One fetch per section. This effect used to depend on an "initial load"
-  // flag that the fetch itself cleared, so every visit ran it twice — two news
-  // requests per page view — and the second run recorded a category click the
-  // reader never made.
-  useEffect(() => {
-    fetchNews();
-  }, [fetchNews]);
-
-  // Choosing a section is the reader's act, so it is recorded here, once.
-  const chooseCategory = (category) => {
+  const chooseCategory = async (category) => {
     if (category === selectedCategory) return;
-    trackCategoryClick(category);
+    try {
+      if (localStorage.getItem('token')) {
+        await api.post('/tracking/activity', {
+          articleId: `category_${category}`,
+          title: `${category} News`,
+          category,
+          source: 'Category Selection',
+          activityType: 'category',
+          duration: 0,
+          completed: true
+        });
+      }
+    } catch (_) {
+      // Category navigation should not be blocked by optional tracking.
+    }
     navigate(`/home?category=${category}`);
   };
 
-  const getCategoryEmoji = (category) => {
-    const emojiMap = {
-      'general': '🌐',
-      'technology': '💻',
-      'business': '💼',
-      'sports': '⚽',
-      'science': '🔬',
-      'health': '🏥',
-      'entertainment': '🎬'
-    };
-    return emojiMap[category] || '📰';
-  };
-
-  const getCategoryTitle = (category) => {
-    const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
-    return `${categoryName} Daily`;
-  };
-
-  const formatCurrentDate = () => {
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return currentDate.toLocaleDateString(undefined, options);
-  };
-
   return (
-    <div className="newspaper-container">
-      <div className="newspaper-masthead">
-        <div className="newspaper-date">{formatCurrentDate()}</div>
-        <h1 className="newspaper-name">The Daily Chronicle</h1>
-        <div className="newspaper-tagline">All the News That's Fit to Print</div>
-      </div>
-      
-      <div className="newspaper-categories">
-        <div className="category-label">SECTIONS:</div>
-        <div className="categories-list">
-          <button 
-            className={`category-btn ${selectedCategory === 'general' ? 'active' : ''}`}
-            onClick={() => chooseCategory('general')}
+    <div className="page">
+      <PageHeader
+        eyebrow="The daily desk"
+        title={categoryLabel}
+        description="A curated news feed with a clear path to checking what each story claims."
+        actions={<Button variant="secondary" icon={RefreshCw} onClick={fetchNews}>Refresh</Button>}
+      />
+
+      <nav className="news-sections" aria-label="News sections">
+        {CATEGORIES.map(([key, label]) => (
+          <button
+            type="button"
+            key={key}
+            className={`news-section ${selectedCategory === key ? 'is-active' : ''}`}
+            aria-current={selectedCategory === key ? 'page' : undefined}
+            onClick={() => chooseCategory(key)}
           >
-            General
+            {label}
           </button>
-          <button 
-            className={`category-btn ${selectedCategory === 'business' ? 'active' : ''}`}
-            onClick={() => chooseCategory('business')}
-          >
-            Business
-          </button>
-          <button 
-            className={`category-btn ${selectedCategory === 'technology' ? 'active' : ''}`}
-            onClick={() => chooseCategory('technology')}
-          >
-            Technology
-          </button>
-          <button 
-            className={`category-btn ${selectedCategory === 'entertainment' ? 'active' : ''}`}
-            onClick={() => chooseCategory('entertainment')}
-          >
-            Entertainment
-          </button>
-          <button 
-            className={`category-btn ${selectedCategory === 'sports' ? 'active' : ''}`}
-            onClick={() => chooseCategory('sports')}
-          >
-            Sports
-          </button>
-          <button 
-            className={`category-btn ${selectedCategory === 'science' ? 'active' : ''}`}
-            onClick={() => chooseCategory('science')}
-          >
-            Science
-          </button>
-          <button 
-            className={`category-btn ${selectedCategory === 'health' ? 'active' : ''}`}
-            onClick={() => chooseCategory('health')}
-          >
-            Health
-          </button>
-        </div>
-      </div>
-      
-      <div className="section-header">
-        <div className="section-divider"></div>
-        <h2 className="section-title">
-          {getCategoryEmoji(selectedCategory)} {getCategoryTitle(selectedCategory)}
-        </h2>
-        <div className="section-divider"></div>
-      </div>
-      
+        ))}
+      </nav>
+
       {personalizedMessage && (
-        <div className="editor-note">
-          <div className="editor-note-inner">
-            <h3 className="editor-title">Editor's Pick</h3>
-            <p>{personalizedMessage}</p>
-          </div>
-        </div>
+        <Alert tone="info" title="Picked for you" className="news-personal">
+          <span className="news-personal__text"><BookOpen size={16} aria-hidden="true" />{personalizedMessage}</span>
+        </Alert>
       )}
 
-      {isLoading ? (
-        <div className="newspaper-loading">
-          <div className="typewriter">
-            <div className="typewriter-text">Loading latest headlines...</div>
-          </div>
-          <div className="loading-text">Please wait while we prepare your newspaper</div>
-        </div>
-      ) : error ? (
-        <div className="newspaper-error">
-          <div className="error-headline">BREAKING: NEWS UNAVAILABLE</div>
-          <p className="error-subheading">Our press machines are experiencing technical difficulties</p>
-          <p>{error}</p>
-          <button onClick={handleRetry} className="retry-button">Refresh Paper</button>
-        </div>
-      ) : articles.length === 0 ? (
-        <div className="newspaper-empty">
-          <h3 className="empty-headline">SLOW NEWS DAY</h3>
-          <p>Our reporters are currently investigating stories for this section.</p>
-          <p>Please check back in our evening edition.</p>
-        </div>
-      ) : (
-        <div className="newspaper-grid">
-          {articles.map((article, index) => (
-            // Feed stories carry no section of their own, so every read was
-            // filed under "general", which personalisation ignores. The
-            // section the reader is browsing is the best available label.
-            <NewsCard
-              key={article.url || index}
-              article={article.category ? article : { ...article, category: selectedCategory }}
-              trustBadge={trustBadges[article.url]}
-            />
-          ))}
-        </div>
+      {badgeError && (
+        <Alert tone="warning" title="Trust stamps are unavailable">
+          The stories are still available. Open one to run the full analysis.
+        </Alert>
       )}
-      
-      <div className="newspaper-footer">
-        <div className="footer-divider"></div>
-        <p>© {currentDate.getFullYear()} The Daily Chronicle • All Rights Reserved</p>
-        <p>Our reporters strive to deliver accurate, fair, and thorough news reporting</p>
-      </div>
+
+      {error && (
+        <Alert
+          tone="danger"
+          title="News could not be loaded"
+          action={<Button variant="secondary" onClick={fetchNews}>Try again</Button>}
+        >
+          {error}
+        </Alert>
+      )}
+
+      {isLoading && (
+        <LoadingRegion label="Loading news stories">
+          <div className="news-grid">
+            {[1, 2, 3, 4, 5, 6].map(item => (
+              <div className="news-card news-card--skeleton" key={item}>
+                <Skeleton height="160px" />
+                <div className="news-card__body">
+                  <Skeleton width="35%" height="12px" />
+                  <Skeleton height="22px" />
+                  <Skeleton height="22px" />
+                  <Skeleton width="75%" height="16px" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </LoadingRegion>
+      )}
+
+      {!isLoading && !error && articles.length === 0 && (
+        <EmptyState title="No stories in this section" description="Try another section or refresh the desk." action={<Button onClick={fetchNews}>Refresh stories</Button>} />
+      )}
+
+      {!isLoading && !error && articles.length > 0 && (
+        <section aria-labelledby="news-results-title">
+          <h2 id="news-results-title" className="sr-only">{categoryLabel} stories</h2>
+          <div className="news-grid">
+            {articles.map((article, index) => (
+              <NewsCard key={article.url || `${article.title}-${index}`} article={article} trustBadge={trustBadges[article.url]} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 };

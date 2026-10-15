@@ -1,72 +1,95 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Newspaper } from 'lucide-react';
 import api from '../services/api';
-import { Badge } from './ui';
 import '../styles/NewsCard.css';
 
 /**
- * What the checks know about a story, at a glance.
- *  - "analyzed"    this article already has a full report (served from cache):
- *                  shown by its VERDICT, in the verdict's colour
- *  - "source-only" only the publisher's record is known so far: shown in
- *                  neutral, because a publisher's rating is not a verdict on
- *                  this story and must not borrow a verdict's green or red
+ * Trust stamp — the at-a-glance verdict on each clipping.
+ *  - "analyzed"    this article already has a full report (served from cache)
+ *  - "source-only" we only know the publisher's record so far
+ * Styled like an editor's rubber stamp rather than a web badge.
  */
-const VERDICT_TONE = {
-  corroborated: 'real',
-  'likely-true': 'real',
-  opinion: 'info',
-  satire: 'info',
-  unverified: 'unknown',
-  'likely-false': 'fake',
-  false: 'fake'
-};
+const TrustStamp = ({ badge }) => {
+  if (!badge) return <span className="trust-stamp trust-stamp-pending" aria-hidden="true" />;
 
-export const TrustBadge = ({ badge }) => {
-  if (!badge) return <span className="news-card__badge-pending" aria-hidden="true" />;
+  const level = (score) => {
+    if (score >= 7.5) return 'high';
+    if (score >= 5.5) return 'good';
+    if (score >= 4) return 'caution';
+    return 'low';
+  };
+
+  // An article that has been checked is stamped by its VERDICT, not by a score
+  // band. "Not confirmed" and "Probably false" are different answers and must
+  // not share a colour just because their numbers were close.
+  const verdictLevel = {
+    corroborated: 'high',
+    'likely-true': 'good',
+    opinion: 'neutral',
+    unverified: 'caution',
+    satire: 'neutral',
+    'likely-false': 'low',
+    false: 'low'
+  };
 
   if (badge.kind === 'analyzed') {
     return (
-      <Badge tone={VERDICT_TONE[badge.level] || 'unknown'} title={`We checked this article: ${badge.verdict}`}>
+      <span
+        className={`trust-stamp stamp-${verdictLevel[badge.level] || level(badge.score)}`}
+        title={`We checked this article: ${badge.verdict}`}
+      >
         {badge.verdict}
-        {badge.concernCount > 0 && <span className="news-card__badge-note"> · {badge.concernCount} to check</span>}
-      </Badge>
+        {badge.concernCount > 0 && (
+          <em className="stamp-note">{badge.concernCount} to check</em>
+        )}
+      </span>
     );
   }
 
   return (
-    <Badge
-      tone="neutral"
-      title={badge.sourceMatched
-        ? `${badge.sourceName} is rated ${badge.score}/10 for accuracy. Open the article for the full check.`
-        : 'We have no reliability record for this outlet. Open the article for the full check.'}
+    <span
+      className={`trust-stamp ${badge.sourceMatched ? `stamp-${level(badge.score)}` : 'stamp-unknown'}`}
+      title={
+        badge.sourceMatched
+          ? `${badge.sourceName} is rated ${badge.score}/10 for accuracy. Open the article for the full check.`
+          : 'We have no reliability record for this outlet. Open the article for the full check.'
+      }
     >
       {badge.label}
-    </Badge>
+    </span>
   );
-};
-
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  if (!dateString || Number.isNaN(date.getTime())) return '';
-  return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
-};
-
-// Feed headlines end with " - Outlet name", which the card already shows.
-const headlineOf = (article) => {
-  const title = String(article.title || '');
-  const source = article.source?.name;
-  return source && title.endsWith(` - ${source}`) ? title.slice(0, -(source.length + 3)) : title;
 };
 
 const NewsCard = ({ article, trustBadge }) => {
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
 
+  const handleClick = () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Track click activity
+      trackActivity('click');
+      
+      // Navigate to article page
+      navigate('/article', { 
+        state: { 
+          article,
+          startTime: Date.now()
+        } 
+      });
+    } else {
+      // If not logged in, just navigate without tracking
+      navigate('/article', { 
+        state: { article } 
+      });
+    }
+  };
+
   const trackActivity = async (activityType) => {
     try {
-      if (!localStorage.getItem('token')) return;
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
       await api.post('/tracking/activity', {
         articleId: article.url,
         title: article.title,
@@ -81,42 +104,61 @@ const NewsCard = ({ article, trustBadge }) => {
     }
   };
 
-  const open = () => {
-    if (localStorage.getItem('token')) {
-      trackActivity('click');
-      navigate('/article', { state: { article, startTime: Date.now() } });
-    } else {
-      navigate('/article', { state: { article } });
-    }
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  // Format date to look like newspaper date format (added from friend's code)
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    if (!dateString || Number.isNaN(date.getTime())) return '';
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString(undefined, options);
   };
 
   return (
-    <article className="news-card">
-      <div className="news-card__media">
-        {!imageError && article.urlToImage ? (
-          <img src={article.urlToImage} alt="" loading="lazy" onError={() => setImageError(true)} />
-        ) : (
-          <span className="news-card__placeholder" aria-hidden="true"><Newspaper size={28} /></span>
-        )}
-      </div>
-      <div className="news-card__body">
-        <p className="news-card__meta">
-          <span className="news-card__source">{article.source?.name || 'Unknown outlet'}</span>
-          {formatDate(article.publishedAt) && <span> · {formatDate(article.publishedAt)}</span>}
-        </p>
-        <h3 className="news-card__title">
-          {/* The whole card is clickable through this one button, so the card
-              is a single tab stop with the headline as its name. */}
-          <button type="button" className="news-card__link" onClick={open} data-article-card>
-            {headlineOf(article)}
-          </button>
-        </h3>
-        {article.description && <p className="news-card__description">{article.description}</p>}
-        <div className="news-card__footer">
-          <TrustBadge badge={trustBadge} />
+    <div className="news-card-container">
+      <div className="news-card" onClick={handleClick}>
+        <div className="news-card-inner">
+          <div className="news-heading">
+            <h3 className="news-title">{article.title}</h3>
+            <div className="news-divider"></div>
+          </div>
+          
+          <div className="news-body">
+            {!imageError && article.urlToImage ? (
+              <div className="news-image-wrapper">
+                <img 
+                  src={article.urlToImage} 
+                  alt={article.title}
+                  onError={handleImageError}
+                />
+                <div className="image-caption">Image: {article.source?.name}</div>
+              </div>
+            ) : (
+              <div className="news-no-image">
+                <span className="news-no-image-text">No Photograph Available</span>
+              </div>
+            )}
+            
+            <p className="news-description">{article.description}</p>
+            
+            <TrustStamp badge={trustBadge} />
+
+            <div className="news-meta">
+              <span className="news-source">
+                {article.source?.name || 'Unknown Press'}
+              </span>
+              <span className="news-date">
+                {formatDate(article.publishedAt)}
+              </span>
+            </div>
+          </div>
+          
+          <div className="news-card-torn-effect"></div>
         </div>
       </div>
-    </article>
+    </div>
   );
 };
 

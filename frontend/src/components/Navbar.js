@@ -49,7 +49,7 @@ const Navbar = ({ user, setUser }) => {
   return (
     <header className="site-header">
       <div className="site-header__inner">
-        <Link to={user ? '/check' : '/'} className="site-header__brand" aria-label="Pure Press home">
+        <Link to="/" className="site-header__brand" aria-label="Pure Press home">
           <BrandMark />
         </Link>
 

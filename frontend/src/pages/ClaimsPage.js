@@ -178,7 +178,7 @@ const ClaimsPage = () => {
   const narrowed = Boolean(filters.q || filters.call);
 
   return (
-    <div className="page claims-page">
+    <div className="press-sheet claims-page">
       <PageHeader
         eyebrow="Public record"
         title="Claims database"

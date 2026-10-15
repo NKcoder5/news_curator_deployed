@@ -11,7 +11,7 @@ const BASE_URL = process.env.REACT_APP_API_URL ||
 
 
 /**
- * Run a streamed trust analysis, reporting each check as the server finishes it.
+ * Run the same streamed content-check pipeline used by Check Anything.
  *
  * The endpoint answers with newline-delimited JSON rather than Server-Sent
  * Events, because the article body must be POSTed and EventSource is GET-only.
@@ -23,8 +23,8 @@ const BASE_URL = process.env.REACT_APP_API_URL ||
  * @param {Function} onStep - called with {id, name, ms} per completed check
  * @returns {Promise<Object>} the finished report
  */
-const streamTrustAnalysis = async (body, headers, onStep) => {
-  const response = await fetch(`${BASE_URL}/api/ai/trust-analysis/stream`, {
+const streamContentAnalysis = async (body, headers, onProgress) => {
+  const response = await fetch(`${BASE_URL}/api/ai/analyze-content/stream`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...headers },
     body: JSON.stringify(body)
@@ -32,7 +32,7 @@ const streamTrustAnalysis = async (body, headers, onStep) => {
 
   if (!response.ok || !response.body) {
     // No stream available — fall back to the ordinary endpoint.
-    const plain = await axios.post(`${BASE_URL}/api/ai/trust-analysis`, body, { headers });
+    const plain = await axios.post(`${BASE_URL}/api/ai/analyze-content`, body, { headers });
     return plain.data;
   }
 
@@ -55,7 +55,7 @@ const streamTrustAnalysis = async (body, headers, onStep) => {
       let event;
       try { event = JSON.parse(line); } catch (_) { continue; }
 
-      if (event.type === 'progress') onStep(event);
+      if (event.type === 'stage' || event.type === 'channel') onProgress(event);
       else if (event.type === 'report') report = event.report;
       else if (event.type === 'error') throw new Error(event.error);
     }
@@ -77,8 +77,8 @@ const ArticlePage = () => {
   const [summarySourceText, setSummarySourceText] = useState(null);
   const [detailedSourceText, setDetailedSourceText] = useState(null);
   const [credibility, setCredibility] = useState(null);
-  // The six checks, filled in as the server reports each one finishing. The
-  // reader watches the report being built instead of waiting on a spinner.
+  // Pipeline stages and evidence channels arrive as they finish. There is no
+  // fixed count because channels can stand down or finish at different times.
   const [completedChecks, setCompletedChecks] = useState([]);
   const [loadingStates, setLoadingStates] = useState({
     summary: true,
@@ -122,7 +122,7 @@ const ArticlePage = () => {
   }, [article]);
 
   // Define analyze function using useCallback
-  const analyze = useCallback(async (type) => {
+  const analyze = useCallback(async (type, rerun = false) => {
     if (!article) return;
 
     const content = article.content || article.description || article.title;
@@ -144,17 +144,14 @@ const ArticlePage = () => {
           body = { article: content, url: article.url, title: article.title };
           break;
         case 'credibility':
-          endpoint = '/api/ai/trust-analysis';
+          endpoint = '/api/ai/analyze-content';
           body = {
-            title: article.title,
-            content,
-            source: article.source?.name || article.source || 'Unknown',
-            url: article.url,
-            // Feed stories are often hours old, and the news index the check
-            // searches runs about a day behind. With the date, a story too new
-            // to have been indexed is reported as that, rather than as a story
-            // nobody else is carrying.
-            publishedAt: article.publishedAt || null,
+            // Use the same headline-only input as a reader pasting the
+            // headline into Check Anything. Sending the URL makes extraction
+            // dependent on the publisher page body and can produce a
+            // different claim/evidence search from the visible headline.
+            text: article.title || content,
+            rerun,
           };
           break;
         default:
@@ -172,10 +169,15 @@ const ArticlePage = () => {
       // Everything else is a single request/response.
       if (type === 'credibility') {
         setCompletedChecks([]);
-        const finished = await streamTrustAnalysis(body, headers, (step) => {
+        const finished = await streamContentAnalysis(body, headers, (step) => {
           if (latestRequest.current !== article.url) return;
+          const progressId = step.id || step.name || step.message;
           setCompletedChecks(prev =>
-            prev.some(c => c.id === step.id) ? prev : [...prev, step]);
+            prev.some(c => c.id === progressId) ? prev : [...prev, {
+              ...step,
+              id: progressId,
+              name: step.name || step.message || 'Evidence check complete'
+            }]);
         });
         if (latestRequest.current !== article.url) return;
         setCredibility(finished);
@@ -329,13 +331,21 @@ const ArticlePage = () => {
           and the story follows. */}
       <div className="article-verdict">
         <div className="credibility-card">
-          <h3 className="credibility-title">Can you trust this article?</h3>
+          <div className="analysis-heading">
+            <div>
+              <p className="analysis-kicker">Evidence desk</p>
+              <h3 className="credibility-title">Can you trust this article?</h3>
+            </div>
+            <span className="analysis-status">
+              {loadingStates.credibility ? 'Checking' : credibility ? 'Checked' : 'Waiting'}
+            </span>
+          </div>
           {loadingStates.credibility ? (
             <div className="loading-state">
               <div className="spinner"></div>
               <p className="loading-text">
                 {completedChecks.length
-                  ? `Checked ${completedChecks.length} of 6…`
+                  ? `${completedChecks.length} evidence updates received…`
                   : 'Starting the checks…'}
               </p>
               <ul className="check-progress">
@@ -343,12 +353,20 @@ const ArticlePage = () => {
                   <li key={check.id} className="check-done">{check.name}</li>
                 ))}
               </ul>
-              <p className="loading-subtext">
-                Six independent checks are combined into one explainable report.
-              </p>
+              <p className="loading-subtext">The same evidence-first checks used by Check Anything are being combined into one report.</p>
             </div>
           ) : credibility ? (
-            <TrustReport report={credibility} evidenceFirst />
+            <>
+              <button
+                type="button"
+                className="feedback-button article-rerun"
+                onClick={() => analyze('credibility', true)}
+                disabled={loadingStates.credibility}
+              >
+                {loadingStates.credibility ? 'Running again…' : 'Run analysis again'}
+              </button>
+              <TrustReport report={credibility} evidenceFirst />
+            </>
           ) : (
             <div className="error-message">
               <p>We couldn&apos;t check this article just now.</p>

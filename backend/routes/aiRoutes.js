@@ -200,7 +200,7 @@ router.post('/summarize', validate.article, async (req, res) => {
 // Results are cached by article URL so the analysis runs once per article
 // and every later reader gets it instantly.
 router.post('/trust-analysis', validate.article, async (req, res) => {
-  const { title, content, source, url, publishedAt } = req.body;
+  const { title, content, source, url, publishedAt, rerun } = req.body;
   if (!title) {
     return res.status(400).json({ error: 'Article title is required.' });
   }
@@ -208,7 +208,7 @@ router.post('/trust-analysis', validate.article, async (req, res) => {
   // different version of this page is not reused.
   const sourcePrint = printOf(content, title);
   try {
-    if (url) {
+    if (url && rerun !== true) {
       const cached = await TrustReportCache.findOne({ articleUrl: url }).lean();
       // A report from an older pipeline is missing factors this one reports,
       // and one written about text the publisher has since replaced is about a
@@ -354,7 +354,7 @@ router.post('/analyze-content/stream', validate.contentCheck, async (req, res) =
 // body has to be POSTed and the browser's EventSource is GET-only. The client
 // reads it with fetch() and a stream reader.
 router.post('/trust-analysis/stream', validate.article, async (req, res) => {
-  const { title, content, source, url, publishedAt } = req.body;
+  const { title, content, source, url, publishedAt, rerun } = req.body;
   if (!title) {
     return res.status(400).json({ error: 'Article title is required.' });
   }
@@ -376,7 +376,7 @@ router.post('/trust-analysis/stream', validate.article, async (req, res) => {
   };
 
   try {
-    if (url) {
+    if (url && rerun !== true) {
       const cached = await TrustReportCache.findOne({ articleUrl: url }).lean();
       if (isUsableCachedReport(cached, sourcePrint)) {
         emit({ type: 'report', report: { ...cached.report, cached: true } });

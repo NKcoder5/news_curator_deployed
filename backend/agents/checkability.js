@@ -75,7 +75,7 @@ const findAnchors = (text) => {
       if (!clean) return;
       if (/\d/.test(clean)) { numbers.add(clean.toLowerCase()); return; }
       // The first word of a sentence is capitalised by grammar, not by being a
-      // name, so sentence openers and common stopwords are skipped. Genuine proper
+       // name, so sentence openers and common stopwords are skipped. Genuine proper
       // nouns ("India", "Modi", "Vijay") are kept.
       const lower = clean.toLowerCase();
       if (index === 0 && (SENTENCE_OPENERS.has(lower) || STOPWORDS.has(lower))) return;

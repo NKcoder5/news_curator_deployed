@@ -17,7 +17,7 @@ const LIMITS = {
 };
 
 /**
- * @param {Object<string, {type: 'string'|'array', max?: number, pattern?: RegExp, label?: string}>} fields
+ * @param {Object<string, {type: 'string'|'array'|'boolean', max?: number, pattern?: RegExp, label?: string}>} fields
  * @returns {Function} middleware answering 400 for a field of the wrong type, length or form
  */
 const checkFields = (fields) => (req, res, next) => {
@@ -29,6 +29,12 @@ const checkFields = (fields) => (req, res, next) => {
     const value = body?.[name];
     if (value === undefined || value === null || value === '') continue;
     const label = rule.label || name;
+    if (rule.type === 'boolean') {
+      if (typeof value !== 'boolean') {
+        return res.status(400).json({ error: `"${name}" must be true or false.`, code: 'INVALID_INPUT', field: name, requestId: req.id });
+      }
+      continue;
+    }
     if (rule.type === 'array') {
       if (!Array.isArray(value)) {
         return res.status(400).json({ error: `"${name}" must be a list.`, code: 'INVALID_INPUT', field: name, requestId: req.id });
@@ -62,7 +68,9 @@ const contentCheck = checkFields({
   text: { type: 'string', max: LIMITS.text, label: 'text' },
   imageBase64: { type: 'string', label: 'screenshot' },
   account: { type: 'string', max: LIMITS.account, label: 'account name' },
-  languageHint: { type: 'string', max: 12, pattern: /^[a-z]{2,3}(?:-[A-Za-z]{2,4})?$/i, label: 'language hint' }
+  languageHint: { type: 'string', max: 12, pattern: /^[a-z]{2,3}(?:-[A-Za-z]{2,4})?$/i, label: 'language hint' },
+  claimText: { type: 'string', max: 1000, label: 'headline claim' },
+  rerun: { type: 'boolean', label: 'rerun flag' }
 });
 
 const article = checkFields({
@@ -70,7 +78,8 @@ const article = checkFields({
   content: { type: 'string', max: LIMITS.article, label: 'article text' },
   article: { type: 'string', max: LIMITS.article, label: 'article text' },
   url: { type: 'string', max: LIMITS.url, label: 'link' },
-  publishedAt: { type: 'string', max: 64, label: 'date' }
+  publishedAt: { type: 'string', max: 64, label: 'date' },
+  rerun: { type: 'boolean', label: 'rerun flag' }
 });
 
 const plainAnswer = checkFields({ text: { type: 'string', max: LIMITS.text, label: 'text' } });

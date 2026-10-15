@@ -29,13 +29,57 @@
 .check-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-  gap: 2.5rem;
+  gap: 1.5rem;
   /* Stretch, not start. Sizing the textarea to match the aside's height was
      guesswork that broke the moment either column's content changed; letting
      the grid equalise them and the textarea take up the slack holds whatever
      goes in either side. */
   align-items: stretch;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.check-page .press-masthead {
+  padding: 0.85rem 0 1rem;
+  margin-bottom: 1.1rem;
+}
+.check-page .press-name { font-size: clamp(2rem, 5vw, 3.1rem); }
+.check-page .press-tagline {
+  max-width: 42rem;
+  margin: 0 auto;
+  font-size: 0.95rem;
+}
+
+.check-workflow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin: 0 0 1.25rem;
+  border-top: 1px solid var(--rule-heavy);
+  border-bottom: 1px solid var(--rule-heavy);
+}
+
+.check-workflow > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.65rem;
+  padding: 0.85rem 1rem;
+}
+
+.check-workflow > div + div { border-left: 1px solid var(--rule); }
+.check-workflow span {
+  grid-row: 1 / span 2;
+  font-family: var(--label-font);
+  font-size: 0.72rem;
+  color: var(--press-red);
+  letter-spacing: 0.08em;
+}
+.check-workflow strong {
+  font-family: var(--headline-font);
+  font-size: 0.9rem;
+}
+.check-workflow small {
+  color: var(--ink-muted);
+  font-size: 0.76rem;
 }
 
 /* -------------------------------------------------------------- The form */
@@ -43,11 +87,36 @@
 .check-page .check-form {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  padding: 1.5rem 1.75rem;
+  gap: 0.65rem;
+  padding: 1.25rem 1.5rem;
   background: var(--paper-aged);
   border-top: 1px solid var(--rule-heavy);
   border-bottom: 1px solid var(--rule-heavy);
+}
+
+.check-form__intro { padding-bottom: 0.25rem; }
+.check-form__intro h2,
+.check-result__heading h2 {
+  margin: 0.15rem 0 0.35rem;
+  font-family: var(--headline-font);
+  font-size: 1.45rem;
+  color: var(--ink);
+}
+.check-form__intro p:last-child {
+  max-width: 42rem;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+.check-form__eyebrow {
+  margin: 0;
+  color: var(--press-red);
+  font-family: var(--label-font);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 /* The three ways in, set as section tabs rather than buttons — the same
@@ -94,8 +163,9 @@
 
 /* Takes the slack so both columns finish level, whatever the aside holds. */
 .check-page .check-textarea {
-  flex: 1;
-  min-height: 8rem;
+  flex: none;
+  min-height: 0;
+  height: 8.5rem;
   line-height: 1.6;
   resize: vertical;
 }
@@ -103,6 +173,58 @@
 .check-page .check-account { font-size: 0.88rem; }
 
 .check-page .check-submit { align-self: flex-start; }
+.check-submit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.2rem;
+}
+.check-submit-note {
+  color: var(--ink-muted);
+  font-size: 0.76rem;
+  font-style: italic;
+}
+
+.check-form-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 0.15rem;
+  padding: 0.7rem 0.8rem;
+  border-left: 3px solid var(--press-red);
+  background: var(--paper);
+  color: var(--ink);
+}
+.check-form-progress__spinner {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex: 0 0 auto;
+  border: 2px solid var(--rule-heavy);
+  border-top-color: var(--press-red);
+  border-radius: 50%;
+  animation: check-form-spin 0.8s linear infinite;
+}
+.check-form-progress strong,
+.check-form-progress small {
+  display: block;
+}
+.check-form-progress strong {
+  font-family: var(--label-font);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.check-form-progress small {
+  margin-top: 0.15rem;
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+}
+@keyframes check-form-spin { to { transform: rotate(360deg); } }
+
+.check-rerun {
+  margin: 0 0 1rem;
+}
 
 /* ------------------------------------------------------------- The aside */
 
@@ -263,20 +385,80 @@
 .check-page .check-missing li { margin-bottom: 0.25rem; }
 
 .check-page .check-result {
-  max-width: 900px;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1.4rem;
   background: var(--paper);
   border: 1px solid var(--rule-strong);
   border-top: 4px double var(--ink);
 }
 
+.check-page .check-result .trust-report { gap: 1rem; }
+.check-page .check-result .verdict-claim__text {
+  font-family: var(--headline-font);
+  font-size: 1.08rem;
+}
+.check-page .check-result .verdict-oneline { font-size: 1rem; }
+
+.check-result__heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--rule);
+}
+.check-result__mode {
+  color: var(--ink-muted);
+  font-family: var(--label-font);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.check-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  max-width: 1080px;
+  margin: 0 auto 1.5rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--rule-heavy);
+  border-bottom: 1px solid var(--rule-heavy);
+  background: var(--paper-aged);
+}
+.check-status__mark {
+  color: var(--press-red);
+  font-size: 0.7rem;
+  line-height: 1.6;
+  animation: check-pulse 1.2s ease-in-out infinite;
+}
+.check-status p { margin-bottom: 0.2rem; }
+.check-status strong {
+  display: block;
+  font-family: var(--headline-font);
+  font-size: 0.96rem;
+  font-weight: 700;
+}
+.check-status small {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+}
+@keyframes check-pulse { 50% { opacity: 0.35; } }
+
 @media (max-width: 900px) {
   .check-layout { grid-template-columns: 1fr; gap: 1.75rem; }
+  .check-workflow { grid-template-columns: 1fr; }
+  .check-workflow > div + div { border-left: 0; border-top: 1px solid var(--rule); }
 }
 
 @media (max-width: 640px) {
   .check-page .check-modes { gap: 0.85rem; }
   .check-page .check-form,
   .check-aside { padding: 1.1rem 1.2rem; }
+  .check-submit-row,
+  .check-result__heading { align-items: flex-start; flex-direction: column; }
 }

@@ -133,6 +133,58 @@
   font-weight: var(--weight-medium);
 }
 
+/* The report is shared with the newspaper pages. Keep its information-rich
+   structure, but let those pages own the visual language instead of exposing
+   the modern rounded application shell. */
+.check-page .trust-report,
+.article-page .trust-report {
+  --color-surface: var(--paper);
+  --color-border: var(--rule);
+  --color-fg: var(--ink-body);
+  --color-fg-strong: var(--ink);
+  --color-fg-muted: var(--ink-soft);
+  --color-fg-subtle: var(--ink-muted);
+  --radius-lg: 0;
+  --shadow-1: none;
+  --shadow-2: none;
+}
+.check-page .verdict-card,
+.article-page .verdict-card,
+.check-page .report-section,
+.article-page .report-section {
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--paper);
+  border-color: var(--rule-strong);
+}
+.check-page .verdict-card,
+.article-page .verdict-card {
+  padding: 1.15rem 1.25rem;
+  border-top-width: 4px;
+}
+.check-page .report-section,
+.article-page .report-section {
+  padding: 1.15rem 1.25rem;
+}
+.check-page .tier-toggle,
+.article-page .tier-toggle {
+  border-radius: 0;
+  background: var(--paper-aged);
+  border-color: var(--rule);
+}
+.check-page .tier-toggle:hover,
+.article-page .tier-toggle:hover {
+  background: var(--paper-card);
+  border-color: var(--rule-heavy);
+}
+.check-page .report-grid,
+.article-page .report-grid { gap: 1rem; }
+.check-page .report-main,
+.check-page .report-aside,
+.article-page .report-main,
+.article-page .report-aside { gap: 1rem; }
+.check-page .report-aside { position: static; }
+
 /* ----------------------------------------------------- What decided it */
 
 .decision-body { display: grid; gap: var(--space-2); }

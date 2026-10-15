@@ -280,6 +280,83 @@ position: relative;
   margin-top: 0.75rem;
 }
 
+.article-page .credibility-card .trust-report {
+  margin-top: 0;
+}
+.article-page .credibility-card .verdict-card {
+  padding: 1rem 1.1rem;
+}
+
+.article-page .article-rerun {
+  margin: 0 0 0.75rem;
+}
+
+.article-page .credibility-card {
+  border-top: 4px double var(--ink);
+  padding: 1.25rem;
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--paper-aged);
+}
+
+.article-page .credibility-card::before,
+.article-page .credibility-card::after {
+  display: none;
+}
+
+.article-page .article-rerun {
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--label-font);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.article-page .article-rerun:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.article-page .analysis-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--rule-strong);
+}
+.article-page .analysis-kicker {
+  margin: 0 0 0.25rem;
+  color: var(--press-red);
+  font-family: var(--label-font);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.article-page .analysis-heading .credibility-title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: clamp(1.25rem, 2vw, 1.7rem);
+  letter-spacing: 0.03em;
+}
+.article-page .analysis-status {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink-muted);
+  font-family: var(--label-font);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 /* With the verdict lifted out, what remains below is the summary and the
    reader comments in a single column. */
 .article-page .article-bottom-section {
@@ -715,7 +792,8 @@ position: relative;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  min-height: 9rem;
+  padding: 1.25rem;
   text-align: center;
 }
 .article-page .spinner {
@@ -737,6 +815,13 @@ position: relative;
   font-family: Georgia, "Times New Roman", Times, serif;
   font-style: italic;
   color: var(--ink-soft);
+}
+.article-page .loading-subtext {
+  max-width: 32rem;
+  margin: 0.75rem auto 0;
+  color: var(--ink-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
 }
 /* Error message styles */
 .article-page .error-message {
@@ -906,6 +991,8 @@ position: relative;
 .article-page .action-button, .article-page .feedback-button {
     width: 100%;
   }
+.article-page .analysis-heading { flex-direction: column; }
+.article-page .analysis-status { align-self: flex-start; }
 }
 /* Article Feedbacks Section */
 .article-page .article-feedbacks-section {

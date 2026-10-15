@@ -85,6 +85,29 @@ test('an unanchored claim cannot be corroborated by same-topic coverage', () => 
   assert.equal(verdict.unanchored, true, 'the reason must be recorded, not just the refusal');
 });
 
+test('a distinctive unanchored scientific claim accepts near-verbatim coverage', () => {
+  const claim = "Some of the universe's biggest explosions may have never happened at all.";
+  const related = {
+    title: "Scientists discover that some of the universe's biggest explosions may have never happened at all",
+    description: ''
+  };
+
+  const verdict = isRelevant(claim, related);
+  assert.equal(verdict.relevant, true);
+  assert.equal(verdict.unanchored, false);
+});
+
+test('subject coverage does not confirm a different claim about the same subject', () => {
+  const claim = 'A planet 320 light-years away confirms what scientists long suspected.';
+  const subjectHeadline = {
+    source: 'SSBCrack',
+    title: 'Astronomers Discover Key Evidence Linking Planetary and Stellar Chemistry in WASP-189b',
+    description: ''
+  };
+
+  assert.equal(isRelevant(claim, subjectHeadline).relevant, false);
+});
+
 test('an anchored claim still matches coverage of the same event', () => {
   const claim = 'A Mississippi grand jury declined to bring charges in the death of Nolan Wells.';
   const verdict = isRelevant(claim, {

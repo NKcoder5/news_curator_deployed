@@ -79,6 +79,8 @@ const distinctiveTerms = (text) => {
 
 /** Minimum distinctive terms a piece of evidence must share with the claim. */
 const MIN_SHARED_TERMS = 2;
+const UNANCHORED_HIGH_OVERLAP = 0.75;
+const UNANCHORED_MIN_SHARED = 3;
 
 /**
  * The terms that pin a claim to a particular event: proper nouns and numbers.
@@ -160,12 +162,18 @@ const isRelevant = (claim, evidence) => {
   // the honest outcome is that the claim stays unverified, which is what the
   // system is built to say.
   if (anchors.size === 0) {
+    // Some precise claims have no proper name, place, organisation or figure:
+    // scientific findings are a common example. Permit only near-verbatim
+    // coverage in that case. Ordinary topic overlap remains insufficient, so
+    // the chemical-leak/evacuation false-corroboration case stays rejected.
+    const highOverlap = shared.length >= UNANCHORED_MIN_SHARED
+      && score >= UNANCHORED_HIGH_OVERLAP;
     return {
-      relevant: false,
+      relevant: highOverlap,
       shared,
       sharedAnchors,
       score: Math.round(score * 100) / 100,
-      unanchored: true
+      unanchored: !highOverlap
     };
   }
 

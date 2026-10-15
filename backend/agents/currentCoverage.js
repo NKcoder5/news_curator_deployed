@@ -27,6 +27,7 @@
 // event going unmentioned in twenty headlines means nothing at all.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { searchGoogleNews } = require('../utils/newsFetcher');
+const { filterRelevant } = require('./evidenceRelevance');
 const { UNTRUSTED_NOTICE, fence, addressesModel, asBool, oneOf, clip, numberedItems } = require('../utils/untrusted');
 
 const CLAIMED_WHEN = new Set(['this_week', 'earlier', 'future', 'ongoing', 'unclear']);
@@ -158,7 +159,16 @@ const checkCurrentCoverage = async (claims = []) => {
     })
     .filter(Boolean);
 
-  const reporting = pick('reports_event');
+  const reportedByModel = pick('reports_event');
+  // Subject coverage is not automatically evidence for the event. A headline
+  // about WASP-189b can be relevant to the subject while saying nothing about
+  // the article's specific distance or discovery claim. Keep only headlines
+  // that also pass the same deterministic event-identity gate used by direct
+  // verification.
+  const reporting = filterRelevant(
+    claims.slice(0, 2).map(c => c.claim).join(' '),
+    reportedByModel
+  ).kept;
   const presupposingFalse = pick('presupposes_false');
   const eventScale = oneOf(result?.event_scale, ['dominant', 'minor'], 'minor');
   // Read against the five answers the prompt offers. The rules downstream

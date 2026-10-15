@@ -91,14 +91,17 @@ const CheckPage = () => {
     return text.trim().length > 0;
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event, options = {}) => {
     event.preventDefault();
     if (!ready() || loading) return;
 
     reset();
     setLoading(true);
     try {
-      const response = await api.post('/ai/analyze-content', payload());
+      const response = await api.post('/ai/analyze-content', {
+        ...payload(),
+        ...(options.rerun ? { rerun: true } : {})
+      });
       setReport(response.data);
     } catch (err) {
       const data = err.response?.data;
@@ -119,6 +122,8 @@ const CheckPage = () => {
     }
   };
 
+  const rerun = () => handleSubmit({ preventDefault: () => {} }, { rerun: true });
+
   const active = MODES.find((m) => m.id === mode);
 
   return (
@@ -132,6 +137,12 @@ const CheckPage = () => {
         </div>
       </header>
 
+      <div className="check-workflow" aria-label="How checking works">
+        <div><span>01</span><strong>Bring the claim</strong><small>Paste, link, or screenshot</small></div>
+        <div><span>02</span><strong>We read the context</strong><small>Source, wording, and evidence</small></div>
+        <div><span>03</span><strong>See the grounds</strong><small>Verdict with supporting detail</small></div>
+      </div>
+
       {/* Two columns, because one narrow form adrift in a full-width sheet is
           what the page looked like before: a lot of bare paper and nothing to
           justify it. The right-hand column carries what a reader needs BEFORE
@@ -140,6 +151,11 @@ const CheckPage = () => {
           refusal they had no way to anticipate. */}
       <div className="check-layout">
         <form className="check-form" onSubmit={handleSubmit}>
+          <div className="check-form__intro">
+            <p className="check-form__eyebrow">Start a new check</p>
+            <h2>{active.label}</h2>
+            <p>Give us one piece of content. We will keep the original context while checking the claim.</p>
+          </div>
           <div className="check-modes" role="tablist">
             {MODES.map((m) => {
               const Icon = m.icon;
@@ -199,9 +215,23 @@ const CheckPage = () => {
             />
           )}
 
-          <button className="press-btn check-submit" type="submit" disabled={!ready() || loading}>
-            {loading ? 'Checking…' : 'Check it'}
-          </button>
+          <div className="check-submit-row">
+            <span className="check-submit-note">
+              {mode === 'text' ? `${text.length.toLocaleString()} characters` : mode === 'image' ? 'PNG or JPEG · up to 8 MB' : 'We will open the source page'}
+            </span>
+            <button className="press-btn check-submit" type="submit" disabled={!ready() || loading}>
+              {loading ? 'Checking…' : 'Check it'}
+            </button>
+          </div>
+          {loading && (
+            <div className="check-form-progress" role="status" aria-live="polite">
+              <span className="check-form-progress__spinner" aria-hidden="true" />
+              <span>
+                <strong>Checking your submission</strong>
+                <small>Reading the claim and gathering independent evidence…</small>
+              </span>
+            </div>
+          )}
         </form>
 
         <aside className="check-aside">
@@ -270,6 +300,21 @@ const CheckPage = () => {
 
       {report && (
         <section className="check-result">
+          <div className="check-result__heading">
+            <div>
+              <p className="check-form__eyebrow">Completed analysis</p>
+              <h2>What the evidence says</h2>
+            </div>
+            <span className="check-result__mode">{active.label}</span>
+          </div>
+          <button
+            type="button"
+            className="press-btn press-btn-outline check-rerun"
+            onClick={rerun}
+            disabled={loading}
+          >
+            {loading ? 'Running again…' : 'Run analysis again'}
+          </button>
           <TrustReport report={report} evidenceFirst />
         </section>
       )}

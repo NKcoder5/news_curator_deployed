@@ -120,7 +120,7 @@ const ClaimDetailPage = () => {
   useEffect(() => { window.scrollTo?.(0, 0); }, [claimId]);
 
   return (
-    <div className="page page--narrow claims-page claim-detail">
+    <div className="press-sheet press-sheet-narrow claims-page claim-detail">
       <p className="claims-back"><Link to="/claims"><ArrowLeft size={16} aria-hidden="true" /> All checked claims</Link></p>
 
       {state.status === 'loading' && <p className="claims-note" role="status">Loading the claim…</p>}

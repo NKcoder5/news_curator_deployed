@@ -1,7 +1,43 @@
 /* ============================================================================
    The claims database: the searchable list and each claim's page.
-   On the design-system tokens, so it follows the theme like every page.
+   It uses the same broadsheet sheet as Check, News and Compare.
    ========================================================================= */
+
+.claims-page {
+  max-width: 1400px;
+  margin: 1rem auto 2rem;
+  padding: 1.5rem 2rem 2.25rem;
+  color: var(--ink-body);
+}
+
+.claims-page .ui-page-header {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px double var(--ink);
+}
+
+.claims-page .ui-page-header__eyebrow,
+.claims-page .press-kicker {
+  color: var(--press-red);
+  font-family: var(--label-font);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.claims-page .ui-page-header__title {
+  margin: 0.25rem 0 0.35rem;
+  font-family: var(--headline-font);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  color: var(--ink);
+}
+
+.claims-page .ui-page-header__description {
+  max-width: 700px;
+  margin: 0;
+  color: var(--ink-soft);
+}
 
 .claims-note { font-size: var(--text-sm); color: var(--color-fg-muted); }
 .claims-note-error { color: var(--verdict-fake-fg); }
@@ -34,10 +70,11 @@
   gap: var(--space-4);
   margin-bottom: var(--space-6);
   padding: var(--space-5) var(--space-6);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-1);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-top: 3px double var(--ink);
+  border-radius: 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .claims-figures { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-10); margin: 0; }
@@ -119,10 +156,10 @@
 .claims-list, .claims-side-list, .claims-variants { list-style: none; margin: 0; padding: 0; }
 
 .claims-list {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-1);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 
@@ -153,9 +190,10 @@
 
 .claims-side-section {
   padding: var(--space-4) var(--space-5);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-top: 3px double var(--ink);
+  border-radius: 0;
 }
 
 .claims-side-title { margin-bottom: var(--space-3); font-size: var(--text-base); font-weight: var(--weight-semibold); }
@@ -195,10 +233,11 @@
   display: grid;
   gap: var(--space-4);
   padding: var(--space-6) var(--space-8);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-2);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-top: 3px double var(--ink);
+  border-radius: 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .claim-title { font-size: var(--text-2xl); font-weight: var(--weight-bold); letter-spacing: -0.02em; line-height: var(--leading-snug); }
@@ -212,9 +251,9 @@
 .claim-section {
   margin-top: var(--space-5);
   padding: var(--space-5) var(--space-6);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
 }
 
 .claim-section-title { margin-bottom: var(--space-4); font-size: var(--text-md); font-weight: var(--weight-semibold); }

@@ -113,6 +113,17 @@ const within = (promise, ms, fallback) => {
     .finally(() => clearTimeout(timer));
 };
 
+const isImageBuffer = (buffer) => (
+  (buffer.length >= 8 && buffer.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) // PNG
+  || (buffer.length >= 3 && buffer.subarray(0, 3).equals(Buffer.from([255, 216, 255]))) // JPEG
+  || (buffer.length >= 6 && ['GIF87a', 'GIF89a'].includes(buffer.subarray(0, 6).toString('ascii'))) // GIF
+  || (buffer.length >= 2 && buffer.subarray(0, 2).equals(Buffer.from([66, 77]))) // BMP
+  || (buffer.length >= 12 && buffer.subarray(0, 4).toString('ascii') === 'RIFF'
+    && buffer.subarray(8, 12).toString('ascii') === 'WEBP') // WebP
+  || (buffer.length >= 4 && [0x49, 0x49, 0x2a, 0x00].every((byte, i) => buffer[i] === byte))
+  || (buffer.length >= 4 && [0x4d, 0x4d, 0x00, 0x2a].every((byte, i) => buffer[i] === byte))
+);
+
 // What each kind of message that asserts nothing checkable is told.
 const NOT_CHECKABLE = {
   question: { kind: 'question', reason: 'This asks a question but not about anything specific enough to look up. Ask about a named person, place, event or figure.' },
@@ -141,11 +152,23 @@ class ContentCheckError extends Error {
 const runContentCheck = (requestBody, hooks = {}) => runWithContext(() => checkContent(requestBody, hooks));
 
 const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user', recheckOf = null } = {}) => {
-  const { url, text, imageBase64, account, languageHint } = requestBody || {};
+  const { url, text, imageBase64, account, languageHint, claimText } = requestBody || {};
   const stage = (event) => { try { onStage?.(event); } catch (_) { /* listener faults never fail a check */ } };
 
-  if (!url && !text && !imageBase64) {
+  const suppliedInputs = [
+    ['url', url],
+    ['text', text],
+    ['imageBase64', imageBase64]
+  ].filter(([, value]) => typeof value === 'string' ? value.trim() : Boolean(value));
+
+  if (suppliedInputs.length === 0) {
     throw new ContentCheckError(400, { error: 'Send a link, some text, or a screenshot to check.' });
+  }
+  if (suppliedInputs.length > 1) {
+    throw new ContentCheckError(400, {
+      error: 'Send only one of a link, some text, or a screenshot to check.',
+      code: 'MULTIPLE_INPUTS'
+    });
   }
 
   try {
@@ -153,8 +176,14 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
     let ocrResult = null;
 
     if (imageBase64) {
-      const buffer = Buffer.from(String(imageBase64).replace(/^data:image\/\w+;base64,/, ''), 'base64');
-      if (buffer.length === 0) throw new ContentCheckError(400, { error: 'That image could not be decoded.' });
+      const encoded = String(imageBase64).replace(/^data:image\/[a-z0-9.+-]+;base64,/i, '').replace(/\s/g, '');
+      if (!encoded || !/^[a-z0-9+/]*={0,2}$/i.test(encoded) || encoded.length % 4 === 1) {
+        throw new ContentCheckError(400, { error: 'That image could not be decoded.', code: 'INVALID_IMAGE' });
+      }
+      const buffer = Buffer.from(encoded, 'base64');
+      if (buffer.length === 0 || !isImageBuffer(buffer)) {
+        throw new ContentCheckError(400, { error: 'That image could not be decoded.', code: 'INVALID_IMAGE' });
+      }
       if (buffer.length > 8 * 1024 * 1024) throw new ContentCheckError(413, { error: 'That image is too large. Send one under 8 MB.' });
       stage({ id: 'ocr', name: 'Reading the text out of the screenshot' });
 
@@ -192,6 +221,15 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
           publishedAt: article.publishedAtKnown ? article.publishedAt : null
         };
       }
+      // A feed article contains many statements, but the reader is asking
+      // whether the headline claim holds up. Keep fetching the article for
+      // source and provenance context, while making the claim under review
+      // identical to the one used by Check Anything when its headline is
+      // pasted as text.
+      if (claimText && claimText.trim()) {
+        ingested.title = claimText.trim();
+        ingested.content = claimText.trim();
+      }
     }
 
     // Before anything expensive, and before anything is claimed: can this be
@@ -211,7 +249,7 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
     const checkability = assessCheckability(ingested.content, ingested.title);
 
     // The same message, checked minutes ago, for a reader.
-    const key = trigger === 'user' ? requestKey(ingested) : null;
+    const key = trigger === 'user' && requestBody.rerun !== true ? requestKey(ingested) : null;
     if (key) {
       const recent = await recentCheck(key).catch(() => null);
       if (recent) {

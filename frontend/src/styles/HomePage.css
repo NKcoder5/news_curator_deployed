@@ -1,7 +1,7 @@
 .newspaper-container {
   max-width: 1400px;
-  margin: 2rem auto;
-  padding: 2rem;
+  margin: 0.75rem auto;
+  padding: 1.25rem;
   background-color: var(--paper-card);
   box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
   font-family: 'Times New Roman', Times, serif;
@@ -31,22 +31,22 @@
 }
 .newspaper-container .newspaper-masthead {
   text-align: center;
-  padding: 1.5rem 0;
+  padding: 0.65rem 0 0.85rem;
   border-bottom: 3px double var(--ink);
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   position: relative;
 }
 .newspaper-container .newspaper-date {
   font-style: italic;
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
+  font-size: 0.84rem;
+  margin-bottom: 0.3rem;
   color: var(--ink-soft);
 }
 .newspaper-container .newspaper-name {
   font-family: 'Times New Roman', Times, serif;
-  font-size: 4rem;
+  font-size: clamp(2.25rem, 5vw, 3.25rem);
   font-weight: 900;
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.3rem;
   line-height: 1;
   letter-spacing: -1px;
   text-transform: uppercase;
@@ -55,7 +55,7 @@
 }
 .newspaper-container .newspaper-tagline {
   font-style: italic;
-  font-size: 1.1rem;
+  font-size: 0.92rem;
   font-weight: 400;
   color: var(--ink-soft);
   letter-spacing: 1px;
@@ -64,7 +64,7 @@
   display: flex;
   align-items: center;
   padding: 0.75rem 0;
-  margin-bottom: 2rem;
+  margin-bottom: 1.1rem;
   border-bottom: 1px solid var(--rule-heavy);
   border-top: 1px solid var(--rule-heavy);
   background-color: var(--paper-aged);
@@ -115,7 +115,7 @@
 .newspaper-container .section-header {
   display: flex;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 .newspaper-container .section-divider {
   flex-grow: 1;
@@ -133,7 +133,7 @@
   background-color: var(--ink);
 }
 .newspaper-container .section-title {
-  font-size: 2rem;
+  font-size: 1.55rem;
   font-weight: 700;
   text-transform: uppercase;
   margin: 0 1.5rem;
@@ -141,7 +141,7 @@
   white-space: nowrap;
 }
 .newspaper-container .editor-note {
-  margin-bottom: 2rem;
+  margin-bottom: 1.2rem;
   padding: 1rem;
   border: 1px dashed var(--rule-heavy);
   background-color: var(--paper-aged);
@@ -173,8 +173,8 @@
 .newspaper-container .newspaper-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2rem;
-  margin-bottom: 2rem;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
   position: relative;
   z-index: 2;
 }

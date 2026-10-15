@@ -193,6 +193,20 @@ test('Check Anything refuses fields of the wrong type or length with a 400 and a
   const empty = await api.request('POST', '/api/ai/analyze-content', { headers: KEY, body: {} });
   assert.equal(empty.status, 400);
   assert.match(empty.json.error, /Send a link, some text, or a screenshot/);
+
+  const multiple = await api.request('POST', '/api/ai/analyze-content', {
+    headers: KEY,
+    body: { text: 'India won 84 medals at the Asian Games.', url: 'https://example.com/story' }
+  });
+  assert.equal(multiple.status, 400);
+  assert.equal(multiple.json.code, 'MULTIPLE_INPUTS');
+
+  const invalidImage = await api.request('POST', '/api/ai/analyze-content', {
+    headers: KEY,
+    body: { imageBase64: 'not-an-image' }
+  });
+  assert.equal(invalidImage.status, 400);
+  assert.equal(invalidImage.json.code, 'INVALID_IMAGE');
 });
 
 test('the other analysis routes check their fields too', async () => {

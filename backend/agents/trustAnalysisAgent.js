@@ -100,7 +100,13 @@ const CHANNELS = {
   premises: { name: 'Checking reference facts', summary: (r) => r.explanation },
   clickbait: { name: 'Reading how it is written', group: 'writing' },
   bias: { name: 'Reading how it is written', group: 'writing' },
-  manipulation: { name: 'Reading how it is written', group: 'writing' },
+  manipulation: {
+    name: 'Reading how it is written',
+    group: 'writing',
+    summary: (r) => (r.unread ? 'Could not be finished in time.'
+      : r.techniques?.length ? `${plural(r.techniques.length, 'persuasion trick', 'persuasion tricks')} detected.`
+      : 'No persuasion techniques detected.')
+  },
   transparency: { name: 'Reading how it is written', group: 'writing' }
 };
 
@@ -271,7 +277,7 @@ const cleanText = (content) => String(content || '').replace(/\[\+\d+\s*chars\]/
  * here to that.
  */
 const UNREAD = {
-  writing: () => ({ score: null, unread: true, explanation: 'This check could not be finished in time.', summary: 'This check could not be finished in time.' }),
+  writing: () => ({ score: null, unread: true, techniques: [], intensity: 'none', explanation: 'This check could not be finished in time.', summary: 'This check could not be finished in time.' }),
   claimExtraction: () => ({ claims: [], failed: true, unread: true }),
   verification: (claims = []) => ({
     score: 5,

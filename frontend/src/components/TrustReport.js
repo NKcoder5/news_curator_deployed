@@ -142,7 +142,8 @@ const FactorDetail = ({ factor }) => {
     }
 
     case 'manipulation': {
-      const techniques = factor.detail.techniques || [];
+      const detail = factor.detail || {};
+      const techniques = detail.techniques || [];
       if (techniques.length === 0) {
         return (
           <div className="factor-detail">
@@ -153,7 +154,7 @@ const FactorDetail = ({ factor }) => {
       return (
         <div className="factor-detail">
           <p>
-            Persuasion intensity: <strong>{factor.detail.intensity}</strong>. These are the
+            Persuasion intensity: <strong>{detail.intensity || 'moderate'}</strong>. These are the
             techniques found, in the article&apos;s own words:
           </p>
           <div className="technique-list">

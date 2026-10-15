@@ -1,4 +1,4 @@
-﻿// backend/agents/manipulationAgent.js
+// backend/agents/manipulationAgent.js
 //
 // Propaganda / persuasion-technique detection.
 //
@@ -36,6 +36,64 @@ const TECHNIQUES = {
 
 const TECHNIQUE_NAMES = Object.keys(TECHNIQUES);
 
+const TECHNIQUE_ALIASES = {
+  'fear appeal': 'appeal to fear',
+  'fear-mongering': 'appeal to fear',
+  'fear mongering': 'appeal to fear',
+  'alarmism': 'appeal to fear',
+  'scare tactics': 'appeal to fear',
+  'emotional appeal': 'loaded language',
+  'emotional manipulation': 'loaded language',
+  'loaded words': 'loaded language',
+  'name-calling': 'name calling',
+  'ad hominem': 'name calling',
+  'insult': 'name calling',
+  'labeling': 'name calling',
+  'minimization': 'minimisation',
+  'downplaying': 'minimisation',
+  'understatement': 'minimisation',
+  'bandwagon effect': 'bandwagon',
+  'appeal to popularity': 'bandwagon',
+  'false dichotomy': 'false dilemma',
+  'black and white thinking': 'false dilemma',
+  'either-or': 'false dilemma',
+  'oversimplification': 'causal oversimplification',
+  'cherry picking': 'causal oversimplification',
+  'faulty causality': 'causal oversimplification',
+  'thought-terminating cliché': 'thought-terminating cliche',
+  'cliche': 'thought-terminating cliche',
+  'slogan': 'thought-terminating cliche',
+  'unnamed source': 'unnamed sources',
+  'anonymous sources': 'unnamed sources',
+  'anonymous source': 'unnamed sources',
+  'vague attribution': 'unnamed sources',
+  'false authority': 'appeal to authority',
+  'argument from authority': 'appeal to authority',
+  'whataboutism': 'whataboutism',
+  'tu quoque': 'whataboutism',
+  'hyperbole': 'exaggeration',
+  'sensationalism': 'exaggeration',
+  'overstatement': 'exaggeration',
+  'discrediting': 'casting doubt',
+  'smear': 'casting doubt',
+  'patriotism appeal': 'flag waving',
+  'nationalism': 'flag waving'
+};
+
+const normalizeTechniqueName = (rawName) => {
+  if (!rawName || typeof rawName !== 'string') return null;
+  const cleaned = rawName.trim().toLowerCase().replace(/[-_]+/g, ' ').replace(/[éè]/g, 'e');
+  if (TECHNIQUES[cleaned]) return cleaned;
+  if (TECHNIQUE_ALIASES[cleaned]) return TECHNIQUE_ALIASES[cleaned];
+  for (const [alias, canonical] of Object.entries(TECHNIQUE_ALIASES)) {
+    if (cleaned.includes(alias) || alias.includes(cleaned)) return canonical;
+  }
+  for (const canonical of TECHNIQUE_NAMES) {
+    if (cleaned.includes(canonical) || canonical.includes(cleaned)) return canonical;
+  }
+  return null;
+};
+
 /**
  * Detect persuasion techniques in an article, with the exact text of each.
  * @param {string} title
@@ -44,7 +102,15 @@ const TECHNIQUE_NAMES = Object.keys(TECHNIQUES);
  *          score 0-10 where 10 = plain informative writing, 0 = heavily manipulative.
  */
 const detectManipulation = async (title, content, language) => {
-  const text = `${title}. ${content || ''}`.slice(0, 3000);
+  const cleanTitle = String(title || '').trim();
+  const cleanContent = String(content || '').trim();
+  let text = cleanContent;
+  if (!text) {
+    text = cleanTitle;
+  } else if (cleanTitle && !text.startsWith(cleanTitle) && !cleanTitle.startsWith(text)) {
+    text = `${cleanTitle}. ${text}`;
+  }
+  text = text.slice(0, 3000);
 
   const catalogue = TECHNIQUE_NAMES
     .map(name => `- ${name}: ${TECHNIQUES[name]}`)
@@ -81,22 +147,42 @@ Return a JSON object with these keys:
 - "summary": one sentence describing how the article addresses its reader.` + languageDirective(language);
 
   try {
-    // Budget trimmed from 1400: this was the slowest factor in the pipeline at
-    // ~39s, and the output length was what made it slow. Three well-evidenced
-    // techniques tell the reader as much as five.
-    const result = await callNimApiJson(prompt, { maxTokens: 1000, requiredKeys: ['techniques'], label: 'manipulation' });
+    // Budget trimmed: three well-evidenced techniques tell the reader as much as five,
+    // and lower token limit ensures faster responses within deadline.
+    const result = await callNimApiJson(prompt, { maxTokens: 600, requiredKeys: ['techniques'], allowArray: true, label: 'manipulation' });
 
-    const techniques = (Array.isArray(result.techniques) ? result.techniques : [])
-      .filter(t => t && typeof t === 'object' && clip(t.quote, 600) && clip(t.technique, 60))
+    let rawList = [];
+    if (Array.isArray(result)) {
+      rawList = result;
+    } else if (Array.isArray(result.techniques)) {
+      rawList = result.techniques;
+    } else if (Array.isArray(result.persuasion_techniques)) {
+      rawList = result.persuasion_techniques;
+    } else if (Array.isArray(result.items)) {
+      rawList = result.items;
+    } else if (result.techniques && typeof result.techniques === 'object') {
+      rawList = Object.entries(result.techniques).map(([k, v]) => ({
+        technique: k,
+        ...(typeof v === 'object' && v !== null ? v : { quote: v })
+      }));
+    }
+
+    const techniques = rawList
+      .filter(t => t && typeof t === 'object')
       .map(t => {
-        const name = oneOf(t.technique, TECHNIQUE_NAMES, 'loaded language');
+        const rawTech = clip(t.technique || t.name || t.type || t.technique_name || t.persuasion_technique || '', 60);
+        const rawQuote = clip(t.quote || t.example || t.text || t.sentence || t.excerpt || t.matched_text || '', 600);
+        const rawEffect = clip(t.effect || t.description || t.explanation || t.impact || t.role || '', 300);
+
+        const name = normalizeTechniqueName(rawTech) || oneOf(rawTech, TECHNIQUE_NAMES, 'loaded language');
         return {
           technique: name,
           definition: TECHNIQUES[name] || '',
-          quote: clip(t.quote, 600),
-          effect: clip(t.effect, 300)
+          quote: rawQuote,
+          effect: rawEffect
         };
       })
+      .filter(t => t.technique && t.quote)
       .slice(0, 3);
 
     const intensity = oneOf(result.intensity, ['none', 'light', 'moderate', 'heavy'], null)
@@ -108,7 +194,7 @@ Return a JSON object with these keys:
     // to how many we ask for: at "at most 5" it was 1.6, and simply keeping
     // that after cutting to 3 would have floored this factor at 5.2, making it
     // impossible for a heavily manipulative article to score badly here.
-    const score = Math.round(Math.max(0, 10 - techniques.length * 2.6) * 10) / 10;
+    const score = Math.round(Math.max(0, Math.min(10, 10 - techniques.length * 2.6)) * 10) / 10;
 
     return {
       score,

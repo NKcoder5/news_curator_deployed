@@ -182,16 +182,16 @@ const biasByRules = (title, content) => {
 // only looks for those and stays quiet about the rest.
 const TECHNIQUE_PATTERNS = [
   { technique: 'loaded language',
-    re: /\b(shocking|outrageous|disgraceful|appalling|horrific|devastating|catastrophic|shameful|disastrous)\b/i,
+    re: /\b(shocking|outrageous|disgraceful|appalling|horrific|devastating|catastrophic|shameful|disastrous|evil|corrupt|scandal|scam|insane|vicious|brutal|nightmare)\b/i,
     effect: 'Pushes the reader toward an emotional reaction before they weigh the facts.' },
   { technique: 'name calling',
-    re: /\b(thug|extremist|radical|fascist|communist|puppet|shill|apologist|traitor|clown)\b/i,
+    re: /\b(thug|extremist|radical|fascist|communist|puppet|shill|apologist|traitor|clown|scumbag|crook|monster|idiot|fool)\b/i,
     effect: 'Labels a person or group instead of addressing what they did or said.' },
   { technique: 'appeal to fear',
-    re: /\b(threatens? to destroy|could be catastrophic|before it'?s too late|on the brink|dire consequences|will devastate)\b/i,
+    re: /\b(threatens? to destroy|could be catastrophic|before it'?s too late|on the brink|dire consequences|will devastate|wake up before|danger|deadly|terrifying|panic|destruction)\b/i,
     effect: 'Argues by alarm about what happens otherwise.' },
   { technique: 'exaggeration',
-    re: /\b(unprecedented|never before in history|the worst .{0,20}ever|astronomical|infinitely)\b/i,
+    re: /\b(unprecedented|never before in history|the worst .{0,20}ever|astronomical|infinitely|massive|total collapse|absolute disaster|100%|completely destroyed)\b/i,
     effect: 'Overstates scale, making the story feel larger than the evidence supports.' },
   { technique: 'flag waving',
     re: /\b(real (americans|patriots)|our way of life|un-?american|true patriots?|for the people)\b/i,
@@ -203,7 +203,7 @@ const TECHNIQUE_PATTERNS = [
     re: /\b(it is what it is|end of story|case closed|enough said|period\.)\b/i,
     effect: 'Closes the discussion rather than engaging with it.' },
   { technique: 'unnamed sources',
-    re: /\b(experts? (say|believe|warn)|sources? (say|claim|told)|studies show|research suggests|many believe|critics say|it is (said|believed))\b/i,
+    re: /\b(experts? (say|believe|warn)|sources? (say|claim|told)|studies show|research suggests|many believe|critics say|it is (said|believed)|whistleblower|insiders? (say|claim))\b/i,
     effect: 'Borrows authority the reader cannot check.' }
 ];
 
@@ -215,7 +215,15 @@ const TECHNIQUE_PATTERNS = [
  *          score 0-10 where 10 = plain informative writing.
  */
 const manipulationByRules = (title, content) => {
-  const sentences = sentencesOf(`${title}. ${content || ''}`);
+  const cleanTitle = String(title || '').trim();
+  const cleanContent = String(content || '').trim();
+  let text = cleanContent;
+  if (!text) {
+    text = cleanTitle;
+  } else if (cleanTitle && !text.startsWith(cleanTitle) && !cleanTitle.startsWith(text)) {
+    text = `${cleanTitle}. ${text}`;
+  }
+  const sentences = sentencesOf(text);
   const techniques = [];
   const seen = new Set();
 

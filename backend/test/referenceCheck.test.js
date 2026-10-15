@@ -54,6 +54,26 @@ test('weekdays and months are not treated as subjects', () => {
   assert.ok(!ranked.includes('September'));
 });
 
+test('sentence-opening names and multi-word names are preserved', () => {
+  const namesVijay = groupNames('Vijay is the Chief Minister of Tamil Nadu.');
+  assert.ok(namesVijay.includes('Vijay'), `expected Vijay, got ${namesVijay.join(', ')}`);
+  assert.ok(namesVijay.includes('Tamil Nadu'));
+
+  const namesRahul = groupNames('Rahul Gandhi announced a new scheme.');
+  assert.ok(namesRahul.includes('Rahul Gandhi'), `expected Rahul Gandhi, got ${namesRahul.join(', ')}`);
+});
+
+test('initials with periods are kept together and do not fragment names', () => {
+  const names = groupNames('C. Joseph Vijay is the Chief Minister of Tamil Nadu.');
+  assert.ok(names.includes('C. Joseph Vijay') || names.includes('C Joseph Vijay'), `got ${names.join(', ')}`);
+});
+
+test('stripTitle removes leading prepositions so of Tamil Nadu becomes Tamil Nadu', () => {
+  const ranked = rankEntities(['Chief Minister of Tamil Nadu']);
+  assert.deepStrictEqual(ranked, ['Tamil Nadu']);
+});
+
+
 // Regression guard. A judgement that could not run must not be reported as a
 // subject that was checked and found consistent — the identical article was
 // coming back contradicted on one run and unverified on the next, purely

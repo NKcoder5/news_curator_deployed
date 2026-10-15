@@ -46,6 +46,10 @@ services:
         sync: false
       - key: GEMINI_EXTRA_KEYS
         sync: false
+      - key: GEMINI_EXTRA_KEYS2
+        sync: false
+      - key: GEMINI_EXTRA_KEYS3
+        sync: false
       - key: NIM_API_KEY
         sync: false
       # NewsAPI: the home feed, and the second place coverage is searched.

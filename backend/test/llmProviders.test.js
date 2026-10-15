@@ -128,3 +128,62 @@ test('the provider order is configuration, and an unconfigured one is skipped', 
     restore();
   }
 });
+
+test('geminiKeys wires in GEMINI_EXTRA_KEYS, GEMINI_EXTRA_KEYS2, and GEMINI_EXTRA_KEYS3 in order', () => {
+  const origKey = process.env.GEMINI_API_KEY;
+  const origExtra = process.env.GEMINI_EXTRA_KEYS;
+  const origExtra2 = process.env.GEMINI_EXTRA_KEYS2;
+  const origExtra3 = process.env.GEMINI_EXTRA_KEYS3;
+
+  process.env.GEMINI_API_KEY = 'main-key';
+  process.env.GEMINI_EXTRA_KEYS = 'extra-key-1';
+  process.env.GEMINI_EXTRA_KEYS2 = 'extra-key-2';
+  process.env.GEMINI_EXTRA_KEYS3 = 'extra-key-3';
+
+  const { providers, restore } = withStubbedAxios();
+  try {
+    const keys = providers.geminiKeys();
+    assert.deepStrictEqual(keys, ['main-key', 'extra-key-1', 'extra-key-2', 'extra-key-3']);
+
+    // splitModel maps indices correctly
+    assert.deepStrictEqual(providers.splitModel('gemini-3.1-flash-lite'), { model: 'gemini-3.1-flash-lite', key: 'main-key' });
+    assert.deepStrictEqual(providers.splitModel('gemini-3.1-flash-lite#1'), { model: 'gemini-3.1-flash-lite', key: 'extra-key-1' });
+    assert.deepStrictEqual(providers.splitModel('gemini-3.1-flash-lite#2'), { model: 'gemini-3.1-flash-lite', key: 'extra-key-2' });
+    assert.deepStrictEqual(providers.splitModel('gemini-3.1-flash-lite#3'), { model: 'gemini-3.1-flash-lite', key: 'extra-key-3' });
+
+    // gemini.models includes entries tagged with #1, #2, #3
+    const models = providers.PROVIDERS.gemini.models;
+    assert.ok(models.includes('gemini-3.1-flash-lite'));
+    assert.ok(models.includes('gemini-3.1-flash-lite#1'));
+    assert.ok(models.includes('gemini-3.1-flash-lite#2'));
+    assert.ok(models.includes('gemini-3.1-flash-lite#3'));
+  } finally {
+    if (origKey !== undefined) process.env.GEMINI_API_KEY = origKey; else delete process.env.GEMINI_API_KEY;
+    if (origExtra !== undefined) process.env.GEMINI_EXTRA_KEYS = origExtra; else delete process.env.GEMINI_EXTRA_KEYS;
+    if (origExtra2 !== undefined) process.env.GEMINI_EXTRA_KEYS2 = origExtra2; else delete process.env.GEMINI_EXTRA_KEYS2;
+    if (origExtra3 !== undefined) process.env.GEMINI_EXTRA_KEYS3 = origExtra3; else delete process.env.GEMINI_EXTRA_KEYS3;
+    restore();
+  }
+});
+
+test('extra keys remain inactive when GEMINI_API_KEY is blank or unset', () => {
+  const origKey = process.env.GEMINI_API_KEY;
+  const origExtra = process.env.GEMINI_EXTRA_KEYS;
+  const origExtra3 = process.env.GEMINI_EXTRA_KEYS3;
+
+  process.env.GEMINI_API_KEY = '';
+  process.env.GEMINI_EXTRA_KEYS = 'extra-key-1';
+  process.env.GEMINI_EXTRA_KEYS3 = 'extra-key-3';
+
+  const { providers, restore } = withStubbedAxios();
+  try {
+    assert.deepStrictEqual(providers.geminiKeys(), []);
+    assert.strictEqual(providers.PROVIDERS.gemini.isConfigured(), false);
+  } finally {
+    if (origKey !== undefined) process.env.GEMINI_API_KEY = origKey; else delete process.env.GEMINI_API_KEY;
+    if (origExtra !== undefined) process.env.GEMINI_EXTRA_KEYS = origExtra; else delete process.env.GEMINI_EXTRA_KEYS;
+    if (origExtra3 !== undefined) process.env.GEMINI_EXTRA_KEYS3 = origExtra3; else delete process.env.GEMINI_EXTRA_KEYS3;
+    restore();
+  }
+});
+

@@ -255,3 +255,26 @@ test('a desk\'s page whose own denial is contradicted is not vouched for', () =>
   }));
   assert.notStrictEqual(decision.rule, 'page-is-a-published-fact-check');
 });
+
+test('debunk headlines misclassified into supportingEvidence do not corroborate positive claims and are treated as contradiction', () => {
+  const debunkHeadline = (source, title) => ({
+    source, title, description: '', url: `https://${source.replace(/\s/g, '').toLowerCase()}.test/x`,
+    reliability: 8, publishedAt: '2026-10-07T08:00:00Z'
+  });
+  const decision = decideVerdict(ledgerFor({
+    claims: [{
+      claim: 'A video shows the Army chief dancing with a major\'s wife.',
+      verdict: 'supported',
+      supportingEvidence: [
+        debunkHeadline('NDTV', 'Video of Army chief dancing with major\'s wife is AI-generated'),
+        debunkHeadline('India Today', 'Fact Check: viral video of Army chief dancing is a deepfake'),
+        debunkHeadline('The Hindu', 'Army chief dance video morphed, says PIB')
+      ],
+      contradictingEvidence: []
+    }],
+    factCheckResult: { status: 'none', matches: [] }
+  }));
+  assert.strictEqual(decision.call, 'FAKE');
+  assert.strictEqual(decision.rule, 'contradicted-by-multiple-independent-sources');
+});
+

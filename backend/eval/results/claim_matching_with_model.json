@@ -1,5 +1,5 @@
 {
-  "ranAt": "2026-10-13T23:00:25.299Z",
+  "ranAt": "2026-10-14T07:03:02.701Z",
   "suite": "claim_matching",
   "summary": {
     "pairs": 34,
@@ -11,8 +11,8 @@
     "variantRecall": "8/8",
     "differentKeptApart": "15/15",
     "decoysKeptApart": "0/0",
-    "ambiguous": 5,
-    "modelConsulted": 5
+    "ambiguous": 13,
+    "modelConsulted": 13
   },
   "rows": [
     {
@@ -248,8 +248,8 @@
       "got": "different",
       "differences": [],
       "score": 0.6,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "a": "Virat Kohli announced his retirement from all forms of cricket.",
@@ -268,8 +268,8 @@
       "got": "different",
       "differences": [],
       "score": 0.22,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "a": "Elon Musk bought Reliance Jio.",
@@ -278,8 +278,8 @@
       "got": "different",
       "differences": [],
       "score": 0.64,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "a": "Chennai is the capital of Tamil Nadu.",
@@ -288,8 +288,8 @@
       "got": "different",
       "differences": [],
       "score": 0.55,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "a": "India won the Cricket World Cup in 2011.",
@@ -297,9 +297,9 @@
       "label": "different",
       "got": "different",
       "differences": [],
-      "score": 0.21,
-      "ambiguous": false,
-      "askedModel": false
+      "score": 0.2,
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "a": "Narendra Modi visited Chennai on 11 October 2026.",
@@ -328,8 +328,8 @@
       "got": "different",
       "differences": [],
       "score": 0.15,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "a": "Elon Musk bought Twitter.",
@@ -338,8 +338,8 @@
       "got": "different",
       "differences": [],
       "score": 0.64,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "a": "Harmanpreet Kaur resigned as India captain.",
@@ -358,8 +358,8 @@
       "got": "different",
       "differences": [],
       "score": 0.6,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "a": "Reliance Jio was taken over by Elon Musk.",

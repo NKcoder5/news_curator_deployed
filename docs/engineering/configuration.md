@@ -56,7 +56,7 @@ are tried in the order set by `data/taskRouting.json` (measured per task), or by
 | Variable | Default | What it does | Without it |
 |---|---|---|---|
 | `GEMINI_API_KEY` | none | Switches Gemini on. The gateway rotates across six Gemini models, each with its own free-tier daily quota, and skips a model whose quota is spent. | Gemini is left out of the chain. |
-| `GEMINI_EXTRA_KEYS` | none | More Gemini keys, comma-separated, from other Google Cloud projects. Each adds a full day of quota per model. Only used when `GEMINI_API_KEY` is also set. | One key's quota only. |
+| `GEMINI_EXTRA_KEYS` | none | More Gemini keys, comma-separated or across numbered variables (`GEMINI_EXTRA_KEYS2`, `GEMINI_EXTRA_KEYS3`, etc.), from other Google Cloud projects. Each adds a full day of quota per model. Only used when `GEMINI_API_KEY` is also set. | One key's quota only. |
 | `GEMINI_MODEL_NAME` | `gemini-3.1-flash-lite` | Replaces the first model in the Gemini rotation. | Default first model. |
 | `NIM_API_KEY` | none | Switches NVIDIA NIM on. | NIM is left out of the chain. |
 | `NIM_MODEL_NAME` | `nvidia/nemotron-3-super-120b-a12b` | Replaces the first model in the NIM rotation. | Default first model. |

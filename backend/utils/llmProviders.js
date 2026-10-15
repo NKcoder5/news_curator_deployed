@@ -131,17 +131,41 @@ const GEMINI_MODELS = [
   'gemini-flash-latest'
 ];
 
-// Free-tier quotas are per Google Cloud project, so a second key from another
-// project — each team member can make one in a minute — adds a full day's
-// quota for every model. GEMINI_EXTRA_KEYS takes more keys, comma-separated,
-// beside GEMINI_API_KEY. Each key's models appear to the gateway
+// Free-tier quotas are per Google Cloud project, so additional keys from other
+// projects — each team member can make one in a minute — add a full day's
+// quota for every model. GEMINI_EXTRA_KEYS, GEMINI_EXTRA_KEYS2, GEMINI_EXTRA_KEYS3
+// (and any comma-separated keys or numbered GEMINI_EXTRA_KEYS* variables) take
+// more keys beside GEMINI_API_KEY. Each key's models appear to the gateway
 // as their own entries ("gemini-3.5-flash-lite#1" is that model on the second
-// key), so a spent quota on one key moves the call to the next key rather
-// than to a slower provider.
+// key, "#2" on the third, "#3" on the fourth), so a spent quota on one key moves
+// the call to the next key rather than to a slower provider.
 // The main key switches Gemini on or off; extra keys only add to it, so a test
 // that blanks GEMINI_API_KEY still runs without the hosted model.
+const collectExtraKeys = () => {
+  const extraVarNames = new Set([
+    'GEMINI_EXTRA_KEYS',
+    'GEMINI_EXTRA_KEYS2',
+    'GEMINI_EXTRA_KEYS3',
+    ...Object.keys(process.env).filter(k => /^GEMINI_EXTRA_KEYS?(\d*)$/i.test(k))
+  ]);
+
+  const sortedNames = Array.from(extraVarNames).sort((a, b) => {
+    const ma = a.match(/\d+$/);
+    const mb = b.match(/\d+$/);
+    const na = ma ? parseInt(ma[0], 10) : 1;
+    const nb = mb ? parseInt(mb[0], 10) : 1;
+    if (na !== nb) return na - nb;
+    return a.localeCompare(b);
+  });
+
+  return sortedNames
+    .flatMap(name => String(process.env[name] || '').split(','))
+    .map(k => String(k).trim())
+    .filter(Boolean);
+};
+
 const geminiKeys = () => (process.env.GEMINI_API_KEY
-  ? [process.env.GEMINI_API_KEY, ...String(process.env.GEMINI_EXTRA_KEYS || '').split(',')]
+  ? [process.env.GEMINI_API_KEY.trim(), ...collectExtraKeys()]
   : []).map(k => String(k).trim()).filter(Boolean);
 const splitModel = (entry) => {
   const [model, index] = String(entry).split('#');
@@ -422,5 +446,7 @@ module.exports = {
   isOverloaded,
   isRateLimited,
   isAuthFailure,
-  isConnectionFailure
+  isConnectionFailure,
+  geminiKeys,
+  splitModel
 };

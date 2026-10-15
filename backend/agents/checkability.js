@@ -75,9 +75,11 @@ const findAnchors = (text) => {
       if (!clean) return;
       if (/\d/.test(clean)) { numbers.add(clean.toLowerCase()); return; }
       // The first word of a sentence is capitalised by grammar, not by being a
-      // name, so it is not counted as an anchor on its own.
-      if (index === 0) return;
-      if (/^\p{Lu}/u.test(clean) && clean.length > 2 && !STOPWORDS.has(clean.toLowerCase())) {
+      // name, so sentence openers and common stopwords are skipped. Genuine proper
+      // nouns ("India", "Modi", "Vijay") are kept.
+      const lower = clean.toLowerCase();
+      if (index === 0 && (SENTENCE_OPENERS.has(lower) || STOPWORDS.has(lower))) return;
+      if (/^\p{Lu}/u.test(clean) && clean.length > 2 && !STOPWORDS.has(lower)) {
         names.add(clean);
       }
     });
@@ -210,4 +212,4 @@ const assessCheckability = (text, title = '') => {
   return result('claim', null, []);
 };
 
-module.exports = { assessCheckability, findAnchors, MIN_CHARACTERS, MIN_WORDS };
+module.exports = { assessCheckability, findAnchors, MIN_CHARACTERS, MIN_WORDS, STOPWORDS, SENTENCE_OPENERS };

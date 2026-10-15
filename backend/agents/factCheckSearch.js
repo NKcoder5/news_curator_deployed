@@ -240,6 +240,8 @@ Professional fact-checkers have published the reviews below. For EACH review, de
 
 Rules:
 - "same_claim" is true only when the review checks the same assertion: the same people or organisations, the same event or rumour, the same figure. Sharing a topic is NOT enough. A review of a "Go back Modi" placard is not about "Modi visited Tamil Nadu"; a review of a 2022 medal count is not about a 2026 medal count.
+- Media vs factual assertion: A review checking whether a specific video, photo, image, clip, placard or audio is genuine, old, or manipulated (e.g. "The video shows protests after X took oath", "Photo shows X meeting Y") is NOT checking a general statement of fact like "X is the Chief Minister of Y" or "X visited Y". If the user's text does not assert anything about that video, photo or media item, it is NOT the same claim (mark "same_claim": false, "user_text_is": "unclear").
+- Subordinate clauses and premises: A fact-checker rating a claim like "Video shows protests after X took oath as CM" as FALSE is debunking the video of protests, NOT the premise that X is CM. Never treat a debunk of an attached video or incident as disproving an office holder or background fact.
 - The same rumour recirculating later is the same claim. A different occurrence of a similar event is not.
 - "user_text_is" is what the review's finding makes of the USER'S text: "false" when the review shows the user's assertion is false or fabricated, "true" when it shows it is true, "misleading" when the review says it is misleading, out of context, or an old video or photo passed off as new, "unclear" when the review does not settle it. If the user's text says the opposite of the claim the review checked, reverse the finding: a review rating "the video is genuine" as False makes "the video is fake" true.
 - Use only what is written below. Do not use your own knowledge of the facts.
@@ -281,6 +283,27 @@ const reversalHolds = (finding, rated, userText, reviewedText) => {
   const opposes = (rated === 'false' && finding === 'true') || (rated === 'true' && finding === 'false');
   if (!opposes || !reviewedText) return true;
   return deniesIt(userText) !== deniesIt(reviewedText);
+};
+
+// Words denoting specific media objects (videos, photos, clips, placards) that often form the subject of viral debunkings:
+const MEDIA_WORDS = /\b(?:video|videos|photo|photos|image|images|picture|pictures|pic|pics|clip|clips|cctv|footage|placard|placards|poster|posters|banner|banners|hoarding|audio|recording|recordings|deepfake|deepfakes|animation|animations|morphed|doctored)\b/i;
+
+const isMediaClaim = (text) => MEDIA_WORDS.test(String(text || ''));
+
+/**
+ * Does this fact-check review actually check the same assertion?
+ * A review specifically debunking a media artifact (e.g. an old video or photo)
+ * cannot match a purely factual statement that mentions no media.
+ */
+const mediaScopeCompatible = (userText, reviewedClaim, reviewTitle) => {
+  const userHasMedia = isMediaClaim(userText);
+  const reviewHasMedia = isMediaClaim(reviewedClaim) || isMediaClaim(reviewTitle);
+  // If the review is about a video/photo/clip, but the user text makes no mention
+  // of any media artifact, the review is debunking the media, not the user's text.
+  if (reviewHasMedia && !userHasMedia) {
+    return false;
+  }
+  return true;
 };
 
 /**
@@ -352,6 +375,10 @@ const checkFactCheckers = async (claims = [], { title = '', text = '' } = {}) =>
     // reader can see both: they differ, legitimately, when the user's text
     // negates the claim the desk checked.
     const rated = ratingClass(candidate.rating);
+    if (!mediaScopeCompatible(claimText, candidate.claimReviewed, candidate.title)) {
+      console.warn(`Fact-check match: review about a media artifact (${candidate.claimReviewed || candidate.title}) does not match plain text claim ("${claimText}"); set aside.`);
+      continue;
+    }
     if (!reversalHolds(finding, rated, claimText, candidate.claimReviewed || candidate.title)) {
       console.warn(`Fact-check match: a "${finding}" reading of a review rated ${rated} was set aside; the two sentences do not point opposite ways.`);
       continue;
@@ -409,4 +436,13 @@ const checkFactCheckers = async (claims = [], { title = '', text = '' } = {}) =>
   };
 };
 
-module.exports = { checkFactCheckers, ratingClass, parseExplorer, queriesFor, shortQuery, reversalHolds };
+module.exports = {
+  checkFactCheckers,
+  ratingClass,
+  parseExplorer,
+  queriesFor,
+  shortQuery,
+  reversalHolds,
+  mediaScopeCompatible,
+  isMediaClaim
+};

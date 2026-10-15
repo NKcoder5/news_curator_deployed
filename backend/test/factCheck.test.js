@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { ratingClass, parseExplorer, queriesFor, shortQuery } = require('../agents/factCheckSearch');
+const { ratingClass, parseExplorer, queriesFor, shortQuery, mediaScopeCompatible, isMediaClaim } = require('../agents/factCheckSearch');
 const { buildEvidenceLedger, decideVerdict } = require('../agents/verdictEngine');
 const { weighFactCheck } = require('../agents/weightOfEvidence');
 
@@ -143,3 +143,80 @@ test('outlets reporting the debunk do not count as reporting that overtakes the 
   assert.strictEqual(decision.rule, 'rated-false-by-fact-checkers');
   assert.strictEqual(decision.call, 'FAKE');
 });
+
+test('mediaScopeCompatible prevents media debunks from falsely matching plain factual claims', () => {
+  // A review debunking a viral video does NOT match a plain factual assertion about who holds an office
+  assert.strictEqual(
+    mediaScopeCompatible(
+      'C. Joseph Vijay is the Chief Minister of Tamil Nadu.',
+      'The video shows anti-Hindi protests intensifying in Tamil Nadu after C. Joseph Vijay took the oath as Chief Minister on 10 May 2026.',
+      'An old video is being shared as showing anti-Hindi protests intensifying in Tamil Nadu after C. Joseph Vijay took oath as Chief Minister'
+    ),
+    false,
+    'a video debunk must not match a claim that mentions no media'
+  );
+
+  // A review debunking a video DOES match when the user explicitly claims something about a video
+  assert.strictEqual(
+    mediaScopeCompatible(
+      'A video shows the Army chief dancing with a major\'s wife.',
+      'Video shows the Army chief dancing with a major\'s wife.',
+      'Fact Check: viral video of Army chief dancing is a deepfake'
+    ),
+    true,
+    'a video debunk matches a claim that asserts a video exists'
+  );
+
+  // Non-media factual debunk matches a non-media claim
+  assert.strictEqual(
+    mediaScopeCompatible(
+      'RBI has banned 500 rupee notes.',
+      'The Centre has banned 500 rupee notes.',
+      'Fact Check: RBI has not withdrawn 500 rupee notes'
+    ),
+    true,
+    'a direct factual debunk matches a direct factual claim'
+  );
+});
+
+test('factCheckOvertaken requires at least 3 independent outlets, not 2', () => {
+  const supportHeadline = (source, title) => ({
+    source, title, description: 'Reporting fact', url: `https://${source.replace(/\s/g, '').toLowerCase()}.test/x`,
+    reliability: 8, publishedAt: '2026-10-10T08:00:00Z'
+  });
+
+  // 2 independent supporting outlets: does NOT overtake the fact-checker ruling (remains FAKE)
+  const decisionWith2 = decideVerdict(ledgerFor({
+    claims: [{
+      claim: 'C. Joseph Vijay is the Chief Minister of Tamil Nadu.',
+      verdict: 'supported',
+      supportingEvidence: [
+        supportHeadline('The Hindu', 'Vijay attends event as party president'),
+        supportHeadline('NDTV', 'Vijay political rally in Tamil Nadu')
+      ],
+      contradictingEvidence: []
+    }],
+    factCheckResult: { status: 'debunked', matches: [review('FACTLY')] }
+  }));
+  assert.strictEqual(decisionWith2.rule, 'rated-false-by-fact-checkers');
+  assert.strictEqual(decisionWith2.call, 'FAKE');
+
+  // 3 independent supporting outlets: DOES overtake the fact-checker ruling (becomes unverified/disagreement)
+  const decisionWith3 = decideVerdict(ledgerFor({
+    claims: [{
+      claim: 'C. Joseph Vijay is the Chief Minister of Tamil Nadu.',
+      verdict: 'supported',
+      supportingEvidence: [
+        supportHeadline('The Hindu', 'Vijay sworn in as Chief Minister of Tamil Nadu'),
+        supportHeadline('NDTV', 'Vijay takes oath as CM of Tamil Nadu'),
+        supportHeadline('Indian Express', 'Vijay appointed Chief Minister of Tamil Nadu')
+      ],
+      contradictingEvidence: []
+    }],
+    factCheckResult: { status: 'debunked', matches: [review('FACTLY')] }
+  }));
+  assert.strictEqual(decisionWith3.rule, 'fact-checkers-and-reporting-disagree');
+  assert.strictEqual(decisionWith3.verdict, 'unverified');
+});
+
+

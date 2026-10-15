@@ -65,6 +65,7 @@
     { "id": "afp-group", "name": "Agence France-Presse", "outlets": ["Agence France-Presse"], "isAgency": true },
     { "id": "pti-group", "name": "Press Trust of India", "outlets": ["PTI"], "isAgency": true },
     { "id": "ani-group", "name": "Asian News International", "outlets": ["ANI"], "isAgency": true },
+    { "id": "ians-group", "name": "Indo-Asian News Service", "outlets": ["IANS"], "isAgency": true },
 
     { "id": "russian-state", "name": "Russian state media", "outlets": ["RT", "Sputnik", "TASS"], "stateAffiliation": "Russia", "note": "One state information apparatus; these outlets do not corroborate each other." },
     { "id": "chinese-state", "name": "Chinese state media", "outlets": ["Xinhua", "CGTN", "Global Times", "People's Daily"], "stateAffiliation": "China", "note": "As above." },

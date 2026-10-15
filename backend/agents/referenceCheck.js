@@ -27,7 +27,7 @@
 // flatly contradicts.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { fetchWikipediaContent } = require('../utils/wikipedia');
-const { findAnchors } = require('./checkability');
+const { findAnchors, STOPWORDS, SENTENCE_OPENERS } = require('./checkability');
 const { judgePairs } = require('../services/localNli');
 
 // A contradiction found by a language model stands only if our own pair model
@@ -71,6 +71,8 @@ const MAX_ENTITIES = 2;
 // lookup. Stripped, the same phrase retrieves the person.
 const TITLES = /^(prime |chief |deputy |vice |former |ex[- ])?(minister|president|secretary|justice|governor|mayor|commissioner|director|chairman|chairperson|professor|doctor|dr|mr|mrs|ms|sir|lord|general|colonel|captain|inspector|officer|spokesperson|leader)\b/i;
 
+const PREPOSITIONS = /^(of|in|for|at|to|from|the|a|an)\s+/i;
+
 const stripTitle = (name) => {
   let stripped = String(name).trim();
   // Applied repeatedly: "Prime Minister Rahul Gandhi" sheds "Prime Minister"
@@ -79,6 +81,9 @@ const stripTitle = (name) => {
     const next = stripped.replace(TITLES, '').trim();
     if (next === stripped) break;
     stripped = next;
+  }
+  while (PREPOSITIONS.test(stripped)) {
+    stripped = stripped.replace(PREPOSITIONS, '').trim();
   }
   return stripped;
 };
@@ -127,15 +132,39 @@ const rankEntities = (names, title = '') => {
  * up as a person rather than as "Rahul" and "Gandhi" separately.
  */
 const groupNames = (text) => {
+  // Initials and title abbreviations like "C. Joseph Vijay" or "Dr. Ambedkar"
+  // carry periods that must not split sentences or fragment names.
+  const protectedText = String(text || '')
+    .replace(/\b([A-Z])\.\s+/g, '$1\u2024 ')
+    .replace(/\b(Dr|Mr|Mrs|Ms|Prof|Gov|Gen|Col|Capt|Lt|Maj|Sgt|St)\.\s+/gi, '$1\u2024 ');
+
   const grouped = [];
-  for (const sentence of String(text || '').split(/(?<=[.!?])\s+/)) {
-    const words = sentence.trim().split(/\s+/);
+  for (const sentence of protectedText.split(/(?<=[.!?])\s+/)) {
+    const words = sentence.trim().split(/\s+/).filter(Boolean);
     let run = [];
     words.forEach((word, index) => {
-      const clean = word.replace(/[^\p{L}\p{N}\p{M}]/gu, '');
-      const isName = clean.length > 2 && /^\p{Lu}/u.test(clean) && index > 0;
+      const restored = word.replace(/\u2024/g, '.');
+      const clean = restored.replace(/[^\p{L}\p{N}\p{M}.]/gu, '');
+      const cleanNoDot = clean.replace(/\./g, '');
+      const isInitial = /^[A-Z]\.?$/.test(clean);
+      const isCap = /^\p{Lu}/u.test(clean);
+
+      let isName = false;
+      if (isInitial && cleanNoDot.length === 1) {
+        isName = true;
+      } else if (cleanNoDot.length > 2 && isCap) {
+        if (index > 0) {
+          isName = true;
+        } else {
+          const lower = cleanNoDot.toLowerCase();
+          if (!STOPWORDS.has(lower) && !SENTENCE_OPENERS.has(lower)) {
+            isName = true;
+          }
+        }
+      }
+
       if (isName) {
-        run.push(clean);
+        run.push(clean.replace(/\.+$/, ''));
       } else {
         if (run.length) grouped.push(run.join(' '));
         run = [];
@@ -145,6 +174,7 @@ const groupNames = (text) => {
   }
   return [...new Set(grouped)];
 };
+
 
 /**
  * Does a reference work contradict what this article says about the entities

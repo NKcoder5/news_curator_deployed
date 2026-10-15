@@ -202,8 +202,19 @@ const buildEvidenceLedger = ({
       ? (claim.contradictingEvidence || []).filter(recentEnough)
       : (claim.contradictingEvidence || []);
     claim = { ...claim, contradictingEvidence: contradicting };
-    const support = analyseIndependence(claim.supportingEvidence || []);
-    const contradiction = analyseIndependence(claim.contradictingEvidence || []);
+    const isDebunk = (e) => DEBUNK_WORDS.test(`${e.title || ''} ${e.reported || ''}`);
+    const claimIsDenial = denies(claim.claim);
+    let supportingEvidence = claim.supportingEvidence || [];
+    let contradictingEvidence = contradicting;
+    if (!claimIsDenial) {
+      const misclassifiedDebunks = supportingEvidence.filter(isDebunk);
+      if (misclassifiedDebunks.length > 0) {
+        supportingEvidence = supportingEvidence.filter(e => !isDebunk(e));
+        contradictingEvidence = [...contradictingEvidence, ...misclassifiedDebunks];
+      }
+    }
+    const support = analyseIndependence(supportingEvidence);
+    const contradiction = analyseIndependence(contradictingEvidence);
     // Evidence for and against one claim is weighed against itself. One outlet
     // read as disagreeing used to outrank four confirming the same claim,
     // because contradiction is checked first. The side with more independent
@@ -221,7 +232,7 @@ const buildEvidenceLedger = ({
     // confirmed by two old ones made an even split and cancelled both — more
     // evidence against turned FAKE into CANNOT VERIFY (found by the
     // monotonicity sweep in test/verdictMonotonicity.test.js).
-    const supportDates = (claim.supportingEvidence || [])
+    const supportDates = supportingEvidence
       .map(e => Date.parse(e.publishedAt)).filter(Number.isFinite);
     const newestSupport = supportDates.length ? Math.max(...supportDates) : null;
     const stale = claim.time === 'now' && support.independentCount > 0 && newestSupport !== null
@@ -239,8 +250,8 @@ const buildEvidenceLedger = ({
       independentContradiction: againstCount > forCount ? againstCount : 0,
       // What the outlets actually say, in their own words ("85 medals"), so the
       // verdict can quote the conflicting fact instead of only counting it.
-      reportedAgainst: [...new Set((claim.contradictingEvidence || []).map(e => String(e.reported || '').trim()).filter(Boolean))],
-      reportedFor: [...new Set((claim.supportingEvidence || []).map(e => String(e.reported || '').trim()).filter(Boolean))],
+      reportedAgainst: [...new Set(contradictingEvidence.map(e => String(e.reported || '').trim()).filter(Boolean))],
+      reportedFor: [...new Set(supportingEvidence.map(e => String(e.reported || '').trim()).filter(Boolean))],
       support,
       contradiction,
       highImpact: looksHighImpact(claim.claim)
@@ -496,10 +507,16 @@ const decideVerdict = (ledger) => {
   // the reader typed, is the strongest evidence this system has access to.
   //
   // One exception: a ruling can be overtaken by events. A rumour rated false in
-  // March can come true in June, and two or more independent outlets now
+  // March can come true in June, and three or more independent outlets now
   // reporting it as fact is a disagreement the reader should see rather than
   // one this code should settle by picking a side.
-  const factCheckOvertaken = ledger.supportBeyondDebunks >= 2
+  //
+  // Three, not two: a stance judgement on news retrieved for a popular topic
+  // can produce one or two false positives — "Vijay launches TVK party" read
+  // as confirming "Vijay is the Chief Minister" is a real example. Two
+  // independent outlets is within the noise; three is the minimum before
+  // setting a professional desk's ruling aside.
+  const factCheckOvertaken = ledger.supportBeyondDebunks >= 3
     && ledger.supportBeyondDebunks > ledger.independentContradiction;
   if (['debunked', 'misleading'].includes(ledger.factCheckStatus) && ledger.factChecks.length > 0) {
     if (factCheckOvertaken) {

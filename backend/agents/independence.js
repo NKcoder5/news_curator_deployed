@@ -171,7 +171,15 @@ const analyseIndependence = (items = []) => {
 
   const uf = makeUnionFind();
   const mergeNotes = [];
-  for (const entry of annotated) uf.find(entry.clusterKey);
+  // Wire syndication and the wire agency itself belong to the same source.
+  for (const entry of annotated) {
+    if (entry.wire) {
+      if (annotated.some(other => other.clusterKey === entry.wire.groupId)) {
+        uf.union(entry.clusterKey, entry.wire.groupId);
+        mergeNotes.push(`${entry.item.source} was syndicated from ${entry.wire.agency}.`);
+      }
+    }
+  }
 
   // Corporate siblings — outlets that present as separate mastheads under one
   // proprietor.

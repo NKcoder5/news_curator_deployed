@@ -85,3 +85,13 @@ test('empty evidence yields zero independent sources', () => {
   assert.strictEqual(result.independentCount, 0);
   assert.strictEqual(result.hasHighQualitySource, false);
 });
+
+test('wire agency and outlets syndicating it collapse into one source', () => {
+  const result = analyseIndependence([
+    { source: 'PTI', title: 'Centre announces new healthcare scheme', reliability: 8 },
+    { source: 'The Hindu', title: 'New healthcare scheme announced (PTI)', reliability: 8 }
+  ]);
+  assert.strictEqual(result.independentCount, 1);
+  assert.match(result.mergeNotes.join(' '), /syndicated from PTI/);
+});
+

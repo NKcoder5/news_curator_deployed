@@ -9,6 +9,8 @@ test('platform links are recognised', () => {
   assert.strictEqual(identifyPlatform('https://www.youtube.com/watch?v=abc')?.id, 'youtube');
   assert.strictEqual(identifyPlatform('https://youtu.be/abc')?.id, 'youtube');
   assert.strictEqual(identifyPlatform('https://www.instagram.com/p/xyz/')?.id, 'instagram');
+  assert.strictEqual(identifyPlatform('https://l.instagram.com/?u=https%3A%2F%2Fwww.instagram.com%2Freel%2Fxyz%2F')?.id, 'instagram');
+  assert.strictEqual(identifyPlatform('https://m.facebook.com/story.php?id=1')?.id, 'facebook');
   assert.strictEqual(identifyPlatform('https://x.com/user/status/1')?.id, 'x');
   assert.strictEqual(identifyPlatform('https://www.bbc.co.uk/news/123'), null, 'a news site is not a platform');
   assert.strictEqual(identifyPlatform('not a url'), null);
@@ -18,6 +20,9 @@ test('video ids are read from every YouTube link shape', () => {
   assert.strictEqual(extractVideoId('https://www.youtube.com/watch?v=dQw4w9WgXcQ'), 'dQw4w9WgXcQ');
   assert.strictEqual(extractVideoId('https://youtu.be/dQw4w9WgXcQ'), 'dQw4w9WgXcQ');
   assert.strictEqual(extractVideoId('https://www.youtube.com/shorts/abc123'), 'abc123');
+  assert.strictEqual(extractVideoId('https://www.youtube.com/embed/abc123?start=4'), 'abc123');
+  assert.strictEqual(extractVideoId('https://www.youtube.com/live/abc123'), 'abc123');
+  assert.strictEqual(extractVideoId('https://www.youtube.com/watch?v=bad!'), null);
   assert.strictEqual(extractVideoId('https://www.youtube.com/'), null);
 });
 

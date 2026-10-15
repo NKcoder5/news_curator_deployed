@@ -196,6 +196,12 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
         });
       }
       ingested = await ingestSocialContent({ imageText: ocrResult.text, account });
+      if (ocrResult.confidence < 55) {
+        ingested.ingestNotes = [
+          ...(ingested.ingestNotes || []),
+          `OCR confidence was ${ocrResult.confidence}%. Check the transcription below before relying on the verdict.`
+        ];
+      }
     } else if (!url) {
       ingested = await ingestSocialContent({ text, account });
     } else {

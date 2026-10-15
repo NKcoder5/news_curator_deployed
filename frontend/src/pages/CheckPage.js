@@ -29,6 +29,47 @@ const MODES = [
 ];
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+const OCR_MAX_DIMENSION = 2800;
+
+// Small newspaper text benefits more from extra pixels and contrast than from
+// sending the original thumbnail straight to OCR. Keep the original preview,
+// but submit a normalized lossless image when the browser can process it.
+const prepareImageForOcr = (dataUrl) => new Promise((resolve, reject) => {
+  const image = new Image();
+  image.onload = () => {
+    const scale = Math.min(3, Math.max(1, OCR_MAX_DIMENSION / Math.max(image.naturalWidth, image.naturalHeight)));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    if (!context) {
+      resolve(dataUrl);
+      return;
+    }
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = 'high';
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < pixels.data.length; i += 4) {
+      const gray = (0.299 * pixels.data[i]) + (0.587 * pixels.data[i + 1]) + (0.114 * pixels.data[i + 2]);
+      const contrast = Math.max(0, Math.min(255, ((gray - 128) * 1.18) + 128));
+      pixels.data[i] = contrast;
+      pixels.data[i + 1] = contrast;
+      pixels.data[i + 2] = contrast;
+    }
+    context.putImageData(pixels, 0, 0);
+    const png = canvas.toDataURL('image/png');
+    if ((png.length * 0.75) <= MAX_IMAGE_BYTES) {
+      resolve(png);
+      return;
+    }
+    const compressed = canvas.toDataURL('image/jpeg', 0.9);
+    resolve((compressed.length * 0.75) <= MAX_IMAGE_BYTES ? compressed : dataUrl);
+  };
+  image.onerror = () => reject(new Error('That image could not be prepared for reading.'));
+  image.src = dataUrl;
+});
 
 const CheckPage = () => {
   // A video or social link pasted into the feed's link box is redirected here,
@@ -42,6 +83,9 @@ const CheckPage = () => {
   const [url, setUrl] = useState(handedOver || '');
   const [account, setAccount] = useState('');
   const [imageName, setImageName] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
+  const [imageReading, setImageReading] = useState(false);
+  const [imageEnhanced, setImageEnhanced] = useState(false);
   const imageData = useRef(null);
 
   const [loading, setLoading] = useState(false);
@@ -65,18 +109,53 @@ const CheckPage = () => {
     if (!file) return;
     reset();
 
+    if (!file.type.startsWith('image/')) {
+      setError('Choose a PNG, JPEG, or another supported image file.');
+      event.target.value = '';
+      return;
+    }
     if (file.size > MAX_IMAGE_BYTES) {
       setError('That image is larger than 8 MB. Try a screenshot rather than a photo.');
+      event.target.value = '';
       return;
     }
 
+    setImageReading(true);
     const reader = new FileReader();
-    reader.onload = () => {
-      imageData.current = reader.result;
+    reader.onload = async () => {
+      try {
+        const prepared = await prepareImageForOcr(reader.result);
+        imageData.current = prepared;
+        setImagePreview(reader.result);
+        setImageEnhanced(prepared !== reader.result);
+      } catch (_) {
+        imageData.current = reader.result;
+        setImagePreview(reader.result);
+        setImageEnhanced(false);
+      }
       setImageName(file.name);
+      setImageReading(false);
     };
-    reader.onerror = () => setError('That file could not be read. Try saving it again as a PNG or JPEG.');
+    reader.onerror = () => {
+      imageData.current = null;
+      setImagePreview('');
+      setImageName('');
+      setImageEnhanced(false);
+      setImageReading(false);
+      setError('That file could not be read. Try saving it again as a PNG or JPEG.');
+    };
     reader.readAsDataURL(file);
+  };
+
+  const clearImage = () => {
+    imageData.current = null;
+    setImagePreview('');
+    setImageName('');
+    setImageEnhanced(false);
+    setImageReading(false);
+    reset();
+    const input = document.getElementById('check-image');
+    if (input) input.value = '';
   };
 
   const payload = () => {
@@ -87,7 +166,7 @@ const CheckPage = () => {
 
   const ready = () => {
     if (mode === 'link') return url.trim().length > 0;
-    if (mode === 'image') return Boolean(imageData.current);
+    if (mode === 'image') return Boolean(imageData.current) && !imageReading;
     return text.trim().length > 0;
   };
 
@@ -197,11 +276,21 @@ const CheckPage = () => {
           )}
 
           {mode === 'image' && (
-            <div className="check-upload">
+            <div className={`check-upload ${imagePreview ? 'has-image' : ''}`}>
               <input id="check-image" type="file" accept="image/*" onChange={handleImage} />
               <label htmlFor="check-image" className="check-upload-label">
-                {imageName || 'Choose a screenshot…'}
+                {imageReading ? 'Reading image…' : imageName || 'Choose a screenshot…'}
               </label>
+              {imagePreview && (
+                <div className="check-image-preview">
+                  <img src={imagePreview} alt="Selected screenshot preview" />
+                  <div>
+                    <strong>{imageName}</strong>
+                    <small>{imageEnhanced ? 'Enhanced for small text · ready for OCR' : 'Ready for OCR · under 8 MB'}</small>
+                    <button type="button" onClick={clearImage}>Remove image</button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

@@ -95,7 +95,7 @@
 /* Takes the slack so both columns finish level, whatever the aside holds. */
 .check-page .check-textarea {
   flex: 1;
-  min-height: 12rem;
+  min-height: 8rem;
   line-height: 1.6;
   resize: vertical;
 }

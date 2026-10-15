@@ -161,7 +161,7 @@ const CheckPage = () => {
           {mode === 'text' && (
             <textarea
               className="press-input check-textarea"
-              rows={9}
+              rows={6}
               value={text}
               onChange={(e) => { setText(e.target.value); reset(); }}
               placeholder="Paste the message or post here…"
@@ -268,7 +268,7 @@ const CheckPage = () => {
 
       {report && (
         <section className="check-result">
-          <TrustReport report={report} />
+          <TrustReport report={report} evidenceFirst />
         </section>
       )}
     </div>

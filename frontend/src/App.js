@@ -8,9 +8,12 @@ import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import ComparePage from './pages/ComparePage';
 import CheckPage from './pages/CheckPage';
+import ClaimsPage from './pages/ClaimsPage';
+import ClaimDetailPage from './pages/ClaimDetailPage';
 import Navbar from './components/Navbar';
 import api from './services/api';
 import { shouldClearSession } from './services/session';
+import './styles/tokens.css';
 import './styles/global.css';
 import './styles/newsprint.css';
 
@@ -92,6 +95,14 @@ const App = () => {
         <Route
           path="/check"
           element={user ? <CheckPage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/claims"
+          element={user ? <ClaimsPage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/claims/:claimId"
+          element={user ? <ClaimDetailPage /> : <Navigate to="/login" />}
         />
 
         {/* Fallback Redirect */}

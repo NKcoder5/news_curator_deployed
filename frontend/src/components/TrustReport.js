@@ -1,21 +1,12 @@
 import { useState } from 'react';
+import { ChevronDown, ExternalLink, FileSearch, PenLine } from 'lucide-react';
+import EvidenceBoard from './EvidenceBoard';
+import ReadAs from './ReadAs';
+import ClaimRecord from './ClaimRecord';
+import DecisionExplanation from './DecisionExplanation';
+import VerdictHeader from './VerdictHeader';
+import { Badge } from './ui';
 import '../styles/TrustReport.css';
-
-const LEVEL_COLORS = {
-  'high': '#4a7c59',
-  'medium-high': '#7d9a5f',
-  'medium-low': '#c9862b',
-  'low': '#a63c3c',
-  // Verdict classes. These are the headline answer now, so each gets its own
-  // colour rather than inheriting one from the score band.
-  'corroborated': '#4a7c59',
-  'likely-true': '#7d9a5f',
-  'opinion': '#6b7280',
-  'unverified': '#8a6d3b',
-  'satire': '#6b5b95',
-  'likely-false': '#c9862b',
-  'false': '#a63c3c'
-};
 
 // Reader-facing names for the internal check ids.
 const LEDGER_NAMES = {
@@ -82,29 +73,31 @@ const ledgerEntryClass = (entry) =>
     ? 'neutral'
     : effectClass(entry.decibans);
 
+// A 0-10 writing score as a meter colour. These describe the writing only,
+// so they use the verdict hues at their softest meaning: good, fair, poor.
 const scoreColor = (score) => {
-  if (score >= 7.5) return LEVEL_COLORS['high'];
-  if (score >= 5.5) return LEVEL_COLORS['medium-high'];
-  if (score >= 4) return LEVEL_COLORS['medium-low'];
-  return LEVEL_COLORS['low'];
+  if (score >= 7.5) return 'var(--verdict-real-solid)';
+  if (score >= 5.5) return 'var(--color-accent)';
+  if (score >= 4) return 'var(--verdict-misleading-solid)';
+  return 'var(--verdict-fake-solid)';
 };
 
 const VERDICT_BADGES = {
-  supported: { label: 'Corroborated', className: 'claim-badge supported' },
-  contradicted: { label: 'Contradicted', className: 'claim-badge contradicted' },
-  unverified: { label: 'Unverified', className: 'claim-badge unverified' },
-  'no-coverage': { label: 'No Coverage', className: 'claim-badge unverified' }
+  supported: { label: 'Corroborated', tone: 'real' },
+  contradicted: { label: 'Contradicted', tone: 'fake' },
+  unverified: { label: 'Unverified', tone: 'unknown' },
+  'no-coverage': { label: 'No Coverage', tone: 'unknown' }
 };
 
 // Fact-checker ratings, normalised by the backend into these buckets.
 const FACTCHECK_BADGES = {
-  'false': { label: 'Rated False', className: 'claim-badge contradicted' },
-  'mostly-false': { label: 'Rated Misleading', className: 'claim-badge contradicted' },
-  'mixed': { label: 'Rated Mixed', className: 'claim-badge unverified' },
-  'mostly-true': { label: 'Rated Mostly True', className: 'claim-badge supported' },
-  'true': { label: 'Rated True', className: 'claim-badge supported' },
-  'unrated': { label: 'Rated (see source)', className: 'claim-badge unverified' },
-  'no-factcheck': { label: 'No fact-check found', className: 'claim-badge unverified' }
+  'false': { label: 'Rated False', tone: 'fake' },
+  'mostly-false': { label: 'Rated Misleading', tone: 'misleading' },
+  'mixed': { label: 'Rated Mixed', tone: 'partly' },
+  'mostly-true': { label: 'Rated Mostly True', tone: 'real' },
+  'true': { label: 'Rated True', tone: 'real' },
+  'unrated': { label: 'Rated (see source)', tone: 'unknown' },
+  'no-factcheck': { label: 'No fact-check found', tone: 'unknown' }
 };
 
 const FactorDetail = ({ factor }) => {
@@ -123,7 +116,8 @@ const FactorDetail = ({ factor }) => {
           <ul className="check-list">
             {checks.map((c) => (
               <li key={c.id} className={c.passed ? 'check-pass' : 'check-fail'} title={c.help}>
-                <span className="check-mark">{c.passed ? '✓' : '✕'}</span>
+                <span className="check-mark" aria-hidden="true">{c.passed ? '✓' : '✕'}</span>
+                <span className="sr-only">{c.passed ? 'Passes: ' : 'Fails: '}</span>
                 {c.label}
               </li>
             ))}
@@ -148,7 +142,8 @@ const FactorDetail = ({ factor }) => {
     }
 
     case 'manipulation': {
-      const techniques = factor.detail.techniques || [];
+      const detail = factor.detail || {};
+      const techniques = detail.techniques || [];
       if (techniques.length === 0) {
         return (
           <div className="factor-detail">
@@ -159,7 +154,7 @@ const FactorDetail = ({ factor }) => {
       return (
         <div className="factor-detail">
           <p>
-            Persuasion intensity: <strong>{factor.detail.intensity}</strong>. These are the
+            Persuasion intensity: <strong>{detail.intensity || 'moderate'}</strong>. These are the
             techniques found, in the article&apos;s own words:
           </p>
           <div className="technique-list">
@@ -199,7 +194,7 @@ const FactorDetail = ({ factor }) => {
             return (
               <div key={i} className="claim-item">
                 <div className="claim-header">
-                  <span className={badge.className}>{badge.label}</span>
+                  <Badge tone={badge.tone}>{badge.label}</Badge>
                 </div>
                 <p className="claim-text">&ldquo;{c.claim}&rdquo;</p>
                 {c.note && <p className="claim-explanation">{c.note}</p>}
@@ -300,7 +295,7 @@ const FactorDetail = ({ factor }) => {
               return (
                 <div key={i} className="claim-item">
                   <div className="claim-header">
-                    <span className={badge.className}>{badge.label}</span>
+                    <Badge tone={badge.tone}>{badge.label}</Badge>
                   </div>
                   <p className="claim-text">&ldquo;{c.claim}&rdquo;</p>
                   {c.explanation && <p className="claim-explanation">{c.explanation}</p>}
@@ -329,7 +324,15 @@ const FactorDetail = ({ factor }) => {
   }
 };
 
-const TrustReport = ({ report }) => {
+/**
+ * @param {Object}  props.report
+ * @param {boolean} [props.evidenceFirst] - lay the evidence out under the
+ *   verdict instead of behind a button. The Check page does: someone pasting
+ *   a claim to test it wants the proof, and an examiner asks for it first.
+ * @param {ReactNode} [props.children] - more for the main column, after the
+ *   evidence (the Check page puts the plain-AI comparison there)
+ */
+const TrustReport = ({ report, evidenceFirst = false, children }) => {
   const [expanded, setExpanded] = useState(null);
   const [showWorking, setShowWorking] = useState(false);
   // Three tiers, because most readers want the answer and nothing else. The
@@ -341,37 +344,36 @@ const TrustReport = ({ report }) => {
 
   if (!report || !report.factors) return null;
 
-  const color = LEVEL_COLORS[report.verdictLevel] || scoreColor(report.overallScore);
   const concernPoints = report.concernPoints || [];
-
   const quality = report.quality;
   const evidence = report.evidence || {};
 
-  return (
-    <div className="trust-report">
-      {/* ── TIER 1: THE ANSWER ────────────────────────────────────────────
-          One word, and one sentence saying why. No score: showing "4.9 / 10"
-          beside a fabricated story reads as a mark for truthfulness, which is
-          the thing readers and reviewers objected to most. */}
-      <div className={`verdict-card verdict-${report.verdictLevel || 'unverified'}`}>
-        <div className="verdict-call" style={{ color }}>{report.call || report.verdict}</div>
-        {report.oneLine && <p className="verdict-oneline">{report.oneLine}</p>}
-      </div>
-
+  const details = (
+    <section className="report-details" aria-label="More detail">
       <div className="tier-buttons">
-        <button className="tier-toggle" onClick={() => setShowProof(!showProof)} aria-expanded={showProof}>
-          {showProof ? 'Hide the proof' : 'How do you know?'}
+        <button type="button" className="tier-toggle" onClick={() => setShowProof(!showProof)} aria-expanded={showProof}>
+          <FileSearch size={18} aria-hidden="true" className="tier-toggle__icon" />
+          <span className="tier-toggle__text">
+            <span className="tier-toggle__label">{showProof ? 'Hide the proof' : 'How do you know?'}</span>
+            <span className="tier-toggle__hint">The grounds for the verdict, and where it came from</span>
+          </span>
+          <ChevronDown size={18} aria-hidden="true" className="tier-toggle__chevron" />
         </button>
         {quality && (
-          <button className="tier-toggle" onClick={() => setShowQuality(!showQuality)} aria-expanded={showQuality}>
-            {showQuality ? 'Hide the writing check' : 'How is it written?'}
+          <button type="button" className="tier-toggle" onClick={() => setShowQuality(!showQuality)} aria-expanded={showQuality}>
+            <PenLine size={18} aria-hidden="true" className="tier-toggle__icon" />
+            <span className="tier-toggle__text">
+              <span className="tier-toggle__label">{showQuality ? 'Hide the writing check' : 'How is it written?'}</span>
+              <span className="tier-toggle__hint">A separate question from whether it is true</span>
+            </span>
+            <ChevronDown size={18} aria-hidden="true" className="tier-toggle__chevron" />
           </button>
         )}
       </div>
 
       {/* ── TIER 2: THE PROOF ─────────────────────────────────────────── */}
       {showProof && report.decision?.grounds?.length > 0 && (
-        <section className="verdict-why">
+        <div className="verdict-why">
           <h4>What we found</h4>
           <ul>
             {report.decision.grounds
@@ -389,17 +391,16 @@ const TrustReport = ({ report }) => {
                 ` (${evidence.articlesRetrieved} articles, but the rest were the same story reprinted)`}.
             </p>
           )}
-        </section>
-      )}
-
-      {/* Where it came from, when that is not obvious or not a news site. */}
-      {showProof && report.provenance && !report.provenance.knownOutletChannel && (
-        <p className="trust-provenance-note">{report.provenance.note}</p>
-      )}
-      {showProof && report.ingestNotes?.length > 0 && (
-        <ul className="trust-ingest-notes">
-          {report.ingestNotes.map((note, i) => <li key={i}>{note}</li>)}
-        </ul>
+          {/* Where it came from, when that is not obvious or not a news site. */}
+          {report.provenance && !report.provenance.knownOutletChannel && (
+            <p className="trust-provenance-note">{report.provenance.note}</p>
+          )}
+          {report.ingestNotes?.length > 0 && (
+            <ul className="trust-ingest-notes">
+              {report.ingestNotes.map((note, i) => <li key={i}>{note}</li>)}
+            </ul>
+          )}
+        </div>
       )}
 
       {/* ── TIER 3: A DIFFERENT QUESTION ──────────────────────────────────
@@ -408,10 +409,10 @@ const TrustReport = ({ report }) => {
           written and a true local report is often scrappy, so putting this in
           the reader's way while they are asking "is it true?" only confuses. */}
       {showQuality && quality && (
-        <section className={`quality-card quality-${quality.level}`}>
+        <div className={`quality-card quality-${quality.level}`}>
           <div className="quality-header">
             <h4>How it is written</h4>
-            <span className="quality-score">{quality.score}<span className="quality-outof">/10</span></span>
+            <span className="quality-score tabular">{quality.score}<span className="quality-outof">/10</span></span>
           </div>
           <p className="quality-caveat">
             This says nothing about whether the story is true — a well-written story
@@ -421,10 +422,10 @@ const TrustReport = ({ report }) => {
             {quality.checks.map(check => (
               <li key={check.id}>
                 <span className="quality-check-name">{check.name}</span>
-                <span className="quality-check-bar">
+                <span className="quality-check-bar" aria-hidden="true">
                   <span style={{ width: `${check.score * 10}%`, background: scoreColor(check.score) }} />
                 </span>
-                <span className="quality-check-score">{check.score}</span>
+                <span className="quality-check-score tabular">{check.score}</span>
               </li>
             ))}
           </ul>
@@ -434,15 +435,13 @@ const TrustReport = ({ report }) => {
               <ul>{concernPoints.slice(0, 3).map((p, i) => <li key={i}>{p}</li>)}</ul>
             </div>
           )}
-        </section>
-      )}
-
-      {showQuality && report.degradedNote && (
-        <p className="trust-degraded-note">{report.degradedNote}</p>
+          {report.degradedNote && <p className="trust-degraded-note">{report.degradedNote}</p>}
+        </div>
       )}
 
       {(showProof || showQuality) && (
         <button
+          type="button"
           className="working-toggle"
           onClick={() => setShowWorking(!showWorking)}
           aria-expanded={showWorking}
@@ -499,98 +498,133 @@ const TrustReport = ({ report }) => {
       )}
 
       {showWorking && (
-      <div className="trust-factors">
-        {report.factors.map((factor) => {
-          // A factor that stood down contributed nothing, so it must not look
-          // like a middling score that dragged the result down.
-          // A check no longer "counts for 18% of the score" — that was an
-          // assignment. It now reports what it actually did to the answer, in
-          // decibans, measured from labelled data.
-          const isEvidence = factor.role === 'evidence';
-          const contribution = factor.contribution;
+        <div className="trust-factors">
+          <p className="trust-footnote">Open any line to see what that check found.</p>
+          {report.factors.map((factor) => {
+            // A factor that stood down contributed nothing, so it must not look
+            // like a middling score that dragged the result down.
+            // A check no longer "counts for 18% of the score" — that was an
+            // assignment. It now reports what it actually did to the answer, in
+            // decibans, measured from labelled data.
+            const isEvidence = factor.role === 'evidence';
+            const contribution = factor.contribution;
 
-          // Whether the check RAN is a different question from whether it moved
-          // the answer. A headline check that returns 9/10 has run and found
-          // something; showing a dash because it did not shift the probability
-          // hides the finding the reader came for.
-          const ran = isEvidence
-            ? (factor.counted !== undefined ? factor.counted : true)
-            : typeof factor.score === 'number';
-          const counted = ran;
+            // Whether the check RAN is a different question from whether it moved
+            // the answer. A headline check that returns 9/10 has run and found
+            // something; showing a dash because it did not shift the probability
+            // hides the finding the reader came for.
+            const ran = isEvidence
+              ? (factor.counted !== undefined ? factor.counted : true)
+              : typeof factor.score === 'number';
+            const counted = ran;
 
-          const roleText = isEvidence
-            ? (ran ? 'this check decides the verdict' : (factor.standDownReason || 'nothing found either way'))
-            // A writing check that could not run has not found "no effect" —
-            // it has found nothing, because it was not given the article.
-            : !ran
-              ? (factor.standDownReason || 'this check could not run')
-            // The publisher is not weighed as a check — it sets where the
-            // assessment starts, which is a stronger role, so calling it "no
-            // effect" here would be plainly wrong.
-            : factor.id === 'sourceReputation'
-              ? 'sets the starting point for everything below'
-              : (contribution && contribution.measured && contribution.decibans !== 0
-                  ? describeEffect(contribution.decibans)
-                  : 'no effect on the verdict');
+            const roleText = isEvidence
+              ? (ran ? 'this check decides the verdict' : (factor.standDownReason || 'nothing found either way'))
+              // A writing check that could not run has not found "no effect" —
+              // it has found nothing, because it was not given the article.
+              : !ran
+                ? (factor.standDownReason || 'this check could not run')
+              // The publisher is not weighed as a check — it sets where the
+              // assessment starts, which is a stronger role, so calling it "no
+              // effect" here would be plainly wrong.
+              : factor.id === 'sourceReputation'
+                ? 'sets the starting point for everything below'
+                : (contribution && contribution.measured && contribution.decibans !== 0
+                    ? describeEffect(contribution.decibans)
+                    : 'no effect on the verdict');
 
-          return (
-            <div key={factor.id} className={`trust-factor ${counted ? '' : 'factor-stood-down'} ${isEvidence ? 'factor-evidence' : ''}`}>
-              <button
-                className="factor-row"
-                onClick={() => setExpanded(expanded === factor.id ? null : factor.id)}
-              >
-                <div className="factor-info">
-                  <span className="factor-name">{factor.name}</span>
-                  <span className="factor-weight">
-                    {roleText}
-                    {factor.degraded && counted && ' · word-pattern check only'}
+            return (
+              <div key={factor.id} className={`trust-factor ${counted ? '' : 'factor-stood-down'} ${isEvidence ? 'factor-evidence' : ''}`}>
+                <button
+                  type="button"
+                  className="factor-row"
+                  onClick={() => setExpanded(expanded === factor.id ? null : factor.id)}
+                  aria-expanded={expanded === factor.id}
+                >
+                  <span className="factor-info">
+                    <span className="factor-name">{factor.name}</span>
+                    <span className="factor-weight">
+                      {roleText}
+                      {factor.degraded && counted && ' · word-pattern check only'}
+                    </span>
                   </span>
-                </div>
-                <div className="factor-bar-track">
-                  {counted ? (
-                    <div
-                      className="factor-bar-fill"
-                      style={{ width: `${factor.score * 10}%`, background: scoreColor(factor.score) }}
-                    />
-                  ) : (
-                    <div className="factor-bar-empty" />
-                  )}
-                </div>
-                <span className={`factor-score ${counted ? '' : 'factor-score-none'}`}>
-                  {counted ? factor.score : '—'}
-                </span>
-                <span className={`factor-chevron ${expanded === factor.id ? 'open' : ''}`}>▾</span>
-              </button>
-              {expanded === factor.id && (
-                <div className="factor-expanded">
-                  {/* When a factor stood down its reason is already on the row,
-                      so repeating it here (plus an empty detail) just confuses. */}
-                  {counted ? (
-                    <>
-                      <p className="factor-explanation">{factor.explanation}</p>
-                      <FactorDetail factor={factor} />
-                    </>
-                  ) : (
-                    <p className="factor-explanation stood-down-note">
-                      {factor.standDownReason || factor.explanation}{' '}
-                      {isEvidence
-                        ? 'A story no one else is reporting cannot be called confirmed, however well it is written.'
-                        : 'This check made no difference to the verdict.'}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                  <span className="factor-bar-track" aria-hidden="true">
+                    {counted ? (
+                      <span
+                        className="factor-bar-fill"
+                        style={{ width: `${factor.score * 10}%`, background: scoreColor(factor.score) }}
+                      />
+                    ) : (
+                      <span className="factor-bar-empty" />
+                    )}
+                  </span>
+                  <span className={`factor-score tabular ${counted ? '' : 'factor-score-none'}`}>
+                    {counted ? factor.score : '—'}
+                  </span>
+                  <ChevronDown size={16} aria-hidden="true" className={`factor-chevron ${expanded === factor.id ? 'open' : ''}`} />
+                </button>
+                {expanded === factor.id && (
+                  <div className="factor-expanded">
+                    {/* When a factor stood down its reason is already on the row,
+                        so repeating it here (plus an empty detail) just confuses. */}
+                    {counted ? (
+                      <>
+                        <p className="factor-explanation">{factor.explanation}</p>
+                        <FactorDetail factor={factor} />
+                      </>
+                    ) : (
+                      <p className="factor-explanation stood-down-note">
+                        {factor.standDownReason || factor.explanation}{' '}
+                        {isEvidence
+                          ? 'A story no one else is reporting cannot be called confirmed, however well it is written.'
+                          : 'This check made no difference to the verdict.'}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       )}
+    </section>
+  );
 
-      {showWorking && (
-        <p className="trust-footnote">
-          Click any line to see what that check found.
-        </p>
-      )}
+  if (!evidenceFirst) {
+    return (
+      <div className="trust-report">
+        <VerdictHeader report={report} />
+        {details}
+      </div>
+    );
+  }
+
+  // The Check page: the answer across the top; the reasoning and evidence in
+  // the main column; how the message was read and what the claim memory knew
+  // beside it, where they inform without getting in the way.
+  const hasAside = Boolean(report.understanding) || report.memory?.claims?.length > 0;
+  return (
+    <div className="trust-report trust-report--full">
+      <VerdictHeader report={report} full />
+      <div className={`report-grid ${hasAside ? 'report-grid--aside' : ''}`}>
+        <div className="report-main">
+          <DecisionExplanation explanation={report.explanation} />
+          <EvidenceBoard report={report} />
+          {details}
+          {children}
+        </div>
+        {hasAside && (
+          <aside className="report-aside" aria-label="About this check">
+            <ReadAs understanding={report.understanding} call={report.call} perClaim={report.evidence?.perClaim} />
+            <ClaimRecord memory={report.memory} call={report.call} />
+            {report.memory?.claims?.length === 1 && (
+              <a className="report-permalink" href={`/claims/${report.memory.claims[0].claimId}`}>
+                Open this claim’s public page <ExternalLink size={14} aria-hidden="true" />
+              </a>
+            )}
+          </aside>
+        )}
+      </div>
     </div>
   );
 };

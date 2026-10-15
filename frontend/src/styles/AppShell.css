@@ -1,0 +1,225 @@
+/* ============================================================================
+   App shell: header, navigation, footer, and the column pages sit in.
+   ========================================================================= */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-main { flex: 1; outline: none; }
+
+/* ----------------------------------------------------------------- Brand */
+
+.brand { display: inline-flex; align-items: center; gap: var(--space-2); }
+
+.brand__mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: var(--color-fg-on-accent);
+  background: var(--color-accent);
+  border-radius: var(--radius-md);
+}
+
+.brand__name {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  color: var(--color-fg-strong);
+}
+
+/* ---------------------------------------------------------------- Header */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  backdrop-filter: saturate(1.4) blur(8px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  max-width: var(--page-max);
+  height: 64px;
+  margin: 0 auto;
+  padding: 0 var(--page-gutter);
+}
+
+.site-header__brand { text-decoration: none; border-radius: var(--radius-md); }
+.site-header__brand:hover { text-decoration: none; }
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.site-nav__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-nav__link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 40px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  transition: color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
+}
+
+.site-nav__link:hover {
+  color: var(--color-fg-strong);
+  background: var(--color-surface-sunken);
+  text-decoration: none;
+}
+
+.site-nav__link.is-current { color: var(--color-fg-strong); font-weight: var(--weight-semibold); }
+
+/* The current page is marked by a bar under the link, as well as weight. */
+.site-nav__link.is-current::after {
+  content: '';
+  position: absolute;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: -12px;
+  height: 2px;
+  background: var(--color-accent);
+  border-radius: 2px;
+}
+
+.site-nav__account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.site-header__tools { display: flex; align-items: center; gap: var(--space-1); }
+.site-header__menu { display: none; }
+
+/* Phones and narrow tablets: the links fold into a menu under the header. */
+@media (max-width: 860px) {
+  .site-header__inner { gap: var(--space-3); }
+  .site-header__tools { margin-left: auto; }
+  .site-header__menu { display: inline-flex; }
+
+  .site-nav {
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--page-gutter) var(--space-4);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-2);
+  }
+
+  .site-nav.is-open { display: flex; }
+
+  .site-nav__links { flex-direction: column; align-items: stretch; gap: 0; }
+  .site-nav__link { width: 100%; height: 44px; font-size: var(--text-base); }
+  .site-nav__link.is-current { background: var(--color-accent-soft); color: var(--color-accent); }
+  .site-nav__link.is-current::after { display: none; }
+
+  .site-nav__account {
+    margin-left: 0;
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .site-nav__account .ui-btn { flex: 1; }
+}
+
+@supports not (backdrop-filter: blur(8px)) {
+  .site-header { background: var(--color-surface); }
+}
+
+/* ---------------------------------------------------------------- Footer */
+
+.site-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.site-footer__inner {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-8);
+  flex-wrap: wrap;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--space-8) var(--page-gutter) var(--space-4);
+}
+
+.site-footer__about { max-width: 420px; }
+.site-footer__about .brand__name { font-size: var(--text-base); }
+
+.site-footer__about p {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+}
+
+.site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  align-content: flex-start;
+  font-size: var(--text-sm);
+}
+
+.site-footer__links a { color: var(--color-fg-muted); text-decoration: none; }
+.site-footer__links a:hover { color: var(--color-fg-strong); text-decoration: underline; }
+
+.site-footer__legal {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--space-4) var(--page-gutter) var(--space-6);
+  font-size: var(--text-xs);
+  color: var(--color-fg-subtle);
+}
+
+/* ------------------------------------------------- Page loading fallback */
+
+.page-fallback { display: grid; gap: var(--space-6); }
+.page-fallback__head { display: grid; gap: var(--space-3); max-width: 560px; }
+.page-fallback__grid { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-6); }
+
+@media (max-width: 760px) {
+  .page-fallback__grid { grid-template-columns: 1fr; }
+}
+
+/* ------------------------------------------------------------- Newsprint
+   The header is the masthead: the name set in Playfair capitals over a
+   double rule, as on the first pages of the application. */
+.brand__name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.site-header { border-bottom: 3px double var(--color-fg-strong); }

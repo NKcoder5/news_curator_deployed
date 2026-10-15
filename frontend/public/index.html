@@ -3,17 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f8f5ee" />
+    <meta name="theme-color" content="#f5f6f8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b1018" media="(prefers-color-scheme: dark)" />
     <meta
       name="description"
-      content="Pure Press checks whether a news article can be trusted — who published it, whether the headline is honest, whether the writing is fair, and whether other outlets agree."
+      content="Pure Press checks news and forwarded messages against independent outlets, fact-checkers and reference facts, and shows the evidence behind every verdict."
     />
-    <title>Pure Press — Daily Intelligence</title>
+    <link rel="icon" href="%PUBLIC_URL%/logo.png" />
+    <title>Pure Press — evidence-based fact checking</title>
 
-    <!--
-      The stylesheets already ask for Playfair Display and Source Serif Pro;
-      without these links they silently fell back to a generic serif.
-    -->
+    <!-- A theme the reader chose is applied before the first paint, so the
+         page never flashes light before turning dark. Storage can throw
+         (private windows, blocked site data); then the system setting rules. -->
+    <script>
+      try {
+        var t = window.localStorage.getItem('pp-theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

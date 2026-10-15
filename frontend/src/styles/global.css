@@ -106,7 +106,7 @@ hr { border: 0; border-top: 1px solid var(--color-border); margin: var(--space-6
   width: 100%;
   max-width: var(--page-max);
   margin: 0 auto;
-  padding: var(--space-8) var(--page-gutter) var(--space-16);
+  padding: var(--space-5) var(--page-gutter) var(--space-12);
 }
 
 .page--narrow { max-width: 800px; }

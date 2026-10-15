@@ -46,7 +46,7 @@ const { judgePairs } = require('../services/localNli');
 const SECOND_OPINION_MIN = 0.05;
 const secondOpinion = async (contradictions) => {
   if (!contradictions.length) return { kept: contradictions, overruled: [] };
-  const pairs = contradictions.map(c => ({ premise: c.referenceStates || '', hypothesis: c.articleStates || '' }));
+  const pairs = contradictions.map(c => ({ premise: c.referenceContext || c.referenceStates || '', hypothesis: c.articleStates || '' }));
   let verdicts = null;
   try { verdicts = await judgePairs(pairs); } catch (_) { verdicts = null; }
   if (!Array.isArray(verdicts) || verdicts.length !== contradictions.length) return { kept: contradictions, overruled: [] };
@@ -61,6 +61,39 @@ const secondOpinion = async (contradictions) => {
   return { kept, overruled };
 };
 const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip } = require('../utils/untrusted');
+
+/**
+ * Find the full sentence in `content` that contains `fragment`.
+ *
+ * The LLM judge often extracts a sub-clause ("India and West Indies twice
+ * each") rather than the complete sentence it sits in.  The NLI model needs
+ * the full sentence ("Australia has won the tournament six times, India and
+ * West Indies twice each, while Pakistan, Sri Lanka and England have won it
+ * once each.") to have enough semantic context to score the contradiction.
+ */
+const expandToSentence = (content, fragment) => {
+  if (!content || !fragment || fragment.length < 10) return fragment;
+  const lower = content.toLowerCase();
+  const fLower = fragment.toLowerCase().slice(0, 40);
+  const idx = lower.indexOf(fLower);
+  if (idx === -1) return fragment;
+
+  // Walk backwards to the last sentence-ending punctuation before the fragment.
+  const before = content.slice(0, idx);
+  let sentStart = 0;
+  for (const sep of ['. ', '.\n', '? ', '?\n', '! ', '!\n']) {
+    const pos = before.lastIndexOf(sep);
+    if (pos !== -1 && pos + sep.length > sentStart) sentStart = pos + sep.length;
+  }
+
+  // Walk forwards to the next sentence-ending punctuation.
+  const after = content.slice(idx);
+  const endMatch = after.match(/[.!?](?:\s|$)/);
+  const sentEnd = endMatch ? idx + endMatch.index + 1 : content.length;
+
+  const sentence = content.slice(sentStart, sentEnd).trim();
+  return sentence.length >= fragment.length ? sentence : fragment;
+};
 
 /** How many entities to look up. Each costs one search plus one extract. */
 const MAX_ENTITIES = 2;
@@ -233,12 +266,36 @@ const checkPremises = async (title, content, subjects = []) => {
       return { status: 'not-found', checked: [], contradictions: [], explanation: 'No reference entry was found for the names in this article.' };
     }
 
+    // Keep full reference content so we can expand fragment quotes for the
+    // NLI second-opinion model.  The result objects carry only { title, url }.
+    const refContentMap = {};
+    found.forEach(({ entity, reference }) => { refContentMap[entity] = reference.content; });
+
     const results = await Promise.all(found.map(async ({ entity, reference }) => {
       const judgement = await judgeAgainstReference(title, content, entity, reference);
       return { entity, reference: { title: reference.title, url: reference.url }, ...judgement };
     }));
 
-    const { kept: contradictions, overruled } = await secondOpinion(results.filter(r => r.contradicts));
+    // The LLM judge quotes the conflicting part of the encyclopedia entry,
+    // but it often extracts a sub-clause ("India and West Indies twice each")
+    // rather than the full sentence.  The NLI model needs the whole sentence
+    // for enough context to judge the contradiction.  Expand each fragment to
+    // its enclosing sentence in the original article, and prefix the entity
+    // name when it is not already present so the model knows what "the
+    // tournament" or "twice each" refers to.
+    const contradictionsRaw = results.filter(r => r.contradicts);
+    for (const c of contradictionsRaw) {
+      const refContent = refContentMap[c.entity];
+      if (c.referenceStates && refContent) {
+        let expanded = expandToSentence(refContent, c.referenceStates);
+        if (expanded && !expanded.toLowerCase().includes(c.entity.toLowerCase())) {
+          expanded = `${c.entity}: ${expanded}`;
+        }
+        c.referenceContext = expanded;
+      }
+    }
+
+    const { kept: contradictions, overruled } = await secondOpinion(contradictionsRaw);
     const confirmations = results.filter(r => r.supports && !r.contradicts)
       .map(r => ({ entity: r.entity, reference: r.reference, referenceStates: r.referenceSupports }));
     const failures = results.filter(r => r.failed);

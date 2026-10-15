@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { BookOpen, RefreshCw } from 'lucide-react';
 import api from '../services/api';
 import NewsCard from '../components/NewsCard';
-import { Alert, Button, EmptyState, LoadingRegion, PageHeader, Skeleton } from '../components/ui';
+import { Alert, Button, EmptyState, LoadingRegion, Skeleton } from '../components/ui';
 import '../styles/HomePage.css';
 
 const CATEGORIES = [
@@ -110,12 +110,14 @@ const HomePage = () => {
         <h1 className="newspaper-name">The Daily Chronicle</h1>
         <p className="newspaper-tagline">Independent news, clearly checked.</p>
         <div className="newspaper-masthead-actions">
-          <PageHeader
-            eyebrow="The daily desk"
-            title={categoryLabel}
-            description="A curated news feed with a clear path to checking what each story claims."
-            actions={<Button variant="secondary" icon={RefreshCw} onClick={fetchNews}>Refresh</Button>}
-          />
+          <div className="news-toolbar">
+            <div>
+              <p className="news-toolbar__eyebrow">The daily desk</p>
+              <h2>{categoryLabel}</h2>
+              <p>A curated feed with a clear path to checking every story.</p>
+            </div>
+            <Button variant="secondary" icon={RefreshCw} onClick={fetchNews}>Refresh</Button>
+          </div>
         </div>
       </header>
 

@@ -104,15 +104,22 @@ const HomePage = () => {
   };
 
   return (
-    <div className="page">
-      <PageHeader
-        eyebrow="The daily desk"
-        title={categoryLabel}
-        description="A curated news feed with a clear path to checking what each story claims."
-        actions={<Button variant="secondary" icon={RefreshCw} onClick={fetchNews}>Refresh</Button>}
-      />
+    <div className="newspaper-container page">
+      <header className="newspaper-masthead">
+        <p className="newspaper-date">{new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <h1 className="newspaper-name">The Daily Chronicle</h1>
+        <p className="newspaper-tagline">Independent news, clearly checked.</p>
+        <div className="newspaper-masthead-actions">
+          <PageHeader
+            eyebrow="The daily desk"
+            title={categoryLabel}
+            description="A curated news feed with a clear path to checking what each story claims."
+            actions={<Button variant="secondary" icon={RefreshCw} onClick={fetchNews}>Refresh</Button>}
+          />
+        </div>
+      </header>
 
-      <nav className="news-sections" aria-label="News sections">
+      <nav className="news-sections newspaper-categories" aria-label="News sections">
         {CATEGORIES.map(([key, label]) => (
           <button
             type="button"
@@ -127,7 +134,7 @@ const HomePage = () => {
       </nav>
 
       {personalizedMessage && (
-        <Alert tone="info" title="Picked for you" className="news-personal">
+        <Alert tone="info" title="Picked for you" className="news-personal editor-note">
           <span className="news-personal__text"><BookOpen size={16} aria-hidden="true" />{personalizedMessage}</span>
         </Alert>
       )}

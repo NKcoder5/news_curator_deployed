@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { ImageOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { Badge } from './ui';
 import '../styles/NewsCard.css';
 
 const TrustStamp = ({ badge }) => {
@@ -11,9 +10,9 @@ const TrustStamp = ({ badge }) => {
     const tone = ['corroborated', 'likely-true'].includes(badge.level) ? 'success'
       : ['false', 'likely-false'].includes(badge.level) ? 'danger'
         : 'warning';
-    return <Badge tone={tone}>{badge.verdict}{badge.concernCount > 0 && <span className="news-card__badge-note"> · {badge.concernCount} to check</span>}</Badge>;
+    return <span className={`trust-stamp stamp-${tone}`}>{badge.verdict}{badge.concernCount > 0 && <em className="stamp-note"> · {badge.concernCount} to check</em>}</span>;
   }
-  return <Badge tone={badge.sourceMatched ? 'info' : 'neutral'}>{badge.label || 'Open to check'}</Badge>;
+  return <span className={`trust-stamp ${badge.sourceMatched ? 'stamp-source' : 'stamp-unknown'}`}>{badge.label || 'Open to check'}</span>;
 };
 
 const formatDate = (value) => {

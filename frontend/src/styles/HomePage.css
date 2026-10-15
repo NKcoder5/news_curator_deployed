@@ -1,6 +1,70 @@
-/* ============================================================================
-   The news feed.
-   ========================================================================= */
+/* The news desk keeps the 0aa11a7 newspaper identity while using the modern
+   page states and accessible controls inside it. */
+
+.newspaper-container {
+  position: relative;
+  max-width: 1400px;
+  margin: var(--space-8) auto;
+  padding: var(--space-8);
+  color: var(--color-fg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  box-shadow: var(--shadow-3);
+  overflow: hidden;
+}
+
+.newspaper-container::before {
+  position: absolute;
+  inset: 0;
+  content: '';
+  pointer-events: none;
+  opacity: 0.45;
+  background-image: radial-gradient(rgba(117, 103, 73, 0.14) 0.6px, transparent 0.6px);
+  background-size: 4px 4px;
+}
+
+.newspaper-container > * { position: relative; z-index: 1; }
+
+.newspaper-masthead {
+  padding: var(--space-5) 0 var(--space-6);
+  text-align: center;
+  border-bottom: 3px double var(--color-fg-strong);
+}
+
+.newspaper-date {
+  margin: 0 0 var(--space-2);
+  font-style: italic;
+  color: var(--color-fg-muted);
+}
+
+.newspaper-name {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.4rem, 7vw, 4.5rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.newspaper-tagline {
+  margin-top: var(--space-3);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  color: var(--color-fg-muted);
+}
+
+.newspaper-masthead-actions .ui-page-header {
+  margin-top: var(--space-6);
+  padding: var(--space-4) 0 0;
+  text-align: left;
+  border-top: 1px solid var(--color-border);
+}
+
+.newspaper-categories {
+  margin: var(--space-6) 0;
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-fg-strong);
+  border-bottom: 1px solid var(--color-fg-strong);
+}
 
 .news-sections {
   display: flex;
@@ -18,7 +82,8 @@
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--color-fg-muted);
-  background: var(--color-surface);
+  font-family: Georgia, 'Times New Roman', serif;
+  background: transparent;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-pill);
   transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
@@ -27,14 +92,15 @@
 .news-section:hover { color: var(--color-fg-strong); border-color: var(--color-border-control); }
 
 .news-section.is-active {
-  color: var(--color-fg-on-accent);
-  background: var(--color-accent);
+  color: var(--color-fg-strong);
+  background: var(--color-surface-sunken);
   border-color: var(--color-accent);
-  font-weight: var(--weight-semibold);
+  text-decoration: underline;
 }
 
 .news-personal { margin-bottom: var(--space-6); }
 .news-personal__text { display: inline-flex; align-items: center; gap: var(--space-2); }
+.editor-note { border-style: dashed; }
 
 .news-grid {
   display: grid;
@@ -46,4 +112,5 @@
 
 @media (max-width: 600px) {
   .news-grid { grid-template-columns: 1fr; gap: var(--space-4); }
+  .newspaper-container { margin: var(--space-3); padding: var(--space-4); }
 }

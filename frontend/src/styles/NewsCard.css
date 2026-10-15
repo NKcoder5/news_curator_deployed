@@ -1,85 +1,61 @@
-/* ============================================================================
-   A story in the news feed.
-   ========================================================================= */
-
 .news-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  height: 100%;
+  overflow: visible;
+  font-family: Georgia, 'Times New Roman', serif;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 2px;
   box-shadow: var(--shadow-1);
-  transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
+  transition: transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
 }
 
-.news-card:hover { border-color: var(--color-border-control); box-shadow: var(--shadow-2); }
-.news-card:focus-within { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.news-card::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: radial-gradient(rgba(117, 103, 73, 0.12) 0.5px, transparent 0.5px);
+  background-size: 4px 4px;
+}
+
+.news-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-3); }
+.news-card:focus-within { outline: 2px solid var(--color-focus); outline-offset: 3px; }
 
 .news-card__media {
   aspect-ratio: 16 / 9;
-  background: var(--color-surface-sunken);
   overflow: hidden;
+  margin: var(--space-3) var(--space-3) 0;
+  padding: 3px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
 }
 
-.news-card__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.news-card__media img { display: block; width: 100%; height: 100%; object-fit: cover; filter: sepia(7%) contrast(1.03); }
+.news-card__placeholder { display: grid; place-items: center; width: 100%; height: 100%; color: var(--color-fg-subtle); background: var(--color-surface-sunken); }
 
-.news-card__placeholder {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-  color: var(--color-fg-subtle);
-}
-
-.news-card__body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  flex: 1;
-  padding: var(--space-4) var(--space-5) var(--space-5);
-}
-
-.news-card__meta { font-size: var(--text-xs); color: var(--color-fg-subtle); }
-.news-card__source { font-weight: var(--weight-semibold); color: var(--color-fg-muted); }
-
-.news-card__title { font-size: var(--text-base); font-weight: var(--weight-semibold); line-height: var(--leading-snug); }
-
-.news-card__link {
-  padding: 0;
-  font: inherit;
-  text-align: left;
-  color: var(--color-fg-strong);
-  background: none;
-  border: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* Stretch the button over the whole card. */
-.news-card__link::after { content: ''; position: absolute; inset: 0; }
-.news-card__link:focus-visible { outline: none; }
-.news-card:hover .news-card__link { color: var(--color-accent); }
-
-.news-card__description {
-  font-size: var(--text-sm);
-  color: var(--color-fg-muted);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
+.news-card__body { display: flex; flex: 1; flex-direction: column; gap: var(--space-3); padding: var(--space-4) var(--space-5) var(--space-5); }
+.news-card__meta { padding-bottom: var(--space-2); font-size: var(--text-xs); color: var(--color-fg-subtle); border-bottom: 1px dotted var(--color-border-control); }
+.news-card__source { font-weight: var(--weight-bold); color: var(--color-fg); text-transform: uppercase; letter-spacing: 0.04em; }
+.news-card__title { font-family: Georgia, 'Times New Roman', serif; font-size: var(--text-xl); line-height: var(--leading-snug); text-transform: uppercase; }
+.news-card__link { display: -webkit-box; width: 100%; padding: 0; overflow: hidden; font: inherit; color: var(--color-fg-strong); text-align: left; background: none; border: 0; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.news-card__link:hover { color: var(--color-accent); text-decoration: underline; }
+.news-card__description { display: -webkit-box; margin: 0; overflow: hidden; font-size: var(--text-base); line-height: var(--leading-normal); color: var(--color-fg-muted); -webkit-line-clamp: 4; -webkit-box-orient: vertical; }
 .news-card__footer { margin-top: auto; padding-top: var(--space-2); }
-.news-card__badge-note { font-weight: var(--weight-regular); }
+.news-card__badge-pending { display: inline-block; width: 130px; height: 24px; background: var(--color-surface-sunken); border: 1px solid var(--color-border); }
 
-.news-card__badge-pending {
-  display: inline-block;
-  width: 96px;
-  height: 20px;
-  background: var(--color-surface-sunken);
-  border-radius: var(--radius-pill);
+.trust-stamp { display: inline-flex; align-items: baseline; gap: 0.35rem; padding: 0.25rem 0.6rem; font-family: ui-monospace, monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; border: 1.5px solid currentColor; border-radius: 2px; transform: rotate(-1.2deg); }
+.stamp-success, .stamp-high { color: var(--verdict-real-fg); background: var(--verdict-real-bg); }
+.stamp-source, .stamp-good { color: var(--verdict-info-fg); background: var(--verdict-info-bg); }
+.stamp-warning, .stamp-caution { color: var(--verdict-misleading-fg); background: var(--verdict-misleading-bg); }
+.stamp-danger, .stamp-low { color: var(--verdict-fake-fg); background: var(--verdict-fake-bg); }
+.stamp-unknown, .stamp-neutral { color: var(--verdict-unknown-fg); background: var(--verdict-unknown-bg); }
+.stamp-note { font-style: normal; font-weight: 400; letter-spacing: 0.02em; text-transform: none; }
+.news-card--skeleton { overflow: hidden; }
+
+@media (max-width: 600px) {
+  .news-card__title { font-size: var(--text-lg); }
 }

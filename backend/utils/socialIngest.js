@@ -69,7 +69,7 @@ const extractVideoId = (rawUrl) => {
     const parsed = new URL(rawUrl);
     const host = parsed.hostname.toLowerCase();
     let id = null;
-    if (host === 'youtu.be') id = parsed.pathname.slice(1).split('/')[0];
+    if (host === 'youtu.be' || host === 'www.youtu.be') id = parsed.pathname.slice(1).split('/')[0];
     else if (/^\/(?:shorts|embed|live)\/[^/]+/i.test(parsed.pathname)) id = parsed.pathname.split('/')[2];
     else id = parsed.searchParams.get('v');
     return id && /^[A-Za-z0-9_-]{6,}$/.test(id) ? id : null;

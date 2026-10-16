@@ -19,6 +19,7 @@ test('platform links are recognised', () => {
 test('video ids are read from every YouTube link shape', () => {
   assert.strictEqual(extractVideoId('https://www.youtube.com/watch?v=dQw4w9WgXcQ'), 'dQw4w9WgXcQ');
   assert.strictEqual(extractVideoId('https://youtu.be/dQw4w9WgXcQ'), 'dQw4w9WgXcQ');
+  assert.strictEqual(extractVideoId('https://www.youtu.be/dQw4w9WgXcQ'), 'dQw4w9WgXcQ');
   assert.strictEqual(extractVideoId('https://www.youtube.com/shorts/abc123'), 'abc123');
   assert.strictEqual(extractVideoId('https://www.youtube.com/embed/abc123?start=4'), 'abc123');
   assert.strictEqual(extractVideoId('https://www.youtube.com/live/abc123'), 'abc123');

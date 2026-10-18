@@ -1,6 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import TrustReport from './TrustReport';
 
+// react-router v7's export map does not resolve under the Jest config CRA
+// ships (see CheckPage.test.js); the claim link only needs to render.
+jest.mock('react-router-dom', () => ({ Link: ({ to, children, ...rest }) => <a href={to} {...rest}>{children}</a> }));
+
 // A fabricated story, scored the way the pipeline actually scores one: the
 // writing checks accuse it, nothing corroborates it, and the three bookkeeping
 // rows (the starting point, the overlap discount, the calibration correction)

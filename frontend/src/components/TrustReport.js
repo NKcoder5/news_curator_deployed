@@ -5,6 +5,7 @@ import ReadAs from './ReadAs';
 import ClaimRecord from './ClaimRecord';
 import DecisionExplanation from './DecisionExplanation';
 import VerdictHeader from './VerdictHeader';
+import { Link } from 'react-router-dom';
 import { Badge } from './ui';
 import '../styles/TrustReport.css';
 
@@ -618,9 +619,9 @@ const TrustReport = ({ report, evidenceFirst = false, children }) => {
             <ReadAs understanding={report.understanding} call={report.call} perClaim={report.evidence?.perClaim} />
             <ClaimRecord memory={report.memory} call={report.call} />
             {report.memory?.claims?.length === 1 && (
-              <a className="report-permalink" href={`/claims/${report.memory.claims[0].claimId}`}>
+              <Link className="report-permalink" to={`/claims/${report.memory.claims[0].claimId}`}>
                 Open this claim’s public page <ExternalLink size={14} aria-hidden="true" />
-              </a>
+              </Link>
             )}
           </aside>
         )}

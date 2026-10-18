@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import '../styles/SignupPage.css';
 
@@ -306,9 +306,9 @@ const SignupPage = ({ setUser }) => {
             <div className="login-link">
               <p>
                 <span className="login-prefix">ALREADY A SUBSCRIBER?</span>{' '}
-                <a href="/login" className="login-anchor">
+                <Link to="/login" className="login-anchor">
                   LOG IN HERE <span className="arrow">→</span>
-                </a>
+                </Link>
               </p>
             </div>
           </div>

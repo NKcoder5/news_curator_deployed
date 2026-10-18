@@ -18,6 +18,7 @@ const { createRateLimits } = require('./middleware/rateLimits');
 const { notFound, errorHandler } = require('./middleware/errorHandlers');
 const { checkConfig } = require('./utils/config');
 const { PROVIDERS } = require('./utils/llmProviders');
+const localNli = require('./services/localNli');
 
 // DB Connection
 const connectDB = require('./utils/db');
@@ -132,12 +133,18 @@ const createApp = ({ rateLimits = {}, log = console.log } = {}) => {
   // Readiness: the process can do its job. A load balancer sends readers
   // here only when the database is connected and at least one model provider
   // is configured; without either, every check would fail or fall back.
+  // Our own pair model is reported, not required: without it the checks it
+  // serves fall back to the hosted models, as they did before it existed.
   app.get('/ready', (req, res) => {
     const database = mongoose.connection.readyState === 1;
     const models = Object.values(PROVIDERS).some(p => p.isConfigured());
     res.status(database && models ? 200 : 503).json({
       status: database && models ? 'READY' : 'NOT READY',
-      checks: { database: database ? 'connected' : 'not connected', models: models ? 'configured' : 'none configured' }
+      checks: {
+        database: database ? 'connected' : 'not connected',
+        models: models ? 'configured' : 'none configured',
+        ownModel: localNli.status()
+      }
     });
   });
 
@@ -162,6 +169,12 @@ const start = () => {
   const server = createApp().listen(PORT, () => {
     console.log(`✅ Server is running at http://localhost:${PORT}`);
   });
+
+  // Loaded now rather than on the first check, and tested on a known pair, so
+  // the first reader does not wait for it and /ready can say it runs.
+  localNli.warmUp().then((s) => {
+    console.log(`Own pair model: ${s.state} (${s.source})${s.selfTest ? `, self-test ${s.selfTest.passed ? 'passed' : 'FAILED'} in ${s.selfTest.ms} ms` : ''}`);
+  }).catch(() => {});
 
   connectDB().then(() => {
     console.log('Models initialized');

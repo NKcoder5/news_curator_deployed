@@ -1,0 +1,2 @@
+# The shipped model is data: git must never rewrite its line endings.
+backend/models/** -text

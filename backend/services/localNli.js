@@ -5,22 +5,27 @@
 // A small multilingual classifier (fine-tuned in ml/, exported to ONNX and quantised to int8) that runs on
 // the server's CPU with no external API. It is the replacement for the model calls that judge a pair of
 // sentences: a headline's stance toward a claim, whether a fact-check is about the same claim, whether an
-// encyclopedia entry contradicts a claim. Nothing in the pipeline calls it yet; this is the service the
-// pipeline will use once its verdicts are measured with it (docs/engineering/2026-10-14-own-models.md).
+// encyclopedia entry contradicts a claim. The pipeline uses it to veto contradictions a hosted model reports
+// but the encyclopedia sentence does not state, to judge claim pairs the matcher cannot settle, and to read
+// headlines in another script (docs/engineering/2026-10-14-own-models.md).
 //
 // Contract: judgePair(premise, hypothesis) -> { label, scores } or null. It returns null, and never throws,
 // when the model is not installed, cannot be loaded, or the input is empty, so a caller always has the
-// fallback it had before. The model files are not in git (ml/artifacts is ignored); the directory comes from
-// LOCAL_NLI_MODEL_DIR and defaults to ml/artifacts/minilm-l12-onnx-int8.
+// fallback it had before. The server ships its own copy in backend/models/minilm-l12-onnx-int8, inside the
+// folder a deploy is built from: training writes to ml/artifacts, which git ignores, so a deploy built from
+// git used to run without the model and fall back in silence. LOCAL_NLI_MODEL_DIR overrides both; without it
+// the shipped copy is used, then a fresh training export when the shipped copy is absent.
 //
 // The model's directory holds what `ml/src/export_onnx.py` writes: config.json, tokenizer.json,
 // tokenizer_config.json and onnx/model_quantized.onnx. Tokenisation is done in JavaScript
-// (@huggingface/tokenizers, no native code); inference by onnxruntime-node. Both are loaded on first use.
+// (@huggingface/tokenizers, no native code); inference by onnxruntime-node. Both are loaded on first use,
+// or at start-up by warmUp(), which also judges one known pair so /ready can show the model runs.
 
 const fs = require('fs');
 const path = require('path');
 
-const DEFAULT_DIR = path.join(__dirname, '..', '..', 'ml', 'artifacts', 'minilm-l12-onnx-int8');
+const SHIPPED_DIR = path.join(__dirname, '..', 'models', 'minilm-l12-onnx-int8');
+const TRAINING_DIR = path.join(__dirname, '..', '..', 'ml', 'artifacts', 'minilm-l12-onnx-int8');
 // The model was trained on pairs of at most this many tokens; a longer premise is cut, never the claim.
 const MAX_TOKENS = 160;
 const MAX_PREMISE_CHARS = 2000;
@@ -28,15 +33,13 @@ const MAX_HYPOTHESIS_CHARS = 500;
 const BATCH_SIZE = 16;
 const LABELS = ['entailment', 'neutral', 'contradiction'];
 
-const modelDir = () => process.env.LOCAL_NLI_MODEL_DIR || DEFAULT_DIR;
 const modelFile = (dir) => path.join(dir, 'onnx', 'model_quantized.onnx');
+const hasFiles = (dir) => ['config.json', 'tokenizer.json', 'tokenizer_config.json'].every((f) => fs.existsSync(path.join(dir, f)))
+  && fs.existsSync(modelFile(dir));
+const modelDir = () => process.env.LOCAL_NLI_MODEL_DIR || (hasFiles(SHIPPED_DIR) || !hasFiles(TRAINING_DIR) ? SHIPPED_DIR : TRAINING_DIR);
 
 /** True when the files the model needs are on disk (says nothing about whether the runtime packages are). */
-const isAvailable = () => {
-  const dir = modelDir();
-  return ['config.json', 'tokenizer.json', 'tokenizer_config.json'].every((f) => fs.existsSync(path.join(dir, f)))
-    && fs.existsSync(modelFile(dir));
-};
+const isAvailable = () => hasFiles(modelDir());
 
 /** Position of entailment / neutral / contradiction in the model's output, read from its config. */
 const labelOrder = (id2label) => {
@@ -82,6 +85,9 @@ const encodePair = (tokenizer, premise, hypothesis) => {
 };
 
 let loading = null;
+// 'not loaded' until first use or warmUp(); then 'loading', and 'ready', 'failed' or 'missing'.
+let state = 'not loaded';
+let selfTest = null;
 
 const load = async () => {
   const dir = modelDir();
@@ -108,7 +114,13 @@ const load = async () => {
 };
 
 const runtime = () => {
-  if (!loading) loading = load();
+  if (!loading) {
+    state = 'loading';
+    loading = load().then((rt) => {
+      state = rt ? 'ready' : isAvailable() ? 'failed' : 'missing';
+      return rt;
+    });
+  }
   return loading;
 };
 
@@ -161,7 +173,28 @@ const judgePairs = async (pairs) => {
 /** Judge one pair: does `premise` entail, leave open, or contradict the claim `hypothesis`? Null when it cannot say. */
 const judgePair = async (premise, hypothesis) => (await judgePairs([{ premise, hypothesis }]))[0];
 
-/** Forget the loaded model (tests point the service at different directories). */
-const reset = () => { loading = null; };
+// A pair whose answer is known: a different final figure for the same total contradicts the claim.
+const SELF_TEST = { premise: 'India finished the Asian Games with 85 medals.', hypothesis: 'India won 84 medals at the Asian Games.' };
 
-module.exports = { judgePair, judgePairs, isAvailable, modelDir, reset, LABELS, _internals: { labelOrder, softmax, padBatch, encodePair } };
+/**
+ * Where the model stands, for /ready: which copy is in use, whether it loaded, and how it answered the
+ * known pair at start-up. Never a file path: the endpoint is public.
+ */
+const status = () => {
+  const dir = modelDir();
+  const source = process.env.LOCAL_NLI_MODEL_DIR ? 'configured' : dir === SHIPPED_DIR ? 'shipped' : 'training export';
+  return { state: state === 'not loaded' && !isAvailable() ? 'missing' : state, source, selfTest };
+};
+
+/** Load the model and judge the known pair, so a deploy shows the model runs, not only that its files exist. */
+const warmUp = async () => {
+  const started = Date.now();
+  const r = await judgePair(SELF_TEST.premise, SELF_TEST.hypothesis);
+  selfTest = r ? { passed: r.label === 'contradiction', label: r.label, ms: Date.now() - started } : null;
+  return status();
+};
+
+/** Forget the loaded model (tests point the service at different directories). */
+const reset = () => { loading = null; state = 'not loaded'; selfTest = null; };
+
+module.exports = { judgePair, judgePairs, isAvailable, modelDir, status, warmUp, reset, LABELS, _internals: { labelOrder, softmax, padBatch, encodePair } };

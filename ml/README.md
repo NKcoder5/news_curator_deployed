@@ -45,8 +45,11 @@ ml\.venv\Scripts\python -I -X utf8 ml/src/bench_onnx.py --model ml/artifacts/min
 ml\.venv\Scripts\python -I -X utf8 ml/src/tables.py "zero-shot=ml/artifacts/eval/zeroshot_multilingual-MiniLMv2-L12-mnli-xnli.json" "fine-tuned=ml/artifacts/eval/ft_minilm_l12.json" "int8=ml/artifacts/eval/int8_minilm_l12.json"
 ```
 
-To use the model in the backend, point `LOCAL_NLI_MODEL_DIR` at the export directory (default
-`ml/artifacts/minilm-l12-onnx-int8`); `onnx/model.onnx` (the fp32 file, 160 MB) is not needed there. The export is 43 MB in total.
+The backend ships its own copy in `backend/models/minilm-l12-onnx-int8` (committed, because a deploy is built
+from the backend folder and `ml/artifacts` is ignored). To ship a new export, copy `config.json`,
+`tokenizer.json`, `tokenizer_config.json` and `onnx/model_quantized.onnx` there; `onnx/model.onnx` (the fp32
+file, 160 MB) is not needed. `LOCAL_NLI_MODEL_DIR` overrides the copy, for trying an export before shipping it.
+The server loads the model at start-up and `/ready` reports `checks.ownModel` with a self-test on a known pair.
 
 ## What is in `ml/src`
 

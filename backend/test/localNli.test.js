@@ -118,3 +118,37 @@ test('the installed model tells support, silence and contradiction apart', { ski
   assert.strictEqual(alone.label, out[1].label);
   assert.ok(Math.abs(alone.scores.contradiction - out[1].scores.contradiction) < 1e-3);
 });
+
+// A deploy is built from the backend folder alone, and training exports to ml/artifacts, which git ignores:
+// the model the server uses must be the copy shipped inside backend/.
+test('the server uses the model shipped inside backend/, and /ready can say it runs', { skip: !hasRuntime() && 'runtime not installed' }, async () => {
+  const before = process.env.LOCAL_NLI_MODEL_DIR;
+  delete process.env.LOCAL_NLI_MODEL_DIR;
+  try {
+    nli.reset();
+    assert.strictEqual(path.resolve(nli.modelDir()), path.join(__dirname, '..', 'models', 'minilm-l12-onnx-int8'));
+    assert.strictEqual(nli.isAvailable(), true, 'backend/models/minilm-l12-onnx-int8 is missing its files');
+    assert.strictEqual(nli.status().state, 'not loaded');
+    const s = await nli.warmUp();
+    assert.strictEqual(s.state, 'ready');
+    assert.strictEqual(s.source, 'shipped');
+    assert.strictEqual(s.selfTest.passed, true, `self-test answered ${s.selfTest.label}`);
+    assert.ok(!JSON.stringify(s).includes(path.sep + 'models'), 'no file path in a public status');
+  } finally {
+    if (before !== undefined) process.env.LOCAL_NLI_MODEL_DIR = before;
+    nli.reset();
+  }
+});
+
+test('a model directory without its files is reported missing, not ready', () => {
+  const before = process.env.LOCAL_NLI_MODEL_DIR;
+  process.env.LOCAL_NLI_MODEL_DIR = path.join(os.tmpdir(), 'no-such-model-dir');
+  try {
+    nli.reset();
+    assert.strictEqual(nli.status().state, 'missing');
+    assert.strictEqual(nli.status().source, 'configured');
+  } finally {
+    if (before === undefined) delete process.env.LOCAL_NLI_MODEL_DIR; else process.env.LOCAL_NLI_MODEL_DIR = before;
+    nli.reset();
+  }
+});

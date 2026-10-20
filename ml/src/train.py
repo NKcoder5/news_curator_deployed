@@ -18,7 +18,7 @@ import numpy as np  # noqa: E402
 import torch  # noqa: E402
 from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer, get_linear_schedule_with_warmup  # noqa: E402
 
-from nli_common import label_map, load, metrics, predict_torch  # noqa: E402
+from nli_common import half_dtype, label_map, load, metrics, predict_torch  # noqa: E402
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--model", required=True)
@@ -70,8 +70,12 @@ steps_per_epoch = (len(train) + a.bs - 1) // a.bs
 total = int(steps_per_epoch * a.epochs)
 decay = [p for n, p in model.named_parameters() if p.ndim > 1 and p.requires_grad]
 no_decay = [p for n, p in model.named_parameters() if p.ndim <= 1 and p.requires_grad]
-opt = torch.optim.AdamW([{"params": decay, "weight_decay": 0.01}, {"params": no_decay, "weight_decay": 0.0}], lr=a.lr, fused=True)
+opt = torch.optim.AdamW([{"params": decay, "weight_decay": 0.01}, {"params": no_decay, "weight_decay": 0.0}], lr=a.lr)
 sched = get_linear_schedule_with_warmup(opt, int(total * a.warmup), total)
+# bf16 needs no loss scaling; fp16 (Colab's T4 has no bf16) does, or small gradients underflow to zero.
+HALF = half_dtype()
+scaler = torch.amp.GradScaler("cuda", enabled=HALF == torch.float16)
+print(f"autocast {HALF}", flush=True)
 
 
 def evaluate_dev():
@@ -93,12 +97,14 @@ while not done:
     for idx in epoch_batches():
         batch = tok.pad({k: [enc[k][i] for i in idx] for k in enc.keys()}, return_tensors="pt").to(device)
         y = torch.tensor(labels[idx], device=device)
-        with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+        with torch.autocast(device_type="cuda", dtype=HALF):
             logits = model(**batch).logits
         loss = torch.nn.functional.cross_entropy(logits.float(), y)
-        loss.backward()
+        scaler.scale(loss).backward()
+        scaler.unscale_(opt)
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-        opt.step()
+        scaler.step(opt)
+        scaler.update()
         sched.step()
         opt.zero_grad(set_to_none=True)
         step += 1

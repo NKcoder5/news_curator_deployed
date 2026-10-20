@@ -30,6 +30,12 @@ def label_map(id2label):
     return [out[ENT], out[NEU], out[CON]]
 
 
+def half_dtype():
+    """bf16 where the GPU has it (RTX 30-series and later, Colab's L4/A100); fp16 on older cards such as Colab's T4."""
+    import torch
+    return torch.bfloat16 if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else torch.float16
+
+
 def softmax(x):
     e = np.exp(x - x.max(axis=-1, keepdims=True))
     return e / e.sum(axis=-1, keepdims=True)
@@ -51,7 +57,7 @@ def predict_torch(model, tok, rows, order, bs=128, max_len=160, device="cuda"):
     with torch.no_grad():
         for idx in batches_by_length([len(x) for x in ids], bs):
             batch = tok.pad({k: [enc[k][i] for i in idx] for k in enc.keys()}, return_tensors="pt").to(device)
-            with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=device == "cuda"):
+            with torch.autocast(device_type="cuda", dtype=half_dtype(), enabled=device == "cuda"):
                 logits = model(**batch).logits.float().cpu().numpy()
             probs[idx] = softmax(logits)[:, order]
     return probs

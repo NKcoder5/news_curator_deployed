@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from nli_common import Timer, label_map, load, predict_onnx, predict_torch, report  # noqa: E402
 
 SETS = ["eval_synth_seen", "eval_synth_unseen", "eval_claims", "eval_blind", "eval_fnc1", "eval_xnli_hi", "eval_indic_ta", "eval_indic_hi",
-        "eval_fever", "eval_mnli"]
+        "eval_fever", "eval_mnli", "eval_stance"]
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--model", required=True)
@@ -47,6 +47,9 @@ else:
 
 results = {"model": a.model, "onnx": a.onnx, "con_threshold": a.con_threshold, "sets": {}}
 for name in a.sets.split(","):
+    if not (Path(a.data) / f"{name}.jsonl").exists():
+        print(f"{name}: not built, skipped")
+        continue
     rows = load(Path(a.data) / f"{name}.jsonl")[:a.limit]
     with Timer() as t:
         probs = predict(rows)

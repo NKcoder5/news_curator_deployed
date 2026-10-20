@@ -158,6 +158,24 @@ write("eval_fnc1", fnc("competition_test_stances.csv", "competition_test_bodies.
 write("eval_claims", claim_pairs())
 write("eval_blind", blind_pairs())
 
+# Our own setting: Google News headlines judged against the claims people forward, labelled by Gemini
+# through the verifier's own stance step (backend/eval/stanceAgreement.js). Split by claim, so no claim
+# is in two splits, and repeated in training: a few thousand pairs against a hundred thousand general ones.
+STANCE = DATA / "stance_pairs.jsonl"
+if STANCE.exists():
+    to_label = {"agree": 0, "unrelated": 1, "disagree": 2}
+    rows = [json.loads(line) for line in open(STANCE, encoding="utf-8") if line.strip()]
+    rows = [r for r in rows if not r.get("noCoverage") and r.get("provider") == "gemini" and r.get("hosted") in to_label]
+    claims = sorted({r["id"] for r in rows})
+    random.Random(7).shuffle(claims)
+    n = len(claims)
+    held, dev_claims = set(claims[:n // 5]), set(claims[n // 5:n // 5 + n // 10])
+    as_pair = lambda r: {"premise": r["premise"], "hypothesis": r["claim"], "label": to_label[r["hosted"]],
+                         "src": "stance_ours", "lang": "en", "sub": r["hosted"], "claim_id": r["id"]}
+    write("eval_stance", [as_pair(r) for r in rows if r["id"] in held])
+    dev += [as_pair(r) for r in rows if r["id"] in dev_claims]
+    train += [as_pair(r) for r in rows if r["id"] not in held and r["id"] not in dev_claims] * 3
+
 rng.shuffle(train)
 rng.shuffle(dev)
 write("train", train)

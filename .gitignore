@@ -52,3 +52,7 @@ __pycache__/
 # === Local Claude Code state (worktrees, machine settings) ===
 .claude/worktrees/
 .claude/settings.local.json
+
+# Colab hand-off files (regenerable)
+ml/colab/pure_press_ml.zip
+ml/pair_model_export.zip

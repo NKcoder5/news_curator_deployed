@@ -29,7 +29,8 @@ a = ap.parse_args()
 
 from transformers import AutoConfig, AutoTokenizer  # noqa: E402
 
-tok = AutoTokenizer.from_pretrained(a.model)
+from nli_common import load_tokenizer  # noqa: E402
+tok = load_tokenizer(a.model)
 order = label_map(AutoConfig.from_pretrained(a.model).id2label)
 if a.onnx:
     import onnxruntime as ort

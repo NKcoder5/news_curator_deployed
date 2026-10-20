@@ -52,7 +52,7 @@ def prune(tok, model, data_dir, keep_top):
     kept = set(tok.all_special_ids) | set(range(keep_top)) | {i for i, (p, _) in enumerate(pieces) if len(p.lstrip("▁")) <= 1}
     pairs = []
     for f in sorted(Path(data_dir).glob("*.jsonl")):
-        pairs += [(r["premise"], r["hypothesis"]) for r in map(json.loads, open(f, encoding="utf-8"))]
+        pairs += [(r["premise"], r.get("hypothesis") or r.get("claim", "")) for r in map(json.loads, open(f, encoding="utf-8")) if r.get("premise")]
     for i in range(0, len(pairs), 5000):
         chunk = pairs[i:i + 5000]
         for ids in tok([p for p, _ in chunk], [h for _, h in chunk])["input_ids"]:

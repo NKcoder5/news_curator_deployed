@@ -124,3 +124,18 @@ class Timer:
 
     def __exit__(self, *a):
         self.seconds = time.time() - self.t
+
+
+def load_tokenizer(path):
+    """AutoTokenizer, or tokenizer.json alone when the saved config names a class this transformers release
+    cannot build (the shipped export was saved by an earlier transformers 5 release)."""
+    from pathlib import Path
+    from transformers import AutoTokenizer, PreTrainedTokenizerFast
+    try:
+        return AutoTokenizer.from_pretrained(path)
+    except (ValueError, OSError, AttributeError):
+        config_file = Path(path) / "tokenizer_config.json"
+        config = json.loads(config_file.read_text(encoding="utf-8")) if config_file.exists() else {}
+        special = {k: config[k] for k in ("bos_token", "eos_token", "unk_token", "sep_token", "pad_token", "cls_token", "mask_token")
+                   if isinstance(config.get(k), str)}
+        return PreTrainedTokenizerFast(tokenizer_file=str(Path(path) / "tokenizer.json"), **special)

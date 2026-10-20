@@ -33,3 +33,19 @@ test('a changed code is still a conflict', () => {
   const code = [outlet('NDTV', 'Air India flight squawked 7500, the hijack code, before landing'), outlet('India Today', 'Air India pilots squawked code 7500 mid-air')];
   assert.strictEqual(conflicts('The Air India flight squawked code 7400 before the emergency landing.', code), true);
 });
+
+test('a figure is compared to the precision it is written in; counts stay exact', () => {
+  const two = (a, b) => [outlet('The Hindu', a), outlet('NDTV', b)];
+  assert.strictEqual(conflicts('Shah Rukh Khan donated Rs 5 crore to flood relief.',
+    two('Shah Rukh Khan donates Rs 5.2 crore to flood relief', 'Shah Rukh Khan gives Rs 5.2 crore for flood relief')), false, 'Rs 5 crore is Rs 5.2 crore to the nearest crore');
+  assert.strictEqual(conflicts('Shah Rukh Khan donated Rs 5 crore to flood relief.',
+    two('Shah Rukh Khan donates Rs 7 crore to flood relief', 'Shah Rukh Khan gives Rs 7 crore for flood relief')), true);
+  assert.strictEqual(conflicts('Tata Motors will hire 3,000 engineers.',
+    two('Tata Motors to hire 3,200 engineers', 'Tata Motors plans to hire 3,200 engineers this year')), false, '3,000 is a round figure');
+  assert.strictEqual(conflicts('Tata Motors will hire 3,000 engineers.',
+    two('Tata Motors to hire 5,000 engineers', 'Tata Motors plans to hire 5,000 engineers this year')), true);
+  assert.strictEqual(conflicts('India won 80 medals at the Asian Games 2026.',
+    two('India finish Asian Games 2026 with 84 medals', 'Asian Games 2026: India signs off with 84 medals')), true, '80 medals is a count');
+  assert.strictEqual(conflicts('Arvind Kejriwal was sent to 4 days of judicial custody by the Rouse Avenue court.',
+    two('Arvind Kejriwal sent to 5 days judicial custody by Rouse Avenue court', 'Rouse Avenue court sends Arvind Kejriwal to 5 days judicial custody')), true);
+});

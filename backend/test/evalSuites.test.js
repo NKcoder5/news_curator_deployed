@@ -22,6 +22,9 @@ const WITHOUT_SOURCES = new Set(['robustness_suite.json', 'heldout_suite.json', 
 // evidence follow the security stream's own scheme (eval/injectionSuite.js).
 // They still parse, keep unique ids and repeat no other suite's message.
 const NOT_FACTUAL = new Set(['injection_suite.json']);
+// Claims with no verdict label: stance data is drawn from them (eval/stanceClaims.js), and its labels
+// come from the stance step, per headline, not from the suite.
+const UNLABELLED = new Set(['stance_claims.json']);
 // Found by this test: the benchmark and the robustness suite (both of 11 Oct)
 // share one message. Left as it was, since those runs are already on record;
 // data/ruleReliability.json counts it twice. No other repeat is allowed.
@@ -86,7 +89,7 @@ test('no message appears in two suites, or twice in one', () => {
 });
 
 test('every label that is not a refusal rests on a source URL, with the date it was labelled', () => {
-  for (const f of files.filter(x => !WITHOUT_SOURCES.has(x) && !NOT_FACTUAL.has(x))) {
+  for (const f of files.filter(x => !WITHOUT_SOURCES.has(x) && !NOT_FACTUAL.has(x) && !UNLABELLED.has(x))) {
     const s = load(f);
     for (const c of [...(s.cases || []), ...(s.claims || [])]) {
       if (REFUSALS.has(c.expected)) continue;

@@ -1,0 +1,506 @@
+{
+ "about": "Gold stance pairs, labelled by hand with the reason, not by any model: does this headline agree with the claim, disagree with it (same event, both cannot be true), or say nothing about it (unrelated: another event, or not enough said)? Written in the style of real Indian headlines to cover the cases where models fail: attribution, forecasts, bounds, other entities, negation, units, interim figures, debunks, questions, time order, and Tamil and Hindi claims against English headlines. Used to judge a candidate stance model independently of Gemini (eval/stanceCandidate.js). Pairs marked trainedPattern follow a pattern the synthetic training data (ml/src/synth.py g_hedged) was written from; they are reported apart from the rest, which test generalisation.",
+ "labelledOn": "2026-10-21",
+ "pairs": [
+  {
+   "id": "sp-01",
+   "kind": "attribution",
+   "claim": "Drinking cow urine cures cancer.",
+   "headline": "Cow dung, urine can cure cancer: BJP MP",
+   "gold": "unrelated",
+   "why": "Reports that someone claims it, not that it is true.",
+   "lang": "en",
+   "trainedPattern": true
+  },
+  {
+   "id": "sp-02",
+   "kind": "attribution",
+   "claim": "Hot lemon water kills the coronavirus.",
+   "headline": "Viral post claims hot lemon water kills coronavirus",
+   "gold": "unrelated",
+   "why": "A viral claim reported as a claim.",
+   "lang": "en",
+   "trainedPattern": true
+  },
+  {
+   "id": "sp-03",
+   "kind": "attribution",
+   "claim": "Hot lemon water kills the coronavirus.",
+   "headline": "Fact check: Hot lemon water does not kill coronavirus",
+   "gold": "disagree",
+   "why": "A fact-check stating the opposite.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-04",
+   "kind": "attribution",
+   "claim": "TVK will win 150 seats in the Tamil Nadu election.",
+   "headline": "TVK will sweep with 150 seats, claims Vijay",
+   "gold": "unrelated",
+   "why": "A party leader's prediction is not the outcome.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-05",
+   "kind": "first-party",
+   "claim": "Infosys will hire 20,000 freshers this year.",
+   "headline": "We will hire 20,000 freshers this year, says Infosys CEO",
+   "gold": "agree",
+   "why": "The company announcing its own plan is the report of that plan.",
+   "lang": "en",
+   "trainedPattern": true
+  },
+  {
+   "id": "sp-06",
+   "kind": "first-party",
+   "claim": "The RBI kept the repo rate unchanged at 5.5%.",
+   "headline": "RBI keeps repo rate steady at 5.5%, says Governor Malhotra",
+   "gold": "agree",
+   "why": "The decision-maker announcing its decision.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-07",
+   "kind": "forecast",
+   "claim": "The RBI raised the repo rate by 25 basis points to 5.75%.",
+   "headline": "RBI may hike repo rate by 25 bps this week, say economists",
+   "gold": "unrelated",
+   "why": "A forecast is not the decision.",
+   "lang": "en",
+   "trainedPattern": true
+  },
+  {
+   "id": "sp-08",
+   "kind": "forecast",
+   "claim": "The RBI raised the repo rate by 25 basis points to 5.75%.",
+   "headline": "RBI keeps repo rate unchanged at 5.5% for third time",
+   "gold": "disagree",
+   "why": "Unchanged and raised cannot both be true of the same decision.",
+   "lang": "en",
+   "trainedPattern": true
+  },
+  {
+   "id": "sp-09",
+   "kind": "forecast",
+   "claim": "Petrol prices were cut by Rs 2 a litre.",
+   "headline": "Petrol, diesel prices likely to be cut by Rs 2 ahead of Diwali",
+   "gold": "unrelated",
+   "why": "Likely is not done.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-10",
+   "kind": "forecast",
+   "claim": "Tata Motors will launch the Sierra EV in January.",
+   "headline": "Tata Sierra EV launch set for January, company confirms",
+   "gold": "agree",
+   "why": "The company confirming its own schedule.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-11",
+   "kind": "bound",
+   "claim": "India crossed 80 medals at the Asian Games 2026.",
+   "headline": "Asian Games 2026: India signs off with 85 medals",
+   "gold": "agree",
+   "why": "85 is more than 80.",
+   "lang": "en",
+   "trainedPattern": true
+  },
+  {
+   "id": "sp-12",
+   "kind": "bound",
+   "claim": "India won more than 100 medals at the Asian Games 2026.",
+   "headline": "Asian Games 2026: India signs off with 85 medals",
+   "gold": "disagree",
+   "why": "85 is not more than 100.",
+   "lang": "en",
+   "trainedPattern": true
+  },
+  {
+   "id": "sp-13",
+   "kind": "bound",
+   "claim": "Over 50 people were killed in the Odisha train accident.",
+   "headline": "Odisha train accident: death toll rises to 61",
+   "gold": "agree",
+   "why": "61 is over 50.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-14",
+   "kind": "bound",
+   "claim": "Nearly 90 people were injured in the stampede.",
+   "headline": "Stampede at temple fair leaves 87 injured",
+   "gold": "agree",
+   "why": "87 is nearly 90.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-15",
+   "kind": "figure",
+   "claim": "India won 84 medals at the Asian Games 2026.",
+   "headline": "Asian Games 2026: India signs off with 85 medals",
+   "gold": "disagree",
+   "why": "A different final total for the same thing.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-16",
+   "kind": "interim",
+   "claim": "India won 84 medals at the Asian Games 2026.",
+   "headline": "Asian Games Day 9: India's medal tally crosses 50",
+   "gold": "unrelated",
+   "why": "A part-way count is not the final total.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-17",
+   "kind": "units",
+   "claim": "The actor donated Rs 5 crore to the flood relief fund.",
+   "headline": "Actor donates Rs 50 million to flood relief",
+   "gold": "agree",
+   "why": "Rs 5 crore is Rs 50 million.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-18",
+   "kind": "units",
+   "claim": "The scheme will benefit 1 lakh farmers.",
+   "headline": "New scheme to help 100,000 farmers, says minister",
+   "gold": "agree",
+   "why": "1 lakh is 100,000; a minister announcing the government's own scheme.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-19",
+   "kind": "code",
+   "claim": "The Air India flight squawked code 7400 before the emergency landing.",
+   "headline": "Air India flight squawked 7500, the hijack code, before landing in Delhi",
+   "gold": "disagree",
+   "why": "A different code for the same signal.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-20",
+   "kind": "days",
+   "claim": "The accused was sent to 4 days of judicial custody.",
+   "headline": "Court sends accused to five-day judicial custody",
+   "gold": "disagree",
+   "why": "Four days and five days for the same order.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-21",
+   "kind": "other-entity",
+   "claim": "Qualcomm is cutting jobs globally after employee reviews.",
+   "headline": "Monday.com cuts hundreds of jobs; CEO sends layoff email",
+   "gold": "unrelated",
+   "why": "Another company.",
+   "lang": "en",
+   "trainedPattern": true
+  },
+  {
+   "id": "sp-22",
+   "kind": "other-entity",
+   "claim": "Hyundai recalled 20,000 cars over an airbag fault.",
+   "headline": "Kia recalls 20,000 cars in India over airbag defect",
+   "gold": "unrelated",
+   "why": "Another company with the same figure.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-23",
+   "kind": "other-entity",
+   "claim": "Chennai recorded 30 cm of rain in 24 hours.",
+   "headline": "Puducherry records 30 cm rainfall in a day",
+   "gold": "unrelated",
+   "why": "Another place.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-24",
+   "kind": "negation",
+   "claim": "PM Modi has not resigned.",
+   "headline": "PM Modi warns against forces dividing society on Vijayadashami",
+   "gold": "unrelated",
+   "why": "Says nothing about resigning.",
+   "lang": "en",
+   "trainedPattern": true
+  },
+  {
+   "id": "sp-25",
+   "kind": "negation",
+   "claim": "Virat Kohli has not retired from Test cricket.",
+   "headline": "Virat Kohli announces retirement from Test cricket",
+   "gold": "disagree",
+   "why": "He did retire.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-26",
+   "kind": "negation",
+   "claim": "Walmart has not adopted a staggered shopping schedule based on age.",
+   "headline": "Coronavirus fact check: Has Walmart adopted staggered shopping days based on age?",
+   "gold": "unrelated",
+   "why": "A question asserts nothing.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-27",
+   "kind": "negation",
+   "claim": "The government has not banned 500 rupee notes.",
+   "headline": "No plan to withdraw Rs 500 notes, says Finance Ministry",
+   "gold": "agree",
+   "why": "The ministry confirming no withdrawal.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-28",
+   "kind": "reversal",
+   "claim": "Australia beat India in the second ODI.",
+   "headline": "India beat Australia by 6 wickets in second ODI",
+   "gold": "disagree",
+   "why": "Opposite winner.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-29",
+   "kind": "reversal",
+   "claim": "TVK lost the by-election in Erode East.",
+   "headline": "TVK wins Erode East by-poll by 12,000 votes",
+   "gold": "disagree",
+   "why": "Won against lost.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-30",
+   "kind": "reversal",
+   "claim": "The Punjab anti-drug activist was saved by the police.",
+   "headline": "Punjab anti-drug activist murdered; police search for attackers",
+   "gold": "disagree",
+   "why": "Murdered against saved.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-31",
+   "kind": "paraphrase",
+   "claim": "UAE lost to Namibia in the T20 World Cup qualifier.",
+   "headline": "Namibia beat UAE to keep T20 World Cup hopes alive",
+   "gold": "agree",
+   "why": "The same result from the other side.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-32",
+   "kind": "paraphrase",
+   "claim": "Nana Patekar died in Goa.",
+   "headline": "Veteran actor Nana Patekar passes away in Goa at 75",
+   "gold": "agree",
+   "why": "Passes away in Goa is died in Goa.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-33",
+   "kind": "not-enough",
+   "claim": "Nana Patekar died in Goa.",
+   "headline": "Obituary: Nana Patekar, the actor who never played it safe",
+   "gold": "unrelated",
+   "why": "Confirms the death but not the place; not enough to agree with the claim as stated.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-34",
+   "kind": "time",
+   "claim": "The elephant that fell into the well in Coimbatore was rescued.",
+   "headline": "Rescue operations under way for elephant that fell into well in Coimbatore",
+   "gold": "unrelated",
+   "why": "An earlier report of a rescue in progress neither confirms nor contradicts the later outcome.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-35",
+   "kind": "time",
+   "claim": "The elephant that fell into the well in Coimbatore was rescued.",
+   "headline": "Elephant pulled out of well in Coimbatore after 12-hour operation",
+   "gold": "agree",
+   "why": "Pulled out is rescued.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-36",
+   "kind": "debunk",
+   "claim": "A video shows the Army chief dancing at a wedding.",
+   "headline": "Video of Army chief dancing at wedding is AI-generated",
+   "gold": "disagree",
+   "why": "The video does not show it; it was generated.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-37",
+   "kind": "debunk",
+   "claim": "Every Saturday has been declared a bank holiday.",
+   "headline": "Fact check: Viral gazette declaring all Saturdays bank holidays is fake",
+   "gold": "disagree",
+   "why": "A fact-check ruling the claim false.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-38",
+   "kind": "question",
+   "claim": "Gold prices hit a record high in Chennai.",
+   "headline": "Will gold prices hit a record high this Diwali?",
+   "gold": "unrelated",
+   "why": "A question asserts nothing.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-39",
+   "kind": "sibling",
+   "claim": "The Supreme Court stayed the Waqf Act.",
+   "headline": "Supreme Court to hear pleas against Waqf Act next week",
+   "gold": "unrelated",
+   "why": "A hearing date, not a stay.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-40",
+   "kind": "sibling",
+   "claim": "Mumbai Indians beat Chennai Super Kings in the IPL final.",
+   "headline": "Mumbai Indians beat Chennai Super Kings in league match at Wankhede",
+   "gold": "unrelated",
+   "why": "A league match, not the final.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-41",
+   "kind": "same-event",
+   "claim": "Heavy rain lashed Chennai on Monday.",
+   "headline": "Chennai rains: schools shut as heavy downpour lashes city on Monday",
+   "gold": "agree",
+   "why": "Same event.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-42",
+   "kind": "partial",
+   "claim": "India won 85 medals at the Asian Games and the RBI cut the repo rate by 50 basis points.",
+   "headline": "Asian Games 2026: India finish fourth with 85 medals",
+   "gold": "unrelated",
+   "why": "Confirms one part only; it does not report the whole claim.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-43",
+   "kind": "speculation",
+   "claim": "Elon Musk bought Reliance Jio.",
+   "headline": "Could Elon Musk buy Reliance Jio? Analysts weigh in",
+   "gold": "unrelated",
+   "why": "A question about a possibility.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-44",
+   "kind": "standing",
+   "claim": "The Sun rises in the west.",
+   "headline": "Why the Sun rises in the east: the science explained",
+   "gold": "disagree",
+   "why": "States the opposite fact.",
+   "lang": "en",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-45",
+   "kind": "multilingual",
+   "lang": "hi",
+   "claim": "भारत ने एशियाई खेल 2026 में 85 पदक जीते।",
+   "headline": "Asian Games 2026: India signs off with 85 medals",
+   "gold": "agree",
+   "why": "Hindi: India won 85 medals at the Asian Games 2026.",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-46",
+   "kind": "multilingual",
+   "lang": "hi",
+   "claim": "आरबीआई ने रेपो रेट 25 बेसिस पॉइंट बढ़ा दिया।",
+   "headline": "RBI keeps repo rate unchanged at 5.5%",
+   "gold": "disagree",
+   "why": "Hindi: the RBI raised the repo rate by 25 basis points.",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-47",
+   "kind": "multilingual",
+   "lang": "ta",
+   "claim": "இந்தியா ஆசிய விளையாட்டுப் போட்டியில் 90 பதக்கங்களை வென்றது.",
+   "headline": "Asian Games 2026: India signs off with 85 medals",
+   "gold": "disagree",
+   "why": "Tamil: India won 90 medals at the Asian Games.",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-48",
+   "kind": "multilingual",
+   "lang": "ta",
+   "claim": "சென்னையில் கனமழை காரணமாக பள்ளிகளுக்கு விடுமுறை அறிவிக்கப்பட்டது.",
+   "headline": "Chennai rains: schools shut as heavy downpour lashes city",
+   "gold": "agree",
+   "why": "Tamil: schools in Chennai were given a holiday because of heavy rain.",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-49",
+   "kind": "multilingual",
+   "lang": "ta",
+   "claim": "தவெக ஈரோடு கிழக்கு இடைத்தேர்தலில் தோற்றது.",
+   "headline": "TVK wins Erode East by-poll by 12,000 votes",
+   "gold": "disagree",
+   "why": "Tamil: TVK lost the Erode East by-election.",
+   "trainedPattern": false
+  },
+  {
+   "id": "sp-50",
+   "kind": "multilingual",
+   "lang": "hi",
+   "claim": "क्वालकॉम दुनिया भर में नौकरियों में कटौती कर रहा है।",
+   "headline": "Monday.com cuts hundreds of jobs; CEO sends layoff email",
+   "gold": "unrelated",
+   "why": "Hindi: Qualcomm is cutting jobs worldwide; the headline is another company.",
+   "trainedPattern": false
+  }
+ ]
+}

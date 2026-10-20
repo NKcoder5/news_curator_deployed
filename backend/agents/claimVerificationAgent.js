@@ -43,11 +43,46 @@ const numbersInContext = (text) => {
     if (/^(?:19|20)\d{2}$/.test(digits)) continue;
     const before = [m[2], m[1]].map(contextWord).filter(Boolean);
     const after = [m[4]].map(contextWord).filter(Boolean);
-    out.push({ value: Number(digits), raw: m[0].trim(), words: new Set([...before, ...after]), label: before[0] || after[0] || '' });
+    out.push({ value: Number(digits), raw: m[0].trim(), digits: m[3], words: new Set([...before, ...after]), label: before[0] || after[0] || '' });
   }
   return out;
 };
 const sameContext = (a, b) => [...a.words].some(w => b.words.has(w));
+
+// What a figure's wording allows. "85 medals" is exactly 85; "crossed 80 medals" is 80 or more; "nearly 90"
+// is just under 90; "about 100" is near it; "fewer than 100" is below it. Two figures conflict only when
+// what they allow cannot overlap. Compared as plain values, "India crossed 80 medals" against two outlets'
+// "India signs off with 85 medals" was ruled contradicted by the figures, which overrule the stance step:
+// a true claim came back FAKE whatever the model said.
+const BOUNDS = [
+  [/(?:crossed|crosses|crossing|cross|surpassed|surpasses|exceeded|exceeds|topped|tops|more than|over|above|upwards of|in excess of|beyond)\s*$/i, 'min'],
+  [/(?:at least|no fewer than|no less than|a minimum of)\s*$/i, 'min'],
+  [/(?:nearly|almost|close to|just under|just short of)\s*$/i, 'near'],
+  [/(?:about|around|roughly|approximately|approx\.?|an estimated|estimated|some)\s*$/i, 'approx'],
+  [/(?:fewer than|less than|under|below|at most|up to|not more than|no more than|a maximum of)\s*$/i, 'max']
+];
+// A count on the way to its total ("Day 9: India's tally crosses 50", "death toll so far") is not the
+// total, and says nothing for or against it.
+const INTERIM = /\b(?:day \d+|so far|till now|until now|as of now|live|live updates?|midway|halfway)\b/i;
+const rangeFor = (preceding, value) => {
+  const lead = String(preceding || '').slice(-28).replace(/(?:rs\.?|₹|\$|inr|usd|us\$)\s*$/i, '');
+  const kind = (BOUNDS.find(([re]) => re.test(lead)) || [null, 'exact'])[1];
+  if (kind === 'min') return [value, Infinity];
+  if (kind === 'near') return [value * 0.8, value];
+  if (kind === 'approx') return [value * 0.8, value * 1.2];
+  if (kind === 'max') return [-Infinity, value];
+  return [value, value];
+};
+// The words before a figure where it first appears in `text`, and before its digits within its own match.
+const precedingText = (text, raw, digits = null) => {
+  const s = String(text || '');
+  const at = s.toLowerCase().indexOf(String(raw || '').toLowerCase());
+  const own = digits && raw ? String(raw).slice(0, Math.max(0, String(raw).indexOf(digits))) : '';
+  return `${at > 0 ? s.slice(0, at) : ''}${own}`;
+};
+const overlaps = (a, b) => a[0] <= b[1] && b[0] <= a[1];
+// A headline states the claim's figure when its exact figure lies within what the claim allows.
+const states = (claimRange, headRange) => headRange[0] === headRange[1] && claimRange[0] <= headRange[0] && headRange[0] <= claimRange[1];
 
 const figureConflicts = (claim, coverage) => {
   const sc = signatureOf(claim);
@@ -63,22 +98,25 @@ const figureConflicts = (claim, coverage) => {
   for (const item of coverage) {
     // Headline and the article's own snippet, where one is given (Bing).
     const text = `${item.title || ''}. ${item.description || ''}`;
+    if (INTERIM.test(text)) continue;
     const sh = signatureOf(text);
     const words = anchorTerms(text);
     if ([...names].filter(n => words.has(n)).length < needNames) continue;
     let found = null;
     for (const n of sc.numbers) {
-      const same = sh.numbers.filter(h => h.unit && h.unit === n.unit);
-      if (same.some(h => h.value === n.value)) stated += 1;
-      const other = same.find(h => h.value !== n.value);
+      const mine = rangeFor(precedingText(claim, n.raw), n.value);
+      const same = sh.numbers.filter(h => h.unit && h.unit === n.unit).map(h => ({ ...h, range: rangeFor(precedingText(text, h.raw), h.value) }));
+      if (same.some(h => states(mine, h.range))) stated += 1;
+      const other = same.find(h => !overlaps(mine, h.range));
       if (other) { found = { item, reported: other.raw, unit: n.unit }; break; }
     }
     if (!found) {
       const headlineContext = numbersInContext(text);
       for (const n of claimContext) {
-        const beside = headlineContext.filter(h => sameContext(n, h));
-        if (beside.some(h => h.value === n.value)) stated += 1;
-        const other = beside.find(h => h.value !== n.value);
+        const mine = rangeFor(precedingText(claim, n.raw, n.digits), n.value);
+        const beside = headlineContext.filter(h => sameContext(n, h)).map(h => ({ ...h, range: rangeFor(precedingText(text, h.raw, h.digits), h.value) }));
+        if (beside.some(h => states(mine, h.range))) stated += 1;
+        const other = beside.find(h => !overlaps(mine, h.range));
         if (other) { found = { item, reported: other.raw, unit: n.label }; break; }
       }
     }

@@ -128,7 +128,7 @@ const report = (rows) => {
 const main = async () => {
   const suites = (arg('suites', DEFAULT_SUITES.join(',')) || '').split(',').filter(Boolean);
   const limit = Number(arg('limit', 0)) || Infinity;
-  const readRows = () => (fs.existsSync(PAIRS) ? fs.readFileSync(PAIRS, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)) : []);
+  const readRows = () => (fs.existsSync(PAIRS) ? fs.readFileSync(PAIRS, 'utf8').split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l); } catch (_) { return null; } }).filter(Boolean) : []);
   const done = new Set(readRows().map((r) => r.id));
   const todo = claimsFrom(suites).filter((c) => !done.has(c.id)).slice(0, limit);
   console.log(`${todo.length} claims to judge (${done.size} already recorded)`);

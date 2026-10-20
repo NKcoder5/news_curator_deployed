@@ -1,0 +1,1420 @@
+{
+ "about": "Claims for the stance data (eval/stanceClaims.js): top headlines, and each with one detail changed. Labels come from the stance step, not from here.",
+ "cases": [
+  {
+   "id": "2026-10-20-0",
+   "category": "general",
+   "kind": "headline",
+   "input": "PM Modi invokes 'Ram Rajya', warns against people hurting India's image - top quotes from Dussehra event"
+  },
+  {
+   "id": "2026-10-20-1",
+   "category": "general",
+   "kind": "headline",
+   "input": "Tiger Shroff Was Not Original Target, Shooters Wanted To Kill Someone Else: Sources"
+  },
+  {
+   "id": "2026-10-20-2",
+   "category": "general",
+   "kind": "headline",
+   "input": "1998 Coimbatore Blasts Convicts Get Parole, BJP Jabs With \"Betrayal\" Remark"
+  },
+  {
+   "id": "2026-10-20-3",
+   "category": "general",
+   "kind": "headline",
+   "input": "Amit Shah visits Punjab; drug menace at centre stage yet again"
+  },
+  {
+   "id": "2026-10-20-4",
+   "category": "general",
+   "kind": "headline",
+   "input": "In Abhijeet Dipke's Message To \"Cockroaches\", Pause In Protests And A \"Real Leaders\" Reveal"
+  },
+  {
+   "id": "2026-10-20-5",
+   "category": "general",
+   "kind": "headline",
+   "input": "India-New Zealand FTA comes into force; new visa categories for Indians, zero-duty access for exports"
+  },
+  {
+   "id": "2026-10-20-6",
+   "category": "general",
+   "kind": "headline",
+   "input": "France protests: Paris police issue overnight curfew in two areas to try to prevent further disorder"
+  },
+  {
+   "id": "2026-10-20-7",
+   "category": "general",
+   "kind": "headline",
+   "input": "\"I'll Shoot Them\": Israel-Backed Militias Terrorise Gaza Families, Raid Homes"
+  },
+  {
+   "id": "2026-10-20-8",
+   "category": "general",
+   "kind": "headline",
+   "input": "Britain says it will carry out defensive air missions over Saudi Arabia"
+  },
+  {
+   "id": "2026-10-20-8c",
+   "category": "general",
+   "kind": "negation",
+   "input": "Britain says it will not carry out defensive air missions over Saudi Arabia",
+   "changedFrom": "Britain says it will carry out defensive air missions over Saudi Arabia"
+  },
+  {
+   "id": "2026-10-20-10",
+   "category": "general",
+   "kind": "headline",
+   "input": "Brent Tops $110 as Tanker Attacks Threaten Persian Gulf Supply"
+  },
+  {
+   "id": "2026-10-20-10c",
+   "category": "general",
+   "kind": "figure",
+   "input": "Brent Tops $132 as Tanker Attacks Threaten Persian Gulf Supply",
+   "changedFrom": "Brent Tops $110 as Tanker Attacks Threaten Persian Gulf Supply"
+  },
+  {
+   "id": "2026-10-20-12",
+   "category": "general",
+   "kind": "headline",
+   "input": "Qualcomm to cut jobs globally after employee reviews, CEO sends memo to staff"
+  },
+  {
+   "id": "2026-10-20-13",
+   "category": "general",
+   "kind": "headline",
+   "input": "Hackers Claim Access To Confidential Data Of 3.75 Lakh SBI Accounts: Report"
+  },
+  {
+   "id": "2026-10-20-13c",
+   "category": "general",
+   "kind": "figure",
+   "input": "Hackers Claim Access To Confidential Data Of 4.5 Lakh SBI Accounts: Report",
+   "changedFrom": "Hackers Claim Access To Confidential Data Of 3.75 Lakh SBI Accounts: Report"
+  },
+  {
+   "id": "2026-10-20-15",
+   "category": "general",
+   "kind": "headline",
+   "input": "Amazon, Meta AI Wearables Raise Fresh Privacy Concerns"
+  },
+  {
+   "id": "2026-10-20-16",
+   "category": "general",
+   "kind": "headline",
+   "input": "'I'll Quit Singing If You Ever See Daler Mehndi Drinking Alcohol': Mika Singh"
+  },
+  {
+   "id": "2026-10-20-17",
+   "category": "general",
+   "kind": "headline",
+   "input": "Deepika Padukone, Ranveer Singh announce second baby's name as Devi Padukone Singh, drop FIRST glimpse in"
+  },
+  {
+   "id": "2026-10-20-18",
+   "category": "general",
+   "kind": "headline",
+   "input": "India bat and bring in Prema Rawat as they eye clean sweep"
+  },
+  {
+   "id": "2026-10-20-19",
+   "category": "general",
+   "kind": "headline",
+   "input": "Asian Para Games 2026 medal tally: India winners - full list and table"
+  },
+  {
+   "id": "2026-10-20-20",
+   "category": "general",
+   "kind": "headline",
+   "input": "Temba Bavuma plots South Africa's recovery with marathon 179"
+  },
+  {
+   "id": "2026-10-20-20c",
+   "category": "general",
+   "kind": "figure",
+   "input": "Temba Bavuma plots South Africa's recovery with marathon 215",
+   "changedFrom": "Temba Bavuma plots South Africa's recovery with marathon 179"
+  },
+  {
+   "id": "2026-10-20-22",
+   "category": "general",
+   "kind": "headline",
+   "input": "Pakistan vs England: Sloppy visitors floored by Arafat Minhas in Rawalpindi"
+  },
+  {
+   "id": "2026-10-20-23",
+   "category": "general",
+   "kind": "headline",
+   "input": "Japan's MMX mission launches successfully, gains edge over China in race for first Mars system sample return"
+  },
+  {
+   "id": "2026-10-20-23c",
+   "category": "general",
+   "kind": "direction",
+   "input": "Japan's MMX mission launches successfully, loses edge over China in race for first Mars system sample return",
+   "changedFrom": "Japan's MMX mission launches successfully, gains edge over China in race for first Mars system sample return"
+  },
+  {
+   "id": "2026-10-20-25",
+   "category": "general",
+   "kind": "headline",
+   "input": "Scientists find quantum link in how fast systems reach thermal balance"
+  },
+  {
+   "id": "2026-10-20-26",
+   "category": "general",
+   "kind": "headline",
+   "input": "Magnetic nanoparticles rewarm and restore function to pig kidneys one year after cryogenic storage"
+  },
+  {
+   "id": "2026-10-20-27",
+   "category": "general",
+   "kind": "headline",
+   "input": "Osteoporosis Poses Growing Bone Health Concern For Indian Men, Delhi Doctors Urge Early Screening To Prevent Fractures"
+  },
+  {
+   "id": "2026-10-20-28",
+   "category": "general",
+   "kind": "headline",
+   "input": "The Risk Factors For A Blood Clot Are More Common Than You Think"
+  },
+  {
+   "id": "2026-10-20-28c",
+   "category": "general",
+   "kind": "negation",
+   "input": "The Risk Factors For A Blood Clot Are not More Common Than You Think",
+   "changedFrom": "The Risk Factors For A Blood Clot Are More Common Than You Think"
+  },
+  {
+   "id": "2026-10-20-30",
+   "category": "general",
+   "kind": "headline",
+   "input": "Advanced AI tool estimates biological age and predicts cancer survival from face photos"
+  },
+  {
+   "id": "2026-10-20-31",
+   "category": "business",
+   "kind": "headline",
+   "input": "Billionaire Mukesh Ambani launches India’s biggest-ever IPO"
+  },
+  {
+   "id": "2026-10-20-31c",
+   "category": "business",
+   "kind": "direction",
+   "input": "Billionaire Mukesh Ambani scraps India’s biggest-ever IPO",
+   "changedFrom": "Billionaire Mukesh Ambani launches India’s biggest-ever IPO"
+  },
+  {
+   "id": "2026-10-20-33",
+   "category": "business",
+   "kind": "headline",
+   "input": "US, Iran back fresh 'compromise proposal' presented by Pakistan, Qatar: Report"
+  },
+  {
+   "id": "2026-10-20-34",
+   "category": "business",
+   "kind": "headline",
+   "input": "EXCLUSIVE: Qualcomm to cut jobs worldwide in performance-focused layoffs, internal memo shows"
+  },
+  {
+   "id": "2026-10-20-35",
+   "category": "business",
+   "kind": "headline",
+   "input": "Stock Market Crash: Investors Lose Rs 5 Lakh Crore As Sensex, Nifty Tank. 3 Reasons Why Market Are Falling Today"
+  },
+  {
+   "id": "2026-10-20-35c",
+   "category": "business",
+   "kind": "figure",
+   "input": "Stock Market Crash: Investors Lose Rs 6 Lakh Crore As Sensex, Nifty Tank. 3 Reasons Why Market Are Falling Today",
+   "changedFrom": "Stock Market Crash: Investors Lose Rs 5 Lakh Crore As Sensex, Nifty Tank. 3 Reasons Why Market Are Falling Today"
+  },
+  {
+   "id": "2026-10-20-37",
+   "category": "business",
+   "kind": "headline",
+   "input": "Apple India crosses Rs 1 lakh crore revenue in FY26 as growth accelerates 31% and profit jumps 66% to Rs"
+  },
+  {
+   "id": "2026-10-20-37c",
+   "category": "business",
+   "kind": "figure",
+   "input": "Apple India crosses Rs 2 lakh crore revenue in FY26 as growth accelerates 31% and profit jumps 66% to Rs",
+   "changedFrom": "Apple India crosses Rs 1 lakh crore revenue in FY26 as growth accelerates 31% and profit jumps 66% to Rs"
+  },
+  {
+   "id": "2026-10-20-39",
+   "category": "business",
+   "kind": "headline",
+   "input": "Pune Police Detain Schaeffler India CEO Harsha Kadam Over Factory Accident Probe"
+  },
+  {
+   "id": "2026-10-20-40",
+   "category": "business",
+   "kind": "headline",
+   "input": "Gold dips as oil prices fuel inflation fears, Fed outlook in focus"
+  },
+  {
+   "id": "2026-10-20-41",
+   "category": "business",
+   "kind": "headline",
+   "input": "France’s growing debt woes: How bond markets set countries’ borrowing costs"
+  },
+  {
+   "id": "2026-10-20-42",
+   "category": "business",
+   "kind": "headline",
+   "input": "FM flags capital outflows as key risk for India in 2027, links equity market weakness to liquidity: Report"
+  },
+  {
+   "id": "2026-10-20-43",
+   "category": "business",
+   "kind": "headline",
+   "input": "India's Hindustan Zinc records two-fold profit jump, cuts annual production cost forecast"
+  },
+  {
+   "id": "2026-10-20-43c",
+   "category": "business",
+   "kind": "direction",
+   "input": "India's Hindustan Zinc records two-fold profit jump, increases annual production cost forecast",
+   "changedFrom": "India's Hindustan Zinc records two-fold profit jump, cuts annual production cost forecast"
+  },
+  {
+   "id": "2026-10-20-45",
+   "category": "business",
+   "kind": "headline",
+   "input": "Reliance Jio Combines 5G and Wi-Fi 6 in One Device to Improve Indoor Connectivity"
+  },
+  {
+   "id": "2026-10-20-45c",
+   "category": "business",
+   "kind": "figure",
+   "input": "Reliance Jio Combines 6G and Wi-Fi 6 in One Device to Improve Indoor Connectivity",
+   "changedFrom": "Reliance Jio Combines 5G and Wi-Fi 6 in One Device to Improve Indoor Connectivity"
+  },
+  {
+   "id": "2026-10-20-47",
+   "category": "business",
+   "kind": "headline",
+   "input": "Artha Bharat to shift two GIFT City funds to Abu Dhabi over tax hurdles"
+  },
+  {
+   "id": "2026-10-20-48",
+   "category": "business",
+   "kind": "headline",
+   "input": "Safest Luxury SUV For The Price Of A Tata Nexon"
+  },
+  {
+   "id": "2026-10-20-49",
+   "category": "business",
+   "kind": "headline",
+   "input": "Foreign investors sell, yet IPOs keep coming as Nifty slips into correction"
+  },
+  {
+   "id": "2026-10-20-50",
+   "category": "business",
+   "kind": "headline",
+   "input": "Yamaha Sales Breakup Sep 2026, Q3 - RayZR, R15, FZ, Fascino, MT15, XSR, Aerox"
+  },
+  {
+   "id": "2026-10-20-51",
+   "category": "business",
+   "kind": "headline",
+   "input": "TVS Ntorq 150 New Green Colour Launch Soon - Arrives At Dealer Showroom"
+  },
+  {
+   "id": "2026-10-20-51c",
+   "category": "business",
+   "kind": "figure",
+   "input": "TVS Ntorq 180 New Green Colour Launch Soon - Arrives At Dealer Showroom",
+   "changedFrom": "TVS Ntorq 150 New Green Colour Launch Soon - Arrives At Dealer Showroom"
+  },
+  {
+   "id": "2026-10-20-53",
+   "category": "business",
+   "kind": "headline",
+   "input": "BMW Patents New Electric Scotoer In India - No Helmet, No Riding Gear, Self Balancing Tech"
+  },
+  {
+   "id": "2026-10-20-54",
+   "category": "business",
+   "kind": "headline",
+   "input": "Made-In-India Suzuki eVitara Scores 4 Star Safety Rating In Japan NCAP"
+  },
+  {
+   "id": "2026-10-20-54c",
+   "category": "business",
+   "kind": "figure",
+   "input": "Made-In-India Suzuki eVitara Scores 5 Star Safety Rating In Japan NCAP",
+   "changedFrom": "Made-In-India Suzuki eVitara Scores 4 Star Safety Rating In Japan NCAP"
+  },
+  {
+   "id": "2026-10-20-56",
+   "category": "business",
+   "kind": "headline",
+   "input": "Indonesia stocks rebound as questions persist over market fix"
+  },
+  {
+   "id": "2026-10-20-57",
+   "category": "business",
+   "kind": "headline",
+   "input": "India's Bajaj Finance posts quarterly profit rise on strong loan growth"
+  },
+  {
+   "id": "2026-10-20-58",
+   "category": "business",
+   "kind": "headline",
+   "input": "Not Maruti, But This Is India’s Best Mileage SUV"
+  },
+  {
+   "id": "2026-10-20-59",
+   "category": "business",
+   "kind": "headline",
+   "input": "Rs 8.5 Lakh SUV Gets Cheaper By Rs 1.55 Lakh"
+  },
+  {
+   "id": "2026-10-20-59c",
+   "category": "business",
+   "kind": "figure",
+   "input": "Rs 10.2 Lakh SUV Gets Cheaper By Rs 1.55 Lakh",
+   "changedFrom": "Rs 8.5 Lakh SUV Gets Cheaper By Rs 1.55 Lakh"
+  },
+  {
+   "id": "2026-10-20-61",
+   "category": "business",
+   "kind": "headline",
+   "input": "Nasdaq climbs as chip and AI-linked stocks bounce back By Reuters"
+  },
+  {
+   "id": "2026-10-20-62",
+   "category": "technology",
+   "kind": "headline",
+   "input": "Rumored Steam Deck 2 APU Appears in Leaked Benchmarks with 50% More CPU Cores"
+  },
+  {
+   "id": "2026-10-20-62c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "Rumored Steam Deck 3 APU Appears in Leaked Benchmarks with 50% More CPU Cores",
+   "changedFrom": "Rumored Steam Deck 2 APU Appears in Leaked Benchmarks with 50% More CPU Cores"
+  },
+  {
+   "id": "2026-10-20-64",
+   "category": "technology",
+   "kind": "headline",
+   "input": "Spotify introduces QR code checks for Family plans, missing verification could mean a year-long ban"
+  },
+  {
+   "id": "2026-10-20-65",
+   "category": "technology",
+   "kind": "headline",
+   "input": "A1 opens pre-orders for iPhone Duo in Bulgaria"
+  },
+  {
+   "id": "2026-10-20-66",
+   "category": "technology",
+   "kind": "headline",
+   "input": "Apple to unveil new MacBook Pro models on October 28 - GSMArena.com news"
+  },
+  {
+   "id": "2026-10-20-66c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "Apple to unveil new MacBook Pro models on October 34 - GSMArena.com news",
+   "changedFrom": "Apple to unveil new MacBook Pro models on October 28 - GSMArena.com news"
+  },
+  {
+   "id": "2026-10-20-68",
+   "category": "technology",
+   "kind": "headline",
+   "input": "Google Search Traffic to Publishers Fell 40%: The Data"
+  },
+  {
+   "id": "2026-10-20-68c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "Google Search Traffic to Publishers Fell 48%: The Data",
+   "changedFrom": "Google Search Traffic to Publishers Fell 40%: The Data"
+  },
+  {
+   "id": "2026-10-20-70",
+   "category": "technology",
+   "kind": "headline",
+   "input": "Modern Warfare 4 has a 93% positive rating on Steam even before the multiplayer launch"
+  },
+  {
+   "id": "2026-10-20-70c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "Modern Warfare 5 has a 93% positive rating on Steam even before the multiplayer launch",
+   "changedFrom": "Modern Warfare 4 has a 93% positive rating on Steam even before the multiplayer launch"
+  },
+  {
+   "id": "2026-10-20-72",
+   "category": "technology",
+   "kind": "headline",
+   "input": "iQOO officially announces compact gaming tablet with 9,020mAh battery and 165Hz OLED display"
+  },
+  {
+   "id": "2026-10-20-72c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "iQOO officially announces compact gaming tablet with 10824mAh battery and 165Hz OLED display",
+   "changedFrom": "iQOO officially announces compact gaming tablet with 9,020mAh battery and 165Hz OLED display"
+  },
+  {
+   "id": "2026-10-20-74",
+   "category": "technology",
+   "kind": "headline",
+   "input": "Redmi K100 with 10,000mAh battery and 6.83-inch display is launching next week - GSMArena.com news"
+  },
+  {
+   "id": "2026-10-20-74c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "Redmi K100 with 12000mAh battery and 6.83-inch display is launching next week - GSMArena.com news",
+   "changedFrom": "Redmi K100 with 10,000mAh battery and 6.83-inch display is launching next week - GSMArena.com news"
+  },
+  {
+   "id": "2026-10-20-76",
+   "category": "technology",
+   "kind": "headline",
+   "input": "OPPO Find X10, Find X10 Pro Max India Launch: Price, Specs, Offers and More"
+  },
+  {
+   "id": "2026-10-20-77",
+   "category": "technology",
+   "kind": "headline",
+   "input": "Spotify launches paid podcast memberships with perks beyond bonus content"
+  },
+  {
+   "id": "2026-10-20-77c",
+   "category": "technology",
+   "kind": "direction",
+   "input": "Spotify scraps paid podcast memberships with perks beyond bonus content",
+   "changedFrom": "Spotify launches paid podcast memberships with perks beyond bonus content"
+  },
+  {
+   "id": "2026-10-20-79",
+   "category": "technology",
+   "kind": "headline",
+   "input": "One UI 9 update rolling out to Galaxy A37 in the US"
+  },
+  {
+   "id": "2026-10-20-79c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "One UI 11 update rolling out to Galaxy A37 in the US",
+   "changedFrom": "One UI 9 update rolling out to Galaxy A37 in the US"
+  },
+  {
+   "id": "2026-10-20-81",
+   "category": "technology",
+   "kind": "headline",
+   "input": "The real reason to care about Vivo’s latest phone is the camera [Gallery]"
+  },
+  {
+   "id": "2026-10-20-81c",
+   "category": "technology",
+   "kind": "negation",
+   "input": "The real reason to care about Vivo’s latest phone is not the camera [Gallery]",
+   "changedFrom": "The real reason to care about Vivo’s latest phone is the camera [Gallery]"
+  },
+  {
+   "id": "2026-10-20-83",
+   "category": "technology",
+   "kind": "headline",
+   "input": "OnePlus 16, OnePlus 16R To Launch in India Soon: Check Expected Specs, Price And More"
+  },
+  {
+   "id": "2026-10-20-83c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "OnePlus 19, OnePlus 16R To Launch in India Soon: Check Expected Specs, Price And More",
+   "changedFrom": "OnePlus 16, OnePlus 16R To Launch in India Soon: Check Expected Specs, Price And More"
+  },
+  {
+   "id": "2026-10-20-85",
+   "category": "technology",
+   "kind": "headline",
+   "input": "Samsung launches affordable 5G phone with 90Hz AMOLED display, 50MP OIS camera and 2TB storage expansion"
+  },
+  {
+   "id": "2026-10-20-85c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "Samsung launches affordable 6G phone with 90Hz AMOLED display, 50MP OIS camera and 2TB storage expansion",
+   "changedFrom": "Samsung launches affordable 5G phone with 90Hz AMOLED display, 50MP OIS camera and 2TB storage expansion"
+  },
+  {
+   "id": "2026-10-20-87",
+   "category": "technology",
+   "kind": "headline",
+   "input": "ConnectWise suspends Cloud Backup service after supply chain attack"
+  },
+  {
+   "id": "2026-10-20-88",
+   "category": "technology",
+   "kind": "headline",
+   "input": "Gene editing is giving crops a way to tell farmers when they’re feeling stressed"
+  },
+  {
+   "id": "2026-10-20-88c",
+   "category": "technology",
+   "kind": "negation",
+   "input": "Gene editing is not giving crops a way to tell farmers when they’re feeling stressed",
+   "changedFrom": "Gene editing is giving crops a way to tell farmers when they’re feeling stressed"
+  },
+  {
+   "id": "2026-10-20-90",
+   "category": "technology",
+   "kind": "headline",
+   "input": "Fat To Fit: 'I Lost Over 16 Kilos In 8 Months'"
+  },
+  {
+   "id": "2026-10-20-90c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "Fat To Fit: 'I Lost Over 19 Kilos In 8 Months'",
+   "changedFrom": "Fat To Fit: 'I Lost Over 16 Kilos In 8 Months'"
+  },
+  {
+   "id": "2026-10-20-92",
+   "category": "technology",
+   "kind": "headline",
+   "input": "Slideshow: GTA 6 Launch Trailer Screenshots"
+  },
+  {
+   "id": "2026-10-20-92c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "Slideshow: GTA 7 Launch Trailer Screenshots",
+   "changedFrom": "Slideshow: GTA 6 Launch Trailer Screenshots"
+  },
+  {
+   "id": "2026-10-20-94",
+   "category": "technology",
+   "kind": "headline",
+   "input": "GTA 6 Cyberleek update: Leaker linked GTA 6 reveals to crypto play. It’s crashing spectacularly."
+  },
+  {
+   "id": "2026-10-20-94c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "GTA 7 Cyberleek update: Leaker linked GTA 6 reveals to crypto play. It’s crashing spectacularly.",
+   "changedFrom": "GTA 6 Cyberleek update: Leaker linked GTA 6 reveals to crypto play. It’s crashing spectacularly."
+  },
+  {
+   "id": "2026-10-20-96",
+   "category": "technology",
+   "kind": "headline",
+   "input": "NAGA vs MIZO Cricket Scorecard, Plate Group at Dimapur, October 18 - 21, 2026"
+  },
+  {
+   "id": "2026-10-20-96c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "NAGA vs MIZO Cricket Scorecard, Plate Group at Dimapur, October 22 - 21, 2026",
+   "changedFrom": "NAGA vs MIZO Cricket Scorecard, Plate Group at Dimapur, October 18 - 21, 2026"
+  },
+  {
+   "id": "2026-10-20-98",
+   "category": "technology",
+   "kind": "headline",
+   "input": "iPhone 18 images reveal a redesigned camera module ahead of rumored 2027 launch"
+  },
+  {
+   "id": "2026-10-20-98c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "iPhone 22 images reveal a redesigned camera module ahead of rumored 2027 launch",
+   "changedFrom": "iPhone 18 images reveal a redesigned camera module ahead of rumored 2027 launch"
+  },
+  {
+   "id": "2026-10-20-100",
+   "category": "technology",
+   "kind": "headline",
+   "input": "Samsung may launch Galaxy S27 series earlier than expected, but memory questions still linger - GSMArena.com news"
+  },
+  {
+   "id": "2026-10-20-101",
+   "category": "technology",
+   "kind": "headline",
+   "input": "Ys VIII: Lacrimosa of DANA Action-RPG Heads to Switch 2 in February 2027"
+  },
+  {
+   "id": "2026-10-20-101c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "Ys VIII: Lacrimosa of DANA Action-RPG Heads to Switch 3 in February 2027",
+   "changedFrom": "Ys VIII: Lacrimosa of DANA Action-RPG Heads to Switch 2 in February 2027"
+  },
+  {
+   "id": "2026-10-20-103",
+   "category": "technology",
+   "kind": "headline",
+   "input": "OPPO Unveils ColorOS 17, bringing the Next Generation of Smart Experiences to Users in India"
+  },
+  {
+   "id": "2026-10-20-103c",
+   "category": "technology",
+   "kind": "figure",
+   "input": "OPPO Unveils ColorOS 20, bringing the Next Generation of Smart Experiences to Users in India",
+   "changedFrom": "OPPO Unveils ColorOS 17, bringing the Next Generation of Smart Experiences to Users in India"
+  },
+  {
+   "id": "2026-10-20-105",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Jailer 2 Box Office Collection Day 5 Updates: Rajinikanth film nears Rs 500 cr, earns over Rs 40 cr on Tuesday"
+  },
+  {
+   "id": "2026-10-20-105c",
+   "category": "entertainment",
+   "kind": "figure",
+   "input": "Jailer 3 Box Office Collection Day 5 Updates: Rajinikanth film nears Rs 500 cr, earns over Rs 40 cr on Tuesday",
+   "changedFrom": "Jailer 2 Box Office Collection Day 5 Updates: Rajinikanth film nears Rs 500 cr, earns over Rs 40 cr on Tuesday"
+  },
+  {
+   "id": "2026-10-20-107",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Ranabaali Worldwide Box Office: Vijay Deverakonda and Rashmika Mandanna starrer grosses Rs 34 crore in opening weekend, needs better hold ahead"
+  },
+  {
+   "id": "2026-10-20-107c",
+   "category": "entertainment",
+   "kind": "figure",
+   "input": "Ranabaali Worldwide Box Office: Vijay Deverakonda and Rashmika Mandanna starrer grosses Rs 41 crore in opening weekend, needs better hold ahead",
+   "changedFrom": "Ranabaali Worldwide Box Office: Vijay Deverakonda and Rashmika Mandanna starrer grosses Rs 34 crore in opening weekend, needs better hold ahead"
+  },
+  {
+   "id": "2026-10-20-109",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "'Jumanji: Open World' poster confirms Christmas release; Dwayne Johnson-starrer to clash with Shah Rukh K"
+  },
+  {
+   "id": "2026-10-20-110",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Sai Pallavi Channels Sita's Grace In A Tissue Silk Saree At Ramayana Event In Hyderabad"
+  },
+  {
+   "id": "2026-10-20-111",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Salman Khan warned by Lawrence Bishnoi’s cousin, urged to apologise after Tiger Shroff shooting"
+  },
+  {
+   "id": "2026-10-20-112",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Sajin Gopu, Nikhila Vimal's 'Dhoomakethu' locks OTT release date"
+  },
+  {
+   "id": "2026-10-20-113",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "WWE RAW Preview: Full Match Card, Start Time And When And Where To Watch Live"
+  },
+  {
+   "id": "2026-10-20-114",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Don't mind saying sorry 1,000 times: Sonu Nigam to Kannadigas over Pahalgam remark"
+  },
+  {
+   "id": "2026-10-20-114c",
+   "category": "entertainment",
+   "kind": "figure",
+   "input": "Don't mind saying sorry 1200 times: Sonu Nigam to Kannadigas over Pahalgam remark",
+   "changedFrom": "Don't mind saying sorry 1,000 times: Sonu Nigam to Kannadigas over Pahalgam remark"
+  },
+  {
+   "id": "2026-10-20-116",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "K3G lessons, cricket, no spice: How is Prince William preparing to come to India"
+  },
+  {
+   "id": "2026-10-20-117",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "'Enough drama in the ‌world': Prince Harry says he wants to reconcile with family after years of rift"
+  },
+  {
+   "id": "2026-10-20-118",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Spotted in the city: Kajol, Alia Bhatt, Rupali Ganguly and more at Durga Puja pandal"
+  },
+  {
+   "id": "2026-10-20-119",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Show less confidence: Fans tear into Yash over 'overlook VFX flaws in Ramayana' remark"
+  },
+  {
+   "id": "2026-10-20-120",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "‘All of Us Are Dead’ Season 2: Expected Netflix Release Date & Everything We Know"
+  },
+  {
+   "id": "2026-10-20-120c",
+   "category": "entertainment",
+   "kind": "figure",
+   "input": "‘All of Us Are Dead’ Season 3: Expected Netflix Release Date & Everything We Know",
+   "changedFrom": "‘All of Us Are Dead’ Season 2: Expected Netflix Release Date & Everything We Know"
+  },
+  {
+   "id": "2026-10-20-122",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Tamil Actor Karthik Sabesh Dies At 37, Days After Uncle Deva's Death"
+  },
+  {
+   "id": "2026-10-20-122c",
+   "category": "entertainment",
+   "kind": "figure",
+   "input": "Tamil Actor Karthik Sabesh Dies At 44, Days After Uncle Deva's Death",
+   "changedFrom": "Tamil Actor Karthik Sabesh Dies At 37, Days After Uncle Deva's Death"
+  },
+  {
+   "id": "2026-10-20-124",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Jackie Shroff makes first public appearance after son Tiger Shroff's firing incident; attends naming cere"
+  },
+  {
+   "id": "2026-10-20-125",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Composer Anirudh Ravichander to marry Kavya Maran; PM Narendra Modi, Tamil Nadu CM Joseph Vijay get reception invite from Kalanithi Maran"
+  },
+  {
+   "id": "2026-10-20-126",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Box Office: With King, Shah Rukh Khan Is All Set To Push Akshay Kumar Out Of The Top 3 In Koimoi Star Ranking!"
+  },
+  {
+   "id": "2026-10-20-126c",
+   "category": "entertainment",
+   "kind": "figure",
+   "input": "Box Office: With King, Shah Rukh Khan Is All Set To Push Akshay Kumar Out Of The Top 4 In Koimoi Star Ranking!",
+   "changedFrom": "Box Office: With King, Shah Rukh Khan Is All Set To Push Akshay Kumar Out Of The Top 3 In Koimoi Star Ranking!"
+  },
+  {
+   "id": "2026-10-20-128",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Varanasi: SS Rajamouli says Mahesh Babu ‘nailed’ his role, sheds light on Indian films failing to capture mythology properly"
+  },
+  {
+   "id": "2026-10-20-129",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Rashmika Mandanna And Vijay Deverakonda Celebrate First Dussehra After Marriage"
+  },
+  {
+   "id": "2026-10-20-130",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Tamil Nadu Governor Arlekar, CM Vijay express condolences over passing of music director Deva"
+  },
+  {
+   "id": "2026-10-20-131",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Victoria’s Secret Brings Back the Fantasy Bra — and an Old Stereotype of Sexy"
+  },
+  {
+   "id": "2026-10-20-132",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Premada Oorali Box Office Collection Day 24: Beats James To Become 9th Highest Grossing Kannada Film In India"
+  },
+  {
+   "id": "2026-10-20-132c",
+   "category": "entertainment",
+   "kind": "swap",
+   "input": "James Beats Premada Oorali Box Office Collection Day 24: To Become 9th Highest Grossing Kannada Film In India",
+   "changedFrom": "Premada Oorali Box Office Collection Day 24: Beats James To Become 9th Highest Grossing Kannada Film In India"
+  },
+  {
+   "id": "2026-10-20-134",
+   "category": "entertainment",
+   "kind": "headline",
+   "input": "Drishyam: The Conclusion Box Office Collections: Ajay Devgn's film adds Rs 14 crore in 3rd Weekend, nets Rs 335 crore in 17 days"
+  },
+  {
+   "id": "2026-10-20-134c",
+   "category": "entertainment",
+   "kind": "figure",
+   "input": "Drishyam: The Conclusion Box Office Collections: Ajay Devgn's film adds Rs 17 crore in 3rd Weekend, nets Rs 335 crore in 17 days",
+   "changedFrom": "Drishyam: The Conclusion Box Office Collections: Ajay Devgn's film adds Rs 14 crore in 3rd Weekend, nets Rs 335 crore in 17 days"
+  },
+  {
+   "id": "2026-10-20-136",
+   "category": "sports",
+   "kind": "headline",
+   "input": "\"We Also Have A Personal Life\": Mohammed Shami Hits Out At Media Amid Controversy"
+  },
+  {
+   "id": "2026-10-20-136c",
+   "category": "sports",
+   "kind": "negation",
+   "input": "\"We Also Have not A Personal Life\": Mohammed Shami Hits Out At Media Amid Controversy",
+   "changedFrom": "\"We Also Have A Personal Life\": Mohammed Shami Hits Out At Media Amid Controversy"
+  },
+  {
+   "id": "2026-10-20-138",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Sai Kishore: the hat-trick hero turning the angle on batters"
+  },
+  {
+   "id": "2026-10-20-139",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Cristiano Ronaldo suspended for 30 days and fined for walking out on Portugal camp"
+  },
+  {
+   "id": "2026-10-20-139c",
+   "category": "sports",
+   "kind": "figure",
+   "input": "Cristiano Ronaldo suspended for 36 days and fined for walking out on Portugal camp",
+   "changedFrom": "Cristiano Ronaldo suspended for 30 days and fined for walking out on Portugal camp"
+  },
+  {
+   "id": "2026-10-20-141",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Afghanistan stand in Bangladesh's way for spot in final"
+  },
+  {
+   "id": "2026-10-20-142",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Bhuvneshwar To Lead Attack, No Sooryavanshi & Kuldeep: India's Likely Playing XI For 1st New Zealand T20I"
+  },
+  {
+   "id": "2026-10-20-143",
+   "category": "sports",
+   "kind": "headline",
+   "input": "French Open: Stars Assemble in Paris"
+  },
+  {
+   "id": "2026-10-20-144",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Sydney Thunder Women vs Sydney Sixers Women, free match prediction 20 October 2026"
+  },
+  {
+   "id": "2026-10-20-144c",
+   "category": "sports",
+   "kind": "figure",
+   "input": "Sydney Thunder Women vs Sydney Sixers Women, free match prediction 24 October 2026",
+   "changedFrom": "Sydney Thunder Women vs Sydney Sixers Women, free match prediction 20 October 2026"
+  },
+  {
+   "id": "2026-10-20-146",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Shafali receives demerit point for breaching Level 1 of ICC code of conduct"
+  },
+  {
+   "id": "2026-10-20-146c",
+   "category": "sports",
+   "kind": "figure",
+   "input": "Shafali receives demerit point for breaching Level 2 of ICC code of conduct",
+   "changedFrom": "Shafali receives demerit point for breaching Level 1 of ICC code of conduct"
+  },
+  {
+   "id": "2026-10-20-148",
+   "category": "sports",
+   "kind": "headline",
+   "input": "All-round Gardner seals Rose Bowl for Australia"
+  },
+  {
+   "id": "2026-10-20-148c",
+   "category": "sports",
+   "kind": "direction",
+   "input": "All-round Gardner seals fell Bowl for Australia",
+   "changedFrom": "All-round Gardner seals Rose Bowl for Australia"
+  },
+  {
+   "id": "2026-10-20-150",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Atal, Rashid lead Afghanistan's rout of Zimbabwe"
+  },
+  {
+   "id": "2026-10-20-151",
+   "category": "sports",
+   "kind": "headline",
+   "input": "India's Schedule At Asian Para Games 2026, October 20: Simran Sharma, Manish Narwal Eye Gold"
+  },
+  {
+   "id": "2026-10-20-152",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Sanju Samson books entire theatre for Rajinikanth's Jailer 2, invites India teammates"
+  },
+  {
+   "id": "2026-10-20-152c",
+   "category": "sports",
+   "kind": "figure",
+   "input": "Sanju Samson books entire theatre for Rajinikanth's Jailer 3, invites India teammates",
+   "changedFrom": "Sanju Samson books entire theatre for Rajinikanth's Jailer 2, invites India teammates"
+  },
+  {
+   "id": "2026-10-20-154",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Bowler who picked 10 wickets in Sachin’s farewell Test appointed BCCI chief selector"
+  },
+  {
+   "id": "2026-10-20-154c",
+   "category": "sports",
+   "kind": "figure",
+   "input": "Bowler who picked 12 wickets in Sachin’s farewell Test appointed BCCI chief selector",
+   "changedFrom": "Bowler who picked 10 wickets in Sachin’s farewell Test appointed BCCI chief selector"
+  },
+  {
+   "id": "2026-10-20-156",
+   "category": "sports",
+   "kind": "headline",
+   "input": "India vs West Indies, 5th T20I LIVE weather updates: Toss delayed due to persistant rain in Bengaluru"
+  },
+  {
+   "id": "2026-10-20-157",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Pedri talks Ferran Torres, Lamine Yamal and Ousmane Dembélé ahead of Barcelona’s Champions League tie with PSG"
+  },
+  {
+   "id": "2026-10-20-158",
+   "category": "sports",
+   "kind": "headline",
+   "input": "India vs West Indies, 5th T20I Highlights: India (118/5 in 7.4 ov). Rain washes out decider, series ends in 2-2 draw"
+  },
+  {
+   "id": "2026-10-20-158c",
+   "category": "sports",
+   "kind": "figure",
+   "input": "India vs West Indies, 5th T20I Highlights: India (142/5 in 7.4 ov). Rain washes out decider, series ends in 2-2 draw",
+   "changedFrom": "India vs West Indies, 5th T20I Highlights: India (118/5 in 7.4 ov). Rain washes out decider, series ends in 2-2 draw"
+  },
+  {
+   "id": "2026-10-20-160",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Chinmay Sutar becomes 2nd batter in history of Ranji cricket to score 400"
+  },
+  {
+   "id": "2026-10-20-160c",
+   "category": "sports",
+   "kind": "figure",
+   "input": "Chinmay Sutar becomes 2nd batter in history of Ranji cricket to score 480",
+   "changedFrom": "Chinmay Sutar becomes 2nd batter in history of Ranji cricket to score 400"
+  },
+  {
+   "id": "2026-10-20-162",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Molineux, Dunkley enter WPL 2027 auction with top base price of INR 50 lakh"
+  },
+  {
+   "id": "2026-10-20-163",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Tennis power-couple Elina Svitolina and Gaël Monfils split: Inside their combined net worth, career earni"
+  },
+  {
+   "id": "2026-10-20-164",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Dolphins vs Warriors, free match prediction 20 October 2026"
+  },
+  {
+   "id": "2026-10-20-164c",
+   "category": "sports",
+   "kind": "figure",
+   "input": "Dolphins vs Warriors, free match prediction 24 October 2026",
+   "changedFrom": "Dolphins vs Warriors, free match prediction 20 October 2026"
+  },
+  {
+   "id": "2026-10-20-166",
+   "category": "sports",
+   "kind": "headline",
+   "input": "Match Predictions: T20 Spring Challenge 2026 - 1st & 2nd Semi Finals - Strikers W vs Scorchers W; Thunder W vs Sixers W - 20th October"
+  },
+  {
+   "id": "2026-10-20-167",
+   "category": "science",
+   "kind": "headline",
+   "input": "Indian scientists identify Martian analogue sites"
+  },
+  {
+   "id": "2026-10-20-168",
+   "category": "science",
+   "kind": "headline",
+   "input": "Old Blood Cells Have Been Transformed Into Brain Stem Cells That Get Younger As They Age"
+  },
+  {
+   "id": "2026-10-20-168c",
+   "category": "science",
+   "kind": "negation",
+   "input": "Old Blood Cells Have not Been Transformed Into Brain Stem Cells That Get Younger As They Age",
+   "changedFrom": "Old Blood Cells Have Been Transformed Into Brain Stem Cells That Get Younger As They Age"
+  },
+  {
+   "id": "2026-10-20-170",
+   "category": "science",
+   "kind": "headline",
+   "input": "SpaceX launches its 'Starfall' return capsule for 2nd time ever (video)"
+  },
+  {
+   "id": "2026-10-20-170c",
+   "category": "science",
+   "kind": "direction",
+   "input": "SpaceX scraps its 'Starfall' return capsule for 2nd time ever (video)",
+   "changedFrom": "SpaceX launches its 'Starfall' return capsule for 2nd time ever (video)"
+  },
+  {
+   "id": "2026-10-20-172",
+   "category": "science",
+   "kind": "headline",
+   "input": "Two eyes on the Sun: How India’s Aditya-L1 and Europe’s Proba-3 studied solar eruptions together"
+  },
+  {
+   "id": "2026-10-20-173",
+   "category": "science",
+   "kind": "headline",
+   "input": "Cosmic 'hamburger' offers rare edge-on view of where giant planets may take shape"
+  },
+  {
+   "id": "2026-10-20-174",
+   "category": "science",
+   "kind": "headline",
+   "input": "These four humans have spent a year living in isolation as Martians on Earth"
+  },
+  {
+   "id": "2026-10-20-174c",
+   "category": "science",
+   "kind": "negation",
+   "input": "These four humans have not spent a year living in isolation as Martians on Earth",
+   "changedFrom": "These four humans have spent a year living in isolation as Martians on Earth"
+  },
+  {
+   "id": "2026-10-20-176",
+   "category": "science",
+   "kind": "headline",
+   "input": "The Moon is Still Shrinking as it Cools. That Could Create a Hazard for Lunar Mission."
+  },
+  {
+   "id": "2026-10-20-176c",
+   "category": "science",
+   "kind": "negation",
+   "input": "The Moon is not Still Shrinking as it Cools. That Could Create a Hazard for Lunar Mission.",
+   "changedFrom": "The Moon is Still Shrinking as it Cools. That Could Create a Hazard for Lunar Mission."
+  },
+  {
+   "id": "2026-10-20-178",
+   "category": "science",
+   "kind": "headline",
+   "input": "America’s new era of private science"
+  },
+  {
+   "id": "2026-10-20-179",
+   "category": "science",
+   "kind": "headline",
+   "input": "In 1975, Kodak began operating a uranium-based research device beneath its Rochester laboratory; 31 years"
+  },
+  {
+   "id": "2026-10-20-180",
+   "category": "science",
+   "kind": "headline",
+   "input": "White Dwarfs Show 'Green and Pink' Colors, Possibly First-Ever Observations: \"Unexpected Colors\""
+  },
+  {
+   "id": "2026-10-20-181",
+   "category": "science",
+   "kind": "headline",
+   "input": "Forgotten Particle May Explain Why We Exist, Physicists Say"
+  },
+  {
+   "id": "2026-10-20-182",
+   "category": "science",
+   "kind": "headline",
+   "input": "NASA’s Perseverance rover has now driven farther than any vehicle on another world"
+  },
+  {
+   "id": "2026-10-20-182c",
+   "category": "science",
+   "kind": "negation",
+   "input": "NASA’s Perseverance rover has not now driven farther than any vehicle on another world",
+   "changedFrom": "NASA’s Perseverance rover has now driven farther than any vehicle on another world"
+  },
+  {
+   "id": "2026-10-20-184",
+   "category": "science",
+   "kind": "headline",
+   "input": "NASA's Satellite Spots Spider-Shaped Crater In Australia Formed By Ancient Meteorite Impact"
+  },
+  {
+   "id": "2026-10-20-185",
+   "category": "science",
+   "kind": "headline",
+   "input": "In space, 'We've gone from exploration to exploitation,' says original Voyager team member"
+  },
+  {
+   "id": "2026-10-20-186",
+   "category": "science",
+   "kind": "headline",
+   "input": "‘Space Jellyfish’ Dazzle Skywatchers, More Could Be Coming"
+  },
+  {
+   "id": "2026-10-20-187",
+   "category": "science",
+   "kind": "headline",
+   "input": "Experts Raise Concerns Over Crowded Skies As Satellites Transform Our View Of The Universe"
+  },
+  {
+   "id": "2026-10-20-188",
+   "category": "science",
+   "kind": "headline",
+   "input": "The Technological Zone is Closer to Stars Than Superhabitable Exoplanets"
+  },
+  {
+   "id": "2026-10-20-188c",
+   "category": "science",
+   "kind": "negation",
+   "input": "The Technological Zone is not Closer to Stars Than Superhabitable Exoplanets",
+   "changedFrom": "The Technological Zone is Closer to Stars Than Superhabitable Exoplanets"
+  },
+  {
+   "id": "2026-10-20-190",
+   "category": "science",
+   "kind": "headline",
+   "input": "The neuroscience of learning : Stimulating the brain for new skills"
+  },
+  {
+   "id": "2026-10-20-191",
+   "category": "science",
+   "kind": "headline",
+   "input": "NASA's Roman Space Telescope now delivers almost 30% sharper images"
+  },
+  {
+   "id": "2026-10-20-191c",
+   "category": "science",
+   "kind": "figure",
+   "input": "NASA's Roman Space Telescope now delivers almost 36% sharper images",
+   "changedFrom": "NASA's Roman Space Telescope now delivers almost 30% sharper images"
+  },
+  {
+   "id": "2026-10-20-193",
+   "category": "science",
+   "kind": "headline",
+   "input": "Normally forbidden emissions from graphene could expose quantum fluctuations in incoming light"
+  },
+  {
+   "id": "2026-10-20-194",
+   "category": "science",
+   "kind": "headline",
+   "input": "Antarctica’s Sea Ice Has Gone From Record Highs to Near-Record Lows"
+  },
+  {
+   "id": "2026-10-20-194c",
+   "category": "science",
+   "kind": "negation",
+   "input": "Antarctica’s Sea Ice Has not Gone From Record Highs to Near-Record Lows",
+   "changedFrom": "Antarctica’s Sea Ice Has Gone From Record Highs to Near-Record Lows"
+  },
+  {
+   "id": "2026-10-20-196",
+   "category": "science",
+   "kind": "headline",
+   "input": "Mars forms a 1,800-kilometre cloud nearly twice the length of the UK near a giant volcano every morning,"
+  },
+  {
+   "id": "2026-10-20-196c",
+   "category": "science",
+   "kind": "figure",
+   "input": "Mars forms a 2160-kilometre cloud nearly twice the length of the UK near a giant volcano every morning,",
+   "changedFrom": "Mars forms a 1,800-kilometre cloud nearly twice the length of the UK near a giant volcano every morning,"
+  },
+  {
+   "id": "2026-10-20-198",
+   "category": "health",
+   "kind": "headline",
+   "input": "Bladder Stone Surgery Registry Highlights Transurethral Success"
+  },
+  {
+   "id": "2026-10-20-199",
+   "category": "health",
+   "kind": "headline",
+   "input": "Kidney Transplant Outcomes Worsen with High Tacrolimus Variability"
+  },
+  {
+   "id": "2026-10-20-200",
+   "category": "health",
+   "kind": "headline",
+   "input": "COPD Is a Modifiable Disease: Highlights from ERS 2026"
+  },
+  {
+   "id": "2026-10-20-200c",
+   "category": "health",
+   "kind": "negation",
+   "input": "COPD Is not a Modifiable Disease: Highlights from ERS 2026",
+   "changedFrom": "COPD Is a Modifiable Disease: Highlights from ERS 2026"
+  },
+  {
+   "id": "2026-10-20-202",
+   "category": "health",
+   "kind": "headline",
+   "input": "ChatGPT Explains the Odds of AI Triggering the Next Pandemic"
+  },
+  {
+   "id": "2026-10-20-203",
+   "category": "health",
+   "kind": "headline",
+   "input": "5 Morning Exercises That Restore Knee Strength Faster Than Squats After 65"
+  },
+  {
+   "id": "2026-10-20-203c",
+   "category": "health",
+   "kind": "figure",
+   "input": "6 Morning Exercises That Restore Knee Strength Faster Than Squats After 65",
+   "changedFrom": "5 Morning Exercises That Restore Knee Strength Faster Than Squats After 65"
+  },
+  {
+   "id": "2026-10-20-205",
+   "category": "health",
+   "kind": "headline",
+   "input": "A Nurse-Led Clinic to Optimise Ambulatory Oxygen Therapy"
+  },
+  {
+   "id": "2026-10-20-206",
+   "category": "health",
+   "kind": "headline",
+   "input": "Bundling Seasonal Vaccines: Evidence, Uptake, and What’s Next for Europe"
+  },
+  {
+   "id": "2026-10-20-207",
+   "category": "health",
+   "kind": "headline",
+   "input": "Changing the COPD Narrative: Interview with David Mannino"
+  },
+  {
+   "id": "2026-10-20-208",
+   "category": "health",
+   "kind": "headline",
+   "input": "Doctors gave woman hours to live, son used AI to identify vitamin deficiency that stopped her seizures"
+  },
+  {
+   "id": "2026-10-20-209",
+   "category": "health",
+   "kind": "headline",
+   "input": "Home sensor system could spot loneliness in older adults"
+  },
+  {
+   "id": "2026-10-20-210",
+   "category": "health",
+   "kind": "headline",
+   "input": "Securing GLP-1 Access and Exploring Hidradenitis Suppurativa Trials"
+  },
+  {
+   "id": "2026-10-20-211",
+   "category": "health",
+   "kind": "headline",
+   "input": "4 Osteoporosis Symptoms a Doctor Monitors and the ‘Critical Window’ for Preventing Bone Loss"
+  },
+  {
+   "id": "2026-10-20-211c",
+   "category": "health",
+   "kind": "figure",
+   "input": "5 Osteoporosis Symptoms a Doctor Monitors and the ‘Critical Window’ for Preventing Bone Loss",
+   "changedFrom": "4 Osteoporosis Symptoms a Doctor Monitors and the ‘Critical Window’ for Preventing Bone Loss"
+  },
+  {
+   "id": "2026-10-20-213",
+   "category": "health",
+   "kind": "headline",
+   "input": "Early Intervention in Cystic Fibrosis: Limiting Multisystem Disease Progression"
+  },
+  {
+   "id": "2026-10-20-214",
+   "category": "health",
+   "kind": "headline",
+   "input": "AI-powered virtual reality could help women manage menopause symptoms"
+  },
+  {
+   "id": "2026-10-20-215",
+   "category": "health",
+   "kind": "headline",
+   "input": "Protecting young skin: A new approach to melanoma prevention for children"
+  },
+  {
+   "id": "2026-10-20-216",
+   "category": "health",
+   "kind": "headline",
+   "input": "Study explores potential breast cancer benefits of neurokinin receptor antagonists"
+  },
+  {
+   "id": "2026-10-20-217",
+   "category": "health",
+   "kind": "headline",
+   "input": "Sugar highs, emotional lows: How blood sugar fluctuations and fear of complications affect mental well-being"
+  },
+  {
+   "id": "2026-10-20-218",
+   "category": "health",
+   "kind": "headline",
+   "input": "73% Of Mouth Cancers In Indian Women Linked To Smokeless Tobacco, Men Accounted For More Than 57%: Study"
+  },
+  {
+   "id": "2026-10-20-218c",
+   "category": "health",
+   "kind": "figure",
+   "input": "88% Of Mouth Cancers In Indian Women Linked To Smokeless Tobacco, Men Accounted For More Than 57%: Study",
+   "changedFrom": "73% Of Mouth Cancers In Indian Women Linked To Smokeless Tobacco, Men Accounted For More Than 57%: Study"
+  },
+  {
+   "id": "2026-10-20-220",
+   "category": "health",
+   "kind": "headline",
+   "input": "Fatty Liver Disease: Scientists Identify 5 Subtypes With Different Health Risks"
+  },
+  {
+   "id": "2026-10-20-220c",
+   "category": "health",
+   "kind": "figure",
+   "input": "Fatty Liver Disease: Scientists Identify 6 Subtypes With Different Health Risks",
+   "changedFrom": "Fatty Liver Disease: Scientists Identify 5 Subtypes With Different Health Risks"
+  },
+  {
+   "id": "2026-10-20-222",
+   "category": "health",
+   "kind": "headline",
+   "input": "Low daily step counts linked to dementia, Parkinson's and stroke"
+  },
+  {
+   "id": "2026-10-20-223",
+   "category": "health",
+   "kind": "headline",
+   "input": "Lupus Remission Linked to Better Pregnancy Outcomes"
+  },
+  {
+   "id": "2026-10-20-224",
+   "category": "health",
+   "kind": "headline",
+   "input": "Immunotherapy-Based Downstaging Linked to Improved Outcomes After Liver Transplantation in Hepatocellular Carcinoma"
+  }
+ ]
+}

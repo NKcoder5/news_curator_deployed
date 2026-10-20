@@ -164,7 +164,12 @@ write("eval_blind", blind_pairs())
 STANCE = DATA / "stance_pairs.jsonl"
 if STANCE.exists():
     to_label = {"agree": 0, "unrelated": 1, "disagree": 2}
-    rows = [json.loads(line) for line in open(STANCE, encoding="utf-8") if line.strip()]
+    def parsed(line):
+        try:
+            return json.loads(line)
+        except ValueError:  # two recorders appending at once can leave a broken line
+            return {}
+    rows = [parsed(line) for line in open(STANCE, encoding="utf-8") if line.strip()]
     rows = [r for r in rows if not r.get("noCoverage") and r.get("provider") == "gemini" and r.get("hosted") in to_label]
     claims = sorted({r["id"] for r in rows})
     random.Random(7).shuffle(claims)

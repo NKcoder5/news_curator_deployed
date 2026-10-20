@@ -15,10 +15,24 @@
 
 const fs = require('fs');
 const path = require('path');
-const { fetchTopNews } = require('../utils/newsFetcher');
-
 const OUT = path.join(__dirname, 'suites', 'stance_claims.json');
-const CATEGORIES = ['general', 'business', 'technology', 'entertainment', 'sports', 'science', 'health'];
+// Google News, India edition: the stories our readers forward. (fetchTopNews
+// asks a news API first, whose top stories are mostly American.)
+const EDITION = 'hl=en-IN&gl=IN&ceid=IN:en';
+const CATEGORIES = { general: null, business: 'BUSINESS', technology: 'TECHNOLOGY', entertainment: 'ENTERTAINMENT', sports: 'SPORTS', science: 'SCIENCE', health: 'HEALTH' };
+
+const decode = (s) => s.replace(/<!\[CDATA\[|\]\]>/g, '').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
+/** Top headlines of one section, without the " - Outlet" Google appends. */
+const topHeadlines = async (topic) => {
+  const url = topic ? `https://news.google.com/rss/headlines/section/topic/${topic}?${EDITION}` : `https://news.google.com/rss?${EDITION}`;
+  const xml = await fetch(url, { signal: AbortSignal.timeout(20000) }).then((r) => r.text());
+  return [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].map(([, item]) => {
+    const title = decode((item.match(/<title>([\s\S]*?)<\/title>/) || [])[1] || '').trim();
+    const source = decode((item.match(/<source[^>]*>([\s\S]*?)<\/source>/) || [])[1] || '').trim();
+    return source && title.endsWith(` - ${source}`) ? title.slice(0, -(source.length + 3)).trim() : title.replace(/\s+-\s+[^-]+$/, '').trim();
+  }).filter(Boolean);
+};
 
 const arg = (name, fallback) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -26,8 +40,11 @@ const arg = (name, fallback) => {
 };
 
 // A headline that asks, live-blogs or teases asserts nothing to judge.
+// So does an explainer ("Why Rubio is visiting..."), a quote cut short, and a
+// page of puzzle hints, deals or how-tos.
 const usable = (t) => t.split(/\s+/).length >= 6 && t.length <= 200
-  && !/\?|^(live|watch|explained|opinion|analysis|photos?|video)\b|\blive updates?\b|\|/i.test(t);
+  && !/\?|^(live|watch|explained|opinion|analysis|photos?|video|why|how|what|when|who|where|here'?s|here is|top \d+|best)\b|\blive updates?\b|\||\.\.\.|…/i.test(t)
+  && !/\b(hints?|answers?|wordle|strands|connections|quiz|horoscope|how to|tips|guide|review|deals?|discount|sale|price list|live score)\b/i.test(t);
 
 const OPPOSITE = [
   ['wins', 'loses'], ['won', 'lost'], ['rises', 'falls'], ['rose', 'fell'], ['gains', 'loses'], ['up', 'down'],
@@ -39,7 +56,7 @@ const OPPOSITE = [
 /** The same headline with one detail changed, or null when no rule applies. */
 const changeOneDetail = (t) => {
   // Who beat whom: "Australia beat India by 6 wickets" -> "India beat Australia by 6 wickets".
-  const beat = t.match(/^(.+?)\s+(beat|beats|defeat|defeats|thrash|thrashes|stun|stuns|edge|edges|outclass|outclasses)\s+(.+?)(\s+(?:in|by|to|at|for)\s+.*|[,:].*)?$/i);
+  const beat = t.match(/^(.+?)\s+(beat|beats|defeat|defeats|thrash|thrashes|stun|stuns|outclass|outclasses)\s+(.+?)(\s+(?:in|by|to|at|for)\s+.*|[,:].*)?$/i);
   if (beat) return { kind: 'swap', text: `${beat[3]} ${beat[2]} ${beat[1]}${beat[4] || ''}` };
   // A figure that is not a year: 85 medals -> 102 medals, Rs 2.5 crore -> Rs 3 crore.
   const fig = t.match(/(?<![A-Za-z\d.,\-/])(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)(?![\d.,]*\d)(?!\s*(?:st|nd|rd|th)\b)/);
@@ -65,10 +82,10 @@ const main = async () => {
   const seen = new Set(existing.cases.map((c) => c.input.toLowerCase()));
   const day = new Date().toISOString().slice(0, 10);
   const cases = [];
-  for (const category of CATEGORIES) {
-    const articles = await fetchTopNews(category).catch(() => []);
-    for (const a of articles.filter((x) => usable(x.title || '')).slice(0, per)) {
-      const title = a.title.replace(/\s+/g, ' ').trim();
+  for (const [category, topic] of Object.entries(CATEGORIES)) {
+    const titles = await topHeadlines(topic).catch(() => []);
+    for (const raw of titles.filter(usable).slice(0, per)) {
+      const title = raw.replace(/\s+/g, ' ').trim();
       if (seen.has(title.toLowerCase())) continue;
       seen.add(title.toLowerCase());
       const n = existing.cases.length + cases.length;

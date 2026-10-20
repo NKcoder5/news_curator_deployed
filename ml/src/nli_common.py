@@ -59,6 +59,8 @@ def predict_torch(model, tok, rows, order, bs=128, max_len=160, device="cuda"):
             batch = tok.pad({k: [enc[k][i] for i in idx] for k in enc.keys()}, return_tensors="pt").to(device)
             with torch.autocast(device_type="cuda", dtype=half_dtype(), enabled=device == "cuda"):
                 logits = model(**batch).logits.float().cpu().numpy()
+            if not np.isfinite(logits).all():  # fp16 overflow: this batch again in full precision
+                logits = model(**batch).logits.float().cpu().numpy()
             probs[idx] = softmax(logits)[:, order]
     return probs
 

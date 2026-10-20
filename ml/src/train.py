@@ -89,7 +89,7 @@ def evaluate_dev():
     return out
 
 
-step, running, t_train = 0, 0.0, time.time()
+step, running, t_train, skipped = 0, 0.0, time.time(), 0
 done = False
 epoch = 0
 while not done:
@@ -100,6 +100,14 @@ while not done:
         with torch.autocast(device_type="cuda", dtype=HALF):
             logits = model(**batch).logits
         loss = torch.nn.functional.cross_entropy(logits.float(), y)
+        # fp16 can overflow in DeBERTa-style attention: a batch whose loss is not a number is skipped, and a
+        # run where that keeps happening stops rather than training on garbage.
+        if not torch.isfinite(loss):
+            skipped += 1
+            opt.zero_grad(set_to_none=True)
+            if skipped > max(20, 0.02 * (step + 1)):
+                raise SystemExit(f"{skipped} batches gave a non-finite loss by step {step}: use bf16 or fp32 for this model")
+            continue
         scaler.scale(loss).backward()
         scaler.unscale_(opt)
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
@@ -120,12 +128,16 @@ while not done:
     epoch += 1
     r = evaluate_dev()
     print(f"== epoch {epoch} dev:", json.dumps({k: {m: v for m, v in x.items() if m in ('accuracy', 'macro_f1', 'false_contradiction')} for k, x in r.items()}), flush=True)
+    # Saved every epoch: a long run on a shared GPU can be cut off before its last.
+    model.save_pretrained(a.out)
+    tok.save_pretrained(a.out)
+    print(f"saved epoch {epoch} to {a.out} ({skipped} batches skipped so far)", flush=True)
 
 Path(a.out).mkdir(parents=True, exist_ok=True)
 model.save_pretrained(a.out)
 tok.save_pretrained(a.out)
 Path(a.out, "train_log.json").write_text(json.dumps({
     "base_model": a.model, "pairs": len(train), "epochs": a.epochs, "lr": a.lr, "batch_size": a.bs, "max_len": a.max_len,
-    "steps": step, "train_minutes": round((time.time() - t_train) / 60, 1), "gpu": torch.cuda.get_device_name(0),
+    "steps": step, "skipped_batches": skipped, "train_minutes": round((time.time() - t_train) / 60, 1), "gpu": torch.cuda.get_device_name(0),
     "peak_gpu_gb": round(torch.cuda.max_memory_allocated() / 1e9, 2), "dev": r}, indent=1), encoding="utf-8")
 print(f"saved to {a.out}; training took {(time.time() - t_train) / 60:.1f} min", flush=True)

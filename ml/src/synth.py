@@ -710,6 +710,84 @@ def g_unsupported(c):
     return o.rows
 
 
+# ---------------------------------------------------------------- hedged
+# The stance errors the first retrained model made on held-out news (backend/eval/results/
+# stance_candidate_2026-10-21.md): a claim someone made read as the fact, a forecast read as the outcome,
+# a bound read as a different figure, the same event at another company read as this one, and a negated
+# claim read as contradicted by any headline about the same person. Each comes with the case that looks
+# alike and is the other label, so the model has to learn the difference rather than a cue.
+REMEDIES = ["cow urine", "turmeric water", "neem juice", "garlic soup", "hot lemon water", "onion juice", "ginger tea"]
+AILMENTS = ["cancer", "diabetes", "dengue", "kidney stones", "high blood pressure", "asthma", "Covid-19"]
+SPEAKERS = ["BJP MP", "Congress MLA", "a viral video", "a self-styled godman", "a social media influencer",
+            "a WhatsApp forward", "a TV astrologer", "a local healer"]
+GAMES = ["Asian Games", "Commonwealth Games", "South Asian Games", "Olympics", "World Athletics Championships"]
+CORP_EVENTS = [("cut {n} jobs", "cuts {n} jobs; CEO sends layoff email to staff"),
+               ("recall {n} cars", "recalls {n} cars over airbag fault"),
+               ("raise prices by {p}%", "raises prices by {p}% from next month"),
+               ("shut its {pl} plant", "shuts {pl} plant, workers protest")]
+
+
+def g_hedged(c):
+    o, r = Out("hedged"), c.rng
+    which = r.choice(["attrib", "attrib", "forecast", "forecast", "bound", "bound", "other", "negated"])
+    if which == "attrib":
+        if r.random() < .55:  # a claim someone made, reported as theirs: not the fact
+            rem, ail, who = r.choice(REMEDIES), r.choice(AILMENTS), r.choice(SPEAKERS)
+            fact = r.choice([f"drinking {rem} cures {ail}", f"{rem} prevents {ail}", f"{rem} can cure {ail}"])
+            prem = r.choice([f"{fact[0].upper() + fact[1:]}: {who}", f"{fact[0].upper() + fact[1:]}, claims {who}",
+                             f"{who[0].upper() + who[1:]} claims {fact}", f"Row after {who} says {fact}"])
+            o.add(dress(prem, r), f"{fact[0].upper() + fact[1:]}.", NEU, "attrib-remedy")
+            if r.random() < .4:
+                p, g = c.person()
+                party, n = c.pick("parties", PARTIES), r.randint(40, 180)
+                o.add(dress(f"{party} will win {n} seats, claims {p}", r), f"{party} won {n} seats.", NEU, "attrib-predict")
+        else:  # the actor announcing its own action: that is the report
+            co, (verb, _), n = c.pick("companies", COMPANIES), r.choice(CORP_EVENTS[:2]), r.choice([200, 500, 1200, 3000])
+            act = verb.format(n=n, p=5, pl="Pune")
+            o.add(dress(f"'We will {act}', says {co} CEO", r), f"{co} will {act}.", ENT, "attrib-own")
+    elif which == "forecast":
+        n = r.choice([25, 35, 50])
+        if r.random() < .5:
+            prem = r.choice([f"RBI may raise repo rate by {n} bps in its next review", f"Repo rate likely to rise by {n} bps, economists say",
+                             f"RBI expected to hike repo rate by {n} basis points", f"Will RBI raise the repo rate by {n} bps this time? Experts weigh in"])
+            o.add(dress(prem, r), f"The RBI raised the repo rate by {n} basis points.", NEU, "forecast-rate")
+            rate = r.choice(["5.5", "6.25", "6.5"])
+            o.add(dress(f"RBI keeps repo rate unchanged at {rate}%", r), f"The RBI raised the repo rate by {n} basis points.", CON, "forecast-held")
+        else:
+            co, (verb, done), n = c.pick("companies", COMPANIES), r.choice(CORP_EVENTS), r.choice([300, 800, 2000])
+            pl = c.pick("places", PLACES)
+            act = verb.format(n=n, p=8, pl=pl)
+            prem = r.choice([f"{co} may {act}, sources say", f"{co} likely to {act} next quarter", f"{co} considering plan to {act}"])
+            o.add(dress(prem, r), f"{co} {done.format(n=n, p=8, pl=pl).split(';')[0].split(',')[0]}.", NEU, "forecast-corp")
+    elif which == "bound":
+        game, team, m = r.choice(GAMES), c.pick("teams", TEAMS), r.randint(30, 120)
+        prem = r.choice([f"{team} signs off with {m} medals at the {game}", f"{game}: {team} finish campaign with {m} medals",
+                         f"{team}'s {m}-medal haul at the {game}"])
+        if r.random() < .5:
+            n = m - r.randint(1, 10) if r.random() < .6 else m + r.randint(5, 30)
+            word = r.choice(["crossed", "won more than", "won over", "won at least"])
+            o.add(dress(prem, r), f"{team} {word} {n} medals at the {game}.", ENT if m > n or (word == "won at least" and m == n) else CON, "bound-more")
+        else:
+            n = m + r.randint(5, 30) if r.random() < .6 else m - r.randint(1, 10)
+            o.add(dress(prem, r), f"{team} won fewer than {n} medals at the {game}.", ENT if m < n else CON, "bound-less")
+    elif which == "other":
+        c1, c2 = c.distinct("companies", COMPANIES, 2)
+        verb, done = r.choice(CORP_EVENTS)
+        n, pl = r.choice([200, 600, 1500]), c.pick("places", PLACES)
+        frame = "other-recall" if "recall" in verb else "other-corp"
+        o.add(dress(f"{c2} {done.format(n=n, p=6, pl=pl)}", r), f"{c1} to {verb.format(n=n, p=6, pl=pl)}.", NEU, frame)
+        o.add(dress(f"{c1} {done.format(n=n, p=6, pl=pl)}", r), f"{c1} to {verb.format(n=n, p=6, pl=pl)}.", ENT, frame)
+    else:  # a negated claim: confirmed, contradicted, or untouched by a headline about the same person
+        (p, g), off, pl = c.person(), r.choice(OFFICES), c.pick("places", PLACES)
+        claim = f"{p} has not resigned as {off}."
+        o.add(dress(r.choice([f"{p} addresses rally in {pl}", f"{p} inaugurates new hospital in {pl}", f"{p} meets party workers in {pl}"]), r),
+              claim, NEU, "negated-unrelated")
+        o.add(dress(f"{p} resigns as {off}", r), claim, CON, "negated-resigns")
+        o.add(dress(r.choice([f"{p} rules out resignation, says will continue as {off}", f"{p} will not resign, says party"]), r),
+              claim, ENT, "negated-stays")
+    return o.rows
+
+
 # ---------------------------------------------------------------- encyclopedic
 def bundle(c):
     r = c.rng
@@ -1028,12 +1106,14 @@ GENS = [  # (name, function, weight)
     ("debunk", g_debunk, 7), ("same_entity", g_same_entity, 14), ("paraphrase", g_paraphrase, 8),
     ("unsupported", g_unsupported, 10), ("encyclopedic", g_encyclopedic, 12), ("multilingual", g_multilingual, 7),
     ("sibling_event", g_sibling, 14), ("swapped_actor", g_swapped, 9), ("number_format", g_numfmt, 6),
+    ("hedged", g_hedged, 14),
 ]
 
 # Frames held out of training entirely: a test over sentence shapes the model never saw.
 HELDOUT_SUBS = {"figure": {"runs", "seats"}, "reversed_roles": {"sue", "election"}, "reversed_outcome": {"scheme", "bail"},
                 "date": {"year-title"}, "encyclopedic": {"office", "award"}, "paraphrase": {"bill", "appoint"},
-                "sibling_event": {"court", "company"}, "swapped_actor": {"award"}, "number_format": {"count"}}
+                "sibling_event": {"court", "company"}, "swapped_actor": {"award"}, "number_format": {"count"},
+                "hedged": {"attrib-predict", "bound-less", "other-recall"}}
 
 
 def is_heldout(row):

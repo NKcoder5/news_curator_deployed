@@ -197,7 +197,8 @@ const readEntities = (text) => {
  * beaten by West Indies"). Null when the claim has no such predicate.
  */
 const readRoles = (text, entitySet) => {
-  const tokens = String(text).split(/\s+/).map(t => t.replace(/[^\p{L}\p{N}\p{M}-]/gu, '').replace(/['’]s$/u, ''));
+  const raw = String(text).split(/\s+/);
+  const tokens = raw.map(t => t.replace(/[^\p{L}\p{N}\p{M}-]/gu, '').replace(/['’]s$/u, ''));
   const asEntity = (t) => {
     if (!t) return null;
     const forms = [t.toLowerCase(), stem(t)];
@@ -205,7 +206,13 @@ const readRoles = (text, entitySet) => {
   };
   const vi = tokens.findIndex(t => t && ASYMMETRIC.has(SYNONYM[t.toLowerCase()] || stem(t)));
   if (vi <= 0) return null;
-  const before = tokens.slice(0, vi).map(asEntity).find(Boolean);
+  // The subject is in the verb's own clause: in "World Cup final: India beat
+  // Australia" the name before the colon is the event, not the winner.
+  let start = 0;
+  for (let i = 0; i < vi; i += 1) {
+    if (/[:;|]$/.test(raw[i]) || /^[—–|-]$/.test(raw[i])) start = i + 1;
+  }
+  const before = tokens.slice(start, vi).map(asEntity).find(Boolean);
   const after = tokens.slice(vi + 1).map(asEntity).find(Boolean);
   if (!before || !after || before === after) return null;
   const passive = /^(?:is|was|were|are|been|be|being|got|get)$/i.test(tokens[vi - 1] || '') && /^by$/i.test(tokens[vi + 1] || '');

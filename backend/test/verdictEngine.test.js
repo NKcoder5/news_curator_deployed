@@ -49,6 +49,36 @@ test('eight articles that are really one wire story do not corroborate', () => {
   assert.strictEqual(decideVerdict(ledger).verdict, 'likely-true');
 });
 
+test('one outlet read by our own model is not enough for Likely true', () => {
+  const ledger = ledgerFor({
+    claims: [{
+      claim: 'The council approved the cycle lane.',
+      verdict: 'supported',
+      ownJudged: true,
+      supportingEvidence: [evidence('BBC News', 'Council approves cycle lane', 9)],
+      contradictingEvidence: []
+    }]
+  });
+  assert.strictEqual(ledger.independentSupport, 1);
+  assert.strictEqual(ledger.ownJudgedSupport, true);
+  const decision = decideVerdict(ledger);
+  assert.strictEqual(decision.verdict, 'unverified');
+  assert.strictEqual(decision.rule, 'one-source-read-by-own-model');
+});
+
+test('one outlet read by the hosted model is still Likely true', () => {
+  const ledger = ledgerFor({
+    claims: [{
+      claim: 'The council approved the cycle lane.',
+      verdict: 'supported',
+      supportingEvidence: [evidence('BBC News', 'Council approves cycle lane', 9)],
+      contradictingEvidence: []
+    }]
+  });
+  assert.strictEqual(ledger.ownJudgedSupport, false);
+  assert.strictEqual(decideVerdict(ledger).verdict, 'likely-true');
+});
+
 test('two independent contradictions yield False', () => {
   const ledger = ledgerFor({
     claims: [{

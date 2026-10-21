@@ -11,7 +11,7 @@ const { judgePairs } = require('../services/localNli');
 const { noteModelCall } = require('../utils/runContext');
 const { FACT_CHECK_DESKS } = require('./factCheckSearch');
 const { forecastOnly } = require('../utils/stanceGuards');
-const { signatureOf } = require('../services/claimSignature');
+const { signatureOf, compareSignatures } = require('../services/claimSignature');
 
 // A changed figure is a comparison, not a judgement. "CJP leaders Saurav Das
 // and Ashutosh Ranka were sent to 4 days in judicial custody" against nine
@@ -504,7 +504,15 @@ const ownStances = async (claim, shown) => {
     // A plan or forecast does not confirm that the thing happened (utils/stanceGuards.js): read as
     // saying nothing, and sure of that.
     if (stance === 'agree' && forecastOnly(shown[i].title, claim)) stance = 'unrelated';
-    const sure = Boolean(stance) && j.scores[j.label] >= (STANCE_THRESHOLDS[stance] ?? 1);
+    // An "agree" the claim's own signature rules out is not allowed: who beat whom reversed, another
+    // figure or date, one of them negated. With every hosted model off, "India beat West Indies in the
+    // second T20I at Ranchi" (West Indies won) came back REAL on readings our model was sure of.
+    let vetoed = false;
+    if (stance === 'agree') {
+      const cmp = compareSignatures(signatureOf(claim), signatureOf(`${shown[i].title || ''} ${shown[i].description || ''}`));
+      vetoed = (cmp.differences || []).some(d => /^(?:roles reversed|figure|date|one says the opposite)/.test(d));
+    }
+    const sure = !vetoed && Boolean(stance) && j.scores[j.label] >= (STANCE_THRESHOLDS[stance] ?? 1);
     if (sure) sureCount += 1; else allSure = false;
     const read = sure ? stance : 'unrelated';
     return { n: i + 1, stance: read, same_event: read !== 'unrelated', both_can_be_true: read !== 'disagree', reported: '' };
@@ -762,12 +770,21 @@ Return a JSON object with these keys:
     const figured = byFigures(claim, coverage, 'Our own model judged the headlines, and ');
     if (figured) return figured;
   }
+  // One headline our model read as agreeing is not enough to confirm anything: with every hosted model
+  // off, five of ten wrong answers on clean suites rested on a single such reading. Two outlets at
+  // least, counted again for independence by the verdict engine (ownJudged below).
+  let ownNote = '';
+  if (usedOwn && verdict === 'supported' && support.kept.length < 2) {
+    verdict = 'unverified';
+    ownNote = 'Only one outlet was read as confirming it, by our own model; that is not enough to confirm it.';
+  }
 
   const vetoNote = vetoed ? `${vetoed} reading${vetoed > 1 ? 's' : ''} by a fallback model ${vetoed > 1 ? 'were' : 'was'} set aside: our own model reads ${vetoed > 1 ? 'those headlines' : 'that headline'} the other way.` : '';
-  const notes = [support.note, contradiction.note, setAsideNote, vetoNote].filter(Boolean);
+  const notes = [support.note, contradiction.note, setAsideNote, vetoNote, ownNote].filter(Boolean);
 
   return {
     verdict,
+    ownJudged: usedOwn,
     supportingEvidence: support.kept,
     contradictingEvidence: contradiction.kept,
     discardedEvidence: [...support.dropped, ...contradiction.dropped, ...setAside],

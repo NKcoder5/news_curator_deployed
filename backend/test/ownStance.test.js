@@ -157,6 +157,42 @@ test(`Gemini's own "disagree" stands, whatever our model reads`, async () => {
   assert.ok(judged.contradictingEvidence.length > 0 || judged.verdict === 'contradicted');
 });
 
+test('local: one outlet our model reads as agreeing does not confirm the claim', async () => {
+  reset('local');
+  ownReadings = [reading('entailment', 0.995), reading('neutral', 0.5), reading('neutral', 0.5)];
+  const judged = await judgeClaim(CLAIM, COVERAGE);
+  assert.strictEqual(judged.verdict, 'unverified');
+  assert.strictEqual(judged.ownJudged, true);
+  assert.match(judged.explanation, /not enough to confirm/);
+});
+
+test(`local: two outlets our model reads as agreeing confirm it`, async () => {
+  reset('local');
+  ownReadings = [reading('entailment', 0.995), reading('entailment', 0.995), reading('neutral', 0.5)];
+  const judged = await judgeClaim(CLAIM, COVERAGE);
+  assert.strictEqual(judged.verdict, 'supported');
+  assert.strictEqual(judged.ownJudged, true);
+});
+
+test(`the hosted model's reading is not marked as ours`, async () => {
+  reset(null);
+  ownReadings = COVERAGE.map(() => reading('entailment', 0.999));
+  const judged = await judgeClaim(CLAIM, COVERAGE);
+  assert.strictEqual(judged.ownJudged, false);
+});
+
+test(`local: our model's "agree" does not stand when the headline reverses who did what`, async () => {
+  reset('local');
+  const reversed = [
+    outlet('The Hindu', 'India beat Australia in the World Cup final'),
+    outlet('NDTV', 'World Cup final: India beat Australia to lift the trophy')
+  ];
+  ownReadings = reversed.map(() => reading('entailment', 0.999));
+  const judged = await judgeClaim('Australia beat India in the World Cup final', reversed);
+  assert.strictEqual(judged.supportingEvidence.length, 0);
+  assert.notStrictEqual(judged.verdict, 'supported');
+});
+
 test(`a fallback model's "agree" is set aside where our model is sure the headline says the opposite`, async () => {
   reset(null);
   hostedProvider = 'ollama';

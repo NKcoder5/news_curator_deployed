@@ -25,6 +25,13 @@ test('a changed figure, date or polarity makes a variant, and says which', () =>
   assert.strictEqual(relation('TVK did not lose the 2026 bypolls.', 'TVK won the 2026 bypolls.'), 'same');
 });
 
+test(`who did it to whom is read in the verb's own clause`, () => {
+  const differences = (a, b) => compareSignatures(signatureOf(a), signatureOf(b)).differences;
+  // The name before a headline's colon is the event, not the winner.
+  assert.match(differences('Australia beat India in the World Cup final', 'World Cup final: India beat Australia to lift the trophy')[0], /^roles reversed/);
+  assert.deepStrictEqual(differences('India beat Australia in the World Cup final', 'World Cup final: India beat Australia to lift the trophy'), []);
+});
+
 test('claims that only share a topic or a name are kept apart', () => {
   assert.strictEqual(relation('India won 84 medals at the Asian Games 2026.', 'India won 84 medals at the Commonwealth Games 2026.'), 'different');
   assert.strictEqual(relation('Narendra Modi resigned as Prime Minister today.', 'Narendra Modi launched projects worth Rs 13,000 crore in Chennai.'), 'different');

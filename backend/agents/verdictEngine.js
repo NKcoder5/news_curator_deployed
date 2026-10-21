@@ -265,6 +265,9 @@ const buildEvidenceLedger = ({
       time: claim.time || null,
       kind: claim.kind || null,
       fromTitle: Boolean(claim.fromTitle),
+      // The headlines were read by our own model rather than the hosted one
+      // (agents/claimVerificationAgent.js), which needs more outlets to confirm.
+      ownJudged: Boolean(claim.ownJudged),
       stale,
       newestSupport: newestSupport ? new Date(newestSupport).toISOString() : null,
       independentSupport: forCount > againstCount ? forCount : 0,
@@ -379,6 +382,11 @@ const buildEvidenceLedger = ({
     presupposingFalse: currentCoverageResult?.presupposingFalse || [],
     independentSupport,
     independentContradiction,
+    // Every confirmed claim was confirmed by our own model's reading of the
+    // headlines. Measured with the hosted model off: of ten wrong answers in
+    // 111 checks, five rested on one outlet our model read as agreeing.
+    ownJudgedSupport: perClaim.some(c => c.independentSupport > 0)
+      && perClaim.filter(c => c.independentSupport > 0).every(c => c.ownJudged),
     // Support that could overtake a fact-check ruling: outlets reporting the
     // claim as fact, with the headlines that report the debunk itself removed.
     // Measured: on the Army-chief deepfake, eleven outlets reporting "the video
@@ -831,6 +839,12 @@ const decideVerdict = (ledger) => {
   }
 
   // R6 — A single independent source.
+  if (ledger.independentSupport === 1 && ledger.ownJudgedSupport) {
+    return decide('unverified', 'one-source-read-by-own-model', [
+      'One independent source was read as reporting the same facts.',
+      'That reading was made by our own model, which needs at least two separate outlets before it confirms anything.'
+    ], 'One outlet appears to report it. That is not enough to confirm it; look for a second, independent report.');
+  }
   if (ledger.independentSupport === 1) {
     grounds.push('One independent source reports the same facts.');
     if (!ledger.hasHighQualitySource) {
@@ -1196,7 +1210,7 @@ const pickEvidence = (e) => ({
 
 const compactLedgerInput = (input) => ({
   claims: (input.claims || []).map(c => ({
-    claim: c.claim, verdict: c.verdict, time: c.time || null, kind: c.kind || null, fromTitle: Boolean(c.fromTitle),
+    claim: c.claim, verdict: c.verdict, time: c.time || null, kind: c.kind || null, fromTitle: Boolean(c.fromTitle), ownJudged: Boolean(c.ownJudged),
     supportingEvidence: (c.supportingEvidence || []).map(pickEvidence),
     contradictingEvidence: (c.contradictingEvidence || []).map(pickEvidence)
   })),

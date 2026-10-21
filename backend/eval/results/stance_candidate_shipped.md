@@ -1,6 +1,6 @@
 # Stance candidate: shipped
 
-Measured 2026-10-20 by eval/stanceCandidate.js on `backend\models\minilm-l12-onnx-int8`.
+Measured 2026-10-21 by eval/stanceCandidate.js on `backend\models\minilm-l12-onnx-int8`.
 
 ## 1. Gold probe (labelled by hand)
 
@@ -51,5 +51,5 @@ Sure readings: 0 of 50; sure and wrong: **0**.
 
 ## 4. Cost on this CPU
 
-Model file 40.2 MB (GitHub refuses files over 100 MB). Memory added once loaded: about 157 MB.
-Latency with 2 threads: one pair 20 ms, a batch of 16 323 ms.
+Model file 40.2 MB (GitHub refuses files over 100 MB). Memory added once loaded: about 154 MB.
+Latency with 2 threads: one pair 5 ms, a batch of 16 74 ms.

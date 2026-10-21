@@ -111,3 +111,20 @@ test('hybrid: a question headline reports nothing, however sure our model is', a
   assert.strictEqual(hostedCalls, 0);
   assert.strictEqual(judged.supportingEvidence.length, 0);
 });
+
+test('hybrid: the hosted model failing and ours sure of nothing is a failed judgement, not "no outlet reports this"', async () => {
+  reset('hybrid');
+  ownReadings = COVERAGE.map(() => reading('entailment', 0.6));
+  hostedReply = new Error('quota');
+  const judged = await judgeClaim(CLAIM, COVERAGE);
+  assert.strictEqual(judged.failed, true);
+  assert.strictEqual(judged.verdict, 'undetermined');
+});
+
+test('local: sure of nothing, the figures still decide a different total', async () => {
+  reset('local');
+  ownReadings = COVERAGE.map(() => reading('neutral', 0.5));
+  const judged = await judgeClaim('India won 84 medals at the Asian Games.', COVERAGE);
+  assert.strictEqual(judged.verdict, 'contradicted');
+  assert.ok(judged.figures, 'decided by the figures');
+});

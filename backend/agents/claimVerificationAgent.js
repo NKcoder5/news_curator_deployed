@@ -460,6 +460,7 @@ const ownStances = async (claim, shown) => {
   noteModelCall({ label: 'stance judgement', provider: 'own model', model: 'minilm-l12-int8', cached: false, own: true });
   return {
     allSure: allSure || mode === 'local',
+    sureCount: items.filter((_, i) => judged[i] && FROM_NLI[judged[i].label] && judged[i].scores[judged[i].label] >= (STANCE_THRESHOLDS[FROM_NLI[judged[i].label]] ?? 1)).length,
     result: { items, explanation: 'Each headline was read by our own pair model.' }
   };
 };
@@ -542,9 +543,22 @@ Return a JSON object with these keys:
   // slow, the readings our model is sure of still count, and the rest count
   // as saying nothing.
   const own = await ownStances(claim, shown);
+  // Our readings stand in for the hosted model's only when ours is sure of at least one headline.
+  // Sure of none, they would all say "unrelated" and the verdict would tell the reader that no outlet
+  // reports this, about coverage nobody could judge: that is a failed judgement, said as one.
+  const failedJudgement = () => {
+    const figured = byFigures(claim, coverage, 'The headlines could not be judged by a model, but ');
+    if (figured) return figured;
+    return { verdict: 'undetermined', failed: true, supportingEvidence: [], contradictingEvidence: [],
+      discardedEvidence: [], explanation: 'This claim could not be judged against the coverage that was found.' };
+  };
+  const ownUsable = Boolean(own) && own.sureCount > 0;
   let result;
+  let usedOwn = false;
   if (own && own.allSure) {
+    if (!ownUsable) return failedJudgement();
     result = own.result;
+    usedOwn = true;
   } else {
     try {
       result = await withinMs(callNimApiJson(prompt, {
@@ -561,16 +575,11 @@ Return a JSON object with these keys:
       }), own ? HOSTED_STANCE_MS : null);
     } catch (err) {
       console.error('Claim judgement failed:', err.message);
-      if (own) {
-        result = own.result;
-      } else {
-        const figured = byFigures(claim, coverage, 'The headlines could not be judged by a model, but ');
-        if (figured) return figured;
-        return { verdict: 'undetermined', failed: true, supportingEvidence: [], contradictingEvidence: [],
-          discardedEvidence: [], explanation: 'This claim could not be judged against the coverage that was found.' };
-      }
+      if (!ownUsable) return failedJudgement();
+      result = own.result;
+      usedOwn = true;
     }
-    if (own && !Array.isArray(result?.items)) result = own.result;
+    if (!Array.isArray(result?.items) && ownUsable) { result = own.result; usedOwn = true; }
   }
 
   // The verdict is derived from the per-item stances here, never read from
@@ -671,6 +680,12 @@ Return a JSON object with these keys:
   }
   if (verdict === 'contradicted' && contradiction.kept.length === 0) {
     verdict = support.kept.length > 0 ? 'supported' : 'unverified';
+  }
+  // Our model never says "disagree" on its own unless it is sure; a different figure for the same
+  // thing is settled by the figures whoever judged the headlines.
+  if (usedOwn && verdict === 'unverified') {
+    const figured = byFigures(claim, coverage, 'Our own model judged the headlines, and ');
+    if (figured) return figured;
   }
 
   const notes = [support.note, contradiction.note, setAsideNote].filter(Boolean);

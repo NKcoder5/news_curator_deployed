@@ -30,6 +30,11 @@ const { findAnchors } = require('./checkability');
 const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip, clipList, addressesModel } = require('../utils/untrusted');
 
 const SPEECH_ACTS = new Set(['assertion', 'question', 'hedged', 'sarcasm', 'opinion', 'exhortation', 'prediction', 'mixed']);
+// The sender's own relations and acquaintances: private persons no outlet reports on.
+const PRIVATE_PERSON = /\b(?:my|our)\s+(?:(?:elder|younger|best|close|old)\s+)?(?:neighbou?rs?|friends?|cousins?|uncles?|aunts?|aunty|brothers?|sisters?|colleagues?|classmates?|roommates?|sons?|daughters?|husband|wife|father|mother|dad|mom|mum|parents|landlord|boss|relatives?|in-laws?|grand(?:father|mother|pa|ma))\b/i;
+const RELATION_AS_SOURCE = /\b(?:my|our)\s+(?:\w+\s+){0,2}?(?:told|tells|says|said|sent|shares|shared|forwarded|heard|posted|messaged|claims|claimed|wrote|showed)\b/i;
+// Public institutions whose acts are reported and fact-checked: a claim about one names an actor.
+const PUBLIC_BODY = /\b(?:(?:the\s+)?(?:central|union|state|indian|tamil nadu|kerala|karnataka|delhi|modi)\s+government|government|the centre|ministry(?: of [a-z ]+)?|rbi|reserve bank|supreme court|high court|election commission|indian railways|railways|income tax department|uidai|isro|cbse|ugc|sebi|npci|epfo|lic|sbi|police|parliament|lok sabha|rajya sabha|indian army|army|navy|air force)\b/i;
 const TIMES = new Set(['now', 'past', 'timeless', 'future']);
 const KINDS = new Set(['event', 'figure', 'quote', 'standing_fact', 'prediction', 'opinion']);
 const TONES = new Set(['neutral', 'alarmist', 'emotional', 'celebratory', 'sarcastic', 'angry', 'urgent']);
@@ -167,7 +172,16 @@ const understandInput = async (text) => {
       // west"): the subject the model gives is the thing a reference work is
       // asked about. Measured: "Giraffe is a fish" was refused as naming
       // nothing, the worst answer to a plainly false statement.
+      // A public institution is as specific an actor as a named one: "the government" in a forward
+      // means the Government of India or the state's, and what it gives, bans or announces is what
+      // newsrooms and fact-checkers report. "Government is giving free laptops to all students,
+      // register at the link" (the commonest kind of scam forward) was refused as naming no one.
+      const institution = PUBLIC_BODY.test(claim);
+      // A relation who only passed it on ("my friend told me the RBI is banning 2000 notes") is the
+      // source, not the subject: the claim about the RBI is checked.
+      const privateSubject = PRIVATE_PERSON.test(body) && !RELATION_AS_SOURCE.test(body) && !institution;
       const named = (kind === 'standing_fact' && Boolean(clip(c.subject, 60)))
+        || institution
         || anchors.names.length + anchors.numbers.length + anchors.dates.length > 0
         || (/^\p{Lu}/u.test(firstWord) && firstWord.length > 2 && !/^(The|This|That|There|They|It|A|An|Some|Something|Everyone|People)$/.test(firstWord));
       return {
@@ -186,7 +200,9 @@ const understandInput = async (text) => {
         // had not happened yet. A named factual claim goes to the evidence; if
         // nothing bears on it the verdict says so, which is safe. Only
         // opinions and forecasts are held back.
-        checkable: named && !['prediction', 'opinion'].includes(kind)
+        // Someone known only to the sender ("my neighbour Ramesh bought a car yesterday") is covered by
+        // no newsroom or reference work, whatever date or figure the message adds.
+        checkable: named && !privateSubject && !['prediction', 'opinion'].includes(kind)
           && (asBool(c.checkable) === true || ['event', 'figure', 'quote', 'standing_fact'].includes(kind))
       };
     });
@@ -202,7 +218,7 @@ const understandInput = async (text) => {
     // "activist was killed" keeps the name and drops the claim.
     const covered = claims.some(c => { const w = words(c.claim); return own.every(x => w.has(x)); });
     // Text addressed to a model is never a claim (utils/untrusted.js).
-    const instructing = /(?:system|ignore|instructions?|assistant|prompt|override|developer)/i.test(title);
+    const instructing = /\b(?:system|ignore|instructions?|assistant|prompt|override|developer)\b/i.test(title);
     const titleWords = title.trim().split(/\s+/).length;
     if (!covered && !instructing && titleWords >= 2 && titleWords <= 10 && findAnchors(title).names.length + (/^\p{Lu}/u.test(title.trim()) ? 1 : 0) > 0) {
       const base = claims[0] || {};

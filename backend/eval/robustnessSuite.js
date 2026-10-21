@@ -115,7 +115,8 @@ const save = (rows, stoppedBecause) => {
   for (const c of cases) {
     if (done.has(c.id)) continue;
     if (checks >= maxChecks) { stoppedBecause = `check budget of ${maxChecks} spent`; break; }
-    const result = await checkMessage(c.input, { isUrl: Boolean(c.isUrl) });
+    // A case whose input is a link is checked as one, flagged or not (rp-41 and rp-43 were refused as text).
+    const result = await checkMessage(c.input, { isUrl: Boolean(c.isUrl) || /^https?:\/\/\S+$/i.test(String(c.input).trim()) });
     checks += 1;
     const row = { ...c, ...result, outcome: outcomeOf(c, result.call) };
     rows.push(row);

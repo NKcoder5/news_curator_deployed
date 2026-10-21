@@ -48,9 +48,32 @@ const FROM = { entailment: 'agree', contradiction: 'disagree', neutral: 'unrelat
 const STANCES = ['agree', 'disagree', 'unrelated'];
 const pct = (a, b) => (b ? `${(100 * a / b).toFixed(1)}%` : '–');
 
+// The same guards the pipeline applies to our model's readings (utils/stanceGuards.js): what is
+// measured here is what the checker would do.
+const { asksOnly, forecastOnly } = require('../utils/stanceGuards');
 const read = async (pairs) => {
   const judged = await nli.judgePairs(pairs.map((p) => ({ premise: p.premise, hypothesis: p.hypothesis })));
-  return judged.map((j) => (j ? { stance: FROM[j.label], p: j.scores[j.label] } : null));
+  return judged.map((j, i) => {
+    if (!j) return null;
+    let stance = FROM[j.label];
+    if (stance !== 'unrelated' && asksOnly(pairs[i].premise)) stance = 'unrelated';
+    if (stance === 'agree' && forecastOnly(pairs[i].premise, pairs[i].hypothesis)) stance = 'unrelated';
+    return { stance, p: j.scores[j.label] };
+  });
+};
+
+// --adjudication <file>: pairs judged by hand where the candidate and Gemini differed; the hand
+// judgement is the reference for those pairs (eval/results/stance_adjudication_*.json).
+const ADJUDICATION = arg('adjudication', null);
+const adjudicated = new Map();
+// Matched on letters and digits only: a hand-copied headline differs in quotes and dashes.
+const keyOf = (claim, headline) => `${String(claim).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '')}\u0000${String(headline).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '')}`;
+if (ADJUDICATION) {
+  for (const p of JSON.parse(fs.readFileSync(path.resolve(ADJUDICATION), 'utf8')).pairs) adjudicated.set(keyOf(p.claim, p.headline), p.label);
+}
+const referenceFor = (r) => {
+  const headline = String(r.premise).split(' — ')[0].trim();
+  return adjudicated.get(keyOf(r.claim, headline)) || r.hosted;
 };
 
 const main = async () => {
@@ -80,10 +103,14 @@ const main = async () => {
     .map((l) => { try { return JSON.parse(l); } catch (_) { return null; } })
     .filter((r) => r && !r.noCoverage && r.provider === 'gemini' && held.has(r.id));
   const reads = await read(rows.map((r) => ({ premise: r.premise.slice(0, 220), hypothesis: r.claim })));
-  const out = rows.map((r, i) => ({ ...r, ours: reads[i]?.stance, p: reads[i]?.p || 0 }));
+  const agreeingGemini = rows.filter((r, i) => reads[i]?.stance === r.hosted).length;
+  // The reference from here on: Gemini's reading, or the hand judgement where one was made.
+  const out = rows.map((r, i) => ({ ...r, gemini: r.hosted, hosted: referenceFor(r), ours: reads[i]?.stance, p: reads[i]?.p || 0 }));
+  const overridden = out.filter((r) => r.hosted !== r.gemini).length;
   const agreeing = out.filter((r) => r.ours === r.hosted).length;
-  lines.push('## 2. Held-out stance pairs (Gemini as reference)', '',
-    `${out.length} pairs from ${held.size} claims never trained on; agreement with Gemini ${pct(agreeing, out.length)}.`, '',
+  lines.push(`## 2. Held-out stance pairs (${ADJUDICATION ? 'Gemini, corrected by hand where disputed' : 'Gemini'} as reference)`, '',
+    `${out.length} pairs from ${held.size} claims never trained on; agreement with Gemini ${pct(agreeingGemini, out.length)}` +
+    (ADJUDICATION ? `; with the reference corrected on ${overridden} pairs judged by hand (${path.basename(ADJUDICATION)}), ${pct(agreeing, out.length)}.` : '.'), '',
     '| stance | threshold | sure readings | precision | 95% lower bound | of Gemini\'s caught |', '|---|---:|---:|---:|---:|---:|');
   const chosen = {};
   for (const s of STANCES) {

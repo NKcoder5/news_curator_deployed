@@ -10,6 +10,7 @@ const { filterRelevant, anchorTerms, distinctiveTerms } = require('./evidenceRel
 const { judgePairs } = require('../services/localNli');
 const { noteModelCall } = require('../utils/runContext');
 const { FACT_CHECK_DESKS } = require('./factCheckSearch');
+const { forecastOnly } = require('../utils/stanceGuards');
 const { signatureOf } = require('../services/claimSignature');
 
 // A changed figure is a comparison, not a judgement. "CJP leaders Saurav Das
@@ -207,6 +208,8 @@ const STANCES = new Set(['agree', 'disagree', 'unrelated']);
 const FORWARD_FURNITURE = /^(?:\s*(?:forward(?:ed)?\s+(?:as received|many times)|(?:forwarded|breaking(?: news)?|urgent|alert|news flash|must read|important)(?=\s*[!:.\-–—*]))\s*[!:.\-–—*]*\s*)+/i;
 const INSTRUCTION = /^(?:please\s+|kindly\s+|do not\s+|don'?t\s+)?(?:forward|share|send|register|click|call|apply|subscribe|watch|like|follow|join|download|tag|pass|spread|tell|check|visit|open|install|beware|avoid)\b/i;
 const NOW_WORDS = /\b(?:today|tonight|now|this (?:week|morning|evening)|just now|right now|from tomorrow|from midnight)\b/i;
+// A short greeting or thanks asserts nothing: "Hi good morning", "Vanakkam friends".
+const GREETING = /^(?:hi|hii+|hello|hey|good (?:morning|afternoon|evening|night)|gm|namaste|namaskar|vanakkam|thanks|thank you|ok|okay|happy \w+)\b(?:\s+\S+){0,3}\.?$/i;
 // A news search for a claim read without a model: its names as written, its year, then its content
 // words, never its other figures. The relevance helper's terms (deriveKeywords) drop "India" as too
 // common and keep "84": searched as "84 asian game 2026", "India won 84 medals at the Asian Games
@@ -240,7 +243,11 @@ const sentenceClaims = (title, content) => {
   const sentences = text.split(/(?<=[.!?])\s+|\n+/)
     .map(s => s.replace(FORWARD_FURNITURE, '').replace(/\s+/g, ' ').trim())
     .map(s => s.split(/,\s*(?=(?:please\s+|kindly\s+)?(?:forward|share|register|click|call|apply|send)\b)/i)[0].trim())
-    .filter(s => s.split(/\s+/).length >= 4 && !/\?\s*$/.test(s) && !INSTRUCTION.test(s) && !addressesModel(s));
+    // Two claims in one sentence are two claims, as the model-read path files them: "India won 85
+    // medals at the Asian Games, and the RBI cut the repo rate by 50 basis points" is half true, and
+    // read whole, a confirmation of one half would read as a confirmation of the message.
+    .flatMap(s => s.split(/,\s+and\s+(?=(?:the|a|an|this|his|her|their|[\p{Lu}])\S*\s+\S+\s+\S+)/u).map(x => x.trim()))
+    .filter(s => s.split(/\s+/).length >= 3 && !/\?\s*$/.test(s) && !INSTRUCTION.test(s) && !addressesModel(s) && !GREETING.test(s));
   return sentences.slice(0, 3).map(s => {
     const claim = clip(/[.!]$/.test(s) ? s.replace(/!+$/, '.') : `${s}.`, MAX_CLAIM_CHARS);
     return { claim, keywords: searchQueryFor(claim), keywordsEn: null, headline: null, time: NOW_WORDS.test(claim) ? 'now' : 'past', kind: 'event', readWithoutModel: true };
@@ -462,7 +469,10 @@ const stanceMode = () => (['hybrid', 'local'].includes(process.env.STANCE_MODEL)
 // How sure our model must be before its reading stands without the hosted
 // model, per stance. Measured on held-out pairs (eval/stanceAgreement.js):
 // a "disagree" read wrongly makes a true claim FAKE, so it needs the most.
-const STANCE_THRESHOLDS = require('../data/stanceThresholds.json');
+// STANCE_THRESHOLDS_FILE points an experiment at other thresholds without touching the shipped file.
+const STANCE_THRESHOLDS = process.env.STANCE_THRESHOLDS_FILE
+  ? JSON.parse(require('fs').readFileSync(process.env.STANCE_THRESHOLDS_FILE, 'utf8'))
+  : require('../data/stanceThresholds.json');
 const HOSTED_STANCE_MS = Number(process.env.HOSTED_STANCE_MS) || 15000;
 const FROM_NLI = { entailment: 'agree', contradiction: 'disagree', neutral: 'unrelated' };
 // How sure our model must be of the opposite before a fallback model's reading is set aside.
@@ -488,17 +498,21 @@ const ownStances = async (claim, shown) => {
   })));
   if (judged.every(j => !j)) return null;
   let allSure = true;
+  let sureCount = 0;
   const items = judged.map((j, i) => {
-    const stance = j && FROM_NLI[j.label];
+    let stance = j && FROM_NLI[j.label];
+    // A plan or forecast does not confirm that the thing happened (utils/stanceGuards.js): read as
+    // saying nothing, and sure of that.
+    if (stance === 'agree' && forecastOnly(shown[i].title, claim)) stance = 'unrelated';
     const sure = Boolean(stance) && j.scores[j.label] >= (STANCE_THRESHOLDS[stance] ?? 1);
-    if (!sure) allSure = false;
+    if (sure) sureCount += 1; else allSure = false;
     const read = sure ? stance : 'unrelated';
     return { n: i + 1, stance: read, same_event: read !== 'unrelated', both_can_be_true: read !== 'disagree', reported: '' };
   });
-  noteModelCall({ label: 'stance judgement', provider: 'own model', model: 'minilm-l12-int8', cached: false, own: true });
+  noteModelCall({ label: 'stance judgement', provider: 'own model', model: 'own pair model', cached: false, own: true });
   return {
     allSure: allSure || mode === 'local',
-    sureCount: items.filter((_, i) => judged[i] && FROM_NLI[judged[i].label] && judged[i].scores[judged[i].label] >= (STANCE_THRESHOLDS[FROM_NLI[judged[i].label]] ?? 1)).length,
+    sureCount,
     result: { items, explanation: 'Each headline was read by our own pair model.' }
   };
 };

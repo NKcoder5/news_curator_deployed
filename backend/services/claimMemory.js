@@ -310,6 +310,7 @@ const prepareRecord = (plan, { report, understanding = null, ledgerInput, modelC
       language: understanding?.language || null,
       speechAct: understanding?.speechAct || null,
       modality,
+      outlet: ledgerInput.pageHost || null,
       call: report.call,
       verdict: report.verdictClass || report.decision?.verdict,
       rule: report.decision?.rule,

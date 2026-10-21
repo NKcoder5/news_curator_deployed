@@ -22,6 +22,9 @@ const claimAssessmentSchema = new mongoose.Schema({
   language: String,
   speechAct: String,
   modality: String,
+  // The host of the page a reader submitted, when a link was checked (never its address): the outlet
+  // record (services/claimRegistry.js outletRecord) counts by it.
+  outlet: { type: String, index: true },
   call: String,
   verdict: String,
   rule: String,

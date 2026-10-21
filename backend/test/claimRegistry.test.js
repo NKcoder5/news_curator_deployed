@@ -356,3 +356,24 @@ test('the real registry refuses bad input before it looks at the database, and s
     assert.strictEqual((await get('/' + ID)).status, 503);
   });
 });
+
+test('an outlet is asked for by its host name, and anything else is refused', () => {
+  const { parseHost } = registry.__test;
+  assert.strictEqual(parseHost('www.TheHindu.com'), 'thehindu.com');
+  assert.strictEqual(parseHost('indianexpress.com'), 'indianexpress.com');
+  for (const bad of ['', 'localhost', 'thehindu', 'a/b.com', 'http://x.com', '$where.com', ['x.com'], 'x'.repeat(120) + '.com']) {
+    rejects(() => parseHost(bad), 400);
+  }
+});
+
+test('an outlet record counts each message once and says when there are too few checks to judge by', () => {
+  const { summariseOutlet } = registry.__test;
+  const rows = [{ call: 'REAL', at: '2026-10-10' }, { call: 'REAL', at: '2026-10-12' }, { call: 'FAKE', at: '2026-10-20' }];
+  const out = summariseOutlet('example.com', rows, { matched: true, matchedName: 'Example', score: 7.5 });
+  assert.deepStrictEqual(out.calls, { REAL: 2, FAKE: 1 });
+  assert.strictEqual(out.checks, 3);
+  assert.strictEqual(out.enough, false);
+  assert.strictEqual(out.firstAt.slice(0, 10), '2026-10-10');
+  assert.deepStrictEqual(out.published, { name: 'Example', score: 7.5 });
+  assert.strictEqual(summariseOutlet('x.com', [], { matched: false }).published, null);
+});

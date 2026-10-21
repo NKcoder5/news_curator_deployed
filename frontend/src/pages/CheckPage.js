@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Link2, ClipboardType, Image as ImageIcon } from 'lucide-react';
 import api from '../services/api';
 import TrustReport from '../components/TrustReport';
+import OutletRecord from '../components/OutletRecord';
 import '../styles/CheckPage.css';
 
 /**
@@ -90,6 +91,8 @@ const CheckPage = () => {
 
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState(null);
+  // The link the shown report is about, fixed when it was sent (the box may be edited afterwards).
+  const [checkedUrl, setCheckedUrl] = useState('');
   const [refusal, setRefusal] = useState(null);
   const [error, setError] = useState('');
 
@@ -177,10 +180,12 @@ const CheckPage = () => {
     reset();
     setLoading(true);
     try {
+      const body = payload();
       const response = await api.post('/ai/analyze-content', {
-        ...payload(),
+        ...body,
         ...(options.rerun ? { rerun: true } : {})
       });
+      setCheckedUrl(body.url || '');
       setReport(response.data);
     } catch (err) {
       const data = err.response?.data;
@@ -405,6 +410,7 @@ const CheckPage = () => {
             {loading ? 'Running again…' : 'Run analysis again'}
           </button>
           <TrustReport report={report} evidenceFirst />
+          {checkedUrl && <OutletRecord url={checkedUrl} />}
         </section>
       )}
     </div>

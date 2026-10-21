@@ -1,0 +1,24 @@
+/* An outlet's record under a checked link (components/OutletRecord.js). Newsprint tokens only. */
+
+.outlet-record {
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border-strong);
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-sans);
+  color: var(--color-fg);
+}
+
+.outlet-record__line { margin: 0; }
+
+.outlet-record__label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--color-fg-strong);
+}
+
+.outlet-record__note {
+  margin: var(--space-1) 0 0;
+  font-size: 0.85rem;
+  color: var(--color-fg-subtle);
+}

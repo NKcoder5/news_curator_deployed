@@ -21,6 +21,7 @@ const ClaimRecord = require('../models/ClaimRecord');
 const ClaimAssessment = require('../models/ClaimAssessment');
 const { claimHistory } = require('./claimMemory');
 const { trackRecordFor } = require('./ruleReliability');
+const { getSourceReputation } = require('../agents/sourceReputationAgent');
 
 const CALLS = ['REAL', 'FAKE', 'PARTLY FALSE', 'CANNOT VERIFY'];
 const SORTS = ['recent', 'checked'];
@@ -401,11 +402,47 @@ const claimDetail = async (id) => {
   return serialiseDetail({ history, assessment, variants });
 };
 
+// An outlet's record in claim memory: what readers' checks of its pages concluded, the newest check of
+// each message once. Shown beside the published rating, never fed into a verdict: it is the system's own
+// output about the outlet, and stays apart from the ratings until it has been validated against them.
+const HOST = /^(?=.{3,100}$)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/;
+const parseHost = (raw) => {
+  if (typeof raw !== 'string') throw new RegistryError('An outlet is a host name such as thehindu.com.', 400);
+  const host = raw.trim().toLowerCase().replace(/^www\./, '');
+  if (!HOST.test(host)) throw new RegistryError('An outlet is a host name such as thehindu.com.', 400);
+  return host;
+};
+const OUTLET_MIN_CHECKS = 10;
+const summariseOutlet = (host, rows, rating) => {
+  const calls = {};
+  for (const r of rows) calls[r.call] = (calls[r.call] || 0) + 1;
+  const times = rows.map(r => new Date(r.at).getTime()).filter(Number.isFinite);
+  return {
+    outlet: host,
+    checks: rows.length,
+    calls,
+    firstAt: times.length ? new Date(Math.min(...times)).toISOString() : null,
+    lastAt: times.length ? new Date(Math.max(...times)).toISOString() : null,
+    published: rating && rating.matched ? { name: rating.matchedName || null, score: rating.score } : null,
+    enough: rows.length >= OUTLET_MIN_CHECKS
+  };
+};
+const outletRecord = async (raw) => {
+  const host = parseHost(raw);
+  requireDatabase();
+  const rows = await ClaimAssessment.aggregate([
+    { $match: { outlet: host, trigger: 'user', call: { $type: 'string' } } },
+    { $sort: { createdAt: -1 } },
+    { $group: { _id: { $ifNull: ['$messageHash', '$_id'] }, call: { $first: '$call' }, at: { $first: '$createdAt' } } },
+    { $limit: 5000 }
+  ]);
+  return summariseOutlet(host, rows, getSourceReputation(host, `https://${host}/`));
+};
+
 module.exports = {
-  listClaims, trendingClaims, changedVerdicts, registryStats, claimDetail,
+  listClaims, trendingClaims, changedVerdicts, registryStats, claimDetail, outletRecord,
   RegistryError, CALLS, MAX_LIMIT,
   __test: {
     isValidId, parseListQuery, parseLimit, encodeCursor, decodeCursor, escapeRegex, searchTerms,
-    buildListFilter, sortSpec, safeUrl, summariseRecord, serialiseEvidence, evidenceFor, serialiseDetail
-  }
+    buildListFilter, sortSpec, safeUrl, summariseRecord, serialiseEvidence, evidenceFor, serialiseDetail, parseHost, summariseOutlet }
 };

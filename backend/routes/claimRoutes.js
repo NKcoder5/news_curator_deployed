@@ -34,6 +34,7 @@ const buildRouter = (registry) => {
   router.get('/trending', serve(req => registry.trendingClaims(req.query)));
   router.get('/changes', serve(req => registry.changedVerdicts(req.query)));
   router.get('/stats', serve(() => registry.registryStats()));
+  router.get('/outlets/:host', serve(req => registry.outletRecord(req.params.host)));
   router.get('/:id', serve(req => registry.claimDetail(req.params.id)));
 
   return router;

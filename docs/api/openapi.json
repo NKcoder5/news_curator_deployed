@@ -871,6 +871,33 @@
         }
       }
     },
+    "/api/claims/outlets/{host}": {
+      "get": {
+        "tags": ["Claims registry"],
+        "operationId": "outletRecord",
+        "summary": "An outlet's record in claim memory",
+        "description": "What readers' checks of this outlet's pages concluded, the newest check of each message once, beside the published rating. Informational only: it is never fed into a verdict. enough is false below ten checks.",
+        "parameters": [{ "name": "host", "in": "path", "required": true, "description": "The outlet's host name, such as thehindu.com (www. is ignored).", "schema": { "type": "string", "maxLength": 100 } }],
+        "responses": {
+          "200": {
+            "description": "The record.",
+            "content": { "application/json": { "schema": { "type": "object", "properties": {
+              "outlet": { "type": "string" },
+              "checks": { "type": "integer" },
+              "calls": { "type": "object", "additionalProperties": { "type": "integer" }, "description": "Checks by verdict: REAL, FAKE, PARTLY FALSE, MISLEADING, CANNOT VERIFY." },
+              "firstAt": { "type": "string", "format": "date-time", "nullable": true },
+              "lastAt": { "type": "string", "format": "date-time", "nullable": true },
+              "published": { "type": "object", "nullable": true, "properties": { "name": { "type": "string", "nullable": true }, "score": { "type": "number" } } },
+              "enough": { "type": "boolean" }
+            } } } }
+          },
+          "400": { "$ref": "#/components/responses/RegistryBadRequest" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/RegistryFault" },
+          "503": { "$ref": "#/components/responses/RegistryUnavailable" }
+        }
+      }
+    },
     "/api/claims/{id}": {
       "get": {
         "tags": ["Claims registry"],

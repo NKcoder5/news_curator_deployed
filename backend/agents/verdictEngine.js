@@ -167,10 +167,18 @@ const pageKey = (u) => {
     return x.hostname.replace(/^www\./, '').toLowerCase() + x.pathname.replace(/\/+$/, '').toLowerCase();
   } catch (_) { return null; }
 };
-const pageRulingOf = (pageUrl, matches = []) => {
-  const key = pageUrl && pageKey(pageUrl);
-  return (key && (matches || []).find(m => m.via !== 'news-search' && pageKey(m.url) === key)) || null;
+// What the stored record keeps of the submitted page: a one-way print of its address, enough to replay
+// the rule that reads it (R0a), never the address itself, and the outlet's host name. Claim memory keeps
+// claims, not what a reader submitted: a link to someone's post is not something to keep.
+const printOf = (u) => {
+  const key = pageKey(u);
+  return key ? require('crypto').createHash('sha256').update(key).digest('hex').slice(0, 32) : null;
 };
+const hostOf = (u) => {
+  try { return new URL(String(u || '')).hostname.replace(/^www\./, '').toLowerCase() || null; } catch (_) { return null; }
+};
+const pageRulingOf = (print, matches = []) =>
+  (print && (matches || []).find(m => m.via !== 'news-search' && printOf(m.url) === print)) || null;
 
 const { denies } = require('../utils/factCheckDesks');
 
@@ -178,7 +186,7 @@ const buildEvidenceLedger = ({
   claims = [], sourceResult = {}, transparencyResult = {}, manipulationResult = {}, title = '',
   verificationStatus = 'unverified', premiseResult = null, factCheckResult = null, currentCoverageResult = null,
   unconfirmedClaimResult = null,
-  publishedAt = null, indexLagHours = INDEX_LAG_HOURS, domainAge = null, pageUrl = null, pageDesk = null,
+  publishedAt = null, indexLagHours = INDEX_LAG_HOURS, domainAge = null, pageUrl = null, pagePrint = null, pageDesk = null,
   // The moment the verdict is reached. Everything time-dependent below (how
   // old the story is, whether a report is recent enough to contradict a claim
   // about now, whether confirming coverage is old news) is measured from it,
@@ -328,7 +336,7 @@ const buildEvidenceLedger = ({
     factChecks: factCheckResult?.matches || [],
     // The desk's review published at the submitted page's own address: the
     // page is that ruling, not a message repeating the claim it rules on.
-    pageRuling: pageRulingOf(pageUrl, factCheckResult?.matches),
+    pageRuling: pageRulingOf(pagePrint || printOf(pageUrl), factCheckResult?.matches),
     // The recognised desk that published the submitted page, if one did.
     pageDesk: pageDesk || null,
     // Whether that page's title denies what it examines, as a debunk does.
@@ -1188,7 +1196,8 @@ const compactLedgerInput = (input) => ({
   manipulationResult: { techniques: (input.manipulationResult?.techniques || []).map(t => ({ technique: t.technique || t })) },
   title: input.title || '',
   publishedAt: input.publishedAt || null,
-  pageUrl: input.pageUrl || null,
+  pagePrint: input.pagePrint || printOf(input.pageUrl),
+  pageHost: input.pageHost || hostOf(input.pageUrl),
   pageDesk: input.pageDesk || null,
   indexLagHours: input.indexLagHours ?? INDEX_LAG_HOURS,
   domainAge: input.domainAge || null,

@@ -278,3 +278,25 @@ test('debunk headlines misclassified into supportingEvidence do not corroborate 
   assert.strictEqual(decision.rule, 'contradicted-by-multiple-independent-sources');
 });
 
+
+test('the stored record keeps a print of the submitted page, never its address, and replays the same', () => {
+  const { compactLedgerInput, replayVerdict } = require('../agents/verdictEngine');
+  const input = {
+    claims: [{ claim: RUMOUR, verdict: 'no-coverage', supportingEvidence: [], contradictingEvidence: [] }],
+    sourceResult: { matched: true, score: 7, type: 'newspaper' }, transparencyResult: { score: 7 }, manipulationResult: { techniques: [] },
+    title: 'Viral Social Media Posts Offer False Coronavirus Tips',
+    factCheckResult: { status: 'debunked', matches: [fcRuling] },
+    pageUrl: `${FC_PAGE}?utm_source=chatgpt.com`
+  };
+  const live = decideVerdict(buildEvidenceLedger(input));
+  const stored = compactLedgerInput(input);
+  const json = JSON.stringify(stored);
+  // The desk's own article link stays, as the evidence it is (public, from the fact-check index); the
+  // address the reader submitted, with whatever it carried, does not.
+  assert.ok(!('pageUrl' in stored) && !json.includes('utm_source'), 'the submitted address is not stored');
+  assert.strictEqual(stored.pageHost, 'factcheck.org');
+  assert.match(stored.pagePrint, /^[0-9a-f]{32}$/);
+  const replayed = replayVerdict(JSON.parse(json));
+  assert.strictEqual(replayed.call, live.call);
+  assert.strictEqual(replayed.rule, 'page-is-a-published-fact-check');
+});

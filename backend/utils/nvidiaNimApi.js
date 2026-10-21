@@ -462,6 +462,33 @@ const judgementCache = new Map();
 const judgementKey = (label, prompt) =>
   `${label}|${require('crypto').createHash('sha1').update(prompt).digest('hex')}`;
 
+// Behind the half-hour memory, a day's store in the database (models/JudgementCache.js), so the same
+// question about the same evidence gets the same answer across restarts and whichever provider has
+// quota left. Used only while the database is connected; a lookup that takes longer than this is not
+// waited for, so a slow database never slows a check.
+const STORE_LOOKUP_MS = 400;
+const storeReady = () => {
+  try { return require('mongoose').connection.readyState === 1; } catch (_) { return false; }
+};
+const storedJudgement = async (key) => {
+  if (!storeReady()) return null;
+  try {
+    const JudgementCache = require('../models/JudgementCache');
+    const doc = await JudgementCache.findOne({ key }).maxTimeMS(STORE_LOOKUP_MS).lean();
+    return doc ? doc.value : null;
+  } catch (_) {
+    return null;
+  }
+};
+const storeJudgement = (key, value) => {
+  if (!storeReady()) return;
+  try {
+    const JudgementCache = require('../models/JudgementCache');
+    JudgementCache.updateOne({ key }, { $setOnInsert: { key, value, createdAt: new Date() } }, { upsert: true })
+      .catch(() => { /* a judgement not stored is only a judgement asked again */ });
+  } catch (_) { /* as above */ }
+};
+
 const callNimApiJson = async (prompt, options = {}) => {
   const cacheable = options.temperature === 0;
   const key = cacheable ? judgementKey(options.label || 'model call', prompt) : null;
@@ -471,11 +498,18 @@ const callNimApiJson = async (prompt, options = {}) => {
       noteModelCall({ label: options.label || 'model call', cached: true, provider: hit.provider || null, model: hit.model || null });
       return structuredClone(hit.value);
     }
+    const stored = await storedJudgement(key);
+    if (stored) {
+      judgementCache.set(key, { at: Date.now(), value: structuredClone(stored), provider: 'stored' });
+      noteModelCall({ label: options.label || 'model call', cached: true, provider: 'stored', model: null });
+      return structuredClone(stored);
+    }
   }
   const value = await callNimApiJsonUncached(prompt, options);
   if (cacheable) {
     judgementCache.set(key, { at: Date.now(), value: structuredClone(value) });
     if (judgementCache.size > 500) judgementCache.delete(judgementCache.keys().next().value);
+    storeJudgement(key, value);
   }
   return value;
 };

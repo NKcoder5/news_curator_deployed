@@ -2,7 +2,7 @@ const {
   resolveProviderChain,
   isRetired, isOverloaded, isRateLimited, isAuthFailure, isConnectionFailure
 } = require('./llmProviders');
-const { noteModelCall } = require('./runContext');
+const { noteModelCall, currentContext } = require('./runContext');
 
 // Provider endpoints, model lists and error classification all live in
 // llmProviders.js. This file is the gateway around them: one request gate, one
@@ -180,6 +180,11 @@ const callNimApi = async (prompt, options = {}) => {
             // is dropped: it says which project's quota paid, not which model.
             noteModelCall({ label: options.label || 'model call', provider: provider.name,
               model: String(model).split('#')[0], ms: Date.now() - callStarted });
+            // A caller that asks (options.meta) is told which provider answered this very call.
+            if (options.meta && typeof options.meta === 'object') {
+              options.meta.provider = provider.name;
+              options.meta.model = String(model).split('#')[0];
+            }
             return text;
           } catch (error) {
             lastError = error;
@@ -475,16 +480,16 @@ const storedJudgement = async (key) => {
   try {
     const JudgementCache = require('../models/JudgementCache');
     const doc = await JudgementCache.findOne({ key }).maxTimeMS(STORE_LOOKUP_MS).lean();
-    return doc ? doc.value : null;
+    return doc ? { value: doc.value, provider: doc.provider || null, model: doc.model || null } : null;
   } catch (_) {
     return null;
   }
 };
-const storeJudgement = (key, value) => {
+const storeJudgement = (key, value, provider = null, model = null) => {
   if (!storeReady()) return;
   try {
     const JudgementCache = require('../models/JudgementCache');
-    JudgementCache.updateOne({ key }, { $setOnInsert: { key, value, createdAt: new Date() } }, { upsert: true })
+    JudgementCache.updateOne({ key }, { $setOnInsert: { key, value, provider, model, createdAt: new Date() } }, { upsert: true })
       .catch(() => { /* a judgement not stored is only a judgement asked again */ });
   } catch (_) { /* as above */ }
 };
@@ -496,20 +501,28 @@ const callNimApiJson = async (prompt, options = {}) => {
     const hit = judgementCache.get(key);
     if (hit && Date.now() - hit.at < JUDGEMENT_TTL_MS) {
       noteModelCall({ label: options.label || 'model call', cached: true, provider: hit.provider || null, model: hit.model || null });
+      if (options.meta && typeof options.meta === 'object') Object.assign(options.meta, { provider: hit.provider || null, model: hit.model || null, cached: true });
       return structuredClone(hit.value);
     }
     const stored = await storedJudgement(key);
     if (stored) {
-      judgementCache.set(key, { at: Date.now(), value: structuredClone(stored), provider: 'stored' });
-      noteModelCall({ label: options.label || 'model call', cached: true, provider: 'stored', model: null });
-      return structuredClone(stored);
+      judgementCache.set(key, { at: Date.now(), value: structuredClone(stored.value), provider: stored.provider, model: stored.model });
+      noteModelCall({ label: options.label || 'model call', cached: true, provider: stored.provider, model: stored.model });
+      if (options.meta && typeof options.meta === 'object') Object.assign(options.meta, { provider: stored.provider, model: stored.model, cached: true });
+      return structuredClone(stored.value);
     }
   }
   const value = await callNimApiJsonUncached(prompt, options);
   if (cacheable) {
-    judgementCache.set(key, { at: Date.now(), value: structuredClone(value) });
+    // Which provider answered travels with the answer: a judgement a fallback model made is checked
+    // as one (agents/claimVerificationAgent.js), cached or not.
+    const own = {};
+    const calls = currentContext()?.calls || [];
+    const made = options.meta && options.meta.provider ? options.meta
+      : ([...calls].reverse().find(c => c.label === (options.label || 'model call') && !c.cached) || own);
+    judgementCache.set(key, { at: Date.now(), value: structuredClone(value), provider: made.provider || null, model: made.model || null });
     if (judgementCache.size > 500) judgementCache.delete(judgementCache.keys().next().value);
-    storeJudgement(key, value);
+    storeJudgement(key, value, made.provider || null, made.model || null);
   }
   return value;
 };

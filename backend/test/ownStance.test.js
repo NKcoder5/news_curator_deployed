@@ -5,11 +5,13 @@ const assert = require('node:assert');
 
 let hostedCalls = 0;
 let hostedReply = null;
+let hostedProvider = 'gemini';
 let ownReadings = [];
 const STUBS = {
   '../utils/nvidiaNimApi': {
-    callNimApiJson: async () => {
+    callNimApiJson: async (prompt, options = {}) => {
       hostedCalls += 1;
+      if (options.meta) options.meta.provider = hostedProvider;
       if (hostedReply instanceof Error) throw hostedReply;
       return hostedReply;
     },
@@ -19,7 +21,10 @@ const STUBS = {
     judgePairs: async (pairs) => pairs.map((_, i) => ownReadings[i] || null),
     judgePair: async () => null,
     isAvailable: () => true
-  }
+  },
+  // Fixed here, not read from data/stanceThresholds.json, which follows whichever model is shipped
+  // (every stance off for the current one): these tests are about the hybrid logic, not a model.
+  '../data/stanceThresholds.json': { agree: 0.97, disagree: 0.99, unrelated: 0.95 }
 };
 const saved = {};
 for (const [name, exports] of Object.entries(STUBS)) {
@@ -53,6 +58,7 @@ const reading = (label, p) => {
 };
 const reset = (mode) => {
   hostedCalls = 0;
+  hostedProvider = 'gemini';
   hostedReply = { items: COVERAGE.map((_, i) => ({ n: i + 1, stance: 'agree', same_event: true, both_can_be_true: true, reported: '85 medals' })), explanation: 'hosted' };
   if (mode) process.env.STANCE_MODEL = mode; else delete process.env.STANCE_MODEL;
 };
@@ -127,4 +133,35 @@ test('local: sure of nothing, the figures still decide a different total', async
   const judged = await judgeClaim('India won 84 medals at the Asian Games.', COVERAGE);
   assert.strictEqual(judged.verdict, 'contradicted');
   assert.ok(judged.figures, 'decided by the figures');
+});
+
+const disagreeing = () => ({ items: COVERAGE.map((_, i) => ({ n: i + 1, stance: 'disagree', same_event: true, both_can_be_true: false, reported: '' })), explanation: 'hosted' });
+
+test(`a fallback model's "disagree" is set aside where our model is sure the headline says the claim`, async () => {
+  reset(null);
+  hostedProvider = 'nim';
+  hostedReply = disagreeing();
+  ownReadings = COVERAGE.map(() => reading('entailment', 0.95));
+  const judged = await judgeClaim(CLAIM, COVERAGE);
+  assert.strictEqual(judged.contradictingEvidence.length, 0);
+  assert.notStrictEqual(judged.verdict, 'contradicted');
+  assert.match(judged.explanation, /fallback model/);
+});
+
+test(`Gemini's own "disagree" stands, whatever our model reads`, async () => {
+  reset(null);
+  hostedProvider = 'gemini';
+  hostedReply = disagreeing();
+  ownReadings = COVERAGE.map(() => reading('entailment', 0.95));
+  const judged = await judgeClaim('India won 85 medals at the Asian Games, the most ever.', COVERAGE);
+  assert.ok(judged.contradictingEvidence.length > 0 || judged.verdict === 'contradicted');
+});
+
+test(`a fallback model's "agree" is set aside where our model is sure the headline says the opposite`, async () => {
+  reset(null);
+  hostedProvider = 'ollama';
+  ownReadings = COVERAGE.map(() => reading('contradiction', 0.97));
+  const judged = await judgeClaim(CLAIM, COVERAGE);
+  assert.strictEqual(judged.supportingEvidence.length, 0);
+  assert.notStrictEqual(judged.verdict, 'supported');
 });

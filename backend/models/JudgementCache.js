@@ -12,6 +12,9 @@ const mongoose = require('mongoose');
 const judgementCacheSchema = new mongoose.Schema({
   key: { type: String, required: true, unique: true },
   value: { type: mongoose.Schema.Types.Mixed, required: true },
+  // Which provider and model answered, so a fallback model's judgement is still known as one.
+  provider: { type: String, default: null },
+  model: { type: String, default: null },
   createdAt: { type: Date, default: Date.now, expires: 60 * 60 * 24 }
 }, { versionKey: false });
 

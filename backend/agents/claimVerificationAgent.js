@@ -429,6 +429,8 @@ const stanceMode = () => (['hybrid', 'local'].includes(process.env.STANCE_MODEL)
 const STANCE_THRESHOLDS = require('../data/stanceThresholds.json');
 const HOSTED_STANCE_MS = Number(process.env.HOSTED_STANCE_MS) || 15000;
 const FROM_NLI = { entailment: 'agree', contradiction: 'disagree', neutral: 'unrelated' };
+// How sure our model must be of the opposite before a fallback model's reading is set aside.
+const FALLBACK_VETO = 0.9;
 
 /** Resolve within `ms` or reject, so a slow fallback model cannot hold the check past its deadline. */
 const withinMs = (promise, ms) => (!ms ? promise : Promise.race([
@@ -555,6 +557,7 @@ Return a JSON object with these keys:
   const ownUsable = Boolean(own) && own.sureCount > 0;
   let result;
   let usedOwn = false;
+  const answeredBy = {};
   if (own && own.allSure) {
     if (!ownUsable) return failedJudgement();
     result = own.result;
@@ -571,7 +574,8 @@ Return a JSON object with these keys:
         // through to undetermined, which the report showed the reader as
         // "we could not complete the search" on a story eight outlets carried.
         requiredKeys: ['items'],
-        label: 'stance judgement'
+        label: 'stance judgement',
+        meta: answeredBy
       }), own ? HOSTED_STANCE_MS : null);
     } catch (err) {
       console.error('Claim judgement failed:', err.message);
@@ -605,6 +609,27 @@ Return a JSON object with these keys:
   // three on offer and booleans that are booleans.
   const items = numberedItems(result.items, shown.length);
   const stance = (it) => oneOf(it.stance, STANCES, null);
+  // A fallback model's reading is checked by ours. With Gemini rate-limited on 22 Oct, a weaker model
+  // read two true benchmark claims ("India's 85-Medal Campaign", the Kohli denial) as contradicted by
+  // several outlets, and both came back FAKE; re-run with Gemini, both were REAL. Where our model is
+  // all but certain a headline says the claim ("disagree" read against a headline it entails), or says
+  // its opposite ("agree" read against one it contradicts), the fallback model's reading is set aside.
+  // Gemini's own readings are left as they are.
+  let vetoed = 0;
+  if (!usedOwn && answeredBy.provider !== 'gemini') {
+    const reads = await judgePairs(shown.map(a => ({
+      premise: `${a.title || ''} — ${a.description || ''}`.replace(/\s+/g, ' ').slice(0, 220), hypothesis: claim
+    }))).catch(() => []);
+    for (const it of items) {
+      const r = reads[it.n - 1];
+      if (!r || !r.scores) continue;
+      if ((stance(it) === 'disagree' && r.scores.entailment >= FALLBACK_VETO)
+        || (stance(it) === 'agree' && r.scores.contradiction >= FALLBACK_VETO)) {
+        it.stance = 'unrelated';
+        vetoed += 1;
+      }
+    }
+  }
   // A question reports nothing. WHIO's fact-check headline "Has Walmart
   // adopted 'staggered shopping' days based on age?" was read as saying
   // Walmart had, against a FactCheck.org article saying it had not, and made
@@ -688,7 +713,8 @@ Return a JSON object with these keys:
     if (figured) return figured;
   }
 
-  const notes = [support.note, contradiction.note, setAsideNote].filter(Boolean);
+  const vetoNote = vetoed ? `${vetoed} reading${vetoed > 1 ? 's' : ''} by a fallback model ${vetoed > 1 ? 'were' : 'was'} set aside: our own model reads ${vetoed > 1 ? 'those headlines' : 'that headline'} the other way.` : '';
+  const notes = [support.note, contradiction.note, setAsideNote, vetoNote].filter(Boolean);
 
   return {
     verdict,

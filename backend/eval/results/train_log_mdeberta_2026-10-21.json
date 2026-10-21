@@ -1,0 +1,87 @@
+{
+ "base_model": "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli",
+ "pairs": 194333,
+ "epochs": 2.0,
+ "lr": 2e-05,
+ "batch_size": 32,
+ "max_len": 160,
+ "steps": 12146,
+ "skipped_batches": 0,
+ "train_minutes": 121.3,
+ "gpu": "Tesla T4",
+ "peak_gpu_gb": 7.35,
+ "dev": {
+  "overall": {
+   "n": 3230,
+   "accuracy": 0.9115,
+   "macro_f1": 0.9125,
+   "false_contradiction": 0.0314,
+   "false_contradiction_on_true": 0.0225,
+   "false_entailment": 0.0402,
+   "contradiction_recall": 0.9272
+  },
+  "fever": {
+   "n": 300,
+   "accuracy": 0.7767,
+   "macro_f1": 0.7712,
+   "false_contradiction": 0.0918,
+   "false_contradiction_on_true": 0.0189,
+   "false_entailment": 0.0722,
+   "contradiction_recall": 0.7404
+  },
+  "fnc1": {
+   "n": 464,
+   "accuracy": 0.8534,
+   "macro_f1": 0.8036,
+   "false_contradiction": 0.01,
+   "false_contradiction_on_true": 0.02,
+   "false_entailment": 0.0879,
+   "contradiction_recall": 0.6719
+  },
+  "indic_hi": {
+   "n": 300,
+   "accuracy": 0.93,
+   "macro_f1": 0.9299,
+   "false_contradiction": 0.055,
+   "false_contradiction_on_true": 0.05,
+   "false_entailment": 0.03,
+   "contradiction_recall": 0.97
+  },
+  "indic_ta": {
+   "n": 300,
+   "accuracy": 0.8867,
+   "macro_f1": 0.8869,
+   "false_contradiction": 0.05,
+   "false_contradiction_on_true": 0.06,
+   "false_entailment": 0.035,
+   "contradiction_recall": 0.89
+  },
+  "stance_ours": {
+   "n": 359,
+   "accuracy": 0.7939,
+   "macro_f1": 0.7863,
+   "false_contradiction": 0.0568,
+   "false_contradiction_on_true": 0.0177,
+   "false_entailment": 0.1016,
+   "contradiction_recall": 0.9524
+  },
+  "synth": {
+   "n": 1207,
+   "accuracy": 0.9992,
+   "macro_f1": 0.9991,
+   "false_contradiction": 0.0013,
+   "false_contradiction_on_true": 0.0,
+   "false_entailment": 0.0,
+   "contradiction_recall": 1.0
+  },
+  "xnli_hi": {
+   "n": 300,
+   "accuracy": 0.93,
+   "macro_f1": 0.9298,
+   "false_contradiction": 0.05,
+   "false_contradiction_on_true": 0.07,
+   "false_entailment": 0.015,
+   "contradiction_recall": 0.96
+  }
+ }
+}

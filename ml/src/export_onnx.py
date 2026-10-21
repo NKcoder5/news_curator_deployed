@@ -94,10 +94,23 @@ names = ["input_ids", "attention_mask"] + (["token_type_ids"] if getattr(model.c
 sample = tok(["Narendra Modi resigned as Prime Minister today."], ["PM Modi resigned today."], return_tensors="pt")
 args = tuple(sample[n] for n in names)
 fp32 = out / "onnx" / "model.onnx"
+axes = {**{n: {0: "batch", 1: "seq"} for n in names}, "logits": {0: "batch"}}
+# The tracing exporter first (it exported the MiniLM the server ships); when a model's code defeats it, as
+# mDeBERTa's did on Colab on 21 Oct with two hours of training already spent, the error is printed whole
+# and the newer exporter (torch.export) is tried before giving up.
 with torch.no_grad():
-    torch.onnx.export(model, args, str(fp32), input_names=names, output_names=["logits"], opset_version=17, dynamo=False,
-                      dynamic_axes={**{n: {0: "batch", 1: "seq"} for n in names}, "logits": {0: "batch"}})
-print("fp32", fp32.stat().st_size // 2**20, "MB")
+    try:
+        torch.onnx.export(model, args, str(fp32), input_names=names, output_names=["logits"], opset_version=17, dynamo=False,
+                          dynamic_axes=axes)
+        how = "tracing exporter, opset 17"
+    except Exception as err:  # noqa: BLE001 - any failure here is reported and the other exporter tried
+        import traceback
+        print("tracing exporter failed:", "".join(traceback.format_exception_only(type(err), err)).strip(), flush=True)
+        traceback.print_exc()
+        torch.onnx.export(model, args, str(fp32), input_names=names, output_names=["logits"], opset_version=18, dynamo=True,
+                          dynamic_axes=axes, external_data=False)
+        how = "torch.export exporter, opset 18"
+print("fp32", fp32.stat().st_size // 2**20, "MB via", how, flush=True)
 
 
 def fold_identities(path):

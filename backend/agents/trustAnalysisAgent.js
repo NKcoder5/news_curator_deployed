@@ -276,6 +276,32 @@ const cleanText = (content) => String(content || '').replace(/\[\+\d+\s*chars\]/
  * read as "names no sources". test/channelDeadline.test.js holds every value
  * here to that.
  */
+/**
+ * Two reference checks of one message as one: the early check of its names and a later one of the
+ * subjects the reading step found. A second check that found nothing to look up, or failed, adds
+ * nothing; one that ran adds what it checked, contradicted and confirmed.
+ */
+const mergePremises = (first, second) => {
+  if (!second || !['consistent', 'contradicted'].includes(second.status)) {
+    return second && second.status === 'error' ? { ...first, partialFailure: true } : first;
+  }
+  const contradictions = [...(first.contradictions || []), ...(second.contradictions || [])];
+  const checked = [...(first.checked || []), ...(second.checked || [])];
+  const usable = checked.filter(r => !r.failed && !r.lookupFailed).length;
+  return {
+    ...first,
+    status: contradictions.length ? 'contradicted' : 'consistent',
+    checked,
+    contradictions,
+    confirmations: [...(first.confirmations || []), ...(second.confirmations || [])],
+    overruled: [...(first.overruled || []), ...(second.overruled || [])],
+    partialFailure: Boolean(first.partialFailure || second.partialFailure),
+    explanation: contradictions.length
+      ? `A reference entry contradicts what this article states about ${[...new Set(contradictions.map(c => c.entity))].join(' and ')}.`
+      : `Checked ${usable} ${usable === 1 ? 'subject' : 'subjects'} against reference entries and found nothing contradicted.`
+  };
+};
+
 const UNREAD = {
   writing: () => ({ score: null, unread: true, techniques: [], intensity: 'none', explanation: 'This check could not be finished in time.', summary: 'This check could not be finished in time.' }),
   claimExtraction: () => ({ claims: [], failed: true, unread: true }),
@@ -375,7 +401,13 @@ const analyzeTrust = async ({
   // well-covered person is false ("MS Dhoni passed away" against a week of
   // reports of him alive and active); cut off, the same message came back
   // CANNOT VERIFY on one run in four.
-  const PRIMARY = new Set(['verification', 'currentCoverage']);
+  // The encyclopedia and the fact-checkers' rulings are evidence of the same rank, for the claims news
+  // never covers: a general fact ("Giraffe is a fish") is settled only by the reference entry, a viral
+  // rumour only by a desk's ruling (rule R0b, right in 20 of 20). Both start only once the message has
+  // been read, so a 15-second limit counted from the start left them a few seconds: measured on 22 Oct,
+  // "Giraffe is a fish" and "Mount Everest is in Africa" came back CANNOT VERIFY with the reference
+  // check cut off ("could not be finished in time"), and the check alone took 9 seconds.
+  const PRIMARY = new Set(['verification', 'currentCoverage', 'premises', 'factChecks']);
   const beforeDeadline = (name, promise, unread) => {
     if (!deadlineAt || !unread) return promise;
     const until = PRIMARY.has(name) ? startedAt + 3 * (deadlineAt - startedAt) : deadlineAt;
@@ -503,7 +535,20 @@ const analyzeTrust = async ({
     timed('premises', async () => {
       const subjects = understanding ? (understanding.checkableClaims || []).map(c => c.subject).filter(Boolean) : [];
       const early = earlyPremises ? await earlyPremises : null;
-      if (early && !(early.status === 'no-entities' && subjects.length)) return early;
+      if (early && !(early.status === 'no-entities' && subjects.length)) {
+        // A message can name someone and state a general fact at once ("Chennai is the capital of
+        // Tamil Nadu and the giraffe is a fish"): the early check looked up the names in capitals, so
+        // the reading step's subjects it did not look up are looked up now, and both are counted.
+        // Without this the giraffe was never looked up and the message came back only partly confirmed.
+        const looked = (early.checked || []).map(r => String(r.entity || '').toLowerCase()).filter(Boolean);
+        const missing = [...new Set(subjects.filter(s => {
+          const x = String(s).toLowerCase();
+          return !looked.some(l => l === x || l.includes(x) || x.includes(l));
+        }))];
+        if (!missing.length || !['consistent', 'contradicted', 'not-found'].includes(early.status)) return early;
+        const more = await checkPremises(evidenceText ? evidenceText.slice(0, 140) : title, evidenceText || text, missing).catch(() => null);
+        return mergePremises(early, more);
+      }
       return checkPremises(evidenceText ? evidenceText.slice(0, 140) : title, evidenceText || text, subjects)
         .catch(() => ({ status: 'error', checked: [], contradictions: [], explanation: 'The reference check could not run.' }));
     }, { from: earlyPremises ? usable.startedAt : null, unread: UNREAD.premises }),
@@ -1001,4 +1046,4 @@ const analyzeTrust = async ({
   };
 };
 
-module.exports = { analyzeTrust, startMessageChecks, UNREAD, WEIGHTS, verdictFromScore, REPORT_SCHEMA_VERSION, FACTOR_LABELS };
+module.exports = { analyzeTrust, startMessageChecks, UNREAD, WEIGHTS, verdictFromScore, REPORT_SCHEMA_VERSION, FACTOR_LABELS, __test: { mergePremises } };

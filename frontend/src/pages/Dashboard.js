@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import ReadingRecord from '../components/ReadingRecord';
 import '../styles/Dashboard.css';
 
 const Dashboard = () => {
@@ -303,6 +304,7 @@ const Dashboard = () => {
             </div>
 
             <div className="newspaper-main">
+              <ReadingRecord history={articleHistory} verdicts={verdicts} />
               <div className="newspaper-section">
                 <div className="newspaper-section-header">
                   <h2 className="newspaper-section-title">Reading archives</h2>

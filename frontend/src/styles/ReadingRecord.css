@@ -1,0 +1,135 @@
+/* The reader's record (components/ReadingRecord.js): a column per week in the verdict inks, the label
+   beside every colour, and the outlets read most. Newsprint tokens only (styles/tokens.css). */
+
+.reading-record {
+  margin-bottom: var(--space-6, 1.5rem);
+  padding-bottom: var(--space-5, 1.25rem);
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+.reading-record__summary,
+.reading-record__empty {
+  margin: var(--space-2) 0 var(--space-4);
+  font-family: var(--font-sans);
+  color: var(--color-fg);
+}
+
+.reading-record__empty { color: var(--color-fg-muted); font-style: italic; }
+
+.reading-record__chart,
+.reading-record__axis {
+  display: grid;
+  grid-template-columns: repeat(var(--weeks, 8), minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.reading-record__chart {
+  align-items: end;
+  height: 11rem;
+  border-bottom: 1px solid var(--color-fg-subtle);
+}
+
+.reading-record__week {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  min-width: 0;
+}
+
+.reading-record__count {
+  height: 1.25rem;
+  line-height: 1.25rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--color-fg-muted);
+}
+
+.reading-record__bar {
+  display: flex;
+  flex-direction: column-reverse;
+  min-height: 2px;
+  border: 1px solid var(--color-border-control);
+  border-bottom: 0;
+}
+
+.reading-record__seg { display: block; min-height: 3px; }
+.reading-record__seg--real { background: var(--verdict-real-solid); }
+.reading-record__seg--partly { background: var(--verdict-partly-solid); }
+.reading-record__seg--fake { background: var(--verdict-fake-solid); }
+.reading-record__seg--unknown { background: var(--verdict-unknown-fg); opacity: 0.55; }
+.reading-record__seg--none {
+  background: repeating-linear-gradient(135deg, var(--color-border-strong) 0 3px, transparent 3px 6px);
+}
+
+.reading-record__axis span {
+  padding-top: var(--space-1);
+  font-size: 0.7rem;
+  color: var(--color-fg-subtle);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reading-record__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: var(--space-4) 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  color: var(--color-fg-muted);
+}
+
+.reading-record__legend li { display: inline-flex; align-items: center; gap: var(--space-1); }
+.reading-record__swatch { display: inline-block; width: 0.8rem; height: 0.8rem; border: 1px solid var(--color-border-control); }
+
+.reading-record__subhead {
+  margin: var(--space-4) 0 var(--space-2);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--color-fg-strong);
+}
+
+.reading-record__table-wrap { overflow-x: auto; }
+
+.reading-record__outlets {
+  width: 100%;
+  min-width: 22rem;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.reading-record__outlets th,
+.reading-record__outlets td {
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  text-align: right;
+}
+
+.reading-record__outlets th:first-child,
+.reading-record__outlets thead th:first-child { text-align: left; }
+.reading-record__outlets thead th { font-weight: 600; color: var(--color-fg-muted); border-bottom-color: var(--color-fg-subtle); }
+.reading-record__outlets tbody th { font-weight: 500; color: var(--color-fg); }
+.reading-record__false { color: var(--verdict-fake-fg); font-weight: 600; }
+
+/* The table the chart is drawn from, for screen readers only. */
+.reading-record__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .reading-record__chart { height: 9rem; }
+  .reading-record__chart, .reading-record__axis { gap: var(--space-1); }
+  .reading-record__axis span { font-size: 0.6rem; }
+  .reading-record__outlets { min-width: 0; font-size: 0.8rem; }
+  .reading-record__outlets th, .reading-record__outlets td { padding: var(--space-1); }
+  .reading-record__outlets tbody th { min-width: 5.5rem; }
+}

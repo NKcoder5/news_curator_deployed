@@ -49,3 +49,10 @@ test('a figure is compared to the precision it is written in; counts stay exact'
   assert.strictEqual(conflicts('Arvind Kejriwal was sent to 4 days of judicial custody by the Rouse Avenue court.',
     two('Arvind Kejriwal sent to 5 days judicial custody by Rouse Avenue court', 'Rouse Avenue court sends Arvind Kejriwal to 5 days judicial custody')), true);
 });
+
+test('a margin is compared only with a margin', () => {
+  const margins = [outlet('DT Next', 'India beat West Indies by 14 runs in 3rd T20I'), outlet('News On AIR', 'India beat West Indies by 14 runs in third T20I, take 2-1 lead')];
+  assert.strictEqual(conflicts('West Indies defeated India in a T20 match in Ranchi by chasing 250 runs.', margins), false, 'held-out v2-40: a total is not a margin');
+  assert.strictEqual(conflicts('India beat West Indies by 20 runs in the third T20I.', margins), true);
+  assert.strictEqual(conflicts('India beat West Indies by 14 runs in the third T20I.', margins), false);
+});

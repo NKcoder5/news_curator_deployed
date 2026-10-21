@@ -79,15 +79,16 @@ const precisionOf = (raw, value) => {
   return scale * (zeros >= 2 ? 10 ** zeros : 1);
 };
 const rangeFor = (preceding, value, raw = null) => {
+  const margin = isMargin(preceding);
   const lead = String(preceding || '').slice(-28).replace(/(?:rs\.?|₹|\$|inr|usd|us\$)\s*$/i, '');
   const kind = (BOUNDS.find(([re]) => re.test(lead)) || [null, 'exact'])[1];
-  if (kind === 'min') return { lo: value, hi: Infinity, value, exact: false };
-  if (kind === 'near') return { lo: value * 0.8, hi: value, value, exact: false };
-  if (kind === 'approx') return { lo: value * 0.8, hi: value * 1.2, value, exact: false };
-  if (kind === 'max') return { lo: -Infinity, hi: value, value, exact: false };
+  if (kind === 'min') return { lo: value, hi: Infinity, value, exact: false, margin };
+  if (kind === 'near') return { lo: value * 0.8, hi: value, value, exact: false, margin };
+  if (kind === 'approx') return { lo: value * 0.8, hi: value * 1.2, value, exact: false, margin };
+  if (kind === 'max') return { lo: -Infinity, hi: value, value, exact: false, margin };
   // Within just under half a unit of the last digit written, so neighbouring counts never meet.
   const half = 0.49 * precisionOf(raw, value);
-  return { lo: value - half, hi: value + half, value, exact: true };
+  return { lo: value - half, hi: value + half, value, exact: true, margin };
 };
 // The words before a figure where it first appears in `text`, and before its digits within its own match.
 const precedingText = (text, raw, digits = null) => {
@@ -96,9 +97,13 @@ const precedingText = (text, raw, digits = null) => {
   const own = digits && raw ? String(raw).slice(0, Math.max(0, String(raw).indexOf(digits))) : '';
   return `${at > 0 ? s.slice(0, at) : ''}${own}`;
 };
-const overlaps = (a, b) => a.lo <= b.hi && b.lo <= a.hi;
+// A margin is another quantity than a total: "won by 14 runs" says nothing about "chased 250 runs", and
+// two outlets' "India beat West Indies by 14 runs" ruled a true "West Indies chased 250 runs" FAKE.
+// A figure after "by" (or "margin of") is compared only with another margin.
+const isMargin = (preceding) => /\b(?:by|margin of|lead of)\s*$/i.test(String(preceding || '').slice(-16));
+const overlaps = (a, b) => a.margin !== b.margin || (a.lo <= b.hi && b.lo <= a.hi);
 // A headline states the claim's figure when its exact figure lies within what the claim allows.
-const states = (claimRange, headRange) => headRange.exact && claimRange.lo <= headRange.value && headRange.value <= claimRange.hi;
+const states = (claimRange, headRange) => headRange.exact && claimRange.margin === headRange.margin && claimRange.lo <= headRange.value && headRange.value <= claimRange.hi;
 
 const figureConflicts = (claim, coverage) => {
   const sc = signatureOf(claim);

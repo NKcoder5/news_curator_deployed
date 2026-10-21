@@ -57,10 +57,16 @@ def prune(tok, model, data_dir, keep_top):
         chunk = pairs[i:i + 5000]
         for ids in tok([p for p, _ in chunk], [h for _, h in chunk])["input_ids"]:
             kept.update(ids)
-    kept = sorted(kept)
+    # Some tokenizers keep a special token outside the Unigram vocabulary, as an added token after it:
+    # mDeBERTa's [MASK] is id 250101 beside 250,000 pieces, and indexing the pieces by it stopped the
+    # export (21 Oct, on Colab after two hours of training, and again here). The pieces kept come first,
+    # renumbered in order, then the added tokens kept, in order; the embedding rows follow the same order.
+    in_vocab = sorted(i for i in kept if i < len(pieces))
+    beyond = sorted(i for i in kept if i >= len(pieces))
+    kept = in_vocab + beyond
     new_id = {old: new for new, old in enumerate(kept)}
 
-    spec["model"]["vocab"] = [pieces[i] for i in kept]
+    spec["model"]["vocab"] = [pieces[i] for i in in_vocab]
     spec["model"]["unk_id"] = new_id[spec["model"]["unk_id"]]
     spec["added_tokens"] = [dict(t, id=new_id[t["id"]]) for t in spec["added_tokens"] if t["id"] in new_id]
 

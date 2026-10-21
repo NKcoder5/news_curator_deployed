@@ -322,3 +322,12 @@ test('the same support confirms a plain claim, and a media claim the outlets con
     contradictingEvidence: [evidence('alpha', 'Video of Army chief dancing is AI-generated'), evidence('beta', 'Army chief dance video is a deepfake'), evidence('gamma', 'No, that is not the Army chief dancing')] };
   assert.strictEqual(decideVerdict(ledgerFor({ claims: [contradicted] })).call, 'FAKE');
 });
+
+test('a before-and-after comparison is a claim about pictures, said or not', () => {
+  const d = decideVerdict(ledgerFor({ claims: [supported('Genuine comparison of a Nepalese town before and after the August 2026 floods.')] }));
+  assert.strictEqual(d.rule, 'media-not-confirmed-by-reports');
+});
+
+test('a before-and-after claim with no pictures in it is an ordinary claim', () => {
+  assert.strictEqual(decideVerdict(ledgerFor({ claims: [supported('India GDP grew faster after demonetisation than before and after the budget.')] })).call, 'REAL');
+});

@@ -190,6 +190,7 @@ const { denies } = require('../utils/factCheckDesks');
 // on the strength of reports of the event.
 const MEDIA_ASSERTION = new RegExp([
   String.raw`\b(?:videos?|photos?|photographs?|images?|pictures?|pics?|clips?|footage|visuals?|cctv|screenshots?|audio)\b(?:\s+\S+){0,3}?\s+(?:shows?|showing|depicts?|depicting|captures?|capturing|of|from|where)\b`,
+  String.raw`\b(?:comparison|compared?|pictures?|photos?|images?|visuals?|shots?)\b[^.]{0,80}\bbefore[\s-]+and[\s-]+after\b|\bbefore[\s-]+and[\s-]+after\b[^.]{0,40}\b(?:comparison|pictures?|photos?|images?|visuals?|shots?)\b`,
   String.raw`^\s*(?:the|a|an|this|that|viral|actual|genuine|real|old|new)\s+(?:videos?|photos?|images?|pictures?|clips?|footage|visuals?)\b`
 ].join('|'), 'i');
 const isMediaAssertion = (claim) => MEDIA_ASSERTION.test(String(claim || ''));

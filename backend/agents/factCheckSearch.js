@@ -286,7 +286,10 @@ const reversalHolds = (finding, rated, userText, reviewedText) => {
 };
 
 // Words denoting specific media objects (videos, photos, clips, placards) that often form the subject of viral debunkings:
-const MEDIA_WORDS = /\b(?:video|videos|photo|photos|image|images|picture|pictures|pic|pics|clip|clips|cctv|footage|placard|placards|poster|posters|banner|banners|hoarding|audio|recording|recordings|deepfake|deepfakes|animation|animations|morphed|doctored)\b/i;
+// "Before and after" is a comparison of pictures, whether or not the word is said: "Genuine comparison of
+// a Nepalese town before and after the floods" (ruled false by desks) was read as plain text and the
+// rulings on the images were set aside.
+const MEDIA_WORDS = /\b(?:comparison|compared?|pictures?|photos?|images?|visuals?|shots?)\b[^.]{0,80}\bbefore[\s-]+and[\s-]+after\b|\bbefore[\s-]+and[\s-]+after\b[^.]{0,40}\b(?:comparison|pictures?|photos?|images?|visuals?|shots?)\b|\b(?:video|videos|photo|photos|image|images|picture|pictures|pic|pics|clip|clips|cctv|footage|placard|placards|poster|posters|banner|banners|hoarding|audio|recording|recordings|deepfake|deepfakes|animation|animations|morphed|doctored)\b/i;
 
 const isMediaClaim = (text) => MEDIA_WORDS.test(String(text || ''));
 

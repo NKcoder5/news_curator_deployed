@@ -514,7 +514,7 @@ const analyzeTrust = async ({
     // It reuses the extracted claims, so it starts as soon as they exist.
     // FACT_CHECK_CHANNEL=off is for evaluation on claims labelled from fact-checkers' own rulings
     // (eval/buildRulingSuite.js), where the channel would find the very ruling a case is labelled from.
-    claimsPromise.then(({ claims }) => timed('factChecks', () => (process.env.FACT_CHECK_CHANNEL === 'off'
+    claimsPromise.then(({ claims }) => timed('factChecks', () => (['off', 'strict'].includes(process.env.FACT_CHECK_CHANNEL)
       ? Promise.resolve({ status: 'not-run', matches: [], considered: 0, explanation: 'The fact-check channel was switched off for this evaluation.' })
       : checkFactCheckers(claims, { title, text })), { unread: UNREAD.factChecks }))
       .catch(() => ({ status: 'error', matches: [], considered: 0, explanation: 'The fact-check search could not run.' })),

@@ -438,6 +438,7 @@ const checkFactCheckers = async (claims = [], { title = '', text = '' } = {}) =>
 
 module.exports = {
   checkFactCheckers,
+  FACT_CHECK_DESKS,
   ratingClass,
   parseExplorer,
   queriesFor,

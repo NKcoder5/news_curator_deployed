@@ -32,6 +32,7 @@ const axios = require('axios');
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { searchGoogleNews, cached, withRetry } = require('../utils/newsFetcher');
 const { UNTRUSTED_NOTICE, fence, addressesModel, asBool, oneOf, clip, numberedItems } = require('../utils/untrusted');
+const { noteModelCall } = require('../utils/runContext');
 const { signatureOf } = require('../services/claimSignature');
 
 const FINDINGS = new Set(['false', 'true', 'misleading']);
@@ -258,6 +259,35 @@ Return a JSON object: {"items": [{"n": <review number>, "same_claim": true or fa
   return numberedItems(result?.items, candidates.length);
 };
 
+const SAME_CLAIM = 0.9;
+const FINDING_OF_RATING = { false: 'false', misleading: 'misleading', true: 'true' };
+/** matchReviews without a hosted model: our own pair model, both directions, the desk's own rating. */
+const matchReviewsOwn = async (claimTexts, candidates) => {
+  const { judgePairs } = require('../services/localNli');
+  const pairs = [];
+  candidates.forEach((c, i) => {
+    const reviewed = String(c.claimReviewed || c.title || '').slice(0, 400);
+    for (const claim of claimTexts) {
+      pairs.push({ i, premise: reviewed, hypothesis: claim }, { i, premise: claim, hypothesis: reviewed });
+    }
+  });
+  const read = await judgePairs(pairs.map(p => ({ premise: p.premise, hypothesis: p.hypothesis })));
+  if (read.every(r => !r)) throw new Error('our pair model is not installed');
+  noteModelCall({ label: 'fact-check match', provider: 'own model', model: 'minilm-l12-int8', cached: false, own: true });
+  return candidates.map((c, i) => {
+    let same = false;
+    for (let k = 0; k < pairs.length; k += 2) {
+      if (pairs[k].i !== i) continue;
+      const there = read[k]?.scores?.entailment || 0;
+      const back = read[k + 1]?.scores?.entailment || 0;
+      if (there >= SAME_CLAIM && back >= SAME_CLAIM) same = true;
+    }
+    const finding = FINDING_OF_RATING[ratingClass(c.rating)] || 'unclear';
+    return { n: i + 1, same_claim: same && finding !== 'unclear', user_text_is: finding,
+      why: same ? 'Our own pair model reads the review and this text as the same claim, each entailing the other.' : '' };
+  });
+};
+
 // Words that turn a statement about a video, photo or event into its denial:
 // "the video is fake" says the opposite of "the video is genuine".
 const FALSITY_WORDS = /\b(?:fake|false|falsely|wrongly|hoax|morphed|doctored|edited|deepfake|ai[\s-]generated|fabricated|untrue|misleading|old)\b/gi;
@@ -365,7 +395,17 @@ const checkFactCheckers = async (claims = [], { title = '', text = '' } = {}) =>
   try {
     judged = await matchReviews(claimText, candidates);
   } catch (_) {
-    return { status: 'error', matches: [], considered: candidates.length, queries, explanation: 'The fact-check reviews could not be compared with this claim.' };
+    // No hosted model could compare them: our own pair model does, by the rule it was measured on for
+    // claim matching (46 of 46 pairs, none merged wrongly): a review is of the same claim only when
+    // each statement entails the other. Its finding is then the desk's own rating; the readings that
+    // need a model to reverse a rating are not attempted.
+    judged = await matchReviewsOwn(claims.length ? claims.map(c => c.claim) : [claimText], candidates).catch(() => null);
+    // Finding no match is not finding that none examined the claim: our model reads paraphrases too
+    // literally to say that ("Banks will be closed every Saturday and Sunday" against "Every Saturday
+    // has been declared a bank holiday" scored 0.09), so without a match the reviews stay uncompared.
+    if (!judged || !judged.some(j => j.same_claim)) {
+      return { status: 'error', matches: [], considered: candidates.length, queries, explanation: 'The fact-check reviews could not be compared with this claim.' };
+    }
   }
 
   const matches = [];

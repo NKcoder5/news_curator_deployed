@@ -189,6 +189,28 @@ const STANCES = new Set(['agree', 'disagree', 'unrelated']);
  * is the case where corroboration was never going to establish anything
  * anyway.
  */
+// The claims of a message read without a model: its assertive sentences, with forwarding furniture,
+// links, instructions and questions removed. Used only when no model could read it.
+// A label, not an instruction: "Forwarded as received", "BREAKING:", "Forwarded:" ("Forward this to ten
+// people" is an instruction, and stays one).
+const FORWARD_FURNITURE = /^(?:\s*(?:forward(?:ed)?\s+(?:as received|many times)|(?:forwarded|breaking(?: news)?|urgent|alert|news flash|must read|important)(?=\s*[!:.\-–—*]))\s*[!:.\-–—*]*\s*)+/i;
+const INSTRUCTION = /^(?:please\s+|kindly\s+|do not\s+|don'?t\s+)?(?:forward|share|send|register|click|call|apply|subscribe|watch|like|follow|join|download|tag|pass|spread|tell|check|visit|open|install|beware|avoid)\b/i;
+const NOW_WORDS = /\b(?:today|tonight|now|this (?:week|morning|evening)|just now|right now|from tomorrow|from midnight)\b/i;
+const sentenceClaims = (title, content) => {
+  const text = String(content || title || '')
+    .replace(/https?:\/\/\S+/g, ' ')
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, ' ')
+    .replace(/[*_~]+/g, ' ');
+  const sentences = text.split(/(?<=[.!?])\s+|\n+/)
+    .map(s => s.replace(FORWARD_FURNITURE, '').replace(/\s+/g, ' ').trim())
+    .map(s => s.split(/,\s*(?=(?:please\s+|kindly\s+)?(?:forward|share|register|click|call|apply|send)\b)/i)[0].trim())
+    .filter(s => s.split(/\s+/).length >= 4 && !/\?\s*$/.test(s) && !INSTRUCTION.test(s) && !addressesModel(s));
+  return sentences.slice(0, 3).map(s => {
+    const claim = clip(/[.!]$/.test(s) ? s.replace(/!+$/, '.') : `${s}.`, MAX_CLAIM_CHARS);
+    return { claim, keywords: deriveKeywords(claim), keywordsEn: null, headline: null, time: NOW_WORDS.test(claim) ? 'now' : 'past', kind: 'event', readWithoutModel: true };
+  });
+};
+
 const deriveKeywords = (claim) => {
   const anchors = [...anchorTerms(claim)];
   const terms = anchors.length >= 2 ? anchors : [...distinctiveTerms(claim)];
@@ -244,7 +266,18 @@ Return at most ${maxClaims} claims. If the article contains no checkable claims,
   // in Dharapuram" — was then rightly contradicted by every outlet reporting
   // TVK's win: a true message called FAKE through a mistranslation.
   const label = isForeign ? 'claim extraction (non-English)' : 'claim extraction';
-  const result = await callNimApiJson(prompt, { maxTokens: 800, temperature: 0, requiredKeys: ['claims'], allowArray: true, label });
+  let result;
+  try {
+    result = await callNimApiJson(prompt, { maxTokens: 800, temperature: 0, requiredKeys: ['claims'], allowArray: true, label });
+  } catch (err) {
+    // No model could read the message (every provider out of quota, unreachable, or none configured).
+    // A short forward's claims are its own assertive sentences, so those are checked rather than
+    // nothing: measured on 22 Oct with every hosted model off, every check ended "we could not
+    // complete the search" in two seconds.
+    const fallback = sentenceClaims(title, content);
+    if (fallback.length) return fallback.slice(0, maxClaims);
+    throw err;
+  }
 
   // Some models return the array directly rather than wrapping it. That is a
   // usable answer, not a malformed one.
@@ -978,5 +1011,5 @@ module.exports = {
   extractClaims,
   // Exposed for the regression tests that cover what happens when the search
   // or the judgement cannot run. Not part of the pipeline's interface.
-  __test: { judgeClaim, gatherCoverage, summariseResults, deriveKeywords, figureConflicts }
+  __test: { judgeClaim, gatherCoverage, summariseResults, deriveKeywords, figureConflicts, sentenceClaims }
 };

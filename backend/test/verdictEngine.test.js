@@ -300,3 +300,25 @@ test('the stored record keeps a print of the submitted page, never its address, 
   assert.strictEqual(replayed.call, live.call);
   assert.strictEqual(replayed.rule, 'page-is-a-published-fact-check');
 });
+
+// Reports of an event do not say that a given video or picture shows it.
+const threeOutlets = [evidence('alpha', 'Nepal floods: houses swept away in Sunsari'), evidence('beta', 'Floods in Nepal leave thousands homeless'), evidence('gamma', 'Nepal flood toll rises')];
+const supported = (claim) => ({ claim, verdict: 'supported', supportingEvidence: threeOutlets, contradictingEvidence: [] });
+
+test('a claim about what a video or picture shows is not confirmed by reports of the event', () => {
+  for (const claim of ['An image shows a house that survived flooding in Nepal.', 'A video showing PM Modi interacting with Congress leaders at the meeting.',
+    'Actual footage of a Nepal flood survivor.', 'The video shows the Gandak Barrage protecting Bihar from the Nepal floods.', 'Visuals of the protest at Shivaji Park.']) {
+    const d = decideVerdict(ledgerFor({ claims: [supported(claim)] }));
+    assert.strictEqual(d.call, 'CANNOT VERIFY', claim);
+    assert.strictEqual(d.rule, 'media-not-confirmed-by-reports', claim);
+  }
+});
+
+test('the same support confirms a plain claim, and a media claim the outlets contradict is still false', () => {
+  assert.strictEqual(decideVerdict(ledgerFor({ claims: [supported('Floods in Nepal left thousands homeless in Sunsari.')] })).call, 'REAL');
+  assert.strictEqual(decideVerdict(ledgerFor({ claims: [supported('The photo of the minister went viral after the floods.')] })).call, 'CANNOT VERIFY',
+    'the photo itself is the claim');
+  const contradicted = { claim: 'A video shows the Army chief dancing at a wedding.', verdict: 'contradicted', supportingEvidence: [],
+    contradictingEvidence: [evidence('alpha', 'Video of Army chief dancing is AI-generated'), evidence('beta', 'Army chief dance video is a deepfake'), evidence('gamma', 'No, that is not the Army chief dancing')] };
+  assert.strictEqual(decideVerdict(ledgerFor({ claims: [contradicted] })).call, 'FAKE');
+});

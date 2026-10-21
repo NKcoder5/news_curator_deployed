@@ -182,6 +182,18 @@ const pageRulingOf = (print, matches = []) =>
 
 const { denies } = require('../utils/factCheckDesks');
 
+// A claim about what a piece of media shows: "A video showing PM Modi with Congress leaders", "An image
+// shows a house that survived the Nepal floods", "Actual footage of the flood". Reports that the event
+// happened do not say that this video or picture shows it, and real events with old or unrelated
+// footage are the commonest forwards of all: on 22 Oct, with the fact-check channel off, six of ten
+// wrong answers on claims fact-checkers had ruled false or misleading were such claims, called REAL
+// on the strength of reports of the event.
+const MEDIA_ASSERTION = new RegExp([
+  String.raw`\b(?:videos?|photos?|photographs?|images?|pictures?|pics?|clips?|footage|visuals?|cctv|screenshots?|audio)\b(?:\s+\S+){0,3}?\s+(?:shows?|showing|depicts?|depicting|captures?|capturing|of|from|where)\b`,
+  String.raw`^\s*(?:the|a|an|this|that|viral|actual|genuine|real|old|new)\s+(?:videos?|photos?|images?|pictures?|clips?|footage|visuals?)\b`
+].join('|'), 'i');
+const isMediaAssertion = (claim) => MEDIA_ASSERTION.test(String(claim || ''));
+
 const buildEvidenceLedger = ({
   claims = [], sourceResult = {}, transparencyResult = {}, manipulationResult = {}, title = '',
   verificationStatus = 'unverified', premiseResult = null, factCheckResult = null, currentCoverageResult = null,
@@ -791,6 +803,16 @@ const decideVerdict = (ledger) => {
     ], 'Part of this is confirmed and part is not. Share only what is confirmed.');
   }
 
+  // R4m — Every confirmed claim says what a video or picture shows, and what confirms it is reports
+  // of the event, not a ruling on the media. A fact-checker's "true" (R2c, above) is a ruling on the
+  // media itself and still confirms; contradiction (above) still makes it false.
+  if (ledger.independentSupport > 0 && ledger.confirmedClaims.length > 0 && ledger.confirmedClaims.every(isMediaAssertion)) {
+    return decide('unverified', 'media-not-confirmed-by-reports', [
+      `Independent outlets report the event: ${ledger.confirmedClaims[0]}`,
+      'No report found says that this video or picture shows it. Real events are often shared with old or unrelated footage.'
+    ], 'The event is reported, but not that this video or picture shows it. Check where the footage comes from before sharing.');
+  }
+
   // R5 — Corroborated by two or more independent sources.
   if (ledger.independentSupport >= 2) {
     grounds.push(`${ledger.independentSupport} independent sources report the same facts.`);
@@ -983,6 +1005,9 @@ const summarise = (verdict, ledger, rule = '') => {
     const u = ledger.unconfirmedClaim;
     return `Only partly confirmed: “${u.confirmedClaim.replace(/\.$/, '')}” is reported, but nothing supports “${u.claim.replace(/\.$/, '')}”.`;
   }
+  if (rule === 'media-not-confirmed-by-reports') {
+    return 'Not confirmed: outlets report the event, but none says this video or picture shows it.';
+  }
   if (rule === 'title-contradicted') {
     const t = (ledger.contradictedClaims || []).find(c => c.fromTitle);
     return t && t.reported
@@ -1103,6 +1128,7 @@ const confidenceFor = (verdict, ledger, rule = '') => {
   if (rule === 'contradicted-by-current-coverage') return cap(0.62 + 0.05 * Math.min(ledger.presupposedAgainst - 2, 3));
   if (rule === 'claims-partly-false') return cap(0.75);
   if (rule === 'title-contradicted') return cap(0.8);
+  if (rule === 'media-not-confirmed-by-reports') return cap(0.5);
   if (rule === 'true-claim-carrying-a-false-one') return cap(0.65);
   if (rule === 'confirmed-claim-on-a-false-premise') return cap(0.65);
   if (rule === 'claim-ruled-out-by-current-coverage') return cap(0.6);

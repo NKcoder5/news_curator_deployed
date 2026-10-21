@@ -28,6 +28,7 @@ const RULE_CHANNEL = {
   'page-is-a-published-fact-check': 'factChecks',
   'fact-checkers-and-reporting-disagree': 'factChecks',
   'contradicted-by-multiple-independent-sources': 'news',
+  'media-not-confirmed-by-reports': 'news',
   'contradicted-by-one-independent-source': 'news',
   'corroborated-by-multiple-independent-sources': 'news',
   'corroborated-by-one-independent-source': 'news',
@@ -48,6 +49,7 @@ const RULE_CHANNEL = {
 // What decided it, in a few words, for the line under the verdict.
 export const RULE_LABELS = {
   'rated-false-by-fact-checkers': 'Fact-checkers’ rulings',
+  'media-not-confirmed-by-reports': 'Reports of the event do not confirm the footage',
   'rated-misleading-by-fact-checkers': 'Fact-checkers’ rulings',
   'rated-true-by-fact-checkers': 'Fact-checkers’ rulings',
   'page-is-a-published-fact-check': 'The page is a published fact-check',

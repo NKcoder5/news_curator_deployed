@@ -1,6 +1,6 @@
 {
-  "about": "How sure our own pair model must be (its top probability) before its stance reading stands without the hosted model. Placeholder strict values until measured on held-out pairs by eval/stanceAgreement.js; then set from that measurement.",
-  "agree": 0.97,
-  "disagree": 0.99,
-  "unrelated": 0.95
+  "about": "How sure our own pair model must be (its top probability) before its stance reading stands without the hosted model. Set by eval/stanceCandidate.js for shipped on 2026-10-21; 1.01 means the stance is off.",
+  "agree": 1.01,
+  "disagree": 1.01,
+  "unrelated": 1.01
 }

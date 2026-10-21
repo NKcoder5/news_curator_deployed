@@ -512,7 +512,11 @@ const analyzeTrust = async ({
     // rumour is never reported as news, so the news channel can only say
     // "cannot verify" about it — while a desk may have investigated it days ago.
     // It reuses the extracted claims, so it starts as soon as they exist.
-    claimsPromise.then(({ claims }) => timed('factChecks', () => checkFactCheckers(claims, { title, text }), { unread: UNREAD.factChecks }))
+    // FACT_CHECK_CHANNEL=off is for evaluation on claims labelled from fact-checkers' own rulings
+    // (eval/buildRulingSuite.js), where the channel would find the very ruling a case is labelled from.
+    claimsPromise.then(({ claims }) => timed('factChecks', () => (process.env.FACT_CHECK_CHANNEL === 'off'
+      ? Promise.resolve({ status: 'not-run', matches: [], considered: 0, explanation: 'The fact-check channel was switched off for this evaluation.' })
+      : checkFactCheckers(claims, { title, text })), { unread: UNREAD.factChecks }))
       .catch(() => ({ status: 'error', matches: [], considered: 0, explanation: 'The fact-check search could not run.' })),
     // The fourth: what this week's coverage of the claim's subject takes for
     // granted. An invented event about a heavily covered subject is

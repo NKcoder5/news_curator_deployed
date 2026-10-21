@@ -56,3 +56,12 @@ test('a margin is compared only with a margin', () => {
   assert.strictEqual(conflicts('India beat West Indies by 20 runs in the third T20I.', margins), true);
   assert.strictEqual(conflicts('India beat West Indies by 14 runs in the third T20I.', margins), false);
 });
+
+test('figures from another event of the same name are never compared (Para Games, women\'s final)', () => {
+  const para = [outlet('ANI', 'Asian Para Games 2026: India races past 50 medals'), outlet('Outlook', 'Asian Para Games 2026 Nagoya: India wins 35 medals')];
+  assert.strictEqual(conflicts('India won 85 medals at the Asian Games 2026.', para), false, 'a true total is not contradicted by Para Games tallies');
+  assert.strictEqual(conflicts('India won 40 medals at the Asian Para Games 2026.', para), true, 'the same event is still compared');
+  const women = [outlet('A', "Women's ODI final: India beat Australia by 9 wickets"), outlet('B', 'India women beat Australia by 9 wickets in ODI final')];
+  assert.strictEqual(conflicts('India beat Australia by 6 wickets in the ODI final.', women), false);
+  assert.strictEqual(conflicts('India women beat Australia by 6 wickets in the ODI final.', women), true);
+});

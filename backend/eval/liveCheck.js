@@ -34,7 +34,11 @@ const outcomeOf = (c, call) => {
 const GEMINI_LED = new Set(Object.entries(routing.tasks || {})
   .filter(([, task]) => (task.chain || [])[0] === 'gemini').map(([label]) => label));
 
-const degradedLabels = (calls) => [...new Set(calls
+// EVAL_HOSTED=off measures the system with every hosted model switched off (run with GEMINI_API_KEY,
+// GEMINI_EXTRA_KEYS, NIM_API_KEY and OLLAMA_HOST empty): our own model answering a step Gemini usually
+// takes is then what is being measured, not a degraded run.
+const HOSTED_OFF = process.env.EVAL_HOSTED === 'off';
+const degradedLabels = (calls) => HOSTED_OFF ? [] : [...new Set(calls
   .filter(c => !c.cached && GEMINI_LED.has(c.label) && c.provider && c.provider !== 'gemini')
   .map(c => c.label))];
 

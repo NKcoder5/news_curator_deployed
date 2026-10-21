@@ -102,6 +102,13 @@ const precedingText = (text, raw, digits = null) => {
 // two outlets' "India beat West Indies by 14 runs" ruled a true "West Indies chased 250 runs" FAKE.
 // A figure after "by" (or "margin of") is compared only with another margin.
 const isMargin = (preceding) => /\b(?:by|margin of|lead of)\s*$/i.test(String(preceding || '').slice(-16));
+const EVENT_QUALIFIERS = /\b(?:para|paralympics?|paralympic|women(?:'?s)?|men'?s|mens|junior|juniors|youth|under[\s-]?\d{2}|u[\s-]?\d{2}|masters|veterans|winter|summer|indoor|beach|deaf|special|asian para|commonwealth youth)\b/gi;
+const qualifiersOf = (text) => new Set((String(text).match(EVENT_QUALIFIERS) || []).map(q => q.toLowerCase().replace(/[\s-]+/g, '').replace(/'s$|s$/, '')));
+/** The headline names a qualified event the claim does not (Para, women's, under-19, ...). */
+const otherEvent = (claim, text) => {
+  const mine = qualifiersOf(claim);
+  return [...qualifiersOf(text)].some(q => !mine.has(q));
+};
 const overlaps = (a, b) => a.margin !== b.margin || (a.lo <= b.hi && b.lo <= a.hi);
 // A headline states the claim's figure when its exact figure lies within what the claim allows.
 const states = (claimRange, headRange) => headRange.exact && claimRange.margin === headRange.margin && claimRange.lo <= headRange.value && headRange.value <= claimRange.hi;
@@ -121,6 +128,10 @@ const figureConflicts = (claim, coverage) => {
     // Headline and the article's own snippet, where one is given (Bing).
     const text = `${item.title || ''}. ${item.description || ''}`;
     if (INTERIM.test(text)) continue;
+    // Another event of the same name: the Asian Para Games are not the Asian Games, the women's final
+    // is not the men's. With no model reading the headlines, "India won 84 medals at the Asian Games
+    // 2026" was ruled contradicted by Para Games tallies ("India races past 50 medals").
+    if (otherEvent(claim, text)) continue;
     const sh = signatureOf(text);
     const words = anchorTerms(text);
     if ([...names].filter(n => words.has(n)).length < needNames) continue;
@@ -196,6 +207,31 @@ const STANCES = new Set(['agree', 'disagree', 'unrelated']);
 const FORWARD_FURNITURE = /^(?:\s*(?:forward(?:ed)?\s+(?:as received|many times)|(?:forwarded|breaking(?: news)?|urgent|alert|news flash|must read|important)(?=\s*[!:.\-–—*]))\s*[!:.\-–—*]*\s*)+/i;
 const INSTRUCTION = /^(?:please\s+|kindly\s+|do not\s+|don'?t\s+)?(?:forward|share|send|register|click|call|apply|subscribe|watch|like|follow|join|download|tag|pass|spread|tell|check|visit|open|install|beware|avoid)\b/i;
 const NOW_WORDS = /\b(?:today|tonight|now|this (?:week|morning|evening)|just now|right now|from tomorrow|from midnight)\b/i;
+// A news search for a claim read without a model: its names as written, its year, then its content
+// words, never its other figures. The relevance helper's terms (deriveKeywords) drop "India" as too
+// common and keep "84": searched as "84 asian game 2026", "India won 84 medals at the Asian Games
+// 2026" found Asian Para Games tallies and Kazakhstan's 84 medals, and not the 85 it is checked against.
+const QUERY_STOP = new Set(['the', 'a', 'an', 'is', 'are', 'was', 'were', 'has', 'have', 'had', 'been', 'be', 'will', 'to', 'of', 'in', 'on', 'at', 'for',
+  'and', 'or', 'by', 'with', 'from', 'that', 'this', 'all', 'its', 'his', 'her', 'their', 'it', 'he', 'she', 'they', 'as', 'about', 'after', 'before',
+  'today', 'now', 'tonight', 'yesterday', 'tomorrow', 'week', 'just', 'very', 'also', 'not', 'no', 'new', 'rs',
+  // verbs and words that carry no subject of their own
+  'won', 'win', 'wins', 'give', 'gives', 'giving', 'gave', 'take', 'takes', 'took', 'taken', 'get', 'gets', 'got', 'make', 'made',
+  'say', 'says', 'said', 'claim', 'claims', 'claimed', 'report', 'reports', 'reportedly', 'per', 'cent', 'percent',
+  'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'first', 'second', 'third', 'lakh', 'crore', 'million', 'billion']);
+const searchQueryFor = (claim) => {
+  const words = String(claim).replace(/[“”"'’‘()[\]:;,.!?]/g, ' ').split(/\s+/).filter(Boolean);
+  const names = []; const years = []; const content = [];
+  words.forEach((w, i) => {
+    const lower = w.toLowerCase();
+    if (/^(?:19|20)\d{2}$/.test(w)) { years.push(w); return; }
+    // A figure is what the search must find, not what it looks for; a code with letters (T20I) is a name.
+    if (/^[\d.,₹$%-]+$/.test(w) || QUERY_STOP.has(lower) || (w.length < 3 && !/^[A-Z]{2,}$/.test(w))) return;
+    if (/^\p{Lu}/u.test(w) || /\d/.test(w)) names.push(w); else content.push(lower);
+  });
+  const uniq = (xs) => [...new Set(xs)];
+  return uniq([...uniq(names).slice(0, 5), ...years.slice(0, 1), ...uniq(content).slice(0, 3)]).slice(0, 8).join(' ');
+};
+
 const sentenceClaims = (title, content) => {
   const text = String(content || title || '')
     .replace(/https?:\/\/\S+/g, ' ')
@@ -207,7 +243,7 @@ const sentenceClaims = (title, content) => {
     .filter(s => s.split(/\s+/).length >= 4 && !/\?\s*$/.test(s) && !INSTRUCTION.test(s) && !addressesModel(s));
   return sentences.slice(0, 3).map(s => {
     const claim = clip(/[.!]$/.test(s) ? s.replace(/!+$/, '.') : `${s}.`, MAX_CLAIM_CHARS);
-    return { claim, keywords: deriveKeywords(claim), keywordsEn: null, headline: null, time: NOW_WORDS.test(claim) ? 'now' : 'past', kind: 'event', readWithoutModel: true };
+    return { claim, keywords: searchQueryFor(claim), keywordsEn: null, headline: null, time: NOW_WORDS.test(claim) ? 'now' : 'past', kind: 'event', readWithoutModel: true };
   });
 };
 
@@ -1052,5 +1088,5 @@ module.exports = {
   extractClaims,
   // Exposed for the regression tests that cover what happens when the search
   // or the judgement cannot run. Not part of the pipeline's interface.
-  __test: { judgeClaim, gatherCoverage, summariseResults, deriveKeywords, figureConflicts, sentenceClaims }
+  __test: { judgeClaim, gatherCoverage, summariseResults, deriveKeywords, figureConflicts, sentenceClaims, searchQueryFor }
 };

@@ -51,7 +51,19 @@ const suiteName = flag('--suite', 'robustness');
 const suiteFile = [`${suiteName}_suite.json`, `${suiteName}.json`]
   .map(f => path.join(__dirname, 'suites', f)).find(f => fs.existsSync(f));
 const suite = JSON.parse(fs.readFileSync(suiteFile, 'utf8'));
+// --part dev | sealed, against overfitting. A suite whose failures are read and fixed becomes a
+// development set, and its score stops being a test of anything new. The sealed part of a suite is for
+// the final measure of a release candidate only: it reports totals and nothing per case, so no one can
+// read which cases failed and tune to them, and every run of it is logged (eval/results/sealed_runs.jsonl)
+// with its commit, so repeated use shows. Rulings 1-120 are the development part; 121-320 were never run
+// or read before the seal (2026-10-22).
+const SEALED_FROM = { rulings: 120 };
+const part = flag('--part');
+if (part && !(suiteName in SEALED_FROM)) throw new Error(`--part: suite ${suiteName} has no sealed part`);
+const sealed = part === 'sealed';
+if (sealed && (resume || onlyIds || onlyCategory)) throw new Error('--part sealed runs whole, with no --resume, --id or --category');
 const cases = suite.cases
+  .slice(part === 'dev' ? 0 : sealed ? SEALED_FROM[suiteName] : 0, part === 'dev' ? SEALED_FROM[suiteName] : undefined)
   .filter(c => !onlyCategory || c.category === onlyCategory)
   .filter(c => !onlyIds || onlyIds.has(c.id))
   .slice(0, limit);
@@ -80,8 +92,13 @@ const save = (rows, stoppedBecause) => {
     byCategory: Object.fromEntries(categories.map(cat => [cat, tally(rows.filter(r => r.category === cat))])),
     medianSeconds: median(rows.map(r => r.seconds))
   };
-  writeJson(jsonFile, { summary, rows });
+  writeJson(jsonFile, sealed ? { summary } : { summary, rows });
   const o = summary.overall;
+  if (sealed) {
+    fs.writeFileSync(resultsFile(`robustness_${outName}.md`), [`# Sealed test (${outName})`, '',
+      `Suite ${suiteName}, cases ${SEALED_FROM[suiteName] + 1}-${suite.cases.length}. Run ${summary.ranAt.slice(0, 16).replace('T', ' ')} UTC. ${o.right}/${o.n} right, ${o.safe} acceptable, ${o.missed} missed, ${o.wrong} wrong. Totals only, by design.`, ''].join('\n'));
+    return summary;
+  }
   const md = [
     `# Robustness suite (${outName})`,
     '',
@@ -127,7 +144,8 @@ const save = (rows, stoppedBecause) => {
     const row = { ...c, ...result, outcome: outcomeOf(c, result.call) };
     rows.push(row);
     const mark = { right: '✓', safe: '~', missed: '○', wrong: '✗' }[row.outcome];
-    console.log(`${mark} ${c.id.padEnd(10)} ${c.category.padEnd(22)} expected ${c.expected.padEnd(19)} got ${row.call.padEnd(19)} ${row.seconds.toFixed(1)}s  ${row.detail.slice(0, 80)}${row.degraded.length ? `  [fallback: ${row.degraded.join(', ')}]` : ''}`);
+    if (sealed) process.stdout.write('.');
+    else console.log(`${mark} ${c.id.padEnd(10)} ${c.category.padEnd(22)} expected ${c.expected.padEnd(19)} got ${row.call.padEnd(19)} ${row.seconds.toFixed(1)}s  ${row.detail.slice(0, 80)}${row.degraded.length ? `  [fallback: ${row.degraded.join(', ')}]` : ''}`);
     save(rows);
     if (guard.note(row)) { stoppedBecause = 'model quota: two cases in a row failed or fell back from Gemini'; break; }
     await pause(gapSeconds);
@@ -142,6 +160,14 @@ const save = (rows, stoppedBecause) => {
     console.log(`  ${cat.padEnd(28)} ${t.right}/${t.n}${t.missed ? `  (${t.missed} missed)` : ''}${t.wrong ? `  (${t.wrong} wrong)` : ''}`);
   }
   if (stoppedBecause) console.log(`Stopped: ${stoppedBecause}. Run again with --resume to continue.`);
+  if (sealed) {
+    const commit = require('child_process').execSync('git rev-parse --short HEAD', { cwd: __dirname }).toString().trim();
+    const dirty = require('child_process').execSync('git status --porcelain -- ../agents ../services ../utils', { cwd: __dirname }).toString().trim() !== '';
+    fs.appendFileSync(resultsFile('sealed_runs.jsonl'), `${JSON.stringify({ suite: suiteName, release: outName, commit, uncommittedChanges: dirty,
+      env: { STANCE_MODEL: process.env.STANCE_MODEL || null, EVAL_HOSTED: process.env.EVAL_HOSTED || null, FACT_CHECK_CHANNEL: process.env.FACT_CHECK_CHANNEL || null, LOCAL_NLI_MODEL_DIR: process.env.LOCAL_NLI_MODEL_DIR ? path.basename(process.env.LOCAL_NLI_MODEL_DIR) : null },
+      ...summary })}\n`);
+    console.log(`Sealed run logged in eval/results/sealed_runs.jsonl (commit ${commit}${dirty ? ', with uncommitted changes' : ''}).`);
+  }
   await require('../services/contentCheck').recordsSettled();
   process.exit(stoppedBecause ? EXIT_RESUMABLE : 0);
 })();

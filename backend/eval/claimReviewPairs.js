@@ -47,7 +47,7 @@ const ASKS = /\?["'”’)\]]*\s*$/;
 const scriptOf = (t) => (/[஀-௿]/.test(t) ? 'ta' : /[ऀ-ॿ]/.test(t) ? 'hi' : /[ঀ-৿]/.test(t) ? 'bn'
   : /[ఀ-౿]/.test(t) ? 'te' : /[ഀ-ൿ]/.test(t) ? 'ml' : /[ಀ-೿]/.test(t) ? 'kn' : 'en');
 const hash = (s) => crypto.createHash('sha1').update(String(s)).digest('hex');
-// By the review's address, so a review is in one split only: 80% train, 10% dev, 10% eval.
+// By a rumour's first review address (below), so a rumour is in one split only: 80% train, 10% dev, 10% eval.
 const splitOf = (url) => { const b = parseInt(hash(url).slice(0, 4), 16) % 10; return b === 0 ? 'eval' : b === 1 ? 'dev' : 'train'; };
 const days = (a, b) => (a && b ? Math.abs(Date.parse(a) - Date.parse(b)) / 86400000 : Infinity);
 
@@ -60,8 +60,55 @@ const shares = (a, b) => {
 };
 
 const rows = fs.readFileSync(CORPUS, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
-const reviews = rows.map((r) => ({ ...r, headline: clean(r.title), sig: signatureOf(r.claim), split: splitOf(r.url) }));
-for (const r of reviews) r.headSig = r.headline ? signatureOf(r.headline) : null;
+const reviews = rows.map((r) => ({ ...r, headline: clean(r.title), sig: signatureOf(r.claim) }));
+for (const r of reviews) {
+  r.headSig = r.headline ? signatureOf(r.headline) : null;
+  r.words = new Set([...r.sig.entities, ...r.sig.terms]);
+}
+
+// Overfitting guards. A rumour is reviewed by several desks in their own words, so splitting by review
+// would put one desk's wording in training and another's in the test, and the test would measure memory.
+// Reviews are therefore grouped into rumours (two reviews within a month sharing two names or words and a
+// quarter of all of them are one rumour; loose on purpose, since a false merge only costs data) and split
+// by rumour. Every rumour that touches a case in any evaluation suite is dropped altogether, by the same
+// loose test without the date limit, so no suite measures a rumour the model was trained on.
+const near = (a, b) => {
+  let common = 0;
+  for (const w of b) if (a.has(w)) common += 1;
+  return common >= 2 && common / (a.size + b.size - common) >= 0.25;
+};
+const parent = reviews.map((_, i) => i);
+const root = (i) => (parent[i] === i ? i : (parent[i] = root(parent[i])));
+for (let i = 0; i < reviews.length; i += 1) {
+  for (let j = i + 1; j < reviews.length; j += 1) {
+    if (days(reviews[i].reviewedAt, reviews[j].reviewedAt) <= 30 && near(reviews[i].words, reviews[j].words)) parent[root(i)] = root(j);
+  }
+}
+const SUITES = path.join(__dirname, 'suites');
+const suiteWords = [];
+for (const f of fs.readdirSync(SUITES).filter((x) => x.endsWith('.json'))) {
+  const s = JSON.parse(fs.readFileSync(path.join(SUITES, f), 'utf8'));
+  for (const c of [...(s.cases || []), ...(s.claims || []), ...(s.pairs || [])]) {
+    for (const t of [c.input, c.claim, c.a, c.b, c.headline]) {
+      if (typeof t !== 'string' || /^https?:/i.test(t)) continue;
+      const sig = signatureOf(t);
+      suiteWords.push(new Set([...sig.entities, ...sig.terms]));
+    }
+  }
+}
+const touched = new Set();
+for (let i = 0; i < reviews.length; i += 1) {
+  if (suiteWords.some((w) => near(w, reviews[i].words))) touched.add(root(i));
+}
+const clusterUrl = new Map();
+for (let i = 0; i < reviews.length; i += 1) {
+  const k = root(i);
+  if (!clusterUrl.has(k) || reviews[i].url < clusterUrl.get(k)) clusterUrl.set(k, reviews[i].url);
+}
+reviews.forEach((r, i) => { r.split = touched.has(root(i)) ? 'suite' : splitOf(clusterUrl.get(root(i))); r.rumour = root(i); });
+const dropped = reviews.filter((r) => r.split === 'suite').length;
+console.log(`${new Set(reviews.map((r) => r.rumour)).size} rumours; ${touched.size} touching an evaluation case, ${dropped} reviews dropped`);
+reviews.splice(0, reviews.length, ...reviews.filter((r) => r.split !== 'suite'));
 
 const out = [];
 const counts = {};
@@ -103,7 +150,8 @@ for (let i = 0; i < reviews.length; i += 1) {
     if (a.publisher === b.publisher || days(a.reviewedAt, b.reviewedAt) > 14) continue;
     const s = shares(a.sig, b.sig);
     if (s.common < 2 || s.jaccard < 0.2) continue;
-    candidates.push({ a: a.claim, b: b.claim, aUrl: a.url, bUrl: b.url, aRating: a.ratingClass, bRating: b.ratingClass,
+    if (a.split !== b.split) continue;
+    candidates.push({ a: a.claim, b: b.claim, aUrl: a.url, bUrl: b.url, split: a.split, aRating: a.ratingClass, bRating: b.ratingClass,
       score: Number(s.jaccard.toFixed(3)), relation: compareSignatures(a.sig, b.sig).relation });
   }
 }

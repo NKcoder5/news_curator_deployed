@@ -68,7 +68,7 @@ cands = json.load(open(DATA / "raw" / "claimreview" / "match_candidates.json", e
 for p in cands:
     if p["score"] >= 0.5:
         for x, y in ((p["a"], p["b"]), (p["b"], p["a"])):
-            {"train": match_train, "dev": match_dev, "eval": match_eval}[split_of(p["aUrl"])].append(
+            {"train": match_train, "dev": match_dev, "eval": match_eval}[p["split"]].append(
                 {"premise": x, "hypothesis": y, "label": 0, "src": "match", "sub": "same", "lang": "en", "claim_id": p["aUrl"][-12:]})
 for r in load(DATA / "claimreview_pairs.jsonl"):
     if r["sub"] == "other rumour" and r.get("premise_claim"):

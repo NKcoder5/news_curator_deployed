@@ -10,7 +10,7 @@ const { filterRelevant, anchorTerms, distinctiveTerms } = require('./evidenceRel
 const { judgePairs } = require('../services/localNli');
 const { noteModelCall } = require('../utils/runContext');
 const { FACT_CHECK_DESKS } = require('./factCheckSearch');
-const { forecastOnly } = require('../utils/stanceGuards');
+const { forecastOnly, resultConflict, signatureConflict } = require('../utils/stanceGuards');
 const { signatureOf, compareSignatures } = require('../services/claimSignature');
 
 // A changed figure is a comparison, not a judgement. "CJP leaders Saurav Das
@@ -247,6 +247,13 @@ const sentenceClaims = (title, content) => {
     // medals at the Asian Games, and the RBI cut the repo rate by 50 basis points" is half true, and
     // read whole, a confirmation of one half would read as a confirmation of the message.
     .flatMap(s => s.split(/,\s+and\s+(?=(?:the|a|an|this|his|her|their|[\p{Lu}])\S*\s+\S+\s+\S+)/u).map(x => x.trim()))
+    // Without the comma too, where both halves are whole statements: "CM Vijay launched the Dream
+    // Olympics 2036 scheme and the Madras High Court set aside his Perambur election" came back REAL
+    // with every hosted model off, on outlets reporting the scheme alone.
+    .flatMap((s) => {
+      const m = s.match(/^(.+?)\s+and\s+((?:the|a|an|this|his|her|their)\s+\p{Lu}.*)$/u);
+      return m && m[1].split(/\s+/).length >= 5 && m[2].split(/\s+/).length >= 5 ? [m[1].trim(), m[2].trim()] : [s];
+    })
     .filter(s => s.split(/\s+/).length >= 3 && !/\?\s*$/.test(s) && !INSTRUCTION.test(s) && !addressesModel(s) && !GREETING.test(s));
   return sentences.slice(0, 3).map(s => {
     const claim = clip(/[.!]$/.test(s) ? s.replace(/!+$/, '.') : `${s}.`, MAX_CLAIM_CHARS);
@@ -504,18 +511,21 @@ const ownStances = async (claim, shown) => {
     // A plan or forecast does not confirm that the thing happened (utils/stanceGuards.js): read as
     // saying nothing, and sure of that.
     if (stance === 'agree' && forecastOnly(shown[i].title, claim)) stance = 'unrelated';
-    // An "agree" the claim's own signature rules out is not allowed: who beat whom reversed, another
-    // figure or date, one of them negated. With every hosted model off, "India beat West Indies in the
-    // second T20I at Ranchi" (West Indies won) came back REAL on readings our model was sure of.
+    // An "agree" a guard rules out is not allowed (utils/stanceGuards.js): another numbered match, the
+    // result going the other way, or the claim's own signature (who beat whom, a figure, a date, a
+    // negation). With every hosted model off, "India beat West Indies in the second T20I at Ranchi"
+    // (West Indies won) came back REAL on readings our model was sure of. Where the headline reports the
+    // same numbered match going the other way, that is read as a disagreement, whatever our model said.
+    const title = shown[i].title || '';
+    const result = j ? resultConflict(title, claim) : null;
     let vetoed = false;
-    if (stance === 'agree') {
-      const cmp = compareSignatures(signatureOf(claim), signatureOf(`${shown[i].title || ''} ${shown[i].description || ''}`));
-      vetoed = (cmp.differences || []).some(d => /^(?:roles reversed|figure|date|one says the opposite)/.test(d));
-    }
-    const sure = !vetoed && Boolean(stance) && j.scores[j.label] >= (STANCE_THRESHOLDS[stance] ?? 1);
+    let ruled = false;
+    if (result === 'opposite') { stance = 'disagree'; ruled = true; }
+    else if (stance === 'agree') vetoed = Boolean(result) || signatureConflict(`${title} ${shown[i].description || ''}`, claim);
+    const sure = ruled || (!vetoed && Boolean(stance) && j.scores[j.label] >= (STANCE_THRESHOLDS[stance] ?? 1));
     if (sure) sureCount += 1; else allSure = false;
     const read = sure ? stance : 'unrelated';
-    return { n: i + 1, stance: read, same_event: read !== 'unrelated', both_can_be_true: read !== 'disagree', reported: '' };
+    return { n: i + 1, stance: read, same_event: read !== 'unrelated', both_can_be_true: read !== 'disagree', reported: ruled ? title : '' };
   });
   noteModelCall({ label: 'stance judgement', provider: 'own model', model: 'own pair model', cached: false, own: true });
   return {

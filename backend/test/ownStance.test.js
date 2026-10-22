@@ -193,6 +193,27 @@ test(`local: our model's "agree" does not stand when the headline reverses who d
   assert.notStrictEqual(judged.verdict, 'supported');
 });
 
+test(`local: the same numbered match going the other way is a disagreement, whatever our model reads`, async () => {
+  reset('local');
+  const reports = [
+    outlet('Sportstar', 'India vs West Indies HIGHLIGHTS, 1st T20I: Shreyas Iyer slams maiden ton to lead India to 8-wicket win'),
+    outlet('Mint', 'IND vs WI Highlights, 1st T20I: Iyer ton powers India to 8-wicket win')
+  ];
+  ownReadings = reports.map(() => reading('entailment', 0.9998));
+  const judged = await judgeClaim('India lost the first T20I against West Indies in Lucknow by eight wickets', reports);
+  assert.strictEqual(judged.verdict, 'contradicted');
+  assert.strictEqual(judged.contradictingEvidence.length, 2);
+});
+
+test(`local: another numbered match confirms nothing`, async () => {
+  reset('local');
+  const reports = [outlet('Sportstar', 'India crush West Indies in 1st T20I'), outlet('Mint', 'India beat West Indies in 1st T20I at Lucknow')];
+  ownReadings = reports.map(() => reading('entailment', 0.999));
+  const judged = await judgeClaim('India beat West Indies in the second T20I at Ranchi', reports);
+  assert.strictEqual(judged.supportingEvidence.length, 0);
+  assert.strictEqual(judged.contradictingEvidence.length, 0);
+});
+
 test(`a fallback model's "agree" is set aside where our model is sure the headline says the opposite`, async () => {
   reset(null);
   hostedProvider = 'ollama';

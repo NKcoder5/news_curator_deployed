@@ -50,14 +50,20 @@ const pct = (a, b) => (b ? `${(100 * a / b).toFixed(1)}%` : '–');
 
 // The same guards the pipeline applies to our model's readings (utils/stanceGuards.js): what is
 // measured here is what the checker would do.
-const { asksOnly, forecastOnly } = require('../utils/stanceGuards');
+const { asksOnly, forecastOnly, resultConflict, signatureConflict } = require('../utils/stanceGuards');
 const read = async (pairs) => {
   const judged = await nli.judgePairs(pairs.map((p) => ({ premise: p.premise, hypothesis: p.hypothesis })));
   return judged.map((j, i) => {
     if (!j) return null;
+    const { premise, hypothesis } = pairs[i];
+    const title = String(premise).split(' — ')[0];
     let stance = FROM[j.label];
-    if (stance !== 'unrelated' && asksOnly(pairs[i].premise)) stance = 'unrelated';
-    if (stance === 'agree' && forecastOnly(pairs[i].premise, pairs[i].hypothesis)) stance = 'unrelated';
+    if (stance !== 'unrelated' && asksOnly(premise)) stance = 'unrelated';
+    if (stance === 'agree' && forecastOnly(premise, hypothesis)) stance = 'unrelated';
+    const result = resultConflict(title, hypothesis);
+    if (result === 'opposite') return { stance: 'disagree', p: 1 };
+    // Ruled out: not a reading the checker would count, at any threshold.
+    if (stance === 'agree' && (result || signatureConflict(premise, hypothesis))) return { stance, p: 0 };
     return { stance, p: j.scores[j.label] };
   });
 };

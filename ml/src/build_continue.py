@@ -49,13 +49,32 @@ ours = [r for r in first_train if r["src"] == "stance_ours"]
 rest = [r for r in first_train if r["src"] != "stance_ours"]
 replay = rng.sample(rest, min(a.replay, len(rest)))
 
-cr = load(DATA / "claimreview_pairs.jsonl")
+# A true rating's headline often hedges, asks or reports a denial ("omits key context", "Does this video
+# show...?"): read by hand on 2026-10-22, too many of those pairs were not agreements, so they are left out.
+cr = [r for r in load(DATA / "claimreview_pairs.jsonl") if r["sub"] != "confirm"]
 keep = lambda r: {k: r[k] for k in ("premise", "hypothesis", "label", "src", "sub", "lang", "claim_id")}
 cr_train = [keep(r) for r in cr if r["split"] == "train"]
 cr_dev = [keep(r) for r in cr if r["split"] == "dev"]
 cr_eval = [keep(r) for r in cr if r["split"] == "eval"]
 
 match_train, match_dev, match_eval = [], [], []
+# The matcher's question, claim against claim. Same: two desks' wordings reviewed within two weeks that
+# share at least half their names and words (read by hand on 2026-10-22: about nine in ten such pairs are
+# one rumour). Not the same: the two claims of an "other rumour" pair, months apart and sharing little.
+# Both directions, split by the first review's address as the stance pairs are.
+import hashlib
+split_of = lambda url: {0: "eval", 1: "dev"}.get(int(hashlib.sha1(url.encode()).hexdigest()[:4], 16) % 10, "train")
+cands = json.load(open(DATA / "raw" / "claimreview" / "match_candidates.json", encoding="utf-8"))["pairs"]
+for p in cands:
+    if p["score"] >= 0.5:
+        for x, y in ((p["a"], p["b"]), (p["b"], p["a"])):
+            {"train": match_train, "dev": match_dev, "eval": match_eval}[split_of(p["aUrl"])].append(
+                {"premise": x, "hypothesis": y, "label": 0, "src": "match", "sub": "same", "lang": "en", "claim_id": p["aUrl"][-12:]})
+for r in load(DATA / "claimreview_pairs.jsonl"):
+    if r["sub"] == "other rumour" and r.get("premise_claim"):
+        for x, y in ((r["premise_claim"], r["hypothesis"]), (r["hypothesis"], r["premise_claim"])):
+            {"train": match_train, "dev": match_dev, "eval": match_eval}[r["split"]].append(
+                {"premise": x, "hypothesis": y, "label": 1, "src": "match", "sub": "different", "lang": "en", "claim_id": r["claim_id"]})
 labels_file = DATA / "raw" / "claimreview" / "match_labels.json"
 if labels_file.exists():
     for p in json.load(open(labels_file, encoding="utf-8"))["pairs"]:

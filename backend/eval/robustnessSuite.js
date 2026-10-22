@@ -115,6 +115,12 @@ const save = (rows, stoppedBecause) => {
   for (const c of cases) {
     if (done.has(c.id)) continue;
     if (checks >= maxChecks) { stoppedBecause = `check budget of ${maxChecks} spent`; break; }
+    // FACT_CHECK_CHANNEL=others: the channel is on, but the ruling a case is labelled from is hidden from
+    // it and from the news search, so what counts is other desks' reviews of the same rumour.
+    if (process.env.FACT_CHECK_CHANNEL === 'others') {
+      process.env.FACT_CHECK_EXCLUDE = (c.sources || [])
+        .map((u) => String(u).toLowerCase().replace(/^https?:\/\/(www\.)?/, '').replace(/[?#].*$/, '').replace(/\/+$/, '')).join('\n');
+    }
     // A case whose input is a link is checked as one, flagged or not (rp-41 and rp-43 were refused as text).
     const result = await checkMessage(c.input, { isUrl: Boolean(c.isUrl) || /^https?:\/\/\S+$/i.test(String(c.input).trim()) });
     checks += 1;

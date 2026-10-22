@@ -259,6 +259,11 @@ Return a JSON object: {"items": [{"n": <review number>, "same_claim": true or fa
   return numberedItems(result?.items, candidates.length);
 };
 
+const printOfUrl = (u) => String(u || '').toLowerCase().replace(/^https?:\/\/(www\.)?/, '').replace(/[?#].*$/, '').replace(/\/+$/, '');
+/** A review address hidden for evaluation (FACT_CHECK_EXCLUDE, set per case by eval/robustnessSuite.js). */
+const excludedReview = (url) => Boolean(process.env.FACT_CHECK_EXCLUDE) && Boolean(url)
+  && process.env.FACT_CHECK_EXCLUDE.split('\n').includes(printOfUrl(url));
+
 const SAME_CLAIM = 0.9;
 const FINDING_OF_RATING = { false: 'false', misleading: 'misleading', true: 'true' };
 /** matchReviews without a hosted model: our own pair model, both directions, the desk's own rating. */
@@ -368,6 +373,9 @@ const checkFactCheckers = async (claims = [], { title = '', text = '' } = {}) =>
   const take = (item) => {
     const key = item.url || `${item.publisher}|${item.claimReviewed}`;
     if (!key || seen.has(key)) return;
+    // Evaluation only (eval/robustnessSuite.js, FACT_CHECK_CHANNEL=others): the review a case is labelled
+    // from is hidden, so a match has to come from other desks' reviews of the same rumour.
+    if (excludedReview(item.url)) return;
     // A review whose text tells the matcher what to answer is not a review.
     if (addressesModel(`${item.claimReviewed} ${item.title || ''} ${item.rating || ''}`)) return;
     seen.add(key);

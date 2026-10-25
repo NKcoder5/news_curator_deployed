@@ -71,3 +71,9 @@ test('the week enters the probability only when it was counted', () => {
   assert.ok(weighCurrentCoverage('absentFromHeavyCoverage').decibans > 5);
   assert.strictEqual(weighCurrentCoverage(null), null);
 });
+
+test('a subject must be a name the claim uses, or a week of coverage has nothing definite to rule out', () => {
+  assert.deepStrictEqual(subjectsFor([{ claim: 'All pensioners are receiving the ninth consecutive budget pension increase.', subject: 'pensioners' }]), []);
+  assert.deepStrictEqual(subjectsFor([{ claim: 'PM Modi has resigned as Prime Minister.', subject: 'Narendra Modi' }]), ['Narendra Modi']);
+  assert.deepStrictEqual(subjectsFor([{ claim: 'Elon Musk bought Reliance Jio.', subject: 'Elon Musk', otherSubject: 'Reliance Jio' }]), ['Elon Musk', 'Reliance Jio']);
+});

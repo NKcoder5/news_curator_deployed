@@ -28,6 +28,7 @@
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { searchGoogleNews } = require('../utils/newsFetcher');
 const { filterRelevant } = require('./evidenceRelevance');
+const { signatureOf } = require('../services/claimSignature');
 const { UNTRUSTED_NOTICE, fence, addressesModel, asBool, oneOf, clip, numberedItems } = require('../utils/untrusted');
 
 const CLAIMED_WHEN = new Set(['this_week', 'earlier', 'future', 'ongoing', 'unclear']);
@@ -39,17 +40,27 @@ const MAX_HEADLINES = 20;
 const norm = (text) => String(text || '').toLowerCase().replace(/[‘’“”"']/g, '').replace(/\s+/g, ' ').trim();
 
 /** The subjects to read coverage of: what the extractor named, once each. */
+// A subject is a name the claim itself uses: a person, place or organisation. "All pensioners are receiving
+// the ninth consecutive budget pension increase" (a Maltese ruling, rated true) names no country; read as
+// the subject "pensioners", a week of Indian coverage of delayed dearness relief ruled it out and it came
+// back FAKE. A week of coverage can only rule out an event about a definite subject.
+const namedIn = (subject, claimText) => {
+  if (/[^\x00-\x7F]/.test(subject)) return true;   // another script: no capitals to read a name by
+  const names = new Set(signatureOf(claimText || subject).entities);
+  return subject.toLowerCase().split(/\s+/).some(w => names.has(w));
+};
+
 const subjectsFor = (claims = []) => {
   const subjects = [];
   // A claim about two parties — "Elon Musk bought Reliance Jio" — is ruled
   // out by either one's week: Jio's coverage says it is planning its own IPO.
   // So each claim's second subject is read too, after every claim's first.
-  const add = (raw) => {
+  const add = (raw, claimText) => {
     const subject = String(raw || '').replace(/[^\p{L}\p{N}\s.&-]/gu, ' ').replace(/\s+/g, ' ').trim();
-    if (subject && subject.split(' ').length <= 5 && !subjects.some(s => norm(s) === norm(subject))) subjects.push(subject);
+    if (subject && subject.split(' ').length <= 5 && namedIn(subject, claimText) && !subjects.some(s => norm(s) === norm(subject))) subjects.push(subject);
   };
-  for (const c of claims.slice(0, 2)) add(c.subject);
-  for (const c of claims.slice(0, 2)) add(c.otherSubject);
+  for (const c of claims.slice(0, 2)) add(c.subject, c.claim);
+  for (const c of claims.slice(0, 2)) add(c.otherSubject, c.claim);
   return subjects.slice(0, 3);
 };
 

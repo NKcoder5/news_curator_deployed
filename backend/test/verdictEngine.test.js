@@ -358,6 +358,14 @@ test('a before-and-after comparison is a claim about pictures, said or not', () 
   assert.strictEqual(d.rule, 'media-not-confirmed-by-reports');
 });
 
+test('a forwarded message about a video stays a claim about the video when the reading files the event alone', () => {
+  const message = 'A video showing PM Modi interacting with Congress leaders Mallikarjun Kharge and Rahul Gandhi.';
+  const event = supported('PM Modi interacted with Congress leaders Mallikarjun Kharge and Rahul Gandhi.');
+  assert.strictEqual(decideVerdict(ledgerFor({ title: message, claims: [event] })).rule, 'media-not-confirmed-by-reports');
+  // A publisher's page about the event, with a video in it, is still confirmed by reports of the event.
+  assert.strictEqual(decideVerdict(ledgerFor({ title: message, pageUrl: 'https://news.example/modi-kharge', claims: [event] })).call, 'REAL');
+});
+
 test('a before-and-after claim with no pictures in it is an ordinary claim', () => {
   assert.strictEqual(decideVerdict(ledgerFor({ claims: [supported('India GDP grew faster after demonetisation than before and after the budget.')] })).call, 'REAL');
 });

@@ -217,7 +217,11 @@ const gemini = {
           // Header auth, so the key never appears in a URL or a log line.
           'x-goog-api-key': key
         },
-        timeout
+        // One attempt waits at most GEMINI_ATTEMPT_MS (15 s), not the gateway's 90: the lite models answer
+        // in 1.5-3 s, and when one stalls the check's 45 s evidence deadline passed before the gateway
+        // tried the next model. On 25 Oct, 10 of 60 rulings came back "verification unavailable" that
+        // way, with 17 attempts on gemini-3.1-flash-lite cut off by the 90 s timeout.
+        timeout: Math.min(timeout || 90000, Number(process.env.GEMINI_ATTEMPT_MS) || 15000)
       }
     );
 

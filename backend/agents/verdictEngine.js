@@ -357,6 +357,11 @@ const buildEvidenceLedger = ({
     pageDesk: pageDesk || null,
     // Whether that page's title denies what it examines, as a debunk does.
     pageDenies: Boolean(pageDesk) && denies(title),
+    // A forwarded message (no page of its own) that says what a video or picture shows. The reading step
+    // files the event, not the media: "A video showing PM Modi interacting with Kharge..." became "Modi
+    // interacted with Kharge", eight outlets confirmed the meeting, and four of five wrong answers on
+    // fact-checked rulings with Gemini on (25 Oct) were such videos called REAL.
+    messageIsMedia: !(pagePrint || pageUrl) && isMediaAssertion(title),
     currentCoverageOutcome,
     // An unreported claim riding with a confirmed one, and what this week's
     // coverage of its subject says about it.
@@ -815,7 +820,8 @@ const decideVerdict = (ledger) => {
   // R4m — Every confirmed claim says what a video or picture shows, and what confirms it is reports
   // of the event, not a ruling on the media. A fact-checker's "true" (R2c, above) is a ruling on the
   // media itself and still confirms; contradiction (above) still makes it false.
-  if (ledger.independentSupport > 0 && ledger.confirmedClaims.length > 0 && ledger.confirmedClaims.every(isMediaAssertion)) {
+  if (ledger.independentSupport > 0 && ledger.confirmedClaims.length > 0
+    && (ledger.messageIsMedia || ledger.confirmedClaims.every(isMediaAssertion))) {
     return decide('unverified', 'media-not-confirmed-by-reports', [
       `Independent outlets report the event: ${ledger.confirmedClaims[0]}`,
       'No report found says that this video or picture shows it. Real events are often shared with old or unrelated footage.'

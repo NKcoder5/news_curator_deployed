@@ -345,6 +345,21 @@ const checkPremises = async (title, content, subjects = []) => {
  * quote the reference text that conflicts, so the claim can be checked rather
  * than taken on trust.
  */
+/**
+ * Whether a sentence the model quotes is in the entry. Compared without brackets and punctuation, since
+ * an entry's opening sentence carries pronunciations and other spellings ("Taj Mahal (/ˌtɑːdʒ
+ * məˈhɑːl/; Hindi: ताज महल) is an ivory-white marble mausoleum...") that a faithful quotation leaves
+ * out: "The Taj Mahal is in Chennai" was found contradicted by its entry and set aside as ungrounded.
+ */
+const inEntry = (quote, content) => {
+  const q = String(quote || '');
+  if (q.length <= 10) return false;
+  if (String(content).toLowerCase().includes(q.slice(0, 40).toLowerCase())) return true;
+  const plain = (s) => String(s).toLowerCase().replace(/\([^)]*\)|\[[^\]]*\]/g, ' ').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  const head = plain(q).slice(0, 40);
+  return head.length > 10 && plain(content).includes(head);
+};
+
 const judgeAgainstReference = async (title, content, name, reference) => {
   // The subject is a run of capitalised words from the article (groupNames
   // keeps letters and digits only), so it carries no punctuation or role
@@ -425,8 +440,7 @@ Return a JSON object with these keys:
     // Support needs the same grounding as contradiction: the sentence quoted
     // must actually be in the entry.
     const supportQuote = clip(result?.reference_supports, 600);
-    const supportGrounded = asBool(result?.supports) === true && supportQuote.length > 10
-      && String(reference.content).toLowerCase().includes(supportQuote.slice(0, 40).toLowerCase());
+    const supportGrounded = asBool(result?.supports) === true && inEntry(supportQuote, reference.content);
     if (result && (bothCanBeTrue !== false || assertedBy === 'quoted')) {
       return { contradicts: false, supports: supportGrounded && !contradicts, referenceSupports: supportGrounded ? supportQuote : '',
         compatible: bothCanBeTrue !== false,
@@ -439,8 +453,7 @@ Return a JSON object with these keys:
     // The model must ground a contradiction in the reference text. An assertion
     // with no quotation behind it, or a quotation that is not actually in the
     // entry, is discarded — the same rule the news evidence is held to.
-    const quoted = referenceStates.length > 10
-      && String(reference.content).toLowerCase().includes(referenceStates.slice(0, 40).toLowerCase());
+    const quoted = inEntry(referenceStates, reference.content);
 
     return {
       contradicts: contradicts && quoted,
@@ -453,4 +466,4 @@ Return a JSON object with these keys:
   }
 };
 
-module.exports = { checkPremises, groupNames, rankEntities, MAX_ENTITIES };
+module.exports = { checkPremises, groupNames, rankEntities, MAX_ENTITIES, inEntry };

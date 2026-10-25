@@ -241,3 +241,12 @@ test('a genuine, mutually exclusive premise in the article voice is still caught
   assert.ok(result.contradictions.length >= 1, 'the premise channel still fires');
   assert.equal(result.status, 'contradicted');
 });
+
+test('a quotation is found in the entry without its brackets, and an invented one is not', () => {
+  const { inEntry } = require('../agents/referenceCheck');
+  const entry = "The Taj Mahal (/ˌtɑːdʒ məˈhɑːl/; Hindi: ताज महल; lit. 'Crown of the Palace') is an ivory-white marble mausoleum on the right bank of the river Yamuna in Agra, Uttar Pradesh, India.";
+  assert.ok(inEntry('The Taj Mahal is an ivory-white marble mausoleum on the right bank of the river Yamuna in Agra.', entry));
+  assert.ok(inEntry(entry, entry));
+  assert.ok(!inEntry('The Taj Mahal is a mausoleum in Chennai, Tamil Nadu.', entry));
+  assert.ok(!inEntry('Agra', entry), 'too short to ground anything');
+});

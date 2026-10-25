@@ -33,8 +33,8 @@
   "position_embedding_type": "absolute",
   "problem_type": "single_label_classification",
   "tie_word_embeddings": true,
-  "transformers_version": "5.19.0",
+  "transformers_version": "5.20.2",
   "type_vocab_size": 1,
   "use_cache": true,
-  "vocab_size": 51170
+  "vocab_size": 52123
 }

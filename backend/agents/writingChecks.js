@@ -19,8 +19,14 @@
 //
 // The scores come from a different prompt from the one the likelihood ratios
 // in data/evidenceWeights.json were first measured on, so they were measured
-// again on the same labelled articles (eval/runEval.js --config
-// content-merged) before this path was switched on.
+// again on the same 239 labelled articles (eval/runEval.js --config
+// content-merged --ids-from) before this path was switched on. Held out, on
+// the same 120 articles: ranking (AUC) 0.944 against 0.951 for the four calls
+// on the path the server runs, calibration error 0.253 against 0.246, and no
+// genuine article called fabricated (precision 1.000 against 0.967). Each
+// factor alone separates the classes at least as well as its own call did.
+// The four readings correlate more when made together (1.3 effective
+// independent factors of 4, against 1.5), which the style damping absorbs.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { languageDirective } = require('../utils/language');
 const { UNTRUSTED_NOTICE, fence } = require('../utils/untrusted');
@@ -32,8 +38,12 @@ const { clickbaitByRules, biasByRules, manipulationByRules, transparencyByRules 
 
 const FACTORS = ['clickbait', 'bias', 'manipulation', 'transparency'];
 
-/** WRITING_CHECKS=merged reads the writing in one call; anything else keeps the four calls. */
-const mergedWriting = () => String(process.env.WRITING_CHECKS || '').trim().toLowerCase() === 'merged';
+/**
+ * The writing is read in one call unless WRITING_CHECKS=separate. The likelihood ratios in
+ * data/evidenceWeights.json were measured on the merged reading (26 Oct, 239 ISOT articles); the four
+ * separate calls are kept for measuring them against it.
+ */
+const mergedWriting = () => String(process.env.WRITING_CHECKS || '').trim().toLowerCase() !== 'separate';
 
 /** The text the checks read: the headline and the body, the headline not repeated when the body opens with it. */
 const textOf = (title, content) => {

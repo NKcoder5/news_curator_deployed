@@ -1,0 +1,845 @@
+{
+  "generatedAt": "2026-10-26T18:26:40.309Z",
+  "clampEnabled": true,
+  "trainRecords": 119,
+  "testRecords": 120,
+  "trainBaseRate": 0.4118,
+  "plattScaling": {
+    "a": 6.057,
+    "b": -1.1329,
+    "fittedOn": "training half only"
+  },
+  "weightOfEvidence": {
+    "n": 120,
+    "accuracy": 0.9417,
+    "macroF1": 0.9415,
+    "rocAuc": 0.9763,
+    "ece": 0.2917,
+    "eceWhenAccusing": 0.2308,
+    "eceWhenExonerating": 0.3613,
+    "flaggedCount": 64,
+    "precisionWhenAccusing": 0.9375,
+    "brier": 0.1352,
+    "reliability": [
+      {
+        "band": "0.4-0.5",
+        "n": 56,
+        "stated": 0.415,
+        "observed": 0.054
+      },
+      {
+        "band": "0.5-0.6",
+        "n": 8,
+        "stated": 0.538,
+        "observed": 0.5
+      },
+      {
+        "band": "0.6-0.7",
+        "n": 12,
+        "stated": 0.658,
+        "observed": 1
+      },
+      {
+        "band": "0.7-0.8",
+        "n": 36,
+        "stated": 0.754,
+        "observed": 1
+      },
+      {
+        "band": "0.8-0.9",
+        "n": 8,
+        "stated": 0.811,
+        "observed": 1
+      }
+    ]
+  },
+  "weightOfEvidenceCalibrated": {
+    "n": 120,
+    "accuracy": 0.9333,
+    "macroF1": 0.9333,
+    "rocAuc": 0.9763,
+    "ece": 0.1419,
+    "eceWhenAccusing": 0.1715,
+    "eceWhenExonerating": 0.1167,
+    "flaggedCount": 55,
+    "precisionWhenAccusing": 1,
+    "brier": 0.0679,
+    "reliability": [
+      {
+        "band": "0.1-0.2",
+        "n": 54,
+        "stated": 0.113,
+        "observed": 0.056
+      },
+      {
+        "band": "0.2-0.3",
+        "n": 6,
+        "stated": 0.253,
+        "observed": 0.667
+      },
+      {
+        "band": "0.3-0.4",
+        "n": 4,
+        "stated": 0.382,
+        "observed": 0
+      },
+      {
+        "band": "0.4-0.5",
+        "n": 1,
+        "stated": 0.497,
+        "observed": 1
+      },
+      {
+        "band": "0.5-0.6",
+        "n": 1,
+        "stated": 0.522,
+        "observed": 1
+      },
+      {
+        "band": "0.6-0.7",
+        "n": 9,
+        "stated": 0.662,
+        "observed": 1
+      },
+      {
+        "band": "0.7-0.8",
+        "n": 5,
+        "stated": 0.774,
+        "observed": 1
+      },
+      {
+        "band": "0.8-0.9",
+        "n": 30,
+        "stated": 0.863,
+        "observed": 1
+      },
+      {
+        "band": "0.9-1",
+        "n": 10,
+        "stated": 0.934,
+        "observed": 1
+      }
+    ]
+  },
+  "weightOfEvidenceIsotonic": {
+    "n": 120,
+    "accuracy": 0.9417,
+    "macroF1": 0.9417,
+    "rocAuc": 0.9444,
+    "ece": 0.0746,
+    "eceWhenAccusing": 0.0371,
+    "eceWhenExonerating": 0.1074,
+    "flaggedCount": 56,
+    "precisionWhenAccusing": 1,
+    "brier": 0.0624,
+    "reliability": [
+      {
+        "band": "0-0.1",
+        "n": 64,
+        "stated": 0.002,
+        "observed": 0.109
+      },
+      {
+        "band": "0.5-0.6",
+        "n": 2,
+        "stated": 0.5,
+        "observed": 1
+      },
+      {
+        "band": "0.9-1",
+        "n": 54,
+        "stated": 0.98,
+        "observed": 1
+      }
+    ]
+  },
+  "productionPath": {
+    "n": 120,
+    "accuracy": 0.9417,
+    "macroF1": 0.9417,
+    "rocAuc": 0.9444,
+    "ece": 0.2527,
+    "eceWhenAccusing": 0.1959,
+    "eceWhenExonerating": 0.3024,
+    "flaggedCount": 56,
+    "precisionWhenAccusing": 1,
+    "brier": 0.1202,
+    "reliability": [
+      {
+        "band": "0.4-0.5",
+        "n": 64,
+        "stated": 0.412,
+        "observed": 0.109
+      },
+      {
+        "band": "0.5-0.6",
+        "n": 2,
+        "stated": 0.5,
+        "observed": 1
+      },
+      {
+        "band": "0.8-0.9",
+        "n": 54,
+        "stated": 0.815,
+        "observed": 1
+      }
+    ]
+  },
+  "isotonicMap": [
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": 1.0777,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": 2.3878,
+      "probability": 0.5,
+      "n": 4
+    },
+    {
+      "upTo": 2.6899,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 2.8648,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 3.0302,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 3.1669,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 3.1669,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 3.1669,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 3.1669,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 3.4817,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 3.8284,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.0001,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.1368,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.1368,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.4771,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.6424,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.6424,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.6424,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.6424,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.6424,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.6424,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7983,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7983,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7983,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7983,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7983,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.3039,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.3039,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.3039,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.3039,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.3039,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.3039,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.3039,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.3039,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.3039,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.3039,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.3039,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.447,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.9526,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 6.1084,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 6.1084,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 6.1084,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 6.1084,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 6.1084,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 6.1084,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 6.1084,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 6.451,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 6.451,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 6.451,
+      "probability": 1,
+      "n": 1
+    }
+  ],
+  "legacyWeightedSum": {
+    "n": 120,
+    "accuracy": 0.9417,
+    "macroF1": 0.9417,
+    "rocAuc": 0.9836,
+    "ece": 0.1703,
+    "eceWhenAccusing": 0.2557,
+    "eceWhenExonerating": 0.0905,
+    "flaggedCount": 58,
+    "precisionWhenAccusing": 0.9828,
+    "brier": 0.0834,
+    "reliability": [
+      {
+        "band": "0-0.1",
+        "n": 19,
+        "stated": 0.049,
+        "observed": 0
+      },
+      {
+        "band": "0.1-0.2",
+        "n": 19,
+        "stated": 0.137,
+        "observed": 0.053
+      },
+      {
+        "band": "0.2-0.3",
+        "n": 13,
+        "stated": 0.229,
+        "observed": 0.077
+      },
+      {
+        "band": "0.3-0.4",
+        "n": 5,
+        "stated": 0.365,
+        "observed": 0.2
+      },
+      {
+        "band": "0.4-0.5",
+        "n": 6,
+        "stated": 0.456,
+        "observed": 0.5
+      },
+      {
+        "band": "0.5-0.6",
+        "n": 10,
+        "stated": 0.561,
+        "observed": 0.9
+      },
+      {
+        "band": "0.6-0.7",
+        "n": 15,
+        "stated": 0.658,
+        "observed": 1
+      },
+      {
+        "band": "0.7-0.8",
+        "n": 19,
+        "stated": 0.768,
+        "observed": 1
+      },
+      {
+        "band": "0.8-0.9",
+        "n": 10,
+        "stated": 0.843,
+        "observed": 1
+      },
+      {
+        "band": "0.9-1",
+        "n": 4,
+        "stated": 0.915,
+        "observed": 1
+      }
+    ]
+  },
+  "note": "ISOT only, content factors only: source identity is hidden on this corpus and historical articles have no live coverage, so neither provenance nor corroboration is exercised here. The adversarial benchmark covers what this cannot."
+}

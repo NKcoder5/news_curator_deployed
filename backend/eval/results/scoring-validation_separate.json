@@ -1,0 +1,707 @@
+{
+  "generatedAt": "2026-10-26T17:10:17.797Z",
+  "clampEnabled": true,
+  "trainRecords": 119,
+  "testRecords": 120,
+  "trainBaseRate": 0.4118,
+  "plattScaling": {
+    "a": 5.8166,
+    "b": -1.0389,
+    "fittedOn": "training half only"
+  },
+  "weightOfEvidence": {
+    "n": 120,
+    "accuracy": 0.95,
+    "macroF1": 0.9499,
+    "rocAuc": 0.9731,
+    "ece": 0.3082,
+    "eceWhenAccusing": 0.2565,
+    "eceWhenExonerating": 0.3617,
+    "flaggedCount": 61,
+    "precisionWhenAccusing": 0.9672,
+    "brier": 0.1417,
+    "reliability": [
+      {
+        "band": "0.4-0.5",
+        "n": 59,
+        "stated": 0.429,
+        "observed": 0.068
+      },
+      {
+        "band": "0.5-0.6",
+        "n": 9,
+        "stated": 0.55,
+        "observed": 0.778
+      },
+      {
+        "band": "0.6-0.7",
+        "n": 12,
+        "stated": 0.667,
+        "observed": 1
+      },
+      {
+        "band": "0.7-0.8",
+        "n": 40,
+        "stated": 0.76,
+        "observed": 1
+      }
+    ]
+  },
+  "weightOfEvidenceCalibrated": {
+    "n": 120,
+    "accuracy": 0.9083,
+    "macroF1": 0.9082,
+    "rocAuc": 0.9731,
+    "ece": 0.1461,
+    "eceWhenAccusing": 0.1797,
+    "eceWhenExonerating": 0.1205,
+    "flaggedCount": 52,
+    "precisionWhenAccusing": 1,
+    "brier": 0.0751,
+    "reliability": [
+      {
+        "band": "0.1-0.2",
+        "n": 45,
+        "stated": 0.129,
+        "observed": 0.067
+      },
+      {
+        "band": "0.2-0.3",
+        "n": 17,
+        "stated": 0.231,
+        "observed": 0.118
+      },
+      {
+        "band": "0.3-0.4",
+        "n": 2,
+        "stated": 0.364,
+        "observed": 1
+      },
+      {
+        "band": "0.4-0.5",
+        "n": 4,
+        "stated": 0.452,
+        "observed": 1
+      },
+      {
+        "band": "0.5-0.6",
+        "n": 2,
+        "stated": 0.537,
+        "observed": 1
+      },
+      {
+        "band": "0.6-0.7",
+        "n": 4,
+        "stated": 0.668,
+        "observed": 1
+      },
+      {
+        "band": "0.7-0.8",
+        "n": 6,
+        "stated": 0.716,
+        "observed": 1
+      },
+      {
+        "band": "0.8-0.9",
+        "n": 37,
+        "stated": 0.861,
+        "observed": 1
+      },
+      {
+        "band": "0.9-1",
+        "n": 3,
+        "stated": 0.916,
+        "observed": 1
+      }
+    ]
+  },
+  "weightOfEvidenceIsotonic": {
+    "n": 120,
+    "accuracy": 0.95,
+    "macroF1": 0.9499,
+    "rocAuc": 0.9571,
+    "ece": 0.0284,
+    "eceWhenAccusing": 0.0128,
+    "eceWhenExonerating": 0.0446,
+    "flaggedCount": 61,
+    "precisionWhenAccusing": 0.9672,
+    "brier": 0.0479,
+    "reliability": [
+      {
+        "band": "0-0.1",
+        "n": 59,
+        "stated": 0.023,
+        "observed": 0.068
+      },
+      {
+        "band": "0.9-1",
+        "n": 61,
+        "stated": 0.98,
+        "observed": 0.967
+      }
+    ]
+  },
+  "productionPath": {
+    "n": 120,
+    "accuracy": 0.95,
+    "macroF1": 0.9499,
+    "rocAuc": 0.9507,
+    "ece": 0.2463,
+    "eceWhenAccusing": 0.1518,
+    "eceWhenExonerating": 0.344,
+    "flaggedCount": 61,
+    "precisionWhenAccusing": 0.9672,
+    "brier": 0.1171,
+    "reliability": [
+      {
+        "band": "0.4-0.5",
+        "n": 59,
+        "stated": 0.412,
+        "observed": 0.068
+      },
+      {
+        "band": "0.8-0.9",
+        "n": 61,
+        "stated": 0.815,
+        "observed": 0.967
+      }
+    ]
+  },
+  "isotonicMap": [
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -1.549,
+      "probability": 0,
+      "n": 1
+    },
+    {
+      "upTo": -0.2722,
+      "probability": 0.0714,
+      "n": 28
+    },
+    {
+      "upTo": 0.0736,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 1.4568,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 1.4568,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 1.4568,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 2.9844,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 2.9844,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 2.9844,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 3.3302,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 3.3302,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 3.3302,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 3.9724,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 3.9724,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7134,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7134,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7134,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7134,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7134,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7134,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7134,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7134,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7134,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7134,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7134,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 4.7134,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.2454,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.3556,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.8876,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.8876,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.8876,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.8876,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.8876,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.8876,
+      "probability": 1,
+      "n": 1
+    },
+    {
+      "upTo": 5.8876,
+      "probability": 1,
+      "n": 1
+    }
+  ],
+  "legacyWeightedSum": {
+    "n": 120,
+    "accuracy": 0.9583,
+    "macroF1": 0.9583,
+    "rocAuc": 0.9777,
+    "ece": 0.237,
+    "eceWhenAccusing": 0.267,
+    "eceWhenExonerating": 0.2049,
+    "flaggedCount": 62,
+    "precisionWhenAccusing": 0.9677,
+    "brier": 0.1014,
+    "reliability": [
+      {
+        "band": "0-0.1",
+        "n": 5,
+        "stated": 0.052,
+        "observed": 0
+      },
+      {
+        "band": "0.1-0.2",
+        "n": 12,
+        "stated": 0.161,
+        "observed": 0
+      },
+      {
+        "band": "0.2-0.3",
+        "n": 21,
+        "stated": 0.238,
+        "observed": 0.095
+      },
+      {
+        "band": "0.3-0.4",
+        "n": 12,
+        "stated": 0.347,
+        "observed": 0
+      },
+      {
+        "band": "0.4-0.5",
+        "n": 8,
+        "stated": 0.442,
+        "observed": 0.125
+      },
+      {
+        "band": "0.5-0.6",
+        "n": 8,
+        "stated": 0.568,
+        "observed": 0.875
+      },
+      {
+        "band": "0.6-0.7",
+        "n": 26,
+        "stated": 0.643,
+        "observed": 0.962
+      },
+      {
+        "band": "0.7-0.8",
+        "n": 16,
+        "stated": 0.74,
+        "observed": 1
+      },
+      {
+        "band": "0.8-0.9",
+        "n": 9,
+        "stated": 0.844,
+        "observed": 1
+      },
+      {
+        "band": "0.9-1",
+        "n": 3,
+        "stated": 0.916,
+        "observed": 1
+      }
+    ]
+  },
+  "note": "ISOT only, content factors only: source identity is hidden on this corpus and historical articles have no live coverage, so neither provenance nor corroboration is exercised here. The adversarial benchmark covers what this cannot."
+}

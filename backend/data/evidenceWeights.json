@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-25T08:05:58.397Z",
+  "generatedAt": "2026-10-26T18:27:05.446Z",
   "declared": {
     "note": "Declared parameters. Not estimated from data. Each is reported to the reader as declared, and each is measurable — see the `measurableBy` field.",
     "priors": {
@@ -116,14 +116,14 @@
   "labelConvention": "0 = fabricated, 1 = genuine",
   "totalRecords": 239,
   "corpus": {
+    "unknownChannel": 0,
     "droppedForDegraded": 0,
     "cleanOnly": true,
-    "note": "Estimated from 239 articles whose measurement channel is recorded: every factor came from the language model, not the pattern-matching fallback. The 1624 records that predate channel recording were excluded (--clean-only). This supersedes the earlier table, which was estimated on a mixture of the two paths in unknown proportion.",
-    "excludedUnknownChannel": 1624
+    "note": "Estimated from the merged writing check (agents/writingChecks.js, WRITING_CHECKS=merged: headline, bias, persuasion and sourcing read in one model call) on the same 239 ISOT articles the four separate checks were measured on (isot_content-only_seed42.jsonl; eval/runEval.js --config content-merged --ids-from), Ollama off, so NIM and Gemini as on the deployed server. Every factor came from the model; none fell back to the pattern check. Held-out validation: eval/results/scoring-validation_merged.json (the separate checks: scoring-validation_separate.json)."
   },
   "sources": [
     {
-      "file": "results\\isot_content-only_seed42.jsonl",
+      "file": "results\\isot_content-merged_seed42.jsonl",
       "records": 239
     }
   ],
@@ -135,44 +135,44 @@
         "manipulation",
         "transparency"
       ],
-      "meanCorrelation": 0.546,
-      "effectiveFactors": 1.52,
-      "damping": 0.379,
+      "meanCorrelation": 0.695,
+      "effectiveFactors": 1.3,
+      "damping": 0.324,
       "pairs": [
         {
           "a": "bias",
           "b": "clickbait",
-          "r": 0.932,
+          "r": 0.942,
           "n": 239
         },
         {
           "a": "bias",
           "b": "manipulation",
-          "r": 0.66,
+          "r": 0.888,
           "n": 239
         },
         {
           "a": "bias",
           "b": "transparency",
-          "r": 0.422,
+          "r": 0.539,
           "n": 239
         },
         {
           "a": "clickbait",
           "b": "manipulation",
-          "r": 0.596,
+          "r": 0.832,
           "n": 239
         },
         {
           "a": "clickbait",
           "b": "transparency",
-          "r": 0.391,
+          "r": 0.463,
           "n": 239
         },
         {
           "a": "manipulation",
           "b": "transparency",
-          "r": 0.275,
+          "r": 0.503,
           "n": 239
         }
       ],
@@ -186,57 +186,57 @@
       "n": 239,
       "nFabricated": 112,
       "nGenuine": 127,
-      "meanAbsoluteDecibans": 9.6,
+      "meanAbsoluteDecibans": 9,
       "bins": [
         {
           "bin": 0,
           "range": "0.0-2.0",
-          "nFabricated": 93,
+          "nFabricated": 59,
           "nGenuine": 0,
-          "likelihoodRatio": 211.498,
-          "decibansRaw": 23.25,
-          "standardError": 6.13,
-          "decibans": 11.23
+          "likelihoodRatio": 134.59,
+          "decibansRaw": 21.29,
+          "standardError": 6.14,
+          "decibans": 9.25
         },
         {
           "bin": 1,
           "range": "2.0-4.0",
-          "nFabricated": 17,
-          "nGenuine": 2,
-          "likelihoodRatio": 7.917,
-          "decibansRaw": 8.99,
-          "standardError": 2.88,
-          "decibans": 3.33
+          "nFabricated": 41,
+          "nGenuine": 0,
+          "likelihoodRatio": 93.873,
+          "decibansRaw": 19.73,
+          "standardError": 6.15,
+          "decibans": 7.66
         },
         {
           "bin": 2,
           "range": "4.0-6.0",
-          "nFabricated": 0,
-          "nGenuine": 3,
-          "likelihoodRatio": 0.162,
-          "decibansRaw": -7.92,
-          "standardError": 6.54,
+          "nFabricated": 7,
+          "nGenuine": 0,
+          "likelihoodRatio": 16.965,
+          "decibansRaw": 12.3,
+          "standardError": 6.32,
           "decibans": 0
         },
         {
           "bin": 3,
           "range": "6.0-8.0",
-          "nFabricated": 1,
-          "nGenuine": 22,
-          "likelihoodRatio": 0.075,
-          "decibansRaw": -11.23,
-          "standardError": 3.62,
-          "decibans": -4.13
+          "nFabricated": 3,
+          "nGenuine": 10,
+          "likelihoodRatio": 0.377,
+          "decibansRaw": -4.24,
+          "standardError": 2.62,
+          "decibans": 0
         },
         {
           "bin": 4,
           "range": "8.0-10.0",
-          "nFabricated": 1,
-          "nGenuine": 100,
-          "likelihoodRatio": 0.017,
-          "decibansRaw": -17.73,
-          "standardError": 3.53,
-          "decibans": -10.81
+          "nFabricated": 2,
+          "nGenuine": 117,
+          "likelihoodRatio": 0.024,
+          "decibansRaw": -16.19,
+          "standardError": 2.72,
+          "decibans": -10.86
         }
       ]
     },
@@ -246,47 +246,47 @@
       "n": 239,
       "nFabricated": 112,
       "nGenuine": 127,
-      "meanAbsoluteDecibans": 8.34,
+      "meanAbsoluteDecibans": 8.54,
       "bins": [
         {
           "bin": 0,
           "range": "0.0-2.0",
-          "nFabricated": 37,
+          "nFabricated": 31,
           "nGenuine": 0,
-          "likelihoodRatio": 84.825,
-          "decibansRaw": 19.29,
-          "standardError": 6.16,
-          "decibans": 7.22
+          "likelihoodRatio": 71.253,
+          "decibansRaw": 18.53,
+          "standardError": 6.17,
+          "decibans": 6.44
         },
         {
           "bin": 1,
           "range": "2.0-4.0",
-          "nFabricated": 48,
+          "nFabricated": 57,
           "nGenuine": 0,
-          "likelihoodRatio": 109.707,
-          "decibansRaw": 20.4,
-          "standardError": 6.15,
-          "decibans": 8.35
+          "likelihoodRatio": 130.066,
+          "decibansRaw": 21.14,
+          "standardError": 6.14,
+          "decibans": 9.1
         },
         {
           "bin": 2,
           "range": "4.0-6.0",
-          "nFabricated": 14,
-          "nGenuine": 1,
-          "likelihoodRatio": 10.933,
-          "decibansRaw": 10.39,
-          "standardError": 3.68,
-          "decibans": 3.17
+          "nFabricated": 15,
+          "nGenuine": 0,
+          "likelihoodRatio": 35.061,
+          "decibansRaw": 15.45,
+          "standardError": 6.22,
+          "decibans": 3.27
         },
         {
           "bin": 3,
           "range": "6.0-8.0",
-          "nFabricated": 9,
-          "nGenuine": 2,
-          "likelihoodRatio": 4.298,
-          "decibansRaw": 6.33,
-          "standardError": 3.04,
-          "decibans": 0.38
+          "nFabricated": 5,
+          "nGenuine": 3,
+          "likelihoodRatio": 1.777,
+          "decibansRaw": 2.5,
+          "standardError": 2.92,
+          "decibans": 0
         },
         {
           "bin": 4,
@@ -306,7 +306,7 @@
       "n": 239,
       "nFabricated": 112,
       "nGenuine": 127,
-      "meanAbsoluteDecibans": 4.13,
+      "meanAbsoluteDecibans": 7.14,
       "bins": [
         {
           "bin": 0,
@@ -321,42 +321,42 @@
         {
           "bin": 1,
           "range": "2.0-4.0",
-          "nFabricated": 106,
-          "nGenuine": 38,
-          "likelihoodRatio": 3.129,
-          "decibansRaw": 4.95,
-          "standardError": 0.6,
-          "decibans": 3.78
+          "nFabricated": 100,
+          "nGenuine": 7,
+          "likelihoodRatio": 15.155,
+          "decibansRaw": 11.81,
+          "standardError": 1.55,
+          "decibans": 8.77
         },
         {
           "bin": 2,
           "range": "4.0-6.0",
-          "nFabricated": 5,
-          "nGenuine": 52,
-          "likelihoodRatio": 0.118,
-          "decibansRaw": -9.26,
-          "standardError": 1.86,
-          "decibans": -5.61
+          "nFabricated": 9,
+          "nGenuine": 22,
+          "likelihoodRatio": 0.478,
+          "decibansRaw": -3.21,
+          "standardError": 1.59,
+          "decibans": -0.1
         },
         {
           "bin": 3,
           "range": "6.0-8.0",
-          "nFabricated": 1,
-          "nGenuine": 16,
-          "likelihoodRatio": 0.103,
-          "decibansRaw": -9.88,
-          "standardError": 3.66,
-          "decibans": -2.7
+          "nFabricated": 3,
+          "nGenuine": 24,
+          "likelihoodRatio": 0.162,
+          "decibansRaw": -7.92,
+          "standardError": 2.42,
+          "decibans": -3.18
         },
         {
           "bin": 4,
           "range": "8.0-10.0",
           "nFabricated": 0,
-          "nGenuine": 21,
-          "likelihoodRatio": 0.026,
-          "decibansRaw": -15.8,
-          "standardError": 6.19,
-          "decibans": -3.67
+          "nGenuine": 74,
+          "likelihoodRatio": 0.008,
+          "decibansRaw": -21.2,
+          "standardError": 6.14,
+          "decibans": -9.17
         }
       ]
     },
@@ -366,57 +366,57 @@
       "n": 239,
       "nFabricated": 112,
       "nGenuine": 127,
-      "meanAbsoluteDecibans": 1.67,
+      "meanAbsoluteDecibans": 1.86,
       "bins": [
         {
           "bin": 0,
           "range": "0.0-2.0",
-          "nFabricated": 7,
-          "nGenuine": 3,
-          "likelihoodRatio": 2.424,
-          "decibansRaw": 3.84,
-          "standardError": 2.76,
-          "decibans": 0
+          "nFabricated": 29,
+          "nGenuine": 4,
+          "likelihoodRatio": 7.414,
+          "decibansRaw": 8.7,
+          "standardError": 2.13,
+          "decibans": 4.53
         },
         {
           "bin": 1,
           "range": "2.0-4.0",
-          "nFabricated": 22,
-          "nGenuine": 7,
-          "likelihoodRatio": 3.393,
-          "decibansRaw": 5.31,
-          "standardError": 1.74,
-          "decibans": 1.89
+          "nFabricated": 21,
+          "nGenuine": 13,
+          "likelihoodRatio": 1.801,
+          "decibansRaw": 2.56,
+          "standardError": 1.4,
+          "decibans": 0
         },
         {
           "bin": 2,
           "range": "4.0-6.0",
-          "nFabricated": 20,
-          "nGenuine": 12,
-          "likelihoodRatio": 1.855,
-          "decibansRaw": 2.68,
-          "standardError": 1.46,
+          "nFabricated": 23,
+          "nGenuine": 17,
+          "likelihoodRatio": 1.519,
+          "decibansRaw": 1.81,
+          "standardError": 1.25,
           "decibans": 0
         },
         {
           "bin": 3,
           "range": "6.0-8.0",
-          "nFabricated": 37,
-          "nGenuine": 23,
-          "likelihoodRatio": 1.805,
-          "decibansRaw": 2.56,
-          "standardError": 1,
-          "decibans": 0.61
+          "nFabricated": 28,
+          "nGenuine": 33,
+          "likelihoodRatio": 0.962,
+          "decibansRaw": -0.17,
+          "standardError": 0.96,
+          "decibans": 0
         },
         {
           "bin": 4,
           "range": "8.0-10.0",
-          "nFabricated": 26,
-          "nGenuine": 82,
-          "likelihoodRatio": 0.363,
-          "decibansRaw": -4.4,
-          "standardError": 0.79,
-          "decibans": -2.84
+          "nFabricated": 11,
+          "nGenuine": 60,
+          "likelihoodRatio": 0.215,
+          "decibansRaw": -6.68,
+          "standardError": 1.28,
+          "decibans": -4.16
         }
       ]
     }
@@ -430,23 +430,23 @@
     "breakpoints": [
       {
         "upTo": 0,
-        "probability": 0.0139,
-        "n": 35
+        "probability": 0.0207,
+        "n": 120
       },
       {
-        "upTo": 1.664,
-        "probability": 0.0376,
-        "n": 92
+        "upTo": 2.841,
+        "probability": 0.3182,
+        "n": 10
       },
       {
-        "upTo": 3.896,
-        "probability": 0.5,
-        "n": 6
+        "upTo": 4.309,
+        "probability": 0.5833,
+        "n": 5
       },
       {
         "upTo": 8,
-        "probability": 0.9953,
-        "n": 106
+        "probability": 0.9952,
+        "n": 104
       }
     ]
   }

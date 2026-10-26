@@ -13,6 +13,10 @@ const test = require('node:test');
 const assert = require('node:assert');
 const { replayVerdict, compactLedgerInput } = require('../agents/verdictEngine');
 
+// These tests stub the four writing agents one by one, so the writing is read by four calls here
+// (agents/writingChecks.js reads it in one by default).
+process.env.WRITING_CHECKS = 'separate';
+
 const AGENT_PATH = require.resolve('../agents/trustAnalysisAgent');
 const { UNREAD } = require(AGENT_PATH);
 

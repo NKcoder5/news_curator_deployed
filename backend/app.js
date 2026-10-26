@@ -19,6 +19,7 @@ const { notFound, errorHandler } = require('./middleware/errorHandlers');
 const { checkConfig } = require('./utils/config');
 const { PROVIDERS } = require('./utils/llmProviders');
 const localNli = require('./services/localNli');
+const modelHost = require('./services/modelHost');
 
 // DB Connection
 const connectDB = require('./utils/db');
@@ -124,6 +125,12 @@ const createApp = ({ rateLimits = {}, log = console.log } = {}) => {
   app.use('/api/users', userRoutes);
   // Public and read-only, and it runs text searches: an allowance per address.
   app.use('/api/claims', limits.registry, require('./routes/claimRoutes'));
+  // The team's laptop checks in here every minute with where its model is (scripts/ownModelServer.js,
+  // services/modelHost.js). Internal key only: a signed-in reader must not be able to redirect model calls.
+  app.post('/api/internal/model-host', apiAccess.internalOnly, (req, res) => {
+    const result = modelHost.checkIn(req.body || {});
+    res.status(result.ok ? 200 : 400).json(result.ok ? { connected: result.connected } : { error: result.error });
+  });
 
   // Liveness: the process is up. Says nothing about the database.
   app.get('/health', (req, res) => {
@@ -143,7 +150,8 @@ const createApp = ({ rateLimits = {}, log = console.log } = {}) => {
       checks: {
         database: database ? 'connected' : 'not connected',
         models: models ? 'configured' : 'none configured',
-        ownModel: localNli.status()
+        ownModel: localNli.status(),
+        ownHardware: modelHost.status()
       }
     });
   });

@@ -41,7 +41,9 @@ const checkConfig = (env = process.env) => {
   if (key && key.length < 24) weakOr('INTERNAL_API_KEY is set but shorter than 24 characters; it opens the analysis endpoints without a login.');
 
   if (!env.NIM_API_KEY && !env.GEMINI_API_KEY && !env.GEMINI_API_KEYS && !env.OLLAMA_HOST) {
-    warnings.push('No language model is configured (NIM_API_KEY, GEMINI_API_KEY or OLLAMA_HOST): checks will fall back to the pattern rules and /ready will answer 503.');
+    warnings.push('No language model is configured (NIM_API_KEY, GEMINI_API_KEY or OLLAMA_HOST): checks use the laptop when it checks in (scripts/ownModelServer.js), otherwise the pattern rules, and /ready answers 503.');
+  } else if (String(env.HOSTED_AI || '').trim().toLowerCase() === 'off' && !env.OLLAMA_HOST) {
+    warnings.push('HOSTED_AI=off leaves out Gemini and NIM, and OLLAMA_HOST is not set: checks have a language model only while the laptop is checked in.');
   }
   return { errors, warnings };
 };

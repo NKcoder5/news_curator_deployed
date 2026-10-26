@@ -10,7 +10,8 @@
     "test:ci": "node --require ./test/support/offline.js --test test/*.test.js",
     "start": "node app.js",
     "dev": "node --watch app.js",
-    "prewarm": "node scripts/prewarmTrustCache.js"
+    "prewarm": "node scripts/prewarmTrustCache.js",
+    "own-model-server": "node scripts/ownModelServer.js"
   },
   "keywords": [],
   "author": "",

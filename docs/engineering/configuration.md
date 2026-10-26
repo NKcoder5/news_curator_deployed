@@ -62,10 +62,24 @@ because the shipped local model is not reliable enough for that task.
 | `GEMINI_EXTRA_KEYS` | none | More Gemini keys, comma-separated or across numbered variables (`GEMINI_EXTRA_KEYS2`, `GEMINI_EXTRA_KEYS3`, etc.), from other Google Cloud projects. Each adds a full day of quota per model. Only used when `GEMINI_API_KEY` is also set. | One key's quota only. |
 | `GEMINI_MODEL_NAME` | `gemini-3.1-flash-lite` | Replaces the first model in the Gemini rotation. | Default first model. |
 | `NIM_API_KEY` | none | Switches NVIDIA NIM on. | NIM is left out of the chain. |
-| `NIM_MODEL_NAME` | `nvidia/nemotron-3-super-120b-a12b` | Replaces the first model in the NIM rotation. | Default first model. |
-| `OLLAMA_HOST` | none | Address of an Ollama server, e.g. `http://localhost:11434`. Setting it switches the local provider on; the writing checks are routed to it first. | No local model; nothing waits on a connection that cannot succeed. |
-| `OLLAMA_MODEL` | `llama3.1:8b` | First model tried on Ollama (then `mistral:7b`, `phi3:mini`). | Default. |
+| `NIM_MODEL_NAME` | `nvidia/nemotron-3-ultra-550b-a55b` | Replaces the first model in the NIM rotation. `NIM_MODEL_ONLY=1` keeps to this model alone (for measuring one model). | Default first model. |
+| `HOSTED_AI` | none | `off` leaves Gemini and NIM out even when their keys are set, so every reading is done on the team's own hardware (Ollama) and by our pair model. | Hosted providers are used when their keys are set. |
+| `OLLAMA_HOST` | none | Address of an Ollama server, e.g. `http://localhost:11434`. Setting it switches the local provider on; the writing checks are routed to it first. It wins over a laptop check-in. | The laptop's check-in, if any; otherwise no local model, and nothing waits on a connection that cannot succeed. |
+| `OLLAMA_TOKEN` | none | Sent as `Authorization: Bearer` to `OLLAMA_HOST`, for an Ollama behind the token proxy. | No token sent. |
+| `OLLAMA_MODEL` | `llama3.1:8b` | First model tried on Ollama (then `mistral:7b`, `phi3:mini`); a checked-in laptop's own model comes before it. Models whose name matches `qwen3`, `deepseek-r1` or `magistral` are asked not to think. | Default. |
 | `OLLAMA_MAX_CONCURRENT` | `2` | Calls in flight to Ollama. | Default. |
+| `OWN_MODEL_HOSTS` | `trycloudflare.com` | Hosts a laptop check-in (`POST /api/internal/model-host`) may name, comma-separated. | Quick tunnels only. |
+
+**The laptop as the model server** (`npm run own-model-server` in `backend/`, on
+the laptop). It starts a token proxy in front of Ollama on `127.0.0.1:8787`, a
+Cloudflare quick tunnel (`cloudflared`, no account; found on `PATH`, in
+`%LOCALAPPDATA%\cloudflared` or at `CLOUDFLARED`), and checks in with the deployed
+API every minute. It reads `OWN_MODEL_API_URL` (default the Render URL),
+`OWN_MODEL_API_KEY` (the deployed server's `INTERNAL_API_KEY`; the local
+`INTERNAL_API_KEY` is used when unset) and `OWN_MODEL` (default `qwen3.5:9b`) from
+`backend/.env`. The deployed server uses the laptop while check-ins arrive, leaves
+it alone for two minutes when a call finds it gone, and counts it as gone three
+minutes after the last check-in. `GET /ready` shows `checks.ownHardware`.
 | `LLM_PROVIDER` | none | Forces the provider order, e.g. `gemini,nim,ollama`. When set it overrides the routing table. | Routing table order. |
 | `LLM_MAX_CONCURRENT` (alias `NIM_MAX_CONCURRENT`) | per provider: Gemini 6, NIM 2, Ollama 2 | Calls allowed in flight per provider. | Default. |
 

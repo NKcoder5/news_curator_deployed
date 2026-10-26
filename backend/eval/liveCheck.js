@@ -37,7 +37,8 @@ const GEMINI_LED = new Set(Object.entries(routing.tasks || {})
 // EVAL_HOSTED=off measures the system with every hosted model switched off (run with GEMINI_API_KEY,
 // GEMINI_EXTRA_KEYS, NIM_API_KEY and OLLAMA_HOST empty): our own model answering a step Gemini usually
 // takes is then what is being measured, not a degraded run.
-const HOSTED_OFF = process.env.EVAL_HOSTED === 'off';
+// HOSTED_AI=off (utils/llmProviders.js) switches Gemini and NIM off by itself, keys or not: the same.
+const HOSTED_OFF = process.env.EVAL_HOSTED === 'off' || String(process.env.HOSTED_AI || '').trim().toLowerCase() === 'off';
 // Gemini switched off by configuration (GEMINI_API_KEY empty) is the same: the providers left answering are
 // the setup being measured, and a run of Ollama and NIM is not a run that ran out of Gemini's quota.
 const degradedLabels = (calls) => (HOSTED_OFF || !process.env.GEMINI_API_KEY) ? [] : [...new Set(calls

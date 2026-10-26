@@ -36,6 +36,11 @@ const isAuthFailure = (status) => status === 401 || status === 403;
 const isConnectionFailure = (code) =>
   ['ECONNABORTED', 'ETIMEDOUT', 'ECONNRESET', 'ENOTFOUND', 'EAI_AGAIN'].includes(code);
 
+// HOSTED_AI=off leaves Gemini and NIM out even when their keys are set: every reading is then done by a model
+// on hardware the team owns (Ollama) and by our own pair model. One switch, so a demonstration of the system
+// without any outside AI does not depend on remembering to blank four keys.
+const hostedOff = () => String(process.env.HOSTED_AI || '').trim().toLowerCase() === 'off';
+
 /* -------------------------------------------------------------------------
    NVIDIA NIM — the default
    ------------------------------------------------------------------------- */
@@ -65,7 +70,8 @@ const nim = {
   // six parallel calls measured *slower* end to end (98s) than two (63s), so it
   // is deliberately kept narrow.
   concurrency: 2,
-  isConfigured: () => Boolean(process.env.NIM_API_KEY),
+  hosted: true,
+  isConfigured: () => !hostedOff() && Boolean(process.env.NIM_API_KEY),
   missingKeyMessage: 'NIM_API_KEY is not set. Add it to your backend .env file.',
 
   async send({ model, prompt, maxTokens, temperature, topP, timeout, json }) {
@@ -197,7 +203,8 @@ const gemini = {
   // Two was throttling the pipeline nearly five-fold. Six lets every factor in
   // an analysis run at once.
   concurrency: 6,
-  isConfigured: () => geminiKeys().length > 0,
+  hosted: true,
+  isConfigured: () => !hostedOff() && geminiKeys().length > 0,
   missingKeyMessage:
     'GEMINI_API_KEY is not set. Add it to your backend .env file to use Gemini.',
 
@@ -267,65 +274,99 @@ const gemini = {
 // Opt-in on purpose. Without OLLAMA_HOST set, this provider reports itself
 // unconfigured and is left out of the chain entirely, so a machine that is not
 // running Ollama never waits on a connection that cannot succeed.
-const OLLAMA_MODELS = [
-  process.env.OLLAMA_MODEL || 'llama3.1:8b',
-  'mistral:7b',
-  'phi3:mini'
-];
+//
+// The deployed server has no GPU, so it reaches the team's laptop instead: the
+// laptop checks in with its tunnel's address, a session token and the model it
+// serves (services/modelHost.js, scripts/ownModelServer.js). OLLAMA_HOST, when
+// set, wins; OLLAMA_TOKEN is sent with it if the host asks for one.
+const modelHost = require('../services/modelHost');
+
+const ollamaTarget = () => {
+  const local = String(process.env.OLLAMA_HOST || '').trim().replace(/\/+$/, '');
+  if (local) return { host: local, token: process.env.OLLAMA_TOKEN || null, model: null, remote: false };
+  const own = modelHost.current();
+  return own ? { host: own.url, token: own.token, model: own.model, remote: true } : null;
+};
+
+// Models that think before they answer unless told not to. The thinking comes out of the reply budget and
+// adds seconds to every judgement, exactly as it did on NIM (see the Nemotron note above), so it is turned off.
+const THINKS = /qwen3|deepseek-r1|magistral/i;
+
+// Answers from a tunnel that say the laptop behind it is not there: Cloudflare's 530 (origin unreachable),
+// a gateway error, or a token the proxy no longer accepts because the laptop restarted with a new one.
+const HOST_GONE = new Set([401, 502, 504, 530]);
 
 const ollama = {
   name: 'ollama',
-  label: 'Ollama (local)',
-  models: [...new Set(OLLAMA_MODELS)],
+  label: 'Ollama (own hardware)',
+  hosted: false,
+  get models() {
+    return [...new Set([ollamaTarget()?.model, process.env.OLLAMA_MODEL || 'llama3.1:8b', 'mistral:7b', 'phi3:mini'].filter(Boolean))];
+  },
   // One request at a time. A local model is bounded by the GPU in front of it,
   // not by a rate limit, and issuing several at once makes each of them slower
   // without finishing the batch any sooner.
   // Two at a time: the GPU still works one request at a time, but the next
   // prompt is already queued at Ollama instead of waiting on a round trip here.
   concurrency: Number(process.env.OLLAMA_MAX_CONCURRENT) || 2,
-  isConfigured: () => Boolean(process.env.OLLAMA_HOST),
+  isConfigured: () => Boolean(ollamaTarget()),
   missingKeyMessage:
     'OLLAMA_HOST is not set. Install Ollama, pull a model, then set OLLAMA_HOST=http://localhost:11434 in backend/.env.',
 
   async send({ model, prompt, maxTokens, temperature, topP, timeout, json }) {
-    const host = String(process.env.OLLAMA_HOST || '').replace(/\/+$/, '');
-    const response = await axios.post(
-      `${host}/api/generate`,
-      {
-        model,
-        prompt,
-        stream: false,
-        // How long the model stays loaded after this request. Ollama's default
-        // is five minutes, and loading it again costs seconds: profiled on 12
-        // Oct, the first two writing checks after a pause took 8.3 s and 9.5 s
-        // against 1.4-2.8 s warm, and the check waited for them. Checks
-        // arrive minutes apart, so the model is kept for half an hour.
-        keep_alive: process.env.OLLAMA_KEEP_ALIVE || '30m',
-        // Ollama's name for the same thing.
-        ...(json ? { format: 'json' } : {}),
-        options: {
-          temperature,
-          top_p: topP,
-          // Ollama's name for the reply budget.
-          num_predict: maxTokens
-        }
-      },
-      {
-        // A local model on a laptop GPU is slower per token than a hosted one,
-        // and the caller's timeout is sized for a hosted service. Give it room
-        // rather than cancelling work that would have completed.
-        timeout: Math.max(timeout || 0, 120000),
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-
-    const text = response.data?.response;
-    if (!text || !text.trim()) {
-      throw new Error('Ollama returned an empty response.');
+    const target = ollamaTarget();
+    if (!target) {
+      // The laptop went away between choosing this provider and calling it: fail as a lost connection, so
+      // the gateway moves on at once instead of trying each model on a host that is not there.
+      throw Object.assign(new Error('The own-hardware model host is not connected.'), { code: 'ECONNRESET' });
     }
-    return text.trim();
+    try {
+      return await sendToOllama(target, { model, prompt, maxTokens, temperature, topP, timeout, json });
+    } catch (error) {
+      if (target.remote && (HOST_GONE.has(error.response?.status) || isConnectionFailure(error.code))) modelHost.rest();
+      throw error;
+    }
   }
 };
+
+async function sendToOllama({ host, token }, { model, prompt, maxTokens, temperature, topP, timeout, json }) {
+  const response = await axios.post(
+    `${host}/api/generate`,
+    {
+      model,
+      prompt,
+      stream: false,
+      ...(THINKS.test(String(model)) ? { think: false } : {}),
+      // How long the model stays loaded after this request. Ollama's default
+      // is five minutes, and loading it again costs seconds: profiled on 12
+      // Oct, the first two writing checks after a pause took 8.3 s and 9.5 s
+      // against 1.4-2.8 s warm, and the check waited for them. Checks
+      // arrive minutes apart, so the model is kept for half an hour.
+      keep_alive: process.env.OLLAMA_KEEP_ALIVE || '30m',
+      // Ollama's name for the same thing.
+      ...(json ? { format: 'json' } : {}),
+      options: {
+        temperature,
+        top_p: topP,
+        // Ollama's name for the reply budget.
+        num_predict: maxTokens
+      }
+    },
+    {
+      // A local model on a laptop GPU is slower per token than a hosted one,
+      // and the caller's timeout is sized for a hosted service. Give it room
+      // rather than cancelling work that would have completed.
+      timeout: Math.max(timeout || 0, 120000),
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+    }
+  );
+
+  const text = response.data?.response;
+  if (!text || !text.trim()) {
+    throw new Error('Ollama returned an empty response.');
+  }
+  return text.trim();
+}
 
 /* -------------------------------------------------------------------------
    Selection
@@ -457,5 +498,6 @@ module.exports = {
   isAuthFailure,
   isConnectionFailure,
   geminiKeys,
-  splitModel
+  splitModel,
+  hostedOff
 };

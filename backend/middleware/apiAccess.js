@@ -16,20 +16,33 @@ const authMiddleware = require('./authMiddleware');
  * INTERNAL_API_KEY instead, which exists only in the server's own .env; when
  * that variable is unset, the key route is closed and only a login works.
  */
-const apiAccess = (req, res, next) => {
+const hasInternalKey = (req) => {
   const expected = process.env.INTERNAL_API_KEY;
   const given = req.header('x-internal-key');
-  if (expected && given) {
-    const a = Buffer.from(String(given));
-    const b = Buffer.from(String(expected));
-    if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
-      // The evaluation scripts run whole suites back to back; the per-reader
-      // rate limits (middleware/rateLimits.js) do not apply to them.
-      req.internalCaller = true;
-      return next();
-    }
+  if (!expected || !given) return false;
+  const a = Buffer.from(String(given));
+  const b = Buffer.from(String(expected));
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+};
+
+const apiAccess = (req, res, next) => {
+  if (hasInternalKey(req)) {
+    // The evaluation scripts run whole suites back to back; the per-reader
+    // rate limits (middleware/rateLimits.js) do not apply to them.
+    req.internalCaller = true;
+    return next();
   }
   return authMiddleware(req, res, next);
 };
 
+/**
+ * The internal key and nothing else: for what only the team's own scripts may
+ * do, such as the laptop telling the server where its model is. A signed-in
+ * reader is not enough there.
+ */
+const internalOnly = (req, res, next) => (hasInternalKey(req)
+  ? next()
+  : res.status(401).json({ error: 'This endpoint needs the internal key.' }));
+
 module.exports = apiAccess;
+module.exports.internalOnly = internalOnly;

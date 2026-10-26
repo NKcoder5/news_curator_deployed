@@ -30,8 +30,8 @@ const discoverRoutes = () => {
   for (const m of app.matchAll(/const\s+(\w+)\s*=\s*require\('\.\/routes\/(\w+)'\)/g)) files[m[1]] = m[2];
 
   const routes = [];
-  for (const m of app.matchAll(/app\.(get|post|put|delete|patch)\(\s*'([^']+)'/g)) {
-    routes.push({ method: m[1], path: m[2], protectedBy: [] });
+  for (const m of app.matchAll(/app\.(get|post|put|delete|patch)\(\s*'([^']+)'([^\n]*)/g)) {
+    routes.push({ method: m[1], path: m[2], protectedBy: /\binternalOnly\b/.test(m[3]) ? ['internalOnly'] : [] });
   }
 
   for (const m of app.matchAll(/app\.use\(\s*'([^']+)'\s*,([^;]*)\)\s*;/g)) {
@@ -100,6 +100,9 @@ test('the reference says a route needs a login exactly when the code requires on
     }
     if (r.protectedBy.includes('authMiddleware') && !r.protectedBy.includes('apiAccess') && declared.join() !== 'bearerAuth') {
       wrong.push(`${label} takes a login only; the reference must list bearerAuth alone`);
+    }
+    if (r.protectedBy.includes('internalOnly') && declared.join() !== 'internalKey') {
+      wrong.push(`${label} takes the internal key only; the reference must list internalKey alone`);
     }
   }
   assert.deepStrictEqual(wrong, []);

@@ -64,6 +64,41 @@
         }
       }
     },
+    "/api/internal/model-host": {
+      "post": {
+        "tags": ["Operations"],
+        "operationId": "checkInModelHost",
+        "summary": "The team's laptop says where its model is",
+        "description": "Sent every minute by `backend/scripts/ownModelServer.js`: the laptop's Cloudflare quick-tunnel origin, a token made for that session and the Ollama model it serves. While check-ins keep arriving (within 3 minutes), model calls may go to the laptop; a call that finds it gone leaves it alone for 2 minutes. `url: null` signs off. Only an https origin on `OWN_MODEL_HOSTS` (default `trycloudflare.com`) is accepted. Internal key only: a signed-in reader cannot use it.",
+        "security": [{ "internalKey": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": {
+            "type": "object",
+            "required": ["url"],
+            "properties": {
+              "url": { "type": ["string", "null"], "examples": ["https://quiet-river-1234.trycloudflare.com"] },
+              "token": { "type": "string", "minLength": 32, "maxLength": 256 },
+              "model": { "type": "string", "examples": ["qwen3.5:9b"] }
+            }
+          } } }
+        },
+        "responses": {
+          "200": {
+            "description": "Recorded.",
+            "content": { "application/json": { "schema": { "type": "object", "properties": { "connected": { "type": "boolean" } } } } }
+          },
+          "400": {
+            "description": "Not an acceptable address or token.",
+            "content": { "application/json": { "schema": { "type": "object", "properties": { "error": { "type": "string" } } } } }
+          },
+          "401": {
+            "description": "The internal key is missing or wrong.",
+            "content": { "application/json": { "schema": { "type": "object", "properties": { "error": { "type": "string" } } } } }
+          }
+        }
+      }
+    },
 
     "/api/auth/signup": {
       "post": {
@@ -1173,7 +1208,18 @@
             "type": "object",
             "properties": {
               "database": { "type": "string", "enum": ["connected", "not connected"] },
-              "models": { "type": "string", "enum": ["configured", "none configured"] }
+              "models": { "type": "string", "enum": ["configured", "none configured"] },
+              "ownModel": { "type": "object", "description": "Our own pair model: whether it is loaded and its self-test." },
+              "ownHardware": {
+                "type": "object",
+                "description": "Whether the team's laptop is checked in and serving a model. Never its address or token.",
+                "properties": {
+                  "connected": { "type": "boolean" },
+                  "model": { "type": ["string", "null"] },
+                  "lastSeenSeconds": { "type": "integer" },
+                  "resting": { "type": "boolean" }
+                }
+              }
             }
           }
         }

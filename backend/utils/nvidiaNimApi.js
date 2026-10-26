@@ -105,7 +105,20 @@ const nextQuotaReset = () => {
 const isDailyQuota = (error) => (error.response?.data?.error?.details || [])
   .some(detail => (detail.violations || []).some(v => /PerDay/i.test(String(v.quotaId || ''))));
 const modelKey = (provider, model) => `${provider.name}:${model}`;
-const isExhausted = (provider, model) => (exhaustedUntil.get(modelKey(provider, model)) || 0) > Date.now();
+
+// Overload is the model's, not the key's. A 503 ("model busy") or an attempt that hangs to its limit says
+// Google has no capacity for that model just now, on any key: profiled on 26 Oct, 20 of 24 requests to
+// gemini-3.1-flash-lite failed that way in one check, and the gateway retried the busy model three times
+// and then asked the same model on the next key, and the next, a 2-9 s refusal each time; the check took
+// 65 s and came back "could not complete the search". A busy model now gets one quick retry, then is set
+// aside on every key for a minute and the next model is asked. A spent quota (429) stays the key's own.
+const OVERLOAD_RETRIES = 1;
+const MODEL_BUSY_MS = 60000;
+const modelBusyUntil = new Map();
+const baseModel = (model) => String(model).split('#')[0];
+const setModelBusy = (provider, model) => modelBusyUntil.set(modelKey(provider, baseModel(model)), Date.now() + MODEL_BUSY_MS);
+const isExhausted = (provider, model) => (exhaustedUntil.get(modelKey(provider, model)) || 0) > Date.now()
+  || (modelBusyUntil.get(modelKey(provider, baseModel(model))) || 0) > Date.now();
 
 // A connection that fails is the host's or the network's failure, not the model's: every model of a
 // provider sits behind the same address. Measured on 26 Oct with the laptop's connection dropping, each
@@ -303,7 +316,7 @@ const callNimApi = async (prompt, options = {}) => {
             // Busy or rate limited: wait briefly and try the same model again,
             // unless the provider asks for a longer wait than the next model
             // would cost (see BACKOFF_BASE_MS above).
-            if ((isRateLimited(status) || isOverloaded(status)) && attempt < MAX_RATE_LIMIT_RETRIES) {
+            if ((isRateLimited(status) && attempt < MAX_RATE_LIMIT_RETRIES) || (isOverloaded(status) && attempt < OVERLOAD_RETRIES)) {
               const asked = providerWaitMs(error);
               if (asked !== null && asked > MAX_WAIT_MS) {
                 exhaustedUntil.set(modelKey(provider, model), Date.now() + asked);
@@ -323,11 +336,14 @@ const callNimApi = async (prompt, options = {}) => {
             }
 
             if (isOverloaded(status)) {
-              console.error(`${provider.label}: model "${model}" still busy after retries — trying the next one.`);
+              setModelBusy(provider, model);
+              console.error(`${provider.label}: model "${baseModel(model)}" still busy — set aside on every key for ${MODEL_BUSY_MS / 1000}s, trying the next model.`);
               break;
             }
 
             if (isConnectionFailure(error.code)) {
+              // A request that hangs to its limit is the model's overload as much as a 503 is.
+              if (['ECONNABORTED', 'ETIMEDOUT'].includes(error.code)) setModelBusy(provider, model);
               connectionFailures += 1;
               if (connectionFailures >= CONNECTION_FAILURES_PER_CALL) {
                 providerDownUntil.set(provider.name, Date.now() + PROVIDER_REST_MS);
@@ -701,4 +717,4 @@ Your previous reply was not usable: ${lastError?.message || 'it did not match th
   throw lastError;
 };
 
-module.exports = { callNimApi, callNimApiJson, extractJson, __test: { backoffMs, providerWaitMs, MAX_WAIT_MS, acquireSlot, releaseSlot, priorityOf, providerDownUntil } };
+module.exports = { callNimApi, callNimApiJson, extractJson, __test: { backoffMs, providerWaitMs, MAX_WAIT_MS, acquireSlot, releaseSlot, priorityOf, providerDownUntil, modelBusyUntil } };

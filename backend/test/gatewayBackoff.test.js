@@ -208,3 +208,27 @@ test('a quick answer is never hedged, and a quick failure is handled as before',
     restore();
   }
 });
+
+// 26 Oct: 20 of 24 requests to one Gemini model failed "busy" in one check, and the gateway asked the same
+// busy model on every key in turn. Overload is the model's: one quick retry, then the next model.
+test('a busy model is set aside on every key and the next model is asked', async () => {
+  const asked = [];
+  const { gateway, restore } = withProvider(['lite', 'lite#1', 'lite#2', 'flash'], async ({ model }) => {
+    asked.push(model);
+    if (model.startsWith('lite')) throw httpError(503, { error: { code: 503, message: 'The model is overloaded.' } });
+    return 'answer from flash';
+  });
+  const error = console.error; console.error = () => {};
+  const warn = console.warn; console.warn = () => {};
+  try {
+    assert.strictEqual(await gateway.callNimApi('q', { label: 'test' }), 'answer from flash');
+    assert.deepStrictEqual(asked, ['lite', 'lite', 'flash'], 'one retry, then the next model, not the same model on other keys');
+    asked.length = 0;
+    await gateway.callNimApi('q2', { label: 'test' });
+    assert.deepStrictEqual(asked, ['flash'], 'the busy model rests for every call');
+    gateway.__test.modelBusyUntil.clear();
+  } finally {
+    console.error = error; console.warn = warn;
+    restore();
+  }
+});

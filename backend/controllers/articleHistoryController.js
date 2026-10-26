@@ -3,8 +3,17 @@ const ArticleHistory = require('../models/ArticleHistory');
 // Track article view
 exports.trackArticleView = async (req, res) => {
   try {
-    const { articleId, title, source, category } = req.body;
+    const field = (value, max) => (typeof value === 'string' ? value.trim().slice(0, max) : '');
+    const articleId = field(req.body?.articleId, 2048);
+    const title = field(req.body?.title, 500);
+    const source = field(req.body?.source, 200) || 'Unknown Source';
+    const category = field(req.body?.category, 40) || 'general';
     const userId = req.user.id;
+    // A missing article id or headline is the request's fault: it used to reach the schema's "required"
+    // check and come back as a server error.
+    if (!articleId || !title) {
+      return res.status(400).json({ success: false, error: 'articleId and title are required.' });
+    }
 
     // Find existing article history or create new one
     let articleHistory = await ArticleHistory.findOne({ userId, articleId });

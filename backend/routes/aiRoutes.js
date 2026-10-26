@@ -62,10 +62,24 @@ const cacheTrustReport = async ({ url, title, source, report, sourcePrint }) => 
   // full analysis. A write failure is still never fatal.
   await TrustReportCache.updateOne(
     { articleUrl: url },
-    { $set: { articleUrl: url, title, source, report, sourcePrint, createdAt: new Date() } },
+    { $set: { articleUrl: url, title, source, report, sourcePrint, shareable: report.textCoverage === 'article-text', createdAt: new Date() } },
     { upsert: true }
   ).catch(err => console.error('Trust cache write failed:', err.message));
 };
+
+/**
+ * May this stored verdict be shown to a reader who did not send the text it was reached from?
+ *
+ * When a publisher blocks page reading, the verdict is reached from the text the caller sent. Stored
+ * under the article's address and served by address, any signed-in caller could put a verdict on a
+ * real outlet's story from text they wrote: on every reader's feed card (/trust-badges) and to anyone
+ * reopening the story without its text. Only a verdict built from the publisher's own page, or by this
+ * server from its own feed, is shared; entries written before the flag existed are judged by the text
+ * they were built from.
+ */
+const isShareable = (cached) => (typeof cached?.shareable === 'boolean'
+  ? cached.shareable
+  : cached?.report?.textCoverage === 'article-text');
 
 /** Is a stored report still about the article in front of us? */
 const isUsableCachedReport = (cached, sourcePrint) =>
@@ -74,8 +88,8 @@ const isUsableCachedReport = (cached, sourcePrint) =>
   // When text was supplied, an un-fingerprinted entry cannot be shown as a
   // match: it may have been produced for an older version of this URL.
   // Headline-only history entries have no text to compare, so they retain the
-  // URL-keyed behaviour.
-  && (!sourcePrint || cached.sourcePrint === sourcePrint);
+  // URL-keyed behaviour, for shared verdicts only.
+  && (sourcePrint ? cached.sourcePrint === sourcePrint : isShareable(cached));
 
 /**
  * Fingerprint the text a caller sent, when it sent any.
@@ -465,10 +479,11 @@ router.post('/trust-badges', validate.badges, async (req, res) => {
   try {
     const urls = articles.map(a => a && a.url).filter(Boolean);
     const cached = await TrustReportCache.find({ articleUrl: { $in: urls } })
-      .select('articleUrl report')
+      .select('articleUrl report shareable')
       .lean();
+    // A feed card is seen by every reader, so only a shared verdict appears on one (isShareable).
     const cacheByUrl = new Map(
-      cached.filter(c => isCurrent(c.report)).map(c => [c.articleUrl, c.report])
+      cached.filter(c => isCurrent(c.report) && isShareable(c)).map(c => [c.articleUrl, c.report])
     );
 
     const badges = articles.filter(Boolean).map(article => {
@@ -550,6 +565,6 @@ router.post('/detailed-summary', validate.article, async (req, res) => {
 
 
 // Exposed for tests only: the caching and fingerprint policy are pure functions.
-router.__test = { isCompleteReport, isUsableCachedReport, printOf };
+router.__test = { isCompleteReport, isUsableCachedReport, isShareable, printOf };
 
 module.exports = router;

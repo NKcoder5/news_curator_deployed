@@ -11,7 +11,7 @@ const { judgePairs } = require('../services/localNli');
 const { noteModelCall } = require('../utils/runContext');
 const { FACT_CHECK_DESKS } = require('./factCheckSearch');
 const { forecastOnly, resultConflict, signatureConflict } = require('../utils/stanceGuards');
-const { signatureOf, compareSignatures } = require('../services/claimSignature');
+const { signatureOf } = require('../services/claimSignature');
 
 // A changed figure is a comparison, not a judgement. "CJP leaders Saurav Das
 // and Ashutosh Ranka were sent to 4 days in judicial custody" against nine

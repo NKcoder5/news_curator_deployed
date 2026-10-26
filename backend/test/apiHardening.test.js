@@ -19,11 +19,24 @@ test('a too-recent verdict is never cached', () => {
 // Fingerprinting the headline missed the cache and paid for a second analysis
 // of a story already analysed.
 test('a request carrying only the headline reuses the stored verdict', () => {
-  const cached = { report: { schemaVersion: REPORT_SCHEMA_VERSION }, sourcePrint: 'print-of-the-real-body' };
+  const cached = { report: { schemaVersion: REPORT_SCHEMA_VERSION, textCoverage: 'article-text' }, sourcePrint: 'print-of-the-real-body', shareable: true };
   const title = 'Five arrested near RAF Fairford';
   assert.equal(printOf(title, title), null, 'a headline is not a body');
   assert.equal(printOf('', title), null);
   assert.equal(isUsableCachedReport(cached, printOf(title, title)), true);
+});
+
+// When a publisher blocks page reading, the verdict is reached from the text the caller sent; stored
+// under the real article's address, it was served to every reader of that address and on feed cards.
+test('a verdict built from text a caller sent is reused only for the same text', () => {
+  const { isShareable } = require('../routes/aiRoutes').__test;
+  const body = 'Text the caller wrote about a real outlet\'s story, long enough to be fingerprinted as a body.';
+  const fromCaller = { report: { schemaVersion: REPORT_SCHEMA_VERSION, textCoverage: 'publisher-excerpt' }, sourcePrint: printOf(body, 'Headline'), shareable: false };
+  assert.equal(isUsableCachedReport(fromCaller, printOf(body, 'Headline')), true, 'the same text: the same verdict');
+  assert.equal(isUsableCachedReport(fromCaller, null), false, 'a reader without that text is not shown it');
+  assert.equal(isShareable(fromCaller), false, 'and it never appears on a feed card');
+  assert.equal(isShareable({ report: { textCoverage: 'publisher-excerpt' } }), false, 'older entries are judged by their text');
+  assert.equal(isShareable({ report: { textCoverage: 'publisher-excerpt' }, shareable: true }), true, 'our own feed analysis is shared');
 });
 
 test('a changed body still invalidates the stored verdict', () => {

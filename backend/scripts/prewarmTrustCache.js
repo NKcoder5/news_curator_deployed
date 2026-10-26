@@ -119,6 +119,8 @@ const mmss = (ms) => {
             title: article.title,
             source: article.source?.name || article.source || '',
             report,
+            // Analysed by this server from its own feed, not from text a caller sent (routes/aiRoutes.js).
+            shareable: true,
             createdAt: new Date()
           }
         },

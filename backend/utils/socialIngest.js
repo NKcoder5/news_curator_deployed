@@ -21,7 +21,9 @@
 // machine and fails everywhere else, those return a clear instruction to paste
 // the caption or upload a screenshot, and the screenshot path is implemented.
 const axios = require('axios');
-const { assertPublicUrl, FETCH_TIMEOUT } = require('./articleExtractor');
+// One entity decoder for every page we read: this file's own decoded &#128512; with fromCharCode (a
+// broken character for anything outside the basic plane) and decoded "&amp;#39;" twice.
+const { assertPublicUrl, decodeEntities, FETCH_TIMEOUT } = require('./articleExtractor');
 const { safeGet } = require('./safeFetch');
 const { getSourceReputation, claimedOutlet } = require('../agents/sourceReputationAgent');
 
@@ -53,16 +55,6 @@ const identifyPlatform = (rawUrl) => {
     return null;
   }
 };
-
-const decodeEntities = (str) => String(str || '')
-  .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
-  .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
-  .replace(/&nbsp;/gi, ' ')
-  .replace(/&amp;/gi, '&')
-  .replace(/&quot;/gi, '"')
-  .replace(/&apos;|&#39;/gi, "'")
-  .replace(/&lt;/gi, '<')
-  .replace(/&gt;/gi, '>');
 
 const extractVideoId = (rawUrl) => {
   try {
@@ -295,7 +287,9 @@ const ingestSocialContent = async ({ url, text, imageText, account }) => {
   // 1. Plain text: a forwarded message, a pasted caption, a transcript.
   if (!url && (text || imageText)) {
     const body = String(imageText || text).trim();
-    const firstLine = body.split(/[.\n!?]/)[0].trim();
+    // The first sentence ends at a stop followed by a space or the end, or at a line break: splitting at
+    // every "." made "RBI cut the repo rate by 0.25 percent" a message titled "RBI cut the repo rate by 0".
+    const firstLine = body.split(/\n|[.!?](?=\s|$)/)[0].trim();
     return {
       title: firstLine.slice(0, 140) || 'Pasted message',
       content: body,

@@ -1,5 +1,5 @@
 const UserInterest = require('../models/UserInterest');
-const { fetchTopNews } = require('../utils/newsFetcher');
+const { fetchTopNews, FEED_CATEGORIES } = require('../utils/newsFetcher');
 
 // Get personalized news based on user interests.
 //
@@ -14,16 +14,18 @@ exports.getPersonalizedNews = async (req, res) => {
 
     const userInterests = await UserInterest.find({ userId })
       .sort({ interestScore: -1 })
-      .limit(3);
+      .limit(10);
+    // Interests recorded before categories were checked can name a section the feed does not have.
+    const usable = (userInterests || []).filter(i => FEED_CATEGORIES.has(i.category));
 
-    if (!userInterests || userInterests.length === 0) {
+    if (usable.length === 0) {
       return res.status(200).json({
         articles: [],
         message: 'No personalized interests found. Showing general news.'
       });
     }
 
-    const topInterest = userInterests[0].category;
+    const topInterest = usable[0].category;
     const articles = await fetchTopNews(topInterest);
 
     if (articles.length > 0) {

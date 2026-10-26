@@ -75,6 +75,17 @@ const readImageText = async (buffer, languages = ['eng']) => {
   const packs = languages.filter(code => LANGUAGE_PACKS[code]);
   const langString = (packs.length ? packs : ['eng']).join('+');
 
+  // One image at a time. The worker is shared and replaced when the languages change, so a second
+  // screenshot in another language could terminate the worker the first was still reading with.
+  const run = queue.then(() => recognise(buffer, langString, packs));
+  queue = run.catch(() => {});
+  return run;
+};
+
+let queue = Promise.resolve();
+
+const recognise = async (buffer, langString, packs) => {
+  let instance;
   try {
     const { createWorker } = require('tesseract.js');
     // One worker per language combination, reused across requests: creating a
@@ -82,11 +93,22 @@ const readImageText = async (buffer, languages = ['eng']) => {
     // cost of a small image.
     if (!worker || worker.langString !== langString) {
       if (worker?.instance) await worker.instance.terminate().catch(() => {});
-      const instance = await createWorker(langString);
-      worker = { instance, langString };
+      worker = null;
+      worker = { instance: await createWorker(langString), langString };
     }
+    instance = worker.instance;
+  } catch (err) {
+    // The engine itself could not start (missing package, no language data): screenshot reading is
+    // unavailable on this server, and later requests are told so at once.
+    loadFailed = true;
+    const error = new Error('Screenshot reading could not start on this server. Paste the text of the post instead.');
+    error.code = 'OCR_UNAVAILABLE';
+    error.cause = err;
+    throw error;
+  }
 
-    const { data } = await worker.instance.recognize(buffer);
+  try {
+    const { data } = await instance.recognize(buffer);
     const text = stripMessageChrome(String(data.text || '').replace(/\s+\n/g, '\n').replace(/[ \t]{2,}/g, ' ').trim());
 
     return {
@@ -97,8 +119,11 @@ const readImageText = async (buffer, languages = ['eng']) => {
       languages: packs.length ? packs : ['eng']
     };
   } catch (err) {
-    if (err.code === 'OCR_UNAVAILABLE') throw err;
-    loadFailed = true;
+    // One image that could not be read is about that image. It used to mark the whole engine as failed,
+    // and every later screenshot was refused as "not installed" until the server restarted. The worker
+    // is replaced, in case the failure left it unusable.
+    await instance.terminate().catch(() => {});
+    if (worker?.instance === instance) worker = null;
     const error = new Error('We could not read text from that image. Try a clearer screenshot, or paste the text instead.');
     error.code = 'OCR_FAILED';
     error.cause = err;

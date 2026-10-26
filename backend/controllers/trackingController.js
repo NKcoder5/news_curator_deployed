@@ -1,26 +1,41 @@
 const UserActivity = require('../models/UserActivity');
 const UserInterest = require('../models/UserInterest');
+const { FEED_CATEGORIES } = require('../utils/newsFetcher');
+
+const ACTIVITY_TYPES = new Set(['view', 'click', 'read', 'category']);
+const text = (value, max) => (typeof value === 'string' ? value.trim().slice(0, max) : '');
 
 // Track user activity
 exports.trackActivity = async (req, res) => {
   try {
-    const { articleId, title, category, source, activityType, duration, completed } = req.body;
-    
+    const { activityType, duration, completed } = req.body || {};
+    const articleId = text(req.body?.articleId, 2048);
+    const title = text(req.body?.title, 500);
+    const source = text(req.body?.source, 200) || 'Unknown Source';
+    // The category becomes a reader's interest, and the strongest interest is the section the personalised
+    // feed asks the news service for (controllers/newsController.js). Only the feed's own sections count:
+    // any other value is recorded as general, which is never an interest. A missing category used to pass
+    // the "not general" test and try to save an interest with no category at all.
+    const category = FEED_CATEGORIES.has(req.body?.category) ? req.body.category : 'general';
+
     // Validate required fields
     if (!articleId || !title || !activityType) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    
+    if (!ACTIVITY_TYPES.has(activityType)) {
+      return res.status(400).json({ error: `activityType must be one of ${[...ACTIVITY_TYPES].join(', ')}.` });
+    }
+
     // Create new activity record
     const activity = new UserActivity({
       userId: req.user._id,
       articleId,
       title,
-      category: category || 'general',
-      source: source || 'Unknown Source',
+      category,
+      source,
       activityType,
-      duration: duration || 0,
-      completed: completed || false
+      duration: Number.isFinite(Number(duration)) && Number(duration) >= 0 ? Number(duration) : 0,
+      completed: completed === true
     });
 
     await activity.save();

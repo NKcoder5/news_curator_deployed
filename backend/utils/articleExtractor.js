@@ -64,19 +64,43 @@ const assertPublicUrl = async (rawUrl) => {
 // them every "Bangkok's" reached the reader, and every check, as
 // "Bangkok&#x27;s". &amp; goes last so that "&amp;#x27;" decodes once, to
 // the literal text "&#x27;", rather than twice.
+// A reference past the last code point is dropped: String.fromCodePoint throws on it, and one
+// "&#99999999;" on a page used to fail the whole check as a server error.
+const codePoint = (n) => (Number.isInteger(n) && n >= 0 && n <= 0x10FFFF ? String.fromCodePoint(n) : '');
 const decodeEntities = (str) => String(str || '')
   .replace(/&nbsp;/gi, ' ')
   .replace(/&quot;/gi, '"')
   .replace(/&#39;|&apos;/gi, "'")
   .replace(/&lt;/gi, '<')
   .replace(/&gt;/gi, '>')
-  .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
-  .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+  .replace(/&#x([0-9a-f]+);/gi, (_, hex) => codePoint(parseInt(hex, 16)))
+  .replace(/&#(\d+);/g, (_, code) => codePoint(Number(code)))
   .replace(/&amp;/gi, '&');
 
 const stripTags = (html) => decodeEntities(html.replace(/<[^>]*>/g, ' '))
   .replace(/\s+/g, ' ')
   .trim();
+
+/**
+ * A headline without the site name pages add to it ("India win the final | The Hindu").
+ *
+ * The old pattern cut at any hyphen or dash in the last 40 characters, spaces or not, so hyphenated
+ * words lost everything after them: "Tamil Nadu by-election: DMK wins both seats" became "Tamil Nadu
+ * by", "WHO declares end of Covid-19 emergency" became "WHO declares end of Covid", and the cut
+ * headline was what the claim check read. Now only a segment set off by a spaced dash, or by a pipe,
+ * is removed, and a dash only when that segment names the site.
+ */
+const trimSiteName = (title, siteName = '', hostname = '') => {
+  const m = String(title || '').match(/\s+(\||[-–—])\s+([^|\-–—]{2,40})$/) || String(title || '').match(/\s*(\|)\s*([^|]{2,40})$/);
+  if (!m) return String(title || '').trim();
+  const squash = (s) => String(s || '').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+  const suffix = squash(m[2]);
+  const site = squash(siteName);
+  const host = squash(String(hostname || '').replace(/^www\./, '').split('.').slice(0, -1).join(''));
+  const namesSite = Boolean(suffix) && ((site && (site.includes(suffix) || suffix.includes(site)))
+    || (host && (host.includes(suffix) || suffix.includes(host))));
+  return m[1] === '|' || namesSite ? String(title).slice(0, m.index).trim() : String(title).trim();
+};
 
 const metaContent = (html, patterns) => {
   for (const pattern of patterns) {
@@ -290,20 +314,20 @@ const extractArticle = async (rawUrl, { headlineFallback = true, readerTimeout =
 
   const content = paragraphs.join('\n\n').slice(0, 6000);
 
-  const title = metaContent(html, [
+  const siteName = metaContent(html, [
+    /<meta[^>]+property=["']og:site_name["'][^>]+content=["']([^"']+)["']/i
+  ]);
+
+  const title = trimSiteName(metaContent(html, [
     /<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i,
     /<meta[^>]+name=["']twitter:title["'][^>]+content=["']([^"']+)["']/i,
     /<title[^>]*>([\s\S]*?)<\/title>/i,
     /<h1[^>]*>([\s\S]*?)<\/h1>/i
-  ]).replace(/\s*[|\-–—]\s*[^|\-–—]{0,40}$/, '').trim(); // drop trailing " | Site Name"
+  ]), siteName, parsed.hostname);
 
   const description = metaContent(html, [
     /<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i,
     /<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i
-  ]);
-
-  const siteName = metaContent(html, [
-    /<meta[^>]+property=["']og:site_name["'][^>]+content=["']([^"']+)["']/i
   ]);
 
   const image = metaContent(html, [
@@ -348,4 +372,4 @@ const extractArticle = async (rawUrl, { headlineFallback = true, readerTimeout =
 // assertPublicUrl is exported so anything else that fetches a third-party page
 // (the fact-check reader, for one) reuses this guard rather than growing its
 // own copy that could drift out of step.
-module.exports = { extractArticle, assertPublicUrl, MAX_BYTES, FETCH_TIMEOUT, __test: { decodeEntities } };
+module.exports = { extractArticle, assertPublicUrl, decodeEntities, MAX_BYTES, FETCH_TIMEOUT, __test: { decodeEntities, trimSiteName } };

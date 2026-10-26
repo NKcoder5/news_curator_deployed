@@ -10,14 +10,17 @@ const { signatureOf, compareSignatures } = require('../services/claimSignature')
 const asksOnly = (text) => /\?["'”’)\]]*\s*$/.test(String(text || '').replace(/\s+—\s*$/, '').trim());
 
 // Said before the event: "India set to become first...", "SpaceX to test Starfall...", "...likely to cut".
-const FORECAST = /\b(?:set to|poised to|likely to|expected to|plans? to|planning to|aims? to|mulls?|mulling|considering|proposes?|proposed|countdown|preview|will (?:\w+)|may (?:\w+)|might|could|to (?:launch|test|deploy|hold|begin|start|announce|introduce|unveil|release|open|host|meet|visit|sign|resume|join|get|receive|become))\b/i;
+const FORECAST = /\b(?:set to|poised to|likely to|expected to|plans? to|planning to|aims? to|mulls?|mulling|considering|proposes?|proposed|countdown|preview|will (?:\w+)|might|could|to (?:launch|test|deploy|hold|begin|start|announce|introduce|unveil|release|open|host|meet|visit|sign|resume|join|get|receive|become))\b/i;
+// "may" the verb, in lower case only: case-blind, the month in "Polls held in May 2026" read as a forecast.
+const MAY = /\bmay\s+(?!\d)\w+/;
+const forecasts = (text) => FORECAST.test(String(text || '')) || MAY.test(String(text || ''));
 
 /**
  * The headline reports a plan or a forecast and the claim says the thing happened: it does not confirm
  * it. "Tata Motors will launch the Sierra EV in January" is itself a plan, so a headline about the
  * planned launch still confirms that.
  */
-const forecastOnly = (headline, claim) => FORECAST.test(String(headline || '')) && !FORECAST.test(String(claim || ''));
+const forecastOnly = (headline, claim) => forecasts(headline) && !forecasts(claim);
 
 /**
  * The claim's own signature rules the headline out (services/claimSignature.js): who beat whom reversed,

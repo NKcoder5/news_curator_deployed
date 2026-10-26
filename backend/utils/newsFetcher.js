@@ -108,6 +108,16 @@ const FEED_TTL_MS = 15 * 60 * 1000;
 const feedCache = new Map();   // category -> { at, articles }
 const feedInFlight = new Map(); // category -> Promise
 
+// The feed's categories, which are NewsAPI's. GET /api/news is public, and the category used to go from the
+// query string into the NewsAPI address by string pasting and into this cache as a key: every made-up
+// category missed the cache and spent one of the day's 100 requests, the cache grew without bound, and
+// "&" in the value added parameters to the request. Anything else is refused.
+const FEED_CATEGORIES = new Set(['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology']);
+const unknownCategory = (category) => Object.assign(
+  new Error(`There is no "${String(category).slice(0, 40)}" news section. Choose one of: ${[...FEED_CATEGORIES].join(', ')}.`),
+  { code: 'UNKNOWN_CATEGORY', httpStatus: 400 }
+);
+
 const GOOGLE_TOPICS = {
   business: 'BUSINESS', technology: 'TECHNOLOGY', entertainment: 'ENTERTAINMENT',
   sports: 'SPORTS', science: 'SCIENCE', health: 'HEALTH'
@@ -138,6 +148,7 @@ const googleTopStories = async (category) => {
 };
 
 const fetchTopNews = async (category = 'general') => {
+  if (!FEED_CATEGORIES.has(category)) throw unknownCategory(category);
   const cached = feedCache.get(category);
   if (cached && Date.now() - cached.at < FEED_TTL_MS) return cached.articles;
   if (feedInFlight.has(category)) return feedInFlight.get(category);
@@ -170,15 +181,14 @@ const fetchTopNews = async (category = 'general') => {
 };
 
 const fetchTopNewsFromApi = async (category = 'general') => {
-const apiKey = process.env.NEWS_API_KEY;
-
-  const url = `https://newsapi.org/v2/top-headlines?category=${category}&language=en&pageSize=30&apiKey=${apiKey}`;
-
   let response;
   try {
     // Without a timeout a stalled request held the front page until the
     // socket gave up; a refusal now falls back to the cached copy or Google.
-    response = await axios.get(url, { timeout: 10000 });
+    response = await axios.get('https://newsapi.org/v2/top-headlines', {
+      params: { category, language: 'en', pageSize: 30, apiKey: process.env.NEWS_API_KEY },
+      timeout: 10000
+    });
   } catch (err) {
     throw describeNewsApiError(err);
   }
@@ -296,8 +306,11 @@ const NOT_AN_OUTLET = /^(instagram|facebook|x|twitter|threads|reddit|linkedin|qu
 const decodeXml = (s) => String(s || '')
   .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
   .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'")
-  .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+  .replace(/&#(\d+);/g, (_, n) => codePoint(Number(n)))
+  .replace(/&#x([0-9a-f]+);/gi, (_, n) => codePoint(parseInt(n, 16)))
   .replace(/&amp;/g, '&');
+// String.fromCodePoint throws past the last code point; such a reference is dropped instead.
+function codePoint(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10FFFF ? String.fromCodePoint(n) : ''; }
 
 /**
  * Search Google News for coverage of a claim.
@@ -579,7 +592,7 @@ const searchCoverageBroadening = async (query, excludeSourceName = '', pageSize 
 };
 
 module.exports = {
-  INDEX_LAG_HOURS, fetchTopNews, searchNewsCoverage, searchGoogleNews, searchCoverageBroadening, SearchUnavailableError,
+  INDEX_LAG_HOURS, FEED_CATEGORIES, fetchTopNews, searchNewsCoverage, searchGoogleNews, searchCoverageBroadening, SearchUnavailableError,
   cached, withRetry, isNetworkError,
   searchGdelt,
   searchBingNews,

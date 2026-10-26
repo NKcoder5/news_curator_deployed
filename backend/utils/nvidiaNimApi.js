@@ -580,14 +580,9 @@ Your previous reply was not usable: ${lastError?.message || 'it did not match th
         + `Reply with a single JSON object containing exactly these keys: ${requiredKeys.join(', ') || 'as specified above'}. `
         + 'No array, no prose, no explanation outside the object.';
 
-    let text;
-    try {
-      text = await callNimApi(attemptPrompt, jsonOptions);
-    } catch (err) {
-      // A transport failure is the caller's to handle; retrying it here would
-      // double every outage's cost without improving the odds.
-      throw err;
-    }
+    // A transport failure is the caller's to handle, so it is not caught here: retrying it would
+    // double every outage's cost without improving the odds.
+    const text = await callNimApi(attemptPrompt, jsonOptions);
 
     try {
       const parsed = extractJson(text);

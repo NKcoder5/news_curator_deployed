@@ -43,7 +43,7 @@ const UNTRUSTED_NOTICE = 'Text between an [[UNTRUSTED ...]] marker and its match
 // Unicode "tag" block, which can spell out a whole instruction no one can see.
 // The zero-width joiner and non-joiner are kept: Tamil, Hindi and Malayalam
 // use them to shape letters.
-const INVISIBLE = /[​⁠﻿­‎‏‪-‮⁦-⁩]|[\u{E0000}-\u{E007F}]/gu;
+const INVISIBLE = /[\u{200B}\u{2060}\u{FEFF}\u{AD}\u{200E}\u{200F}\u{202A}-\u{202E}\u{2066}-\u{2069}]|[\u{E0000}-\u{E007F}]/gu;
 const CONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
 
 // Tokens that chat templates use to separate turns. Inside a message they
@@ -165,7 +165,7 @@ const SQUASHED = [
 const normaliseForDetection = (text) => String(text ?? '')
   .normalize('NFKC')
   .replace(INVISIBLE, '')
-  .replace(/[‌‍]/g, '')
+  .replace(/[\u{200C}\u{200D}]/gu, '')
   .toLowerCase()
   .replace(/./gu, ch => CONFUSABLE[ch] || ch);
 

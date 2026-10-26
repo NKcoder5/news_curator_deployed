@@ -50,7 +50,8 @@ const NIM_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 // llama-3.1-nemotron-70b answered 404 although /models still lists them; deepseek-v4.1-flash, gemma-4-31b
 // and glm-5.3 gave no answer within 30 s. These three answered all three, right, in 1.4-11 s. The old
 // first choice was retired, so every fallback to NIM had been timing out on the two backups behind it.
-const NIM_MODELS = [
+// NIM_MODEL_ONLY=1 keeps to NIM_MODEL_NAME alone, so a measurement of one model is not part another's.
+const NIM_MODELS = process.env.NIM_MODEL_ONLY === '1' && process.env.NIM_MODEL_NAME ? [process.env.NIM_MODEL_NAME] : [
   process.env.NIM_MODEL_NAME || 'nvidia/nemotron-3-ultra-550b-a55b',
   'openai/gpt-oss-20b',
   'nvidia/nemotron-3.5-lightning-30b-a3b'

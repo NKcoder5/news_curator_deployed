@@ -98,6 +98,22 @@ test('the server reaches a checked-in laptop with its token and its model', asyn
   } finally { restore(); }
 });
 
+test('a checked-in laptop comes right after Gemini on every task, never ahead of it', () => {
+  const { providers, restore } = load(reply, { ...noLocal, HOSTED_AI: undefined, GEMINI_API_KEY: 'g', NIM_API_KEY: 'n', LLM_PROVIDER: undefined });
+  try {
+    const before = {};
+    for (const task of ['claim extraction', 'stance judgement', 'clickbait']) before[task] = providers.resolveProviderChain(task).map(p => p.name);
+    modelHost.checkIn({ url: TUNNEL, token: TOKEN, model: 'qwen3.5:9b' });
+    for (const task of Object.keys(before)) {
+      const after = providers.resolveProviderChain(task).map(p => p.name);
+      assert.strictEqual(after[after.indexOf('gemini') + 1], 'ollama', `${task}: ${after}`);
+      assert.deepStrictEqual(after.filter(n => n !== 'ollama'), before[task], `${task}: the measured order is otherwise unchanged`);
+    }
+    process.env.GEMINI_API_KEY = '';
+    assert.deepStrictEqual(providers.resolveProviderChain('stance judgement').map(p => p.name), ['ollama', 'nim'], 'without Gemini the laptop leads');
+  } finally { restore(); }
+});
+
 test('a model that does not think is not sent the switch', async () => {
   const { providers, calls, restore } = load(reply, { ...noLocal, OLLAMA_HOST: 'http://localhost:11434' });
   try {

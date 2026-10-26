@@ -471,6 +471,18 @@ const resolveProviderChain = (task) => {
     if (provider.isConfigured() && !chain.includes(provider)) chain.push(provider);
   }
 
+  // A laptop that checked in (not OLLAMA_HOST) takes the place right after Gemini on every task. The table
+  // above sends some tasks to Ollama first because it was measured with Ollama on the same machine; on the
+  // deployed server the setup that was measured is Gemini doing the reading, and a laptop switching on must
+  // not quietly change that. Where Gemini cannot answer (quota spent, HOSTED_AI=off) the laptop is next.
+  const target = ollamaTarget();
+  if (target && target.remote && chain.includes(ollama)) {
+    const rest = chain.filter(p => p !== ollama);
+    const at = rest.indexOf(gemini) + 1;
+    rest.splice(at, 0, ollama);
+    return rest;
+  }
+
   return chain;
 };
 

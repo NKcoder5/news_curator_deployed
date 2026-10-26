@@ -134,3 +134,26 @@ test('the same judgement asked twice at once is asked of the model once', async 
     restore();
   }
 });
+
+// 26 Oct: each call walked all twenty Gemini entries through a dropped connection, fifteen seconds a
+// timeout. Two connection failures set the provider aside, for this call and the next ones.
+test('two connection failures set a provider aside instead of walking every model', async () => {
+  const asked = [];
+  const { gateway, restore } = withProvider(['a', 'b', 'c', 'd', 'e'], async ({ model }) => {
+    asked.push(model);
+    throw Object.assign(new Error('timeout of 15000ms exceeded'), { code: 'ECONNABORTED' });
+  });
+  const error = console.error; console.error = () => {};
+  const warn = console.warn; console.warn = () => {};
+  try {
+    await assert.rejects(() => gateway.callNimApi('q', { label: 'test' }), (err) => err.code === 'ECONNABORTED');
+    assert.deepStrictEqual(asked, ['a', 'b'], 'two models tried, not five');
+    asked.length = 0;
+    await assert.rejects(() => gateway.callNimApi('q2', { label: 'test' }), (err) => err.code === 'PROVIDER_UNREACHABLE');
+    assert.deepStrictEqual(asked, [], 'the next call does not knock again while the provider rests');
+    gateway.__test.providerDownUntil.clear();
+  } finally {
+    console.error = error; console.warn = warn;
+    restore();
+  }
+});

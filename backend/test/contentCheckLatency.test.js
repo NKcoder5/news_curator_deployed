@@ -275,3 +275,38 @@ test('an incomplete check is never served again', async () => {
     }
   }
 });
+
+// 26 Oct: with the connection dropping, one check waited 390 s for the message to be read while the
+// gateway walked every model. The reading now has a limit, and past it the check goes on without it.
+test('a reading that does not come back in time is not waited for', async () => {
+  const saved = process.env.READING_DEADLINE_MS;
+  process.env.READING_DEADLINE_MS = '150';
+  const s = load({ understandMs: 5000 });
+  try {
+    const started = Date.now();
+    await s.check(MESSAGE);
+    assert.ok(Date.now() - started < 1500, `waited ${Date.now() - started} ms for the reading`);
+    assert.ok(s.first('evidence:start'), 'the evidence step ran without the reading');
+    assert.strictEqual(s.first('evidence:start').args.preparedClaims, null, 'and found the claims itself');
+  } finally {
+    if (saved === undefined) delete process.env.READING_DEADLINE_MS; else process.env.READING_DEADLINE_MS = saved;
+    s.restore();
+  }
+});
+
+test('a message refused only because it could not be read says so', async () => {
+  const saved = process.env.READING_DEADLINE_MS;
+  process.env.READING_DEADLINE_MS = '100';
+  const s = load({ understandMs: 3000 });
+  try {
+    await assert.rejects(() => s.check('Many workers no longer pay income tax because of tax bracket changes.'), (err) => {
+      assert.strictEqual(err.status, 422);
+      assert.strictEqual(err.payload.readingFailed, true);
+      assert.match(err.payload.error, /could not be read just now/);
+      return true;
+    });
+  } finally {
+    if (saved === undefined) delete process.env.READING_DEADLINE_MS; else process.env.READING_DEADLINE_MS = saved;
+    s.restore();
+  }
+});

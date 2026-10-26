@@ -34,7 +34,7 @@ const isAuthFailure = (status) => status === 401 || status === 403;
 
 /** Connection-level failures (timeout, reset) — worth failing over. */
 const isConnectionFailure = (code) =>
-  ['ECONNABORTED', 'ETIMEDOUT', 'ECONNRESET', 'ENOTFOUND', 'EAI_AGAIN'].includes(code);
+  ['ECONNABORTED', 'ETIMEDOUT', 'ECONNRESET', 'ENOTFOUND', 'EAI_AGAIN', 'ECONNREFUSED', 'ENETUNREACH', 'EHOSTUNREACH'].includes(code);
 
 // HOSTED_AI=off leaves Gemini and NIM out even when their keys are set: every reading is then done by a model
 // on hardware the team owns (Ollama) and by our own pair model. One switch, so a demonstration of the system

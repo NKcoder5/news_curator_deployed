@@ -98,6 +98,17 @@ const isDailyQuota = (error) => (error.response?.data?.error?.details || [])
 const modelKey = (provider, model) => `${provider.name}:${model}`;
 const isExhausted = (provider, model) => (exhaustedUntil.get(modelKey(provider, model)) || 0) > Date.now();
 
+// A connection that fails is the host's or the network's failure, not the model's: every model of a
+// provider sits behind the same address. Measured on 26 Oct with the laptop's connection dropping, each
+// call walked all twenty Gemini entries, and a timeout (ECONNABORTED) costs the full fifteen seconds an
+// attempt is allowed. Two connection failures in one call now set the provider aside for a short while,
+// for every call, and the next provider is asked; one is still allowed, since a single failed name
+// lookup is usually gone a second later.
+const CONNECTION_FAILURES_PER_CALL = 2;
+const PROVIDER_REST_MS = 15000;
+const providerDownUntil = new Map();
+const isDown = (provider) => (providerDownUntil.get(provider.name) || 0) > Date.now();
+
 // How long the provider says to wait: a Retry-After header, or the
 // RetryInfo detail Gemini puts in the body of a 429 ("retryDelay": "37s").
 const providerWaitMs = (error) => {
@@ -165,13 +176,19 @@ const callNimApi = async (prompt, options = {}) => {
     let lastError;
 
     for (const provider of providers) {
+      if (isDown(provider)) {
+        lastError = lastError || Object.assign(new Error(`${provider.label} could not be reached a moment ago.`), { code: 'PROVIDER_UNREACHABLE' });
+        continue;
+      }
       // Prefer whichever model this provider last answered on.
       const preferred = activeModel[provider.name] || provider.models[0];
       const models = [preferred, ...provider.models.filter(m => m !== preferred)];
       let preferredRetired = false;
+      let connectionFailures = 0;
 
       for (const model of models) {
         if (isExhausted(provider, model)) continue;
+        if (connectionFailures >= CONNECTION_FAILURES_PER_CALL) break;
         for (let attempt = 0; attempt <= MAX_RATE_LIMIT_RETRIES; attempt++) {
           try {
             await acquireSlot(provider, priorityOf(options.label));
@@ -247,7 +264,13 @@ const callNimApi = async (prompt, options = {}) => {
             }
 
             if (isConnectionFailure(error.code)) {
-              console.error(`${provider.label}: model "${model}" connection failed (${error.code}) — trying the next one.`);
+              connectionFailures += 1;
+              if (connectionFailures >= CONNECTION_FAILURES_PER_CALL) {
+                providerDownUntil.set(provider.name, Date.now() + PROVIDER_REST_MS);
+                console.error(`${provider.label}: connection failed twice (${error.code}) — set aside for ${PROVIDER_REST_MS / 1000}s.`);
+              } else {
+                console.error(`${provider.label}: model "${model}" connection failed (${error.code}) — trying the next one.`);
+              }
               break;
             }
 
@@ -614,4 +637,4 @@ Your previous reply was not usable: ${lastError?.message || 'it did not match th
   throw lastError;
 };
 
-module.exports = { callNimApi, callNimApiJson, extractJson, __test: { backoffMs, providerWaitMs, MAX_WAIT_MS, acquireSlot, releaseSlot, priorityOf } };
+module.exports = { callNimApi, callNimApiJson, extractJson, __test: { backoffMs, providerWaitMs, MAX_WAIT_MS, acquireSlot, releaseSlot, priorityOf, providerDownUntil } };

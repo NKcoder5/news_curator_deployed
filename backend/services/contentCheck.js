@@ -39,6 +39,19 @@ const evidenceDeadlineMs = () => {
   return chain.length && chain.every(p => !p.hosted) ? OWN_HARDWARE_DEADLINE_MS : EVIDENCE_DEADLINE_MS;
 };
 
+// How long the message's reading may take before the check goes on without it, decided by the gate as
+// when the reading fails. It had no limit: on 26 Oct, with the connection dropping, one check waited 390 s
+// for it while the gateway walked every model. The reading takes 1.5-3 s on Gemini; the laptop's GPU,
+// queueing, takes longer. A re-check has no reader waiting, and waits longer still.
+const READING_DEADLINE_MS = 20000;
+const readingDeadlineMs = (trigger) => {
+  const set = Number(process.env.READING_DEADLINE_MS);
+  if (Number.isFinite(set) && set > 0) return set;
+  const chain = resolveProviderChain('input understanding');
+  const ownHardware = chain.length && chain.every(p => !p.hosted);
+  return (ownHardware ? 3 : 1) * (trigger === 'recheck' ? 3 : 1) * READING_DEADLINE_MS;
+};
+
 // The claim memory's lookup runs beside the evidence; if it is still out this
 // long after the verdict, the answer goes without the "checked before" panel
 // and the check is filed when the lookup finishes.
@@ -322,7 +335,7 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
       // names in it, do not wait for the reading (trustAnalysisAgent's
       // startMessageChecks). A message refused below leaves them unused.
       early = startMessageChecks({ title: ingested.title, content: factorText });
-      understanding = await understandInput(ingested.content);
+      understanding = await within(understandInput(ingested.content), readingDeadlineMs(trigger), null);
     }
 
     if (understanding) {
@@ -347,8 +360,15 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
         });
       }
     } else if (!checkability.checkable) {
+      // The pattern gate decides only because the reading could not be made. "Many workers no longer pay
+      // income tax because of tax bracket changes" names no one the patterns can see; told only that it
+      // names nothing, its sender would be told something untrue about a message no one had read.
+      const unread = Boolean(early) && checkability.kind === 'too-vague';
       throw new ContentCheckError(422, {
-        error: checkability.reason,
+        error: unread
+          ? 'This message could not be read just now, and on its own it names no person, place or figure we could look up. Try again in a minute, or add the names, places or numbers involved.'
+          : checkability.reason,
+        ...(unread ? { readingFailed: true } : {}),
         checkable: false,
         kind: checkability.kind,
         missing: checkability.missing,

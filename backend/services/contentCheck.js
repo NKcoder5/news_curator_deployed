@@ -32,6 +32,29 @@ const EVIDENCE_DEADLINE_MS = 15000;
 // and the check is filed when the lookup finishes.
 const MEMORY_GRACE_MS = 1500;
 
+// Who did the reading for this check: each provider that answered a model call (an answer remembered from
+// an earlier call counts under the provider that made it), the models, and whether any of it was outside
+// AI. Shown under the verdict, so a check made without outside AI can be seen to be one.
+const READER_LABELS = {
+  gemini: 'Google Gemini',
+  nim: 'NVIDIA NIM',
+  ollama: 'an open model on our own hardware',
+  'own model': 'our own pair model'
+};
+const OUTSIDE_AI = new Set(['gemini', 'nim']);
+const readersOf = (calls) => {
+  const byProvider = new Map();
+  for (const c of calls) {
+    if (!c || !c.provider) continue;
+    if (!byProvider.has(c.provider)) byProvider.set(c.provider, { provider: c.provider, label: READER_LABELS[c.provider] || c.provider, models: new Set(), calls: 0 });
+    const entry = byProvider.get(c.provider);
+    entry.calls += 1;
+    if (c.model) entry.models.add(String(c.model));
+  }
+  const readers = [...byProvider.values()].map(r => ({ ...r, models: [...r.models] }));
+  return { readers, outsideAi: readers.some(r => OUTSIDE_AI.has(r.provider)) };
+};
+
 /* ---------------------------------------------------------------------------
    Checked minutes ago
 
@@ -407,6 +430,7 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
       oneLineLocal: localLine,
       memory,
       explanation,
+      readBy: readersOf(currentContext()?.calls || []),
       // How often the rule that decided this has been right on labelled test
       // messages (eval/ruleReliability.js): a count, not a hand-set confidence.
       trackRecord: trackRecordFor(report.decision?.rule),
@@ -459,4 +483,4 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
   }
 };
 
-module.exports = { runContentCheck, recordsSettled, ContentCheckError };
+module.exports = { runContentCheck, recordsSettled, ContentCheckError, readersOf };

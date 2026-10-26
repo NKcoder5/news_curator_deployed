@@ -1424,6 +1424,19 @@
                 "description": "For a screenshot: what OCR read. Null otherwise.",
                 "oneOf": [{ "type": "null" }, { "$ref": "#/components/schemas/ReadText" }]
               },
+              "readBy": {
+                "type": "object",
+                "description": "Who did the reading: each provider that answered a model call in this check, its models and how many calls, and whether any of it was outside AI (Gemini or NIM). An open model on the team's own hardware (Ollama) and our own pair model are not outside AI.",
+                "properties": {
+                  "readers": { "type": "array", "items": { "type": "object", "properties": {
+                    "provider": { "type": "string", "examples": ["gemini", "nim", "ollama", "own model"] },
+                    "label": { "type": "string" },
+                    "models": { "type": "array", "items": { "type": "string" } },
+                    "calls": { "type": "integer" }
+                  } } },
+                  "outsideAi": { "type": "boolean" }
+                }
+              },
               "cached": { "type": "boolean", "const": false, "description": "Check Anything results are never served from a cache." }
             }
           }

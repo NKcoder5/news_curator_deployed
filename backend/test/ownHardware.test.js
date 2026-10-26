@@ -156,6 +156,20 @@ test('check-ins that stop make the laptop count as gone', () => {
   } finally { Date.now = realNow; modelHost.reset(); }
 });
 
+test('the report says who read it, and whether any of it was outside AI', () => {
+  const { readersOf } = require('../services/contentCheck');
+  const own = readersOf([
+    { label: 'claim extraction', provider: 'ollama', model: 'qwen3.5:9b' },
+    { label: 'stance judgement', provider: 'ollama', model: 'qwen3.5:9b', cached: true },
+    { label: 'stance judgement', provider: 'own model', model: 'own pair model', own: true },
+    { label: 'reference check' }
+  ]);
+  assert.strictEqual(own.outsideAi, false);
+  assert.deepStrictEqual(own.readers.map(r => [r.provider, r.calls, r.models.join()]), [['ollama', 2, 'qwen3.5:9b'], ['own model', 1, 'own pair model']]);
+  assert.strictEqual(readersOf([{ provider: 'gemini', model: 'gemini-3.1-flash-lite' }, { provider: 'ollama', model: 'qwen3.5:9b' }]).outsideAi, true);
+  assert.deepStrictEqual(readersOf([]), { readers: [], outsideAi: false });
+});
+
 test('the check-in endpoint takes the internal key and nothing else', async () => {
   const saved = process.env.INTERNAL_API_KEY;
   process.env.INTERNAL_API_KEY = 'k'.repeat(32);

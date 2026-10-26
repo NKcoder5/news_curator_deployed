@@ -70,6 +70,22 @@ const ShareActions = ({ report, claim }) => {
 };
 
 /**
+ * Who did the reading (report.readBy): the models that answered, and whether
+ * any of them was outside AI. With the hosted models switched off the line
+ * says so, which is what a check on the team's own hardware has to show.
+ */
+const ReadBy = ({ readBy }) => {
+  const readers = (readBy?.readers || []).filter((r) => r.calls > 0);
+  if (!readers.length) return null;
+  const names = readers.map((r) => (r.models?.length && r.provider !== 'own model' ? `${r.label} (${r.models.join(', ')})` : r.label));
+  return (
+    <span className="verdict-decided verdict-readby">
+      Read by: <strong>{names.join('; ')}</strong>{readBy.outsideAi ? '' : ' · no outside AI'}
+    </span>
+  );
+};
+
+/**
  * @param {Object}  props.report
  * @param {boolean} [props.full] - the Check page's version: the claim, the
  *   rule and its record, and the share actions. The article page shows the
@@ -111,6 +127,7 @@ const VerdictHeader = ({ report, full = false }) => {
             {/* How often this rule has been right on labelled test messages,
                 counted (eval/ruleReliability.js) — not a hand-set confidence. */}
             <TrackRecord record={report.trackRecord} />
+            <ReadBy readBy={report.readBy} />
           </div>
           <ShareActions report={report} claim={claim} />
         </div>

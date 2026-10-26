@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { detectManipulation, TECHNIQUES } = require('../agents/manipulationAgent');
+const { TECHNIQUES } = require('../agents/manipulationAgent');
 const { manipulationByRules } = require('../agents/heuristics');
 
 test('manipulationByRules detects loaded language and fear appeal', () => {

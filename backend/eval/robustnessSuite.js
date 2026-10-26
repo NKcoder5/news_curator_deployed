@@ -51,6 +51,7 @@ const resume = args.includes('--resume');
 const suiteName = flag('--suite', 'robustness');
 const suiteFile = [`${suiteName}_suite.json`, `${suiteName}.json`]
   .map(f => path.join(__dirname, 'suites', f)).find(f => fs.existsSync(f));
+if (!suiteFile) throw new Error(`--suite ${suiteName}: no eval/suites/${suiteName}_suite.json or ${suiteName}.json`);
 const suite = JSON.parse(fs.readFileSync(suiteFile, 'utf8'));
 // --part dev | sealed, against overfitting. A suite whose failures are read and fixed becomes a
 // development set, and its score stops being a test of anything new. The sealed part of a suite is for

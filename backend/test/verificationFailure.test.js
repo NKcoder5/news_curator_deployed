@@ -10,7 +10,6 @@
 // The same shape of mistake is what the whole scoring model is built to avoid,
 // so it is worth a test at each place it can happen: the search, the judgement,
 // and the aggregate.
-const path = require('node:path');
 const test = require('node:test');
 const assert = require('node:assert');
 

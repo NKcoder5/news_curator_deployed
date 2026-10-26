@@ -222,3 +222,30 @@ test(`a fallback model's "agree" is set aside where our model is sure the headli
   assert.strictEqual(judged.supportingEvidence.length, 0);
   assert.notStrictEqual(judged.verdict, 'supported');
 });
+
+// Found reading the whole backend on 26 Oct: the claim's verdict was weighed before the headlines that
+// share nothing with it were set aside, and not weighed again after. Three readings of agreement about
+// another story outnumbered two kept contradictions, the three were then dropped, and the claim came
+// back "unverified" with two outlets reporting otherwise in hand.
+test('the verdict is weighed on the headlines that survive the relevance check', async () => {
+  reset(null);
+  const coverage = [
+    outlet('Times Now', 'Monsoon session of Parliament ends a day early'),
+    outlet('Mint', 'Sensex closes higher on banking gains'),
+    outlet('News18', 'Heavy rain lashes coastal Karnataka'),
+    outlet('The Hindu', 'India finish Asian Games with 70 medals'),
+    outlet('NDTV', 'Asian Games: India end campaign with 70 medals')
+  ];
+  hostedReply = {
+    items: [
+      ...[1, 2, 3].map(n => ({ n, stance: 'agree', same_event: true, both_can_be_true: true, reported: '' })),
+      ...[4, 5].map(n => ({ n, stance: 'disagree', same_event: true, both_can_be_true: false, reported: '70 medals' }))
+    ],
+    explanation: 'hosted'
+  };
+  ownReadings = [];
+  const judged = await judgeClaim(CLAIM, coverage);
+  assert.strictEqual(judged.supportingEvidence.length, 0);
+  assert.strictEqual(judged.contradictingEvidence.length, 2);
+  assert.strictEqual(judged.verdict, 'contradicted');
+});

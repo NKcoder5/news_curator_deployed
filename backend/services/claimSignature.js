@@ -133,7 +133,8 @@ const readNumbers = (text) => {
   const src = String(text || '').replace(/(\d),(?=\d)/g, '$1');
   // A number inside an identifier ("EOS-05", "GSLV-F17", "T20I") is not a
   // figure: it was read as "5 satellite" against "5 into" and the claims parted.
-  const re = /(₹|rs\.?\s*|inr\s*)?(?<![\p{L}\p{N}]-?)(\d+(?:\.\d+)?)(?![\p{L}]*\d)\s*(thousand|lakhs?|million|crores?|billion)?(?:\s*-\s*|\s+)?(per\s*cent|percent|%|percentage points?|basis points?|bps|[\p{L}]{3,})?/giu;
+  // "Rs" and "INR" as words of their own: "Mars 2" is not two rupees.
+  const re = /(₹|(?<![\p{L}\p{N}])rs\.?\s*|(?<![\p{L}\p{N}])inr\s*)?(?<![\p{L}\p{N}]-?)(\d+(?:\.\d+)?)(?![\p{L}]*\d)\s*(thousand|lakhs?|million|crores?|billion)?(?:\s*-\s*|\s+)?(per\s*cent|percent|%|percentage points?|basis points?|bps|[\p{L}]{3,})?/giu;
   for (const m of src.matchAll(re)) {
     const currency = Boolean(m[1]);
     let value = Number(m[2]);

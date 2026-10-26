@@ -145,7 +145,8 @@ const weighContentFactors = (factorScores = {}) => {
   const unmeasured = [];
 
   for (const [name, score] of Object.entries(factorScores)) {
-    if (typeof score !== 'number') continue;
+    // NaN is a number too, and would fall in no bin.
+    if (!Number.isFinite(score)) continue;
     const estimate = factors[name];
 
     if (!estimate || !estimate.estimated) {
@@ -195,12 +196,15 @@ const weighContentFactors = (factorScores = {}) => {
   const cap = declared.styleWeightCap.value;
   const capped = Math.sign(damped) * Math.min(Math.abs(damped), cap);
 
+  // The family is damped whenever it is weighed, one member or four, as eval/estimateWeights.js fitted it,
+  // and the ledger shows it every time: with one style check left, the damping went unlisted and the
+  // ledger's terms no longer added up to its total.
   const adjustments = [];
-  if (styleEntries.length > 1 && rawStyle !== 0) {
+  if (damped !== rawStyle) {
     adjustments.push({
       adjustment: 'style-correlation-damping',
       decibans: Math.round((damped - rawStyle) * 100) / 100,
-      reason: `The ${styleEntries.length} content checks correlate at r=${families.style.meanCorrelation}; they are ${families.style.effectiveFactors} effective independent factors, so their summed weight is scaled by ${families.style.damping}.`
+      reason: `The ${families.style.factors.length} content checks correlate at r=${families.style.meanCorrelation}; they are ${families.style.effectiveFactors} effective independent factors, so the weight of the ${styleEntries.length === 1 ? 'one that ran' : `${styleEntries.length} that ran`} is scaled by ${families.style.damping}.`
     });
   }
   if (Math.abs(damped) > cap) {
@@ -359,13 +363,6 @@ const round = (value, places = 2) => {
   return Math.round(value * factor) / factor;
 };
 
-/**
- * Assemble the full ledger and the posterior probability.
- *
- * @returns {{probabilityFabricated: number, priorProbability: number,
- *            totalDecibans: number, ledger: Array, unmeasured: Array,
- *            declaredParameters: string[]}}
- */
 /** This week's coverage of the subject: an implicit contradiction, or a telling absence. */
 const weighCurrentCoverage = (outcome) => {
   const { declared } = loadTable();
@@ -382,6 +379,13 @@ const weighCurrentCoverage = (outcome) => {
   };
 };
 
+/**
+ * Assemble the full ledger and the posterior probability.
+ *
+ * @returns {{probabilityFabricated: number, priorProbability: number,
+ *            totalDecibans: number, ledger: Array, unmeasured: Array,
+ *            declaredParameters: string[]}}
+ */
 const assessProbability = ({ factorScores, sourceResult, provenance, evidence, factCheck, currentCoverage }) => {
   const prior = priorFor({ sourceResult, provenance });
   const content = weighContentFactors(factorScores);

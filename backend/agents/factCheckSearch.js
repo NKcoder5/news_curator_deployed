@@ -208,8 +208,10 @@ const searchFactCheckHeadlines = async (query) => {
 const ratingClass = (rating) => {
   const r = String(rating || '').toLowerCase();
   if (!r) return 'unrated';
-  if (/\b(mostly false|partly false|partially false|half[\s-]true|mixture|mixed|missing context|lacks context|needs context|out of context|misleading|exaggerat|distort|cherry|misattribut|misrepresent|old (video|photo|image)|satire|spoof)/.test(r)) return 'misleading';
-  if (/\b(false|fake|incorrect|wrong|fabricated|hoax|baseless|untrue|not true|no evidence|pants on fire|pinocchio|scam|doctored|morphed|edited|altered|deepfake|ai[\s-]generated|manipulated|debunk|bogus|rumou?r)/.test(r)) return 'false';
+  // "Partly true" is half a falsehood, and "not real" or "inaccurate" a denial: read as plain "true" (and as
+  // nothing), they turned a desk's ruling around.
+  if (/\b(mostly false|partly false|partially false|partly true|partially true|half[\s-]true|mixture|mixed|missing context|lacks context|needs context|out of context|misleading|exaggerat|distort|cherry|misattribut|misrepresent|old (video|photo|image)|satire|spoof)/.test(r)) return 'misleading';
+  if (/\b(false|fake|incorrect|inaccurate|wrong|fabricated|hoax|baseless|untrue|not true|not real|not genuine|not authentic|no evidence|pants on fire|pinocchio|scam|doctored|morphed|edited|altered|deepfake|ai[\s-]generated|manipulated|debunk|bogus|rumou?r)/.test(r)) return 'false';
   if (/\b(true|correct|accurate|genuine|real|verified|authentic)\b/.test(r)) return 'true';
   return 'unrated';
 };
@@ -481,10 +483,10 @@ const checkFactCheckers = async (claims = [], { title = '', text = '' } = {}) =>
   }
 
   // One desk, one voice: AFP's English and Hindi reviews of the same video are
-  // one fact-check, not two.
+  // one fact-check, not two, and "Vishvas News" and "VishvasNews" one desk.
   const byDesk = new Map();
   for (const m of matches) {
-    const desk = String(m.publisher || m.site || m.url).toLowerCase().replace(/\s*fact\s*check$/, '').trim();
+    const desk = deskOf(m.publisher) || domainOf(m.url) || String(m.site || m.url).toLowerCase();
     if (!byDesk.has(desk)) byDesk.set(desk, m);
   }
   const distinct = [...byDesk.values()];

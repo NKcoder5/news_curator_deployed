@@ -219,8 +219,10 @@ const measure = async (task, providerName) => {
     }
   }
 
-  process.env.LLM_PROVIDER = previous;
-  if (previousOllama !== undefined) process.env.OLLAMA_HOST = previousOllama;
+  // An unset variable is deleted, not assigned: process.env turns undefined into the string "undefined".
+  const restore = (name, value) => { if (value === undefined) delete process.env[name]; else process.env[name] = value; };
+  restore('LLM_PROVIDER', previous);
+  restore('OLLAMA_HOST', previousOllama);
 
   return {
     validity: Number((valid / RUNS).toFixed(2)),

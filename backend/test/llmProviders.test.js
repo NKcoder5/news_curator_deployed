@@ -3,7 +3,6 @@
 // any machine — including one with no local model installed.
 const test = require('node:test');
 const assert = require('node:assert');
-const path = require('path');
 
 const axiosPath = require.resolve('axios');
 const providersPath = require.resolve('../utils/llmProviders');

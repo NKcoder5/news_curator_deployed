@@ -195,6 +195,20 @@ const MEDIA_ASSERTION = new RegExp([
 ].join('|'), 'i');
 const isMediaAssertion = (claim) => MEDIA_ASSERTION.test(String(claim || ''));
 
+/**
+ * Was this report published by the day of the newest ruling against the claim? A desk's ruling is dated
+ * by day, so a report from that day counts as one the desk could have read.
+ */
+const seenByDesk = (evidence, factCheckResult) => {
+  const rulings = (factCheckResult?.matches || [])
+    .filter(m => m.finding === 'false' || m.finding === 'misleading')
+    .map(m => Date.parse(String(m.reviewedAt || '').slice(0, 10)))
+    .filter(Number.isFinite);
+  const published = Date.parse(evidence?.publishedAt);
+  if (!rulings.length || !Number.isFinite(published)) return false;
+  return published < Math.max(...rulings) + 86400000;
+};
+
 const buildEvidenceLedger = ({
   claims = [], sourceResult = {}, transparencyResult = {}, manipulationResult = {}, title = '',
   verificationStatus = 'unverified', premiseResult = null, factCheckResult = null, currentCoverageResult = null,
@@ -404,9 +418,16 @@ const buildEvidenceLedger = ({
     // And only where it outnumbers the outlets contradicting that claim: an
     // even split used to overtake a ruling, so adding contradicting outlets
     // turned the ruling's FAKE into CANNOT VERIFY (eval/counterfactualFaithfulness.js).
+    // Nor can reporting the desk had in front of it: a ruling overtaken by events is overtaken by what
+    // happened after it. "Dhaka agrees to buy costlier power from China after India mulls extra fee",
+    // rated false by AFP on 14 Sep, came back CANNOT VERIFY because four Indian outlets had reported it:
+    // the very reports the desk examined and found false (rulings 1-60, 26 Oct). Coverage dated on or
+    // before the newest ruling against the claim is set aside here; undated coverage still counts.
     supportBeyondDebunks: Math.max(0, ...perClaim.filter(c => !c.stale).map(c => {
       const beyond = analyseIndependence(
-        (claims.find(x => x.claim === c.claim)?.supportingEvidence || []).filter(e => !DEBUNK_WORDS.test(`${e.title || ''} ${e.reported || ''}`))
+        (claims.find(x => x.claim === c.claim)?.supportingEvidence || [])
+          .filter(e => !DEBUNK_WORDS.test(`${e.title || ''} ${e.reported || ''}`))
+          .filter(e => !seenByDesk(e, factCheckResult))
       ).independentCount;
       return beyond > c.contradiction.independentCount ? beyond : 0;
     })),

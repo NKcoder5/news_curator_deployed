@@ -12,6 +12,7 @@ const { noteModelCall } = require('../utils/runContext');
 const { FACT_CHECK_DESKS } = require('./factCheckSearch');
 const { forecastOnly, resultConflict, signatureConflict } = require('../utils/stanceGuards');
 const { signatureOf } = require('../services/claimSignature');
+const { UNTRUSTED_NOTICE, fence, addressesModel, asBool, oneOf, clip, numberedItems } = require('../utils/untrusted');
 
 // A changed figure is a comparison, not a judgement. "CJP leaders Saurav Das
 // and Ashutosh Ranka were sent to 4 days in judicial custody" against nine
@@ -187,20 +188,11 @@ const acrossScripts = async (claim, items, label) => {
   return candidates.filter((it, i) => verdicts[i] && verdicts[i].scores && verdicts[i].scores[label] >= 0.5)
     .map(it => ({ ...it, sharedTerms: ['(read across languages by our own model)'] }));
 };
-const { UNTRUSTED_NOTICE, fence, addressesModel, asBool, oneOf, clip, numberedItems } = require('../utils/untrusted');
 
 /** A claim is one sentence; a reply that writes an essay into it is cut back. */
 const MAX_CLAIM_CHARS = 300;
 const STANCES = new Set(['agree', 'disagree', 'unrelated']);
 
-/**
- * Search terms for a claim the model described but did not supply keywords for.
- *
- * Proper nouns and figures first, because those are what pin a claim to one
- * event; ordinary content words only when the claim carries no anchors, which
- * is the case where corroboration was never going to establish anything
- * anyway.
- */
 // The claims of a message read without a model: its assertive sentences, with forwarding furniture,
 // links, instructions and questions removed. Used only when no model could read it.
 // A label, not an instruction: "Forwarded as received", "BREAKING:", "Forwarded:" ("Forward this to ten
@@ -261,6 +253,14 @@ const sentenceClaims = (title, content) => {
   });
 };
 
+/**
+ * Search terms for a claim the model described but did not supply keywords for.
+ *
+ * Proper nouns and figures first, because those are what pin a claim to one
+ * event; ordinary content words only when the claim carries no anchors, which
+ * is the case where corroboration was never going to establish anything
+ * anyway.
+ */
 const deriveKeywords = (claim) => {
   const anchors = [...anchorTerms(claim)];
   const terms = anchors.length >= 2 ? anchors : [...distinctiveTerms(claim)];
@@ -351,7 +351,9 @@ Return at most ${maxClaims} claims. If the article contains no checkable claims,
     .map(c => {
       const claim = clip(c.claim, MAX_CLAIM_CHARS);
       const given = clip(c.search_keywords, 120);
-      const keywords = given || deriveKeywords(claim);
+      // A claim with no name or distinctive word in it still has words to search with: dropped here,
+      // it would read as the article asserting nothing.
+      const keywords = given || deriveKeywords(claim) || searchQueryFor(claim);
       return {
         claim,
         keywords,
@@ -395,7 +397,8 @@ const competingFigure = (claim, articles) => {
   const own = new Map();   // unit -> the claim's number for it
   for (const m of String(claim || '').matchAll(QUANTITY)) {
     if (/^(?:19|20)\d{2}$/.test(m[1])) continue;
-    own.set((m[2] || 'percent').toLowerCase().replace(/s$/, ''), m[1].replace(/,/g, ''));
+    // As the headlines' figures are read below: "84." at the end of a sentence is 84.
+    own.set((m[2] || 'percent').toLowerCase().replace(/s$/, ''), m[1].replace(/,/g, '').replace(/\.$/, ''));
   }
   if (!own.size) return null;
   const counts = new Map();
@@ -557,7 +560,6 @@ const judgeClaim = async (claim, retrievedAll) => {
     return { verdict: 'no-coverage', supportingEvidence: [], contradictingEvidence: [],
       discardedEvidence: setAside, explanation: setAsideNote };
   }
-  let reportedByItem = new Map();
   // Six items, not ten, and a tighter budget each. The failure this addresses
   // scaled with the amount there was to walk through: eight items at 300
   // characters invited the model to narrate its way through every one of them
@@ -598,7 +600,7 @@ Numbers matter. If the claim gives a figure and a headline about the same event 
 Role and status claims: if the claim says a person currently HOLDS a role ("X is the Chief Minister", "X is the President", "X is the PM"), a headline only "agree"s if it explicitly states that person currently holds that exact role. A headline about the person's aspirations ("X aims to become CM", "X launches political party", "X contests elections"), party activities, or past roles does NOT confirm they hold the role now and must be marked "unrelated". To "agree" with a current-role claim, the headline must state the person IS in that role, not that they want it, may win it, or once held it.
 
 Return a JSON object with these keys:
-- "items": an array with one object per headline: {"n": <headline number>, "same_event": true or false, "both_can_be_true": true or false, "stance": "agree" | "disagree" | "unrelated", "reported": "<the exact words in the headline that state the fact the claim is about, such as \"85 medals\" or \"TVK sweeps both seats\"; empty if the headline does not state it>"}.
+- "items": an array with one object per headline: {"n": <headline number>, "same_event": true or false, "both_can_be_true": true or false, "stance": "agree" | "disagree" | "unrelated", "reported": "<the exact words in the headline that state the fact the claim is about, such as "85 medals" or "TVK sweeps both seats"; empty if the headline does not state it>"}.
 - "explanation": one sentence saying what the headlines report compared with the claim.`;
 
   // A model that could not be reached, or whose reply could not be parsed,
@@ -726,11 +728,10 @@ Return a JSON object with these keys:
   const contradictingIndices = items
     .filter(it => stance(it) === 'disagree' && asBool(it.same_event) === true && asBool(it.both_can_be_true) === false && inHeadline(it) && !asksOnly(it))
     .map(it => it.n);
-  reportedByItem = new Map(items.map(it => [it.n, clip(it.reported, 200)]));
-  const judged = contradictingIndices.length > supportingIndices.length
-    ? 'contradicted'
-    : supportingIndices.length > 0 ? 'supported'
-      : contradictingIndices.length > 0 ? 'contradicted' : 'unverified';
+  const reportedByItem = new Map(items.map(it => [it.n, clip(it.reported, 200)]));
+  // More disagreeing than agreeing is a contradiction; any agreement otherwise is support.
+  const weigh = (agreeing, disagreeing) => (disagreeing > agreeing ? 'contradicted'
+    : agreeing > 0 ? 'supported' : disagreeing > 0 ? 'contradicted' : 'unverified');
 
   const pick = (indices) =>
     (Array.isArray(indices) ? indices : [])
@@ -750,8 +751,6 @@ Return a JSON object with these keys:
         reliability: reputationOfResult(a).score
       }));
 
-  let verdict = judged;
-
   // The model will cite coverage that is not about this claim at all. Measured
   // on the adversarial set, an invented "secret chemical leak" was reported as
   // supported by real articles concerning an unrelated evacuation — turning a
@@ -766,15 +765,15 @@ Return a JSON object with these keys:
   support.kept.push(...await acrossScripts(claim, notKept(supportItems, support.kept), 'entailment'));
   contradiction.kept.push(...await acrossScripts(claim, notKept(contradictionItems, contradiction.kept), 'contradiction'));
 
-  if (verdict === 'supported' && support.kept.length === 0) verdict = 'unverified';
+  // Weighed on what survived. Weighed before, three readings of agreement against two of disagreement
+  // stayed "supported" when the three were set aside as being about something else, and the two kept
+  // contradictions were reported as nothing ("unverified").
+  let verdict = weigh(support.kept.length, contradiction.kept.length);
   // A "supported" from a model, against headlines about the same people that
   // all give a different figure, is overruled by the figures themselves.
   if (verdict === 'supported') {
     const figured = byFigures(claim, coverage, '');
     if (figured) return { ...figured, explanation: `${figured.explanation} The model's reading of them as agreeing was set aside.` };
-  }
-  if (verdict === 'contradicted' && contradiction.kept.length === 0) {
-    verdict = support.kept.length > 0 ? 'supported' : 'unverified';
   }
   // Our model never says "disagree" on its own unless it is sure; a different figure for the same
   // thing is settled by the figures whoever judged the headlines.
@@ -1003,7 +1002,6 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, keywordsR
       // 7500" for a claim of "code 7400") are kept among the judged ones:
       // ranked by shared words they fell below the twelve, and the figure
       // check never saw them (the claim came back REAL).
-      const claimFigures = numbersInContext(claim);
       const figured = claimFigures.length ? ranked.filter(a => !regional.includes(a) && numbersInContext(a.title)
         .some(h => claimFigures.some(n => sameContext(n, h)))).slice(0, 4) : [];
       const reserved = [...regional, ...figured];

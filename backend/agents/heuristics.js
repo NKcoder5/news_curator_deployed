@@ -68,6 +68,11 @@ const CLICKBAIT_PATTERNS = [
     re: /(!{2,}|\?{2,}|\?!|!\?)/ }
 ];
 
+const ACRONYMS = new Set([
+  'NASA', 'NATO', 'OPEC', 'FIFA', 'NCAA', 'UEFA', 'UNICEF', 'UNESCO', 'UNHCR', 'ASEAN', 'BRICS', 'COVID',
+  'ISRO', 'DRDO', 'BCCI', 'SEBI', 'CBSE', 'NEET', 'AIIMS', 'NITI', 'UPSC', 'NDTV', 'AIADMK', 'NDRF'
+]);
+
 /**
  * Score a headline for clickbait without a model.
  * @param {string} title
@@ -86,9 +91,10 @@ const clickbaitByRules = (title) => {
     }
   }
 
-  // Shouted words, ignoring short tokens that are usually acronyms (US, EU, AP).
+  // Shouted words, ignoring short tokens that are usually acronyms (US, EU, AP)
+  // and the longer acronyms headlines name every day: "ISRO launches..." is not shouting.
   const shouted = (headline.match(/\b[A-Z]{4,}\b/g) || [])
-    .filter(w => !/^(NASA|NATO|OPEC|WHO|FIFA|NCAA)$/.test(w));
+    .filter(w => !ACRONYMS.has(w));
   if (shouted.length) {
     signals.push('Words set in all capitals');
     penalty += Math.min(2.5, shouted.length * 1.25);
@@ -191,7 +197,8 @@ const TECHNIQUE_PATTERNS = [
     re: /\b(threatens? to destroy|could be catastrophic|before it'?s too late|on the brink|dire consequences|will devastate|wake up before|danger|deadly|terrifying|panic|destruction)\b/i,
     effect: 'Argues by alarm about what happens otherwise.' },
   { technique: 'exaggeration',
-    re: /\b(unprecedented|never before in history|the worst .{0,20}ever|astronomical|infinitely|massive|total collapse|absolute disaster|100%|completely destroyed)\b/i,
+    // "100%" ends in a sign, not a letter, so it sits outside the closing \b, which it could never meet.
+    re: /\b(?:unprecedented|never before in history|the worst .{0,20}ever|astronomical|infinitely|massive|total collapse|absolute disaster|completely destroyed)\b|\b100%/i,
     effect: 'Overstates scale, making the story feel larger than the evidence supports.' },
   { technique: 'flag waving',
     re: /\b(real (americans|patriots)|our way of life|un-?american|true patriots?|for the people)\b/i,
@@ -200,7 +207,9 @@ const TECHNIQUE_PATTERNS = [
     re: /\b(everyone (knows|agrees)|most people (know|agree)|nobody believes|we all know)\b/i,
     effect: 'Treats popularity as proof.' },
   { technique: 'thought-terminating cliche',
-    re: /\b(it is what it is|end of story|case closed|enough said|period\.)\b/i,
+    // "..., period." closes a sentence. Inside \b...\b, "period." could never match, and a bare
+    // "period." would flag "during the same period."
+    re: /\b(?:it is what it is|end of story|case closed|enough said)\b|,\s*period[.!]/i,
     effect: 'Closes the discussion rather than engaging with it.' },
   { technique: 'unnamed sources',
     re: /\b(experts? (say|believe|warn)|sources? (say|claim|told)|studies show|research suggests|many believe|critics say|it is (said|believed)|whistleblower|insiders? (say|claim))\b/i,
@@ -268,6 +277,11 @@ const VAGUE_ATTRIBUTION_RE =
 const ATTRIBUTION_RE =
   /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3})\s+(?:said|says|told|stated|announced|confirmed|added|wrote)\b|according to\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3})/g;
 
+// "He said", "Officials said": a speaker, but not a named one.
+const NOT_A_NAME = new Set(['he', 'she', 'it', 'they', 'we', 'you', 'this', 'that', 'these', 'those', 'there', 'the',
+  'officials', 'official', 'police', 'sources', 'source', 'experts', 'expert', 'reports', 'critics', 'analysts',
+  'authorities', 'residents', 'witnesses', 'locals', 'insiders', 'someone', 'people', 'many', 'some', 'others']);
+
 const PRIMARY_EVIDENCE_RE =
   /\b(report|study|survey|poll|filing|court|ruling|statement|document|transcript|data|figures|analysis|audit|census|investigation)\b/i;
 
@@ -292,7 +306,8 @@ const transparencyByRules = (title, content, checkDefs) => {
   const attributionRe = new RegExp(ATTRIBUTION_RE.source, 'g');
   while ((m = attributionRe.exec(text)) !== null) {
     const name = (m[1] || m[2] || '').trim();
-    if (name && !named.includes(name)) named.push(name);
+    if (!name || name.split(/\s+/).every(w => NOT_A_NAME.has(w.toLowerCase()))) continue;
+    if (!named.includes(name)) named.push(name);
     if (named.length >= 4) break;
   }
 

@@ -73,3 +73,104 @@ test('one unreadable screenshot does not switch screenshot reading off', async (
     delete require.cache[ocrPath];
   }
 });
+
+test('the style family\'s damping is listed whenever it applies, so the ledger adds up', () => {
+  const { assessProbability, weighContentFactors } = require('../agents/weightOfEvidence');
+  // One style check left (the others could not run): its weight is damped, and the ledger says so.
+  const content = weighContentFactors({ clickbait: 1 });
+  if (content.entries.length && content.entries[0].decibans !== 0) {
+    assert.ok(content.adjustments.some(a => a.adjustment === 'style-correlation-damping'), 'damping listed for one check');
+  }
+  for (const factorScores of [{ clickbait: 1 }, { manipulation: 0.5 }, { clickbait: 1, bias: 2 }, {}]) {
+    const result = assessProbability({ factorScores, sourceResult: { matched: false, score: 5 }, evidence: { independentSupport: 0 } });
+    const sum = result.ledger.reduce((s, e) => s + e.decibans, 0);
+    assert.ok(Math.abs(sum - result.totalDecibans) < 0.05, `ledger ${sum.toFixed(2)} against total ${result.totalDecibans} for ${JSON.stringify(factorScores)}`);
+  }
+  // NaN is a number, and fell in no bin.
+  assert.doesNotThrow(() => weighContentFactors({ clickbait: NaN }));
+});
+
+test('the pattern checks read "100%", ", period." and acronyms as they are written', () => {
+  const { clickbaitByRules, manipulationByRules, transparencyByRules } = require('../agents/heuristics');
+  const { CHECKS } = require('../agents/transparencyAgent');
+  assert.deepStrictEqual(clickbaitByRules('ISRO launches its heaviest satellite').signals, []);
+  assert.ok(clickbaitByRules('SHOCKING video goes VIRAL').signals.includes('Words set in all capitals'));
+  const found = (text) => manipulationByRules('', text).techniques.map(t => t.technique);
+  assert.ok(found('The remedy works 100% of the time for every single patient.').includes('exaggeration'));
+  assert.ok(found('That is the whole truth about the vaccine, period.').includes('thought-terminating cliche'));
+  assert.deepStrictEqual(found('Revenue fell sharply during the same period.'), []);
+  const named = (text) => transparencyByRules('Fire at the market', text, CHECKS).namedExamples;
+  assert.deepStrictEqual(named('He said the fire began at night. Officials said nothing more.'), []);
+  assert.deepStrictEqual(named('Fire chief Ravi Kumar said the fire began at night.'), ['Ravi Kumar']);
+});
+
+test('desk ratings: "partly true" is misleading, "not real" and "inaccurate" are false', () => {
+  const { ratingClass } = require('../agents/factCheckSearch');
+  assert.strictEqual(ratingClass('Partly true'), 'misleading');
+  assert.strictEqual(ratingClass('Partially True'), 'misleading');
+  assert.strictEqual(ratingClass('Not real'), 'false');
+  assert.strictEqual(ratingClass('Inaccurate'), 'false');
+  assert.strictEqual(ratingClass('Mostly true'), 'true');
+  assert.strictEqual(ratingClass('Unverified'), 'unrated');
+});
+
+test('"Rs" is a currency only as a word of its own', () => {
+  const { readNumbers } = require('../services/claimSignature');
+  assert.deepStrictEqual(readNumbers('Mars 2 mission launched').numbers.map(n => n.unit), ['mission']);
+  assert.deepStrictEqual(readNumbers('Fuel costs Rs 5 more').numbers.map(n => n.unit), ['rupee']);
+  assert.deepStrictEqual(readNumbers('fine of rs.500 imposed').numbers.map(n => n.unit), ['rupee']);
+});
+
+test('reporting the desk had in front of it cannot overtake its ruling; later reporting can', () => {
+  const { buildEvidenceLedger, decideVerdict } = require('../agents/verdictEngine');
+  const outlet = (source, title, publishedAt) => ({ source, title, description: '', url: `https://${source.replace(/\s/g, '')}.test/x`, reliability: 7, publishedAt });
+  const decide = (dates) => decideVerdict(buildEvidenceLedger({
+    claims: [{
+      claim: 'Dhaka agreed to buy costlier power from China.', verdict: 'supported', contradictingEvidence: [],
+      supportingEvidence: [
+        outlet('News18', 'Bangladesh agreed to pay China 127% more for power', dates[0]),
+        outlet('India Today', 'Bangladesh eyes 127% costlier Chinese power', dates[1]),
+        outlet('Outlook Business', 'Why Bangladesh is paying more for Chinese power', dates[2])
+      ]
+    }],
+    sourceResult: { matched: false, score: 5 }, transparencyResult: { score: 5 }, manipulationResult: { techniques: [] },
+    title: 'Dhaka agrees to buy costlier power from China',
+    factCheckResult: { status: 'debunked', matches: [{ publisher: 'AFP', finding: 'false', rating: 'False', reviewedAt: '2026-09-14', url: 'https://factcheck.afp.com/x', claimReviewed: 'Dhaka agreed to buy costlier power from China' }] },
+    asOf: Date.parse('2026-10-20T00:00:00Z')
+  }));
+  const before = decide(['2026-09-10T08:00:00Z', '2026-09-11T08:00:00Z', '2026-09-14T06:00:00Z']);
+  assert.strictEqual(before.rule, 'rated-false-by-fact-checkers');
+  assert.strictEqual(before.call, 'FAKE');
+  const after = decide(['2026-10-01T08:00:00Z', '2026-10-02T08:00:00Z', '2026-10-03T08:00:00Z']);
+  assert.strictEqual(after.rule, 'fact-checkers-and-reporting-disagree');
+});
+
+test('a name the reference work could not be asked about is reported as unchecked', async () => {
+  const wikipediaPath = require.resolve('../utils/wikipedia');
+  const nimPath = require.resolve('../utils/nvidiaNimApi');
+  const nliPath = require.resolve('../services/localNli');
+  const real = { wiki: require.cache[wikipediaPath], nim: require.cache[nimPath], nli: require.cache[nliPath] };
+  const stub = (p, exports) => { require.cache[p] = { id: p, filename: p, loaded: true, exports }; };
+  stub(wikipediaPath, {
+    fetchWikipediaContent: async (entity) => {
+      if (/Chennai/.test(entity)) throw new Error('timeout');
+      return [{ title: entity, content: `${entity} is an Indian politician.`, url: 'x' }];
+    },
+    extractKeywords: () => []
+  });
+  stub(nimPath, { callNimApiJson: async () => ({ same_subject: true, contradicts: false, both_can_be_true: true, asserted_by: 'article', supports: false }), callNimApi: async () => '', extractJson: () => null });
+  stub(nliPath, { judgePairs: async (pairs) => pairs.map(() => null), judgePair: async () => null, isAvailable: () => false });
+  delete require.cache[require.resolve('../agents/referenceCheck')];
+  try {
+    const { checkPremises } = require('../agents/referenceCheck');
+    const result = await checkPremises('Rahul Gandhi visits Chennai', 'Rahul Gandhi visited Chennai on Tuesday.');
+    assert.strictEqual(result.status, 'consistent');
+    assert.strictEqual(result.partialFailure, true);
+    assert.match(result.explanation, /1 could not be checked/);
+  } finally {
+    for (const [p, r] of [[wikipediaPath, real.wiki], [nimPath, real.nim], [nliPath, real.nli]]) {
+      if (r) require.cache[p] = r; else delete require.cache[p];
+    }
+    delete require.cache[require.resolve('../agents/referenceCheck')];
+  }
+});

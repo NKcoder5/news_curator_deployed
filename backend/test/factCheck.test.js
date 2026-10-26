@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { ratingClass, parseExplorer, queriesFor, shortQuery, mediaScopeCompatible, isMediaClaim } = require('../agents/factCheckSearch');
+const { ratingClass, parseExplorer, queriesFor, shortQuery, mediaScopeCompatible } = require('../agents/factCheckSearch');
 const { buildEvidenceLedger, decideVerdict } = require('../agents/verdictEngine');
 const { weighFactCheck } = require('../agents/weightOfEvidence');
 

@@ -29,6 +29,7 @@ const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { fetchWikipediaContent } = require('../utils/wikipedia');
 const { findAnchors, STOPWORDS, SENTENCE_OPENERS } = require('./checkability');
 const { judgePairs } = require('../services/localNli');
+const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip } = require('../utils/untrusted');
 
 // A contradiction found by a language model stands only if our own pair model
 // (services/localNli.js, fine-tuned for exactly this) also reads the quoted
@@ -60,7 +61,6 @@ const secondOpinion = async (contradictions) => {
   });
   return { kept, overruled };
 };
-const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip } = require('../utils/untrusted');
 
 /**
  * Find the full sentence in `content` that contains `fragment`.
@@ -252,6 +252,8 @@ const checkPremises = async (title, content, subjects = []) => {
     }));
 
     const found = lookups.filter(l => l && l.reference);
+    // A name the reference work could not be asked about was not checked, and the report says so.
+    const unreachable = lookups.filter(l => l && l.lookupFailed).length;
     if (found.length === 0) {
       // Every lookup failing means the reference work was unreachable, not
       // that none of these names has an entry.
@@ -263,7 +265,7 @@ const checkPremises = async (title, content, subjects = []) => {
           explanation: 'The reference work could not be reached, so the article’s premises were not tested.'
         };
       }
-      return { status: 'not-found', checked: [], contradictions: [], explanation: 'No reference entry was found for the names in this article.' };
+      return { status: 'not-found', checked: [], contradictions: [], partialFailure: unreachable > 0, explanation: 'No reference entry was found for the names in this article.' };
     }
 
     // Keep full reference content so we can expand fragment quotes for the
@@ -299,6 +301,7 @@ const checkPremises = async (title, content, subjects = []) => {
     const confirmations = results.filter(r => r.supports && !r.contradicts)
       .map(r => ({ entity: r.entity, reference: r.reference, referenceStates: r.referenceSupports }));
     const failures = results.filter(r => r.failed);
+    const unchecked = failures.length + unreachable;
 
     // A judgement that could not run is not a judgement that found nothing.
     // Treating the two alike would report "we checked this subject and it was
@@ -323,11 +326,11 @@ const checkPremises = async (title, content, subjects = []) => {
       // Contradictions our own model did not see in the quoted sentence; shown
       // for transparency, never counted.
       overruled: overruled.map(c => ({ entity: c.entity, articleStates: c.articleStates, referenceStates: c.referenceStates, ownModel: c.ownModel })),
-      partialFailure: failures.length > 0,
+      partialFailure: unchecked > 0,
       explanation: contradictions.length
         ? `A reference entry contradicts what this article states about ${contradictions.map(c => c.entity).join(' and ')}.`
         : `Checked ${results.length - failures.length} named ${results.length - failures.length === 1 ? 'subject' : 'subjects'} against reference entries and found nothing contradicted`
-          + (failures.length ? `; ${failures.length} could not be checked.` : '.')
+          + (unchecked ? `; ${unchecked} could not be checked.` : '.')
     };
   } catch (err) {
     // Consistent with the rest of the pipeline: a check that could not run
@@ -422,9 +425,7 @@ Return a JSON object with these keys:
     const assertedBy = oneOf(result?.asserted_by, ['article', 'quoted'], null);
     const articleStates = clip(result?.article_states, 300);
     if (sameSubject === false) {
-      return { contradicts: false, differentSubject: true,
-        article_states: articleStates,
-        reference_states: '' };
+      return { contradicts: false, differentSubject: true, articleStates, referenceStates: '' };
     }
 
     // Difference is not contradiction, and a quotation is not the report.

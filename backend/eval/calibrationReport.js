@@ -31,7 +31,6 @@ const path = require('path');
 const { wilson } = require('./metrics');
 
 const RESULTS = path.join(__dirname, 'results');
-const ABSTENTIONS = new Set(['CANNOT VERIFY', 'REFUSED', 'NOT A FACTUAL CLAIM', 'ERROR', 'SATIRE']);
 const VERDICTS = ['REAL', 'FAKE', 'PARTLY FALSE', 'MISLEADING'];
 const TRUE_SIDE = new Set(['REAL']);
 const FALSE_SIDE = new Set(['FAKE', 'PARTLY FALSE', 'MISLEADING']);

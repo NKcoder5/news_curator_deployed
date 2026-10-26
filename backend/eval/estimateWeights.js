@@ -146,6 +146,21 @@ const loadRecords = (inputPath) => {
   }
   if (dropped) console.warn(`${dropped} records dropped: every factor had fallen back to the pattern check.`);
 
+  // Two readings of the same articles (the four writing checks, and the merged one, over the same ISOT
+  // sample: eval/runEval.js --ids-from) are not twice the evidence. Pooled, every article would count
+  // twice and the ratios would describe neither reading. One run is chosen with --input. (The older,
+  // pooled estimate without --clean-only mixes configurations over one sample by design; see above.)
+  if (!inputPath && CLEAN_ONLY) {
+    const filesById = new Map();
+    for (const r of records) filesById.set(r.id, new Set([...(filesById.get(r.id) || []), r.file]));
+    const shared = [...filesById.values()].filter(files => files.size > 1);
+    if (shared.length) {
+      const files = [...new Set(shared.flatMap(f => [...f]))];
+      console.error(`${shared.length} articles were read in more than one run (${files.join(', ')}). Choose the run to estimate from with --input.`);
+      process.exit(1);
+    }
+  }
+
   return { records, sources, corpus: { unknownChannel, droppedForDegraded: dropped } };
 };
 

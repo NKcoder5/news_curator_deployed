@@ -33,6 +33,7 @@ require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') }
 const fs = require('fs');
 const path = require('path');
 const { checkMessage, outcomeOf, quotaGuard, EXIT_RESUMABLE, resultsFile, keptRows, writeJson, median, pause } = require('./liveCheck');
+const { deskOf, domainOf } = require('../agents/factCheckSearch');
 
 const args = process.argv.slice(2);
 const flag = (name, fallback = null) => (args.includes(name) ? args[args.indexOf(name) + 1] : fallback);
@@ -134,9 +135,13 @@ const save = (rows, stoppedBecause) => {
     if (checks >= maxChecks) { stoppedBecause = `check budget of ${maxChecks} spent`; break; }
     // FACT_CHECK_CHANNEL=others: the channel is on, but the ruling a case is labelled from is hidden from
     // it and from the news search, so what counts is other desks' reviews of the same rumour.
+    // The labelling desk is hidden whole, every review of it, not only the ruling's own address
+    // (agents/factCheckSearch.js, excludedReview).
     if (process.env.FACT_CHECK_CHANNEL === 'others') {
       process.env.FACT_CHECK_EXCLUDE = (c.sources || [])
         .map((u) => String(u).toLowerCase().replace(/^https?:\/\/(www\.)?/, '').replace(/[?#].*$/, '').replace(/\/+$/, '')).join('\n');
+      process.env.FACT_CHECK_EXCLUDE_DESKS = [deskOf(c.ruling?.publisher), ...(c.sources || []).map(domainOf)]
+        .filter(Boolean).join('\n');
     }
     // A case whose input is a link is checked as one, flagged or not (rp-41 and rp-43 were refused as text).
     const result = await checkMessage(c.input, { isUrl: Boolean(c.isUrl) || /^https?:\/\/\S+$/i.test(String(c.input).trim()) });

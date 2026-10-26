@@ -550,7 +550,16 @@ const decideVerdict = (ledger) => {
   // as confirming "Vijay is the Chief Minister" is a real example. Two
   // independent outlets is within the noise; three is the minimum before
   // setting a professional desk's ruling aside.
-  const factCheckOvertaken = ledger.supportBeyondDebunks >= 3
+  //
+  // Not for a message about a video or picture. What the outlets report there is the event, and reports
+  // of an event do not say that this footage shows it (R4m, below), so they cannot overtake a desk's
+  // ruling on the footage. "This video shows the recent protest against CEC Gyanesh Kumar at Delhi's
+  // Jantar Mantar", rated false by three desks, came back CANNOT VERIFY because outlets reported the
+  // protest (rulings 1-60, 26 Oct).
+  const supportIsTheEvent = ledger.messageIsMedia
+    || (ledger.confirmedClaims.length > 0 && ledger.confirmedClaims.every(isMediaAssertion));
+  const factCheckOvertaken = !supportIsTheEvent
+    && ledger.supportBeyondDebunks >= 3
     && ledger.supportBeyondDebunks > ledger.independentContradiction;
   if (['debunked', 'misleading'].includes(ledger.factCheckStatus) && ledger.factChecks.length > 0) {
     if (factCheckOvertaken) {

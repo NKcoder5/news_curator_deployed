@@ -220,3 +220,49 @@ test('factCheckOvertaken requires at least 3 independent outlets, not 2', () => 
 });
 
 
+
+test('evaluation hides the labelling desk whole, not only its ruling\'s address', () => {
+  const { excludedReview } = require('../agents/factCheckSearch');
+  const saved = { a: process.env.FACT_CHECK_EXCLUDE, d: process.env.FACT_CHECK_EXCLUDE_DESKS };
+  process.env.FACT_CHECK_EXCLUDE = 'fullfact.org/world/nepal-miracle-house';
+  process.env.FACT_CHECK_EXCLUDE_DESKS = 'fullfact\nfullfact.org';
+  try {
+    assert.strictEqual(excludedReview({ url: 'https://fullfact.org/world/nepal-miracle-house/?utm=x', publisher: 'Full Fact' }), true);
+    assert.strictEqual(excludedReview({ url: 'https://fullfact.org/other/address/', publisher: 'Full Fact' }), true, 'same desk, another address');
+    assert.strictEqual(excludedReview({ url: 'https://example.org/x', publisher: 'Full Fact' }), true, 'same desk by name');
+    assert.strictEqual(excludedReview({ url: 'https://factcheck.afp.com/x', publisher: 'AFP Fact Check' }), false, 'another desk stays');
+    process.env.FACT_CHECK_EXCLUDE_DESKS = 'afp\nafp.com';
+    assert.strictEqual(excludedReview({ url: 'https://factuel.afp.com/y', publisher: 'AFP Factuel' }), true, 'a desk\'s other-language edition is the same desk');
+  } finally {
+    if (saved.a === undefined) delete process.env.FACT_CHECK_EXCLUDE; else process.env.FACT_CHECK_EXCLUDE = saved.a;
+    if (saved.d === undefined) delete process.env.FACT_CHECK_EXCLUDE_DESKS; else process.env.FACT_CHECK_EXCLUDE_DESKS = saved.d;
+  }
+});
+
+test('a short message about a video is matched as sent when the reading step dropped the video', async () => {
+  const { isMediaClaim } = require('../agents/factCheckSearch');
+  assert.ok(isMediaClaim('Visuals of the protest at Shivaji Park'), 'visuals are pictures');
+  assert.ok(isMediaClaim('A News 1st-style news card shows the minister making three statements'), 'a news card is a picture');
+  assert.ok(!isMediaClaim('The Gandak Barrage Project protected Bihar from floods originating in Nepal.'));
+});
+
+test('reports of the event cannot overtake desks\' rulings on a video of it', () => {
+  const outlet = (source, title) => ({ source, title, description: '', url: `https://${source}.test/x`, reliability: 8 });
+  const decision = decideVerdict(buildEvidenceLedger({
+    claims: [{
+      claim: 'Protest against the Chief Election Commissioner at Jantar Mantar.', verdict: 'supported',
+      supportingEvidence: [
+        outlet('The Hindu', 'Protesters gather at Jantar Mantar against CEC'),
+        outlet('Indian Express', 'Jantar Mantar protest demands CEC resignation'),
+        outlet('NDTV', 'Hundreds rally at Jantar Mantar over election commission')
+      ], contradictingEvidence: []
+    }],
+    sourceResult: { matched: false, score: 5 },
+    transparencyResult: { score: 5 },
+    manipulationResult: { techniques: [] },
+    title: "This video shows the recent protest against CEC Gyanesh Kumar at Delhi's Jantar Mantar.",
+    factCheckResult: { status: 'debunked', matches: [review('Boom Live'), review('India Today')] }
+  }));
+  assert.strictEqual(decision.rule, 'rated-false-by-fact-checkers');
+  assert.strictEqual(decision.call, 'FAKE');
+});

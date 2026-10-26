@@ -42,6 +42,9 @@ const OFFICIAL_URL = 'https://factchecktools.googleapis.com/v1alpha1/claims:sear
 
 /** Reviews shown to the matcher. More than this and it starts to skim. */
 const MAX_CANDIDATES = 10;
+// A forwarded message this short is matched as sent when the reading step dropped that it is about a
+// picture or a video; a longer text (an article) mentions photos in passing and is not.
+const MESSAGE_AS_SENT_MAX = 600;
 
 // The index matches every word, so a full sentence usually returns nothing:
 // "Government declared all Saturdays as bank holidays from November 2026"
@@ -260,9 +263,30 @@ Return a JSON object: {"items": [{"n": <review number>, "same_claim": true or fa
 };
 
 const printOfUrl = (u) => String(u || '').toLowerCase().replace(/^https?:\/\/(www\.)?/, '').replace(/[?#].*$/, '').replace(/\/+$/, '');
-/** A review address hidden for evaluation (FACT_CHECK_EXCLUDE, set per case by eval/robustnessSuite.js). */
-const excludedReview = (url) => Boolean(process.env.FACT_CHECK_EXCLUDE) && Boolean(url)
-  && process.env.FACT_CHECK_EXCLUDE.split('\n').includes(printOfUrl(url));
+/** The registrable domain of an address: factuel.afp.com and factcheck.afp.com are both afp.com. */
+const domainOf = (u) => {
+  let host;
+  try { host = new URL(String(u)).hostname.toLowerCase().replace(/^www\./, ''); } catch (_) { return ''; }
+  const parts = host.split('.');
+  const country = parts.length > 2 && /^(?:co|com|org|net|gov|ac|edu)$/.test(parts[parts.length - 2]) && parts[parts.length - 1].length === 2;
+  return parts.slice(country ? -3 : -2).join('.');
+};
+/** A desk's name without the words every desk uses: "AFP Fact Check" and "AFP" are one desk. */
+const deskOf = (name) => String(name || '').toLowerCase().replace(/fact\s*-?\s*check(?:er|ing)?s?/g, '').replace(/[^a-z0-9]/g, '');
+/**
+ * A review hidden for evaluation (eval/robustnessSuite.js, FACT_CHECK_CHANNEL=others): the ruling a case
+ * is labelled from, and every other review by the same desk. Hiding only the ruling's address leaked: the
+ * same desk's review under another address came back (Full Fact's own ruling on rul-009, AFP's on rul-033,
+ * 26 Oct), and a case was then checked against the very ruling it is labelled from.
+ */
+const excludedReview = (item) => {
+  const addresses = String(process.env.FACT_CHECK_EXCLUDE || '').split('\n').filter(Boolean);
+  const desks = String(process.env.FACT_CHECK_EXCLUDE_DESKS || '').split('\n').filter(Boolean);
+  if (!addresses.length && !desks.length) return false;
+  if (item.url && addresses.includes(printOfUrl(item.url))) return true;
+  return [domainOf(item.url), item.site ? domainOf(/^https?:/.test(item.site) ? item.site : `https://${item.site}`) : '', deskOf(item.publisher)]
+    .some(mark => mark && desks.includes(mark));
+};
 
 const SAME_CLAIM = 0.9;
 const FINDING_OF_RATING = { false: 'false', misleading: 'misleading', true: 'true' };
@@ -324,7 +348,7 @@ const reversalHolds = (finding, rated, userText, reviewedText) => {
 // "Before and after" is a comparison of pictures, whether or not the word is said: "Genuine comparison of
 // a Nepalese town before and after the floods" (ruled false by desks) was read as plain text and the
 // rulings on the images were set aside.
-const MEDIA_WORDS = /\b(?:comparison|compared?|pictures?|photos?|images?|visuals?|shots?)\b[^.]{0,80}\bbefore[\s-]+and[\s-]+after\b|\bbefore[\s-]+and[\s-]+after\b[^.]{0,40}\b(?:comparison|pictures?|photos?|images?|visuals?|shots?)\b|\b(?:video|videos|photo|photos|image|images|picture|pictures|pic|pics|clip|clips|cctv|footage|placard|placards|poster|posters|banner|banners|hoarding|audio|recording|recordings|deepfake|deepfakes|animation|animations|morphed|doctored)\b/i;
+const MEDIA_WORDS = /\b(?:comparison|compared?|pictures?|photos?|images?|visuals?|shots?)\b[^.]{0,80}\bbefore[\s-]+and[\s-]+after\b|\bbefore[\s-]+and[\s-]+after\b[^.]{0,40}\b(?:comparison|pictures?|photos?|images?|visuals?|shots?)\b|\b(?:video|videos|photo|photos|image|images|picture|pictures|pic|pics|clip|clips|cctv|footage|placard|placards|poster|posters|banner|banners|hoarding|audio|recording|recordings|deepfake|deepfakes|animation|animations|morphed|doctored|visuals|screenshot|screenshots|reel|reels|graphic|graphics)\b|\b(?:news|quote)[\s-]+cards?\b/i;
 
 const isMediaClaim = (text) => MEDIA_WORDS.test(String(text || ''));
 
@@ -375,7 +399,7 @@ const checkFactCheckers = async (claims = [], { title = '', text = '' } = {}) =>
     if (!key || seen.has(key)) return;
     // Evaluation only (eval/robustnessSuite.js, FACT_CHECK_CHANNEL=others): the review a case is labelled
     // from is hidden, so a match has to come from other desks' reviews of the same rumour.
-    if (excludedReview(item.url)) return;
+    if (excludedReview(item)) return;
     // A review whose text tells the matcher what to answer is not a review.
     if (addressesModel(`${item.claimReviewed} ${item.title || ''} ${item.rating || ''}`)) return;
     seen.add(key);
@@ -395,9 +419,17 @@ const checkFactCheckers = async (claims = [], { title = '', text = '' } = {}) =>
     };
   }
 
-  const claimText = claims.length
-    ? claims.slice(0, 2).map(c => c.claim).join(' ')
-    : `${title}${text && text !== title ? `. ${String(text).slice(0, 400)}` : ''}`;
+  // The reading step writes each claim the way a headline would, and in doing so can drop what a forward
+  // is about. "The video shows the Gandak Barrage Project, which protected Bihar from Nepal floods" was
+  // read as "The Gandak Barrage Project protected Bihar from floods originating in Nepal"; the desks'
+  // rulings on the video (three, all False) were then compared with a claim that no longer mentions a
+  // video, and set aside as being about one (rulings 1-60, 26 Oct: five such cases came back CANNOT
+  // VERIFY). A short message about a picture or a video is matched as it was sent.
+  const extracted = claims.slice(0, 2).map(c => c.claim).join(' ');
+  const message = `${title}${text && text !== title ? `. ${text}` : ''}`.replace(/\s+/g, ' ').trim();
+  const asSent = Boolean(extracted) && !isMediaClaim(extracted) && isMediaClaim(message) && message.length <= MESSAGE_AS_SENT_MAX;
+  const claimText = !claims.length ? `${title}${text && text !== title ? `. ${String(text).slice(0, 400)}` : ''}`
+    : asSent ? message : extracted;
 
   let judged;
   try {
@@ -407,7 +439,7 @@ const checkFactCheckers = async (claims = [], { title = '', text = '' } = {}) =>
     // claim matching (46 of 46 pairs, none merged wrongly): a review is of the same claim only when
     // each statement entails the other. Its finding is then the desk's own rating; the readings that
     // need a model to reverse a rating are not attempted.
-    judged = await matchReviewsOwn(claims.length ? claims.map(c => c.claim) : [claimText], candidates).catch(() => null);
+    judged = await matchReviewsOwn(claims.length && !asSent ? claims.map(c => c.claim) : [claimText], candidates).catch(() => null);
     // Finding no match is not finding that none examined the claim: our model reads paraphrases too
     // literally to say that ("Banks will be closed every Saturday and Sunday" against "Every Saturday
     // has been declared a bank holiday" scored 0.09), so without a match the reviews stay uncompared.
@@ -496,5 +528,8 @@ module.exports = {
   shortQuery,
   reversalHolds,
   mediaScopeCompatible,
-  isMediaClaim
+  isMediaClaim,
+  excludedReview,
+  deskOf,
+  domainOf
 };

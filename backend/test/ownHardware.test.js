@@ -156,6 +156,31 @@ test('check-ins that stop make the laptop count as gone', () => {
   } finally { Date.now = realNow; modelHost.reset(); }
 });
 
+test('queued calls go in priority order, and the writing checks never hold every slot', async () => {
+  const { __test: { acquireSlot, releaseSlot, priorityOf } } = require('../utils/nvidiaNimApi');
+  const gpu = { name: `queue-test-${Date.now()}`, concurrency: 2 };
+  const order = [];
+  const take = (label) => acquireSlot(gpu, priorityOf(label)).then(() => order.push(label));
+  await take('clickbait');                           // a writing check takes one slot...
+  const bias = take('bias');                         // ...but not the second: one is kept for evidence
+  await new Promise(r => setImmediate(r));
+  assert.deepStrictEqual(order, ['clickbait']);
+  await take('input understanding');                 // the kept slot
+  const later = [take('manipulation'), take('stance judgement'), take('claim extraction')];
+  await new Promise(r => setImmediate(r));
+  releaseSlot(gpu); await new Promise(r => setImmediate(r));
+  releaseSlot(gpu); await new Promise(r => setImmediate(r));
+  assert.deepStrictEqual(order.slice(2), ['claim extraction', 'stance judgement'], 'reading first, then evidence');
+  releaseSlot(gpu); releaseSlot(gpu);
+  await bias;
+  await new Promise(r => setImmediate(r));
+  assert.deepStrictEqual(order.slice(4), ['bias'], 'the writing checks last, and one at a time on two slots');
+  releaseSlot(gpu);
+  await Promise.all(later);
+  assert.deepStrictEqual(order.slice(4), ['bias', 'manipulation'], 'first come first served within a group');
+  releaseSlot(gpu);
+});
+
 test('the report says who read it, and whether any of it was outside AI', () => {
   const { readersOf } = require('../services/contentCheck');
   const own = readersOf([

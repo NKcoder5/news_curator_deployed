@@ -18,6 +18,7 @@ const { explainDecision } = require('./decisionExplainer');
 const { trackRecordFor } = require('./ruleReliability');
 const { runWithContext, currentContext } = require('../utils/runContext');
 const { translateVerdict } = require('../agents/verdictTranslation');
+const { resolveProviderChain } = require('../utils/llmProviders');
 
 // How long the evidence channels of a reader's check have to land. Measured on
 // 12 Oct the slowest channel landed 8.8 s after the claims were known (the
@@ -26,6 +27,17 @@ const { translateVerdict } = require('../agents/verdictTranslation');
 // read in time and counts as absent (agents/trustAnalysisAgent.js, UNREAD).
 // Re-checks have no reader waiting and wait for everything.
 const EVIDENCE_DEADLINE_MS = 15000;
+// With only the team's own hardware reading, every model call shares one laptop GPU, so the same work takes
+// longer than on Gemini, which answers six calls at once: measured 26 Oct, 66-100 s a check with Qwen3.5 9B,
+// against Gemini's median of 20 s. The deadline is doubled there rather than the reader told that nothing
+// could be checked. EVIDENCE_DEADLINE_MS sets it outright.
+const OWN_HARDWARE_DEADLINE_MS = 30000;
+const evidenceDeadlineMs = () => {
+  const set = Number(process.env.EVIDENCE_DEADLINE_MS);
+  if (Number.isFinite(set) && set > 0) return set;
+  const chain = resolveProviderChain();
+  return chain.length && chain.every(p => !p.hosted) ? OWN_HARDWARE_DEADLINE_MS : EVIDENCE_DEADLINE_MS;
+};
 
 // The claim memory's lookup runs beside the evidence; if it is still out this
 // long after the verdict, the answer goes without the "checked before" panel
@@ -361,7 +373,7 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
     let planPromise = understanding ? lookup(understanding.checkableClaims.map(c => c.claim)) : null;
 
     let ledgerInput = null;
-    const deadlineMs = trigger === 'recheck' ? null : EVIDENCE_DEADLINE_MS;
+    const deadlineMs = trigger === 'recheck' ? null : evidenceDeadlineMs();
     const report = await analyzeTrust({
       title: ingested.title,
       content: factorText,

@@ -43,22 +43,38 @@ const slotsFor = (provider) => {
   return providerSlots.get(provider.name);
 };
 
-const acquireSlot = (provider) =>
+// When calls queue for one provider - and every call to the laptop's single GPU does - the ones a verdict
+// rests on go first: reading the message (its claims, and the words to search for), then the evidence
+// judgements, then everything else (the writing checks, summaries, translation). Measured on 26 Oct with
+// Qwen3.5 9B doing all the reading, nine calls a check queued in the order they were made: the four writing
+// checks, made first, held the GPU while the claims waited, and two of five checks ran out of time for the
+// news search ("we could not complete the search"). One slot is also kept free of the last group, so a
+// writing check can never hold every slot. Within a group, first come first served.
+const READING = new Set(['input understanding', 'claim extraction', 'claim extraction (non-English)', 'coverage keywords']);
+const EVIDENCE = new Set(['stance judgement', 'fact-check match', 'premise check', 'current coverage', 'claim matching']);
+const priorityOf = (label) => (READING.has(label) ? 0 : EVIDENCE.has(label) ? 1 : 2);
+const limitFor = (s, priority) => (priority >= 2 ? Math.max(1, s.max - 1) : s.max);
+
+const acquireSlot = (provider, priority = 2) =>
   new Promise((resolve) => {
     const s = slotsFor(provider);
-    if (s.inFlight < s.max) {
+    if (s.inFlight < limitFor(s, priority) && !s.waiting.some(w => w.priority <= priority)) {
       s.inFlight++;
       resolve();
-    } else {
-      s.waiting.push(resolve);
+      return;
     }
+    const at = s.waiting.findIndex(w => w.priority > priority);
+    s.waiting.splice(at === -1 ? s.waiting.length : at, 0, { resolve, priority });
   });
 
 const releaseSlot = (provider) => {
   const s = slotsFor(provider);
-  const next = s.waiting.shift();
-  if (next) next();          // hand the slot straight to the next caller
-  else s.inFlight--;
+  s.inFlight--;
+  // Hand freed slots to the waiting calls in priority order.
+  while (s.waiting.length && s.inFlight < limitFor(s, s.waiting[0].priority)) {
+    s.inFlight++;
+    s.waiting.shift().resolve();
+  }
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -158,7 +174,7 @@ const callNimApi = async (prompt, options = {}) => {
         if (isExhausted(provider, model)) continue;
         for (let attempt = 0; attempt <= MAX_RATE_LIMIT_RETRIES; attempt++) {
           try {
-            await acquireSlot(provider);
+            await acquireSlot(provider, priorityOf(options.label));
             let text;
             try {
               text = await provider.send({ ...request, model });
@@ -587,4 +603,4 @@ Your previous reply was not usable: ${lastError?.message || 'it did not match th
   throw lastError;
 };
 
-module.exports = { callNimApi, callNimApiJson, extractJson, __test: { backoffMs, providerWaitMs, MAX_WAIT_MS } };
+module.exports = { callNimApi, callNimApiJson, extractJson, __test: { backoffMs, providerWaitMs, MAX_WAIT_MS, acquireSlot, releaseSlot, priorityOf } };

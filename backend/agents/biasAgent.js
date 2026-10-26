@@ -42,7 +42,8 @@ Return a JSON object with these keys:
 - "explanation": one or two sentences summarising the overall tone and objectivity.` + languageDirective(language);
 
   try {
-    const result = await callNimApiJson(prompt, { maxTokens: 700, requiredKeys: ['bias_score'], label: 'bias' });
+    // Temperature 0, as the other writing checks (see clickbaitAgent.js).
+    const result = await callNimApiJson(prompt, { maxTokens: 700, temperature: 0, requiredKeys: ['bias_score'], label: 'bias' });
     let biasScore = Number(result.bias_score);
     // A score that is not a number is no reading at all: taken as 0 it passed as "fully neutral".
     if (result.bias_score === null || result.bias_score === '' || !Number.isFinite(biasScore)) {

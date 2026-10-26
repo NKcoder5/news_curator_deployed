@@ -219,3 +219,38 @@ test('NewsAPI is not asked without a key, and is rested after it refuses for its
     delete require.cache[fetcherPath];
   }
 });
+
+test('an agency credit is read as words: "map —" is not the Associated Press', () => {
+  const { detectWireCredit } = require('../agents/independence');
+  assert.strictEqual(detectWireCredit({ title: 'Trump\'s tariff map — what changes for India' }), null);
+  assert.strictEqual(detectWireCredit({ title: 'Quake hits Japan', description: 'TOKYO (AP) — A strong quake struck' }).agency, 'Associated Press');
+  assert.strictEqual(detectWireCredit({ title: 'Rains lash city', description: 'CHENNAI, Oct 2 (PTI) - Heavy rain' }).agency, 'PTI');
+  assert.strictEqual(detectWireCredit({ title: 'Markets: Reuters report says rupee fell' }).agency, 'Reuters');
+});
+
+test('the checks a verdict can rest on are asked at temperature 0', async () => {
+  const nimPath = require.resolve('../utils/nvidiaNimApi');
+  const real = require.cache[nimPath];
+  const seen = {};
+  require.cache[nimPath] = { id: nimPath, filename: nimPath, loaded: true, exports: {
+    callNimApi: async () => '', extractJson: () => null,
+    callNimApiJson: async (prompt, options) => {
+      seen[options.label] = options.temperature;
+      return { clickbait_score: 2, bias_score: 2, techniques: [], checks: {}, contradicts: false, both_can_be_true: true, same_subject: true };
+    }
+  } };
+  const agents = ['clickbaitAgent', 'biasAgent', 'manipulationAgent', 'transparencyAgent', 'referenceCheck'].map(a => require.resolve(`../agents/${a}`));
+  agents.forEach(p => delete require.cache[p]);
+  try {
+    await require('../agents/clickbaitAgent').analyzeClickbait('Rains lash Chennai');
+    await require('../agents/biasAgent').analyzeBias('Rains lash Chennai', 'Heavy rain fell across Chennai on Monday, the Met department said.');
+    await require('../agents/manipulationAgent').detectManipulation('Rains lash Chennai', 'Heavy rain fell across Chennai on Monday, the Met department said.');
+    await require('../agents/transparencyAgent').assessTransparency('Rains lash Chennai', 'Heavy rain fell across Chennai on Monday, the Met department said.');
+    for (const label of ['clickbait', 'bias', 'manipulation', 'transparency']) assert.strictEqual(seen[label], 0, `${label} at temperature ${seen[label]}`);
+    const src = require('fs').readFileSync(require.resolve('../agents/referenceCheck'), 'utf8');
+    assert.match(src, /temperature: 0, requiredKeys: \['contradicts'/, 'the premise check is asked at temperature 0');
+  } finally {
+    if (real) require.cache[nimPath] = real; else delete require.cache[nimPath];
+    agents.forEach(p => delete require.cache[p]);
+  }
+});

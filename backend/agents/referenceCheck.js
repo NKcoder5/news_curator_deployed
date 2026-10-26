@@ -402,7 +402,10 @@ Return a JSON object with these keys:
     // judgement then counted as failed, the headline subject went unchecked,
     // and a false premise the channel exists to catch got through on one run
     // in five. The budget has to cover the reasoning, not just the answer.
-    const result = await callNimApiJson(prompt, { maxTokens: 1400, requiredKeys: ['contradicts', 'both_can_be_true'], label: 'premise check' });
+    // Temperature 0, as every judgement a verdict can rest on: a premise found contradicted makes a
+    // message FAKE (verdictEngine R5), and at the default 0.2 the same message and entry could be read
+    // differently on two runs. Asked at 0, the reading is also remembered (utils/nvidiaNimApi.js).
+    const result = await callNimApiJson(prompt, { maxTokens: 1400, temperature: 0, requiredKeys: ['contradicts', 'both_can_be_true'], label: 'premise check' });
 
     // A name is not an identity.
     //

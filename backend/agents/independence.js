@@ -113,11 +113,21 @@ const resolveGroup = (outletName, url) => {
  * syndication signal available without the full page.
  * @returns {{agency: string, groupId: string}|null}
  */
+// A credit is read as words, not as letters anywhere: "ap —" is the Associated Press's credit, and was
+// also found in "Trump's tariff map — what changes", which merged two outlets' reports into one.
+const creditPatterns = new Map();
+const creditMatcher = (pattern) => {
+  if (!creditPatterns.has(pattern)) {
+    const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    creditPatterns.set(pattern, new RegExp(/^[\p{L}\p{N}]/u.test(pattern) ? `(?<![\\p{L}\\p{N}])${escaped}` : escaped, 'iu'));
+  }
+  return creditPatterns.get(pattern);
+};
 const detectWireCredit = (item) => {
   const { wireCredits } = loadOwnership();
-  const haystack = `${item.title || ''} ${item.description || ''}`.toLowerCase();
+  const haystack = `${item.title || ''} ${item.description || ''}`;
   for (const credit of wireCredits) {
-    if (credit.patterns.some(pattern => haystack.includes(pattern))) {
+    if (credit.patterns.some(pattern => creditMatcher(pattern).test(haystack))) {
       return { agency: credit.agency, groupId: credit.groupId };
     }
   }

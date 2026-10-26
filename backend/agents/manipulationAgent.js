@@ -151,7 +151,9 @@ Return a JSON object with these keys:
   try {
     // Budget trimmed: three well-evidenced techniques tell the reader as much as five,
     // and lower token limit ensures faster responses within deadline.
-    const result = await callNimApiJson(prompt, { maxTokens: 600, requiredKeys: ['techniques'], allowArray: true, label: 'manipulation' });
+    // Temperature 0, as the other writing checks (see clickbaitAgent.js): the techniques found count
+    // towards a verdict (verdictEngine R7).
+    const result = await callNimApiJson(prompt, { maxTokens: 600, temperature: 0, requiredKeys: ['techniques'], allowArray: true, label: 'manipulation' });
 
     let rawList = [];
     if (Array.isArray(result)) {

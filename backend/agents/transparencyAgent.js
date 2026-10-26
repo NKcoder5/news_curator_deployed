@@ -85,7 +85,9 @@ Return a JSON object with these keys:
 - "summary": one sentence on how checkable this reporting is.` + languageDirective(language);
 
   try {
-    const result = await callNimApiJson(prompt, { maxTokens: 900, requiredKeys: ['checks'], label: 'transparency' });
+    // Temperature 0, as the other writing checks (see clickbaitAgent.js): the sourcing score counts
+    // towards a verdict (verdictEngine R7).
+    const result = await callNimApiJson(prompt, { maxTokens: 900, temperature: 0, requiredKeys: ['checks'], label: 'transparency' });
     const raw = result.checks && typeof result.checks === 'object' && !Array.isArray(result.checks) ? result.checks : {};
     // Read through asBool, as every other reply is: some models answer "true" as a string, and read as
     // `=== true` every check then failed and the story was scored unsourced, a finding that counts

@@ -40,7 +40,9 @@ Return a JSON object with these keys:
 - "explanation": one sentence explaining the assessment.` + languageDirective(language);
 
   try {
-    const result = await callNimApiJson(prompt, { maxTokens: 450, requiredKeys: ['clickbait_score'], label: 'clickbait' });
+    // Temperature 0: the writing checks feed a verdict (verdictEngine R7) and the probability, so the same
+    // headline must read the same on every run; asked at 0, the reading is also remembered.
+    const result = await callNimApiJson(prompt, { maxTokens: 450, temperature: 0, requiredKeys: ['clickbait_score'], label: 'clickbait' });
     let clickbaitScore = Number(result.clickbait_score);
     // A score that is not a number is no reading at all. It used to be taken as 0, "not clickbait",
     // so a garbled reply passed as a clean headline; the pattern check answers instead.

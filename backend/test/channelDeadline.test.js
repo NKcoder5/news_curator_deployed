@@ -286,3 +286,41 @@ test('work started for different text is never used', async () => {
     restore();
   }
 });
+
+// 26 Oct: a check settled by a fact-checker's ruling at 19 s answered at 27 s, waiting on one writing check
+// queued behind a rate-limited provider. Writing checks that cannot change the call are given a short grace
+// once the evidence is in; where they can (rule R7: nothing confirms or denies a consequential claim), they
+// are waited for as before.
+test('a slow writing check does not hold an answer it cannot change', async () => {
+  const slow = (ms, value) => () => new Promise(resolve => setTimeout(() => resolve(value), ms));
+  const { agent, restore } = loadAgent({ manipulation: slow(6000, { score: 9, techniques: [], intensity: 'none', summary: '' }) });
+  try {
+    const started = Date.now();
+    // Two outlets confirm the claim: the call is REAL whatever the writing is like.
+    const report = await agent.analyzeTrust({ ...MESSAGE, preparedClaims: PREPARED, deadlineMs: 5000 });
+    assert.ok(Date.now() - started < 3500, `answered after ${Date.now() - started} ms; the writing deadline is 5 s`);
+    assert.deepStrictEqual(report.unreadChannels, ['manipulation']);
+    assert.strictEqual(report.call, 'REAL');
+  } finally {
+    restore();
+  }
+});
+
+test('a writing check that can still decide the call is waited for', async () => {
+  const slow = (ms, value) => () => new Promise(resolve => setTimeout(() => resolve(value), ms));
+  const silent = (title, text, source, claims) => ({ score: 5, status: 'unverified', explanation: 'Nothing found.',
+    claims: claims.map(c => ({ claim: c.claim, time: c.time || null, kind: c.kind || null, verdict: 'no-coverage', supportingEvidence: [], contradictingEvidence: [], explanation: '' })) });
+  const { agent, restore } = loadAgent({
+    verification: (...args) => Promise.resolve(silent(...args)),
+    manipulation: slow(2600, { score: 2, techniques: [{ technique: 'appeal to fear' }, { technique: 'loaded language' }], intensity: 'heavy', summary: '' }),
+    transparency: slow(2600, { score: 1, level: 'unsourced', checks: [], summary: 'Names no sources.' })
+  });
+  try {
+    const report = await agent.analyzeTrust({ ...MESSAGE, title: 'Secret chemical leak kills hundreds in Coimbatore', content: 'A secret chemical leak killed hundreds in Coimbatore overnight, officials are hiding it.',
+      preparedClaims: [{ claim: 'A secret chemical leak killed hundreds in Coimbatore.', time: 'now', kind: 'event', subject: 'Coimbatore' }], deadlineMs: 5000 });
+    assert.deepStrictEqual(report.unreadChannels, [], 'the writing checks were read');
+    assert.strictEqual(report.factors.find(f => f.id === 'manipulation').score, 2);
+  } finally {
+    restore();
+  }
+});

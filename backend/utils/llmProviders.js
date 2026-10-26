@@ -204,11 +204,14 @@ const gemini = {
   // an analysis run at once.
   concurrency: 6,
   hosted: true,
+  // Each key is its own quota, so a call that hangs can be asked again of the same model on another key
+  // (utils/nvidiaNimApi.js, hedged requests); `signal` cancels whichever answers second.
+  hedge: true,
   isConfigured: () => !hostedOff() && geminiKeys().length > 0,
   missingKeyMessage:
     'GEMINI_API_KEY is not set. Add it to your backend .env file to use Gemini.',
 
-  async send({ model: entry, prompt, maxTokens, temperature, topP, timeout, json }) {
+  async send({ model: entry, prompt, maxTokens, temperature, topP, timeout, json, signal }) {
     const { model, key } = splitModel(entry);
     const response = await axios.post(
       `${GEMINI_BASE}/${model}:generateContent`,
@@ -233,7 +236,8 @@ const gemini = {
         // in 1.5-3 s, and when one stalls the check's 45 s evidence deadline passed before the gateway
         // tried the next model. On 25 Oct, 10 of 60 rulings came back "verification unavailable" that
         // way, with 17 attempts on gemini-3.1-flash-lite cut off by the 90 s timeout.
-        timeout: Math.min(timeout || 90000, Number(process.env.GEMINI_ATTEMPT_MS) || 15000)
+        timeout: Math.min(timeout || 90000, Number(process.env.GEMINI_ATTEMPT_MS) || 15000),
+        ...(signal ? { signal } : {})
       }
     );
 

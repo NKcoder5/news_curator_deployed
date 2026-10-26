@@ -157,3 +157,54 @@ test('two connection failures set a provider aside instead of walking every mode
     restore();
   }
 });
+
+// 26 Oct: a Gemini request now and then hangs to its 15 s limit, twice in one check. Unanswered after the
+// hedge delay, the call is asked again of the same model on another key, the first answer is used and the
+// slower request cancelled.
+test('a hung request is hedged on the same model with another key, and the loser is cancelled', async () => {
+  const saved = process.env.LLM_HEDGE_MS;
+  process.env.LLM_HEDGE_MS = '60';
+  const asked = [];
+  let primaryAborted = false;
+  const { gateway, restore } = withProvider(['lite', 'lite#1', 'other'], async ({ model, signal }) => {
+    asked.push(model);
+    if (model === 'lite') {
+      await new Promise((resolve, reject) => {
+        signal.addEventListener('abort', () => { primaryAborted = true; reject(Object.assign(new Error('canceled'), { code: 'ERR_CANCELED' })); });
+      });
+    }
+    return `answer from ${model}`;
+  });
+  const PROVIDERS = require(require.resolve('../utils/llmProviders'));
+  PROVIDERS.resolveProviderChain()[0].hedge = true;
+  const warn = console.warn; console.warn = () => {};
+  try {
+    const meta = {};
+    const started = Date.now();
+    const text = await gateway.callNimApi('q', { label: 'test', meta });
+    assert.strictEqual(text, 'answer from lite#1');
+    assert.ok(Date.now() - started < 1000, `took ${Date.now() - started} ms`);
+    assert.deepStrictEqual(asked, ['lite', 'lite#1'], 'hedged on the same model, not on another one');
+    assert.strictEqual(primaryAborted, true, 'the slower request was cancelled');
+    assert.strictEqual(meta.model, 'lite');
+  } finally {
+    console.warn = warn;
+    if (saved === undefined) delete process.env.LLM_HEDGE_MS; else process.env.LLM_HEDGE_MS = saved;
+    restore();
+  }
+});
+
+test('a quick answer is never hedged, and a quick failure is handled as before', async () => {
+  const asked = [];
+  const { gateway, restore } = withProvider(['lite', 'lite#1'], async ({ model }) => {
+    asked.push(model);
+    return 'quick';
+  });
+  require(require.resolve('../utils/llmProviders')).resolveProviderChain()[0].hedge = true;
+  try {
+    assert.strictEqual(await gateway.callNimApi('q', { label: 'test' }), 'quick');
+    assert.deepStrictEqual(asked, ['lite']);
+  } finally {
+    restore();
+  }
+});

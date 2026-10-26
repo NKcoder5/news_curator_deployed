@@ -288,6 +288,10 @@ const mergePremises = (first, second) => {
   };
 };
 
+// How long the writing checks are still waited for once the evidence is in and they cannot change the
+// call (see writingCanDecide in analyzeTrust).
+const WRITING_GRACE_MS = 2000;
+
 const UNREAD = {
   writing: () => ({ score: null, unread: true, techniques: [], intensity: 'none', explanation: 'This check could not be finished in time.', summary: 'This check could not be finished in time.' }),
   claimExtraction: () => ({ claims: [], failed: true, unread: true }),
@@ -501,14 +505,17 @@ const analyzeTrust = async ({
   // a non-English message is checked on its English rendering instead.
   const earlyPremises = !evidenceText && usable && usable.tasks.premises;
 
+  // The writing checks run beside the evidence and are collected after it (see writingCanDecide below).
+  const writingTasks = {
+    clickbait: timed('clickbait', () => fromEarly('clickbait', () => analyzeClickbait(title, language)), { from: since('clickbait'), unread: UNREAD.writing }),
+    bias: timed('bias', () => fromEarly('bias', () => analyzeBias(title, text, language)), { from: since('bias'), unread: UNREAD.writing }),
+    manipulation: timed('manipulation', () => fromEarly('manipulation', () => detectManipulation(title, text, language)), { from: since('manipulation'), unread: UNREAD.writing }),
+    transparency: timed('transparency', () => fromEarly('transparency', () => assessTransparency(title, text, language)), { from: since('transparency'), unread: UNREAD.writing })
+  };
+
   const [
-    clickbaitResult, biasResult, manipulationResult,
-    transparencyResult, verificationResult, premiseResult, factCheckResult, currentCoverageResult
+    verificationResult, premiseResult, factCheckResult, currentCoverageResult
   ] = await Promise.all([
-    timed('clickbait', () => fromEarly('clickbait', () => analyzeClickbait(title, language)), { from: since('clickbait'), unread: UNREAD.writing }),
-    timed('bias', () => fromEarly('bias', () => analyzeBias(title, text, language)), { from: since('bias'), unread: UNREAD.writing }),
-    timed('manipulation', () => fromEarly('manipulation', () => detectManipulation(title, text, language)), { from: since('manipulation'), unread: UNREAD.writing }),
-    timed('transparency', () => fromEarly('transparency', () => assessTransparency(title, text, language)), { from: since('transparency'), unread: UNREAD.writing }),
     claimsPromise.then(({ claims, failed }) =>
       timed('verification', () => verifyClaims(title, text, source, claims, failed, language), { unread: () => UNREAD.verification(claims) })),
     // Runs beside the news search because it answers a question the news search
@@ -617,7 +624,7 @@ const analyzeTrust = async ({
   // The evidence ledger first: it counts INDEPENDENT sources rather than
   // articles (see agents/independence.js), and both the probability and the
   // verdict read from it.
-  const ledgerInput = {
+  const evidenceInput = {
     claims: verificationResult.claims || [],
     verificationStatus: verificationResult.status,
     premiseResult,
@@ -625,8 +632,6 @@ const analyzeTrust = async ({
     currentCoverageResult,
     unconfirmedClaimResult,
     sourceResult,
-    transparencyResult,
-    manipulationResult,
     title,
     // The page's own address: a fact-checking desk's ruling, submitted as a
     // link, is found in the fact-check record at this same address.
@@ -640,6 +645,35 @@ const analyzeTrust = async ({
     domainAge: await beforeDeadline('domainAge', domainAgePromise, () => null),
     asOf: Date.now()
   };
+
+  // The writing checks can change the verdict only through rule R7 (nothing confirms or denies a
+  // consequential claim, and the writing carries several marks of engineered content); otherwise they
+  // shape the score and the report, not the call. Profiled on 26 Oct, a check whose verdict was settled
+  // by a fact-checker's ruling at 19 s answered at 27 s, waiting on one writing check queued behind a
+  // rate-limited provider. Whether they can still decide is found by the rules themselves: the verdict is
+  // reached with the writing at its cleanest and at its most engineered, and when both give the same call
+  // the writing checks are given a short grace instead of the whole deadline. A re-check, with no reader
+  // waiting, collects them all.
+  const writingCanDecide = !deadlineAt || (() => {
+    const callWith = (transparency, manipulation) => decideVerdict(buildEvidenceLedger({
+      ...evidenceInput, transparencyResult: transparency, manipulationResult: manipulation
+    })).call;
+    return callWith({ score: 0 }, { techniques: ['a', 'b', 'c'].map(technique => ({ technique })) })
+      !== callWith({ score: 10 }, { techniques: [] });
+  })();
+  const collectWriting = (name) => {
+    if (writingCanDecide) return writingTasks[name];
+    let timer;
+    const grace = new Promise(resolve => {
+      timer = setTimeout(() => { unreadChannels.push(name); resolve(UNREAD.writing()); }, WRITING_GRACE_MS);
+    });
+    return Promise.race([writingTasks[name], grace]).finally(() => clearTimeout(timer));
+  };
+  const [clickbaitResult, biasResult, manipulationResult, transparencyResult] = await Promise.all(
+    ['clickbait', 'bias', 'manipulation', 'transparency'].map(collectWriting)
+  );
+
+  const ledgerInput = { ...evidenceInput, transparencyResult, manipulationResult };
   const evidenceLedger = buildEvidenceLedger(ledgerInput);
   if (typeof onLedgerInput === 'function') {
     try { onLedgerInput(compactLedgerInput(ledgerInput)); } catch (_) { /* recording must never fail the analysis */ }

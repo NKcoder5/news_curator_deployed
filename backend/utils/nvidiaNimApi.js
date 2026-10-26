@@ -79,6 +79,15 @@ const releaseSlot = (provider) => {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// A slot taken only if one is free now, for a hedged request: a hedge must never queue ahead of, or
+// behind, the calls already waiting.
+const tryAcquireSlot = (provider) => {
+  const s = slotsFor(provider);
+  if (s.inFlight >= s.max || s.waiting.length) return false;
+  s.inFlight++;
+  return true;
+};
+
 // A model whose DAILY quota is spent is skipped until the quota resets, which
 // for Google is midnight Pacific time (07:00 UTC in summer time, 08:00 in
 // winter; 07:00 is used, and a quota not yet reset is simply marked again
@@ -108,6 +117,60 @@ const CONNECTION_FAILURES_PER_CALL = 2;
 const PROVIDER_REST_MS = 15000;
 const providerDownUntil = new Map();
 const isDown = (provider) => (providerDownUntil.get(provider.name) || 0) > Date.now();
+
+// Hedged requests. Profiled on 26 Oct, Gemini's lite model mostly answers in 2-7 s, but now and then a
+// request hangs until the attempt's 15 s limit (ECONNABORTED): twice in one check, which then took 56 s.
+// A call still unanswered after HEDGE_AFTER_MS is asked again of the same model on another key (each
+// key is its own quota; the same model, so the judgement is the same one), and whichever answers first
+// is used; the other is cancelled. Quota is spent twice only on a call that was already slow.
+const HEDGE_AFTER_MS = 8000;
+const hedgeAfterMs = () => {
+  const set = Number(process.env.LLM_HEDGE_MS);
+  return Number.isFinite(set) && set >= 0 ? set : HEDGE_AFTER_MS;
+};
+const hedgeFor = (provider, model, models) => {
+  if (!provider.hedge) return null;
+  const base = String(model).split('#')[0];
+  return models.find(m => m !== model && String(m).split('#')[0] === base && !isExhausted(provider, m)) || null;
+};
+
+/** Send to `model`, and to its hedge if `model` is slow; settles with the first answer and the model that gave it. */
+const sendHedged = (provider, model, models, request) => {
+  const alternative = hedgeFor(provider, model, models);
+  const after = hedgeAfterMs();
+  if (!alternative || after <= 0) return provider.send({ ...request, model }).then(text => ({ text, model }));
+  return new Promise((resolve, reject) => {
+    const primary = new AbortController();
+    let hedge = null;
+    let settled = false;
+    let primaryFailed = null;
+    let hedgeRunning = false;
+    const finish = (settle, value) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      settle(value);
+    };
+    const timer = setTimeout(() => {
+      if (settled || !tryAcquireSlot(provider)) return;
+      hedge = new AbortController();
+      hedgeRunning = true;
+      console.warn(`${provider.label}: "${model}" has not answered in ${Math.round(after / 1000)}s — asking "${alternative}" as well.`);
+      provider.send({ ...request, model: alternative, signal: hedge.signal })
+        .then((text) => { primary.abort(); finish(resolve, { text, model: alternative }); }, (error) => {
+          hedgeRunning = false;
+          if (isRateLimited(error.response?.status) && isDailyQuota(error)) exhaustedUntil.set(modelKey(provider, alternative), nextQuotaReset());
+          if (primaryFailed) finish(reject, primaryFailed);
+        })
+        .finally(() => releaseSlot(provider));
+    }, after);
+    provider.send({ ...request, model, signal: primary.signal })
+      .then((text) => { if (hedge) hedge.abort(); finish(resolve, { text, model }); }, (error) => {
+        primaryFailed = error;
+        if (!hedgeRunning) finish(reject, error);
+      });
+  });
+};
 
 // How long the provider says to wait: a Retry-After header, or the
 // RetryInfo detail Gemini puts in the body of a 429 ("retryDelay": "37s").
@@ -193,8 +256,9 @@ const callNimApi = async (prompt, options = {}) => {
           try {
             await acquireSlot(provider, priorityOf(options.label));
             let text;
+            let answeredBy = model;
             try {
-              text = await provider.send({ ...request, model });
+              ({ text, model: answeredBy } = await sendHedged(provider, model, models, request));
             } finally {
               releaseSlot(provider);
             }
@@ -212,11 +276,11 @@ const callNimApi = async (prompt, options = {}) => {
             // progress (utils/runContext.js). The key index on a Gemini entry
             // is dropped: it says which project's quota paid, not which model.
             noteModelCall({ label: options.label || 'model call', provider: provider.name,
-              model: String(model).split('#')[0], ms: Date.now() - callStarted });
+              model: String(answeredBy).split('#')[0], ms: Date.now() - callStarted });
             // A caller that asks (options.meta) is told which provider answered this very call.
             if (options.meta && typeof options.meta === 'object') {
               options.meta.provider = provider.name;
-              options.meta.model = String(model).split('#')[0];
+              options.meta.model = String(answeredBy).split('#')[0];
             }
             return text;
           } catch (error) {

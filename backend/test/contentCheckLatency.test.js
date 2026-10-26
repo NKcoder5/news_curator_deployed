@@ -287,7 +287,11 @@ test('a reading that does not come back in time is not waited for', async () => 
     await s.check(MESSAGE);
     assert.ok(Date.now() - started < 1500, `waited ${Date.now() - started} ms for the reading`);
     assert.ok(s.first('evidence:start'), 'the evidence step ran without the reading');
-    assert.strictEqual(s.first('evidence:start').args.preparedClaims, null, 'and found the claims itself');
+    // Read from the message's own sentences: a late reading means the models are slow, and another
+    // model call to extract the claims would only queue behind them.
+    const claims = s.first('evidence:start').args.preparedClaims;
+    assert.ok(Array.isArray(claims) && claims.length === 1 && claims[0].readWithoutModel, 'the claims were read from the sentences');
+    assert.match(claims[0].claim, /India won 84 medals/);
   } finally {
     if (saved === undefined) delete process.env.READING_DEADLINE_MS; else process.env.READING_DEADLINE_MS = saved;
     s.restore();

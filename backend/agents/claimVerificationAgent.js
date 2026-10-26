@@ -1159,6 +1159,8 @@ const verifyClaims = async (title, content, sourceName, preExtractedClaims = nul
 module.exports = {
   verifyClaims,
   extractClaims,
+  // The claims of a message read without a model (services/contentCheck.js, when the reading is late).
+  sentenceClaims,
   // Exposed for the regression tests that cover what happens when the search
   // or the judgement cannot run. Not part of the pipeline's interface.
   __test: { judgeClaim, gatherCoverage, summariseResults, deriveKeywords, figureConflicts, sentenceClaims, searchQueryFor }

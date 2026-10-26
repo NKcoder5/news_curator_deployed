@@ -19,6 +19,7 @@ const { trackRecordFor } = require('./ruleReliability');
 const { runWithContext, currentContext } = require('../utils/runContext');
 const { translateVerdict } = require('../agents/verdictTranslation');
 const { resolveProviderChain } = require('../utils/llmProviders');
+const { sentenceClaims } = require('../agents/claimVerificationAgent');
 
 // How long the evidence channels of a reader's check have to land. Measured on
 // 12 Oct the slowest channel landed 8.8 s after the claims were known (the
@@ -323,6 +324,7 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
     // ordinary path. If the reading fails, the gate below decides as before.
     let understanding = null;
     let early = null;
+    let readingLate = false;
     const factorText = limitText(ingested.content, TEXT_BUDGET.factors);
     // Too short for the gate is not too short to read: "indai won 84 medels in
     // asian games 2026" is 39 characters, one under the gate's minimum, and a
@@ -335,7 +337,10 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
       // names in it, do not wait for the reading (trustAnalysisAgent's
       // startMessageChecks). A message refused below leaves them unused.
       early = startMessageChecks({ title: ingested.title, content: factorText });
-      understanding = await within(understandInput(ingested.content), readingDeadlineMs(trigger), null);
+      const LATE_READING = Symbol('late');
+      understanding = await within(understandInput(ingested.content), readingDeadlineMs(trigger), LATE_READING);
+      readingLate = understanding === LATE_READING;
+      if (readingLate) understanding = null;
     }
 
     if (understanding) {
@@ -394,6 +399,8 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
 
     let ledgerInput = null;
     const deadlineMs = trigger === 'recheck' ? null : evidenceDeadlineMs();
+    const sentences = readingLate ? sentenceClaims(ingested.title, ingested.content).slice(0, 2) : [];
+    const lateClaims = sentences.length ? sentences : null;
     const report = await analyzeTrust({
       title: ingested.title,
       content: factorText,
@@ -404,7 +411,11 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
       publishedAt: ingested.publishedAt || null,
       textCoverage: 'full',
       onChannel,
-      preparedClaims: understanding ? understanding.checkableClaims : null,
+      // A reading that did not come back in time means the models are slow or saturated, and asking one
+      // again to extract the claims only adds to the queue: profiled on 26 Oct, the extraction that
+      // followed a late reading took 11 s and 38 s on the fallback provider. The message's own assertive
+      // sentences are its claims then, as when no model can read it at all.
+      preparedClaims: understanding ? understanding.checkableClaims : lateClaims,
       evidenceText: understanding && understanding.language !== 'en' ? understanding.english : null,
       understanding,
       onLedgerInput: (input) => { ledgerInput = input; },

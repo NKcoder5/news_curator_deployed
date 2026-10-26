@@ -1,0 +1,308 @@
+{
+  "summary": {
+    "ranAt": "2026-10-26T05:59:12.064Z",
+    "suite": "rulings",
+    "complete": false,
+    "stoppedBecause": null,
+    "checksThisRun": 5,
+    "cases": 60,
+    "overall": {
+      "n": 5,
+      "right": 1,
+      "safe": 1,
+      "missed": 3,
+      "wrong": 0
+    },
+    "byCategory": {
+      "rated misleading": {
+        "n": 3,
+        "right": 0,
+        "safe": 1,
+        "missed": 2,
+        "wrong": 0
+      },
+      "rated false": {
+        "n": 2,
+        "right": 1,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 0
+      }
+    },
+    "medianSeconds": 80.228
+  },
+  "rows": [
+    {
+      "id": "rul-001",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The viral video shows Uttar Pradesh’s Ayodhya Ram Temple tableau at the 2026 Republic Day parade.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/this-ayodhya-tableau-seen-in-the-viral-video-was-showcased-by-uttar-pradesh-during-the-2024-republic-day-parade-not-in-2026/"
+      ],
+      "labelledOn": "2026-01-30",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "celebratory"
+        ],
+        "english": "The viral video shows Uttar Pradesh's Ayodhya Ram Temple tableau at the 2026 Republic Day parade.",
+        "claims": [
+          {
+            "claim": "A tableau of the Ayodhya Ram Temple was displayed by Uttar Pradesh at the 2026 Republic Day parade.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 66.601,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "ollama": 8
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-002",
+      "category": "rated false",
+      "language": "en",
+      "input": "Delivery company J&T Express is hiring, and interested applicants for the positions of repackers and sorters can apply through the link attached to the job post.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.rappler.com/newsbreak/fact-check/fake-job-posts-delivery-company-october-2026/"
+      ],
+      "labelledOn": "2026-10-02",
+      "ruling": {
+        "publisher": "Rappler",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.82,
+      "kind": null,
+      "detail": "Rated false by Rappler after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Delivery company J&T Express is hiring, and interested applicants for the positions of repackers and sorters can apply through the link attached to the job post.",
+        "claims": [
+          {
+            "claim": "J&T Express is currently hiring for positions of repackers and sorters.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 80.228,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 9
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-003",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "A video showing Prime Minister Narendra Modi interacting with Congress leaders Mallikarjun Kharge, Rahul Gandhi, and Priyanka Gandhi Vadra at the wedding reception of NCP (SP) leader Supriya Sule’s daughter in August 2026.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/an-old-video-of-pm-modi-interacting-with-congress-leaders-is-shared-with-false-claim-of-visuals-from-supriya-sules-daughters-wedding-reception/"
+      ],
+      "labelledOn": "2026-08-17",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "fact-checkers-and-reporting-disagree",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "Fact-checkers rated this false, but 6 independent outlets now report it.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A video showing Prime Minister Narendra Modi interacting with Congress leaders Mallikarjun Kharge, Rahul Gandhi, and Priyanka Gandhi Vadra at the wedding reception of NCP (SP) leader Supriya Sule's daughter in August 2026.",
+        "claims": [
+          {
+            "claim": "A video exists showing Prime Minister Narendra Modi interacting with Mallikarjun Kharge, Rahul Gandhi, and Priyanka Gandhi Vadra at the wedding reception of NCP (SP) leader Supriya Sule's daughter in August 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 67.874,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 9
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-004",
+      "category": "rated false",
+      "language": "en",
+      "input": "A viral video circulating on social media allegedly shows CCTV footage of the October 7, 2026, building collapse in Seemapuri, Delhi, in which five people died.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-video-claiming-to-show-delhi-building-collapse-is-ai-generated/"
+      ],
+      "labelledOn": "2026-10-16",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A viral video circulating on social media allegedly shows CCTV footage of the October 7, 2026, building collapse in Seemapuri, Delhi, in which five people died.",
+        "claims": [
+          {
+            "claim": "A building collapsed in Seemapuri, Delhi on October 7, 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          },
+          {
+            "claim": "Five people died in the Seemapuri building collapse.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          },
+          {
+            "claim": "A viral video on social media shows CCTV footage of the Seemapuri building collapse.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 101.907,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 9
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-005",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Viral photo of a bus stuck at the mouth of 4 lanes abruptly narrowing into 2, in the Mira Bhayandar flyover in Mumbai",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://www.altnews.in/bus-stuck-at-narrowing-of-lanes-on-mumbai-flyover-no-photo-shared-by-kerala-congress-is-ai-generated/"
+      ],
+      "labelledOn": "2026-02-09",
+      "ruling": {
+        "publisher": "Alt News",
+        "rating": "Mostly False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Rated false by Telugu Post, BOOM Fact Check, NewsMobile and 1 more after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Viral photo of a bus stuck at the mouth of 4 lanes abruptly narrowing into 2, in the Mira Bhayandar flyover in Mumbai",
+        "claims": [
+          {
+            "claim": "A viral photo shows a bus stuck at the mouth of four lanes abruptly narrowing into two lanes on the Mira Bhayandar flyover in Mumbai.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 92.425,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "ollama": 9
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    }
+  ]
+}

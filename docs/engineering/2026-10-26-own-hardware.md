@@ -48,10 +48,15 @@ after 20 s it answered first time).
 | Our own pair model only, no language model (25 Oct) | 11 | 6 | 43 | 0 |
 | **Laptop, llama3.1:8b alone (26 Oct)** | 16 | 11 | 27 | 6 |
 | **Laptop, Qwen3.5 9B alone, before the queue fix (26 Oct, 5 cases)** | 1 | 1 | 3 | 0 |
-| **Laptop, Qwen3.5 9B alone, with the queue fix (26 Oct)** | _running_ | | | |
+| **Laptop, Qwen3.5 9B alone, with the queue fix (26 Oct)** | 24 | 10 | 26 | 0 |
 
 Gate for calling the laptop a primary reader: no more wrong than Gemini (2 or fewer), at least 20 right, and
 a median check time of 60 s or less.
+
+Qwen3.5 9B passes on accuracy (24 right, none wrong; Gemini 27 right, 2 wrong) and misses on time: median 78 s,
+90th percentile 102 s, against Gemini's 20 s. About 13% of the model sits on the CPU (6.2 GB on an 8 GB card
+that Windows also uses), which slows every answer. Of its 26 misses, 10 are "no independent coverage", 5 the
+search not finishing in time, 4 fact-checkers and reporting disagreeing, 4 media not confirmed by reports.
 
 llama3.1:8b fails it on wrong answers. Four of its six are one mistake: a headline about the same subject
 read as confirming the claim ("Fiji HIV cases surge" for a claim that the surge is caused by vaccination).

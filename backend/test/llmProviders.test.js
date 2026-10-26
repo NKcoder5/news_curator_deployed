@@ -129,6 +129,37 @@ test('the provider order is configuration, and an unconfigured one is skipped', 
   }
 });
 
+test('without Gemini, measured routing keeps premise checks on NIM and writing local', () => {
+  const previous = {
+    ollama: process.env.OLLAMA_HOST,
+    nim: process.env.NIM_API_KEY,
+    gemini: process.env.GEMINI_API_KEY,
+    order: process.env.LLM_PROVIDER
+  };
+  process.env.OLLAMA_HOST = 'http://localhost:11434';
+  process.env.NIM_API_KEY = 'test-nim-key';
+  delete process.env.GEMINI_API_KEY;
+  delete process.env.LLM_PROVIDER;
+
+  const { providers, restore } = withStubbedAxios();
+  try {
+    assert.deepStrictEqual(
+      providers.resolveProviderChain('premise check').map(provider => provider.name),
+      ['nim', 'ollama']
+    );
+    assert.deepStrictEqual(
+      providers.resolveProviderChain('bias').map(provider => provider.name),
+      ['ollama', 'nim']
+    );
+  } finally {
+    if (previous.ollama === undefined) delete process.env.OLLAMA_HOST; else process.env.OLLAMA_HOST = previous.ollama;
+    if (previous.nim === undefined) delete process.env.NIM_API_KEY; else process.env.NIM_API_KEY = previous.nim;
+    if (previous.gemini === undefined) delete process.env.GEMINI_API_KEY; else process.env.GEMINI_API_KEY = previous.gemini;
+    if (previous.order === undefined) delete process.env.LLM_PROVIDER; else process.env.LLM_PROVIDER = previous.order;
+    restore();
+  }
+});
+
 test('geminiKeys wires in GEMINI_EXTRA_KEYS, GEMINI_EXTRA_KEYS2, and GEMINI_EXTRA_KEYS3 in order', () => {
   const origKey = process.env.GEMINI_API_KEY;
   const origExtra = process.env.GEMINI_EXTRA_KEYS;
@@ -186,4 +217,3 @@ test('extra keys remain inactive when GEMINI_API_KEY is blank or unset', () => {
     restore();
   }
 });
-

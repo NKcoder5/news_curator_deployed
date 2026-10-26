@@ -1,16 +1,16 @@
 # Stance: our model against the hosted model
 
-Measured 2026-10-20 on 339 claims, 3830 headlines; 3830 judged by Gemini are compared (other providers are recorded but not used as reference).
+Measured 2026-10-25 on 459 claims, 5226 headlines; 5226 judged by Gemini are compared (other providers are recorded but not used as reference).
 
 ## Confusion (rows: Gemini, columns: our model)
 
 | Gemini \ ours | agree | disagree | unrelated | total |
 |---|---|---|---|---|
-| agree | 488 | 94 | 413 | 995 |
-| disagree | 65 | 271 | 191 | 527 |
-| unrelated | 256 | 486 | 1566 | 2308 |
+| agree | 725 | 140 | 560 | 1425 |
+| disagree | 115 | 390 | 243 | 748 |
+| unrelated | 336 | 630 | 2087 | 3053 |
 
-Overall agreement: 2325 / 3830 (60.7%).
+Overall agreement: 3202 / 5226 (61.3%).
 
 ## When our model is confident
 
@@ -18,12 +18,12 @@ Coverage is the share of headlines where our top probability is at least the thr
 
 | threshold | coverage | agreement | agree precision | disagree precision |
 |---|---|---|---|---|
-| 0.5 | 95.1% | 61.4% | 61.9% (756) | 32.4% (803) |
-| 0.6 | 85.5% | 63.2% | 65.6% (669) | 34.2% (710) |
-| 0.7 | 76.6% | 64.4% | 67.3% (597) | 36.1% (634) |
-| 0.8 | 65.6% | 66% | 71.6% (503) | 37.8% (539) |
-| 0.9 | 52.5% | 68.2% | 76.1% (389) | 40.7% (432) |
-| 0.95 | 42.8% | 70.3% | 79.9% (313) | 43.2% (340) |
-| 0.98 | 32.2% | 72.5% | 79.5% (220) | 46.2% (253) |
+| 0.5 | 94.7% | 62.1% | 63.4% (1097) | 34.2% (1091) |
+| 0.6 | 84.9% | 64.2% | 67.6% (959) | 36% (973) |
+| 0.7 | 75.6% | 65.6% | 69.7% (837) | 37.4% (871) |
+| 0.8 | 64.8% | 67.2% | 73.5% (699) | 38.9% (743) |
+| 0.9 | 52% | 69.4% | 77.9% (548) | 40.9% (591) |
+| 0.95 | 41.9% | 71.6% | 82.4% (432) | 43% (467) |
+| 0.98 | 30.9% | 73.8% | 83.7% (300) | 46.2% (340) |
 
-Headlines by provider: gemini 3830.
+Headlines by provider: gemini 5226.

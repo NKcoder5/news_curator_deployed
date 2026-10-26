@@ -130,7 +130,7 @@ const callNimApi = async (prompt, options = {}) => {
   const providers = resolveProviderChain(options.label);
   if (!providers.length) {
     throw new Error(
-      'No language model provider is configured. Set NIM_API_KEY (or GEMINI_API_KEY) in your backend .env file.'
+      'No language model provider is configured. Set OLLAMA_HOST, NIM_API_KEY or GEMINI_API_KEY in your backend .env file.'
     );
   }
 

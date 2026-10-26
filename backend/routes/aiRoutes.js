@@ -71,7 +71,11 @@ const cacheTrustReport = async ({ url, title, source, report, sourcePrint }) => 
 const isUsableCachedReport = (cached, sourcePrint) =>
   Boolean(cached)
   && isCurrent(cached.report)
-  && (!sourcePrint || !cached.sourcePrint || cached.sourcePrint === sourcePrint);
+  // When text was supplied, an un-fingerprinted entry cannot be shown as a
+  // match: it may have been produced for an older version of this URL.
+  // Headline-only history entries have no text to compare, so they retain the
+  // URL-keyed behaviour.
+  && (!sourcePrint || cached.sourcePrint === sourcePrint);
 
 /**
  * Fingerprint the text a caller sent, when it sent any.

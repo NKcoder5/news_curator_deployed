@@ -339,6 +339,20 @@ LLM_PROVIDER=nim,gemini   # NIM leads, Gemini catches its failures
 LLM_PROVIDER=ollama       # a model on this machine — no key, no quota, no vendor
 ```
 
+For a Gemini-free setup, do not set `LLM_PROVIDER`. Configure both local
+Ollama and NIM instead:
+
+```bash
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=llama3.1:8b
+NIM_API_KEY=your-nvidia-nim-key
+```
+
+The measured task routing then uses Ollama for writing and claim extraction,
+and NIM for premise checking, where the shipped local model is not yet
+reliable enough. If NIM is unavailable, premise checking falls back to the
+local model and the report remains conservative about unsupported claims.
+
 ### Running with no third-party model at all
 
 Both hosted providers have already failed this project: a model was withdrawn

@@ -49,9 +49,12 @@ what stops working without it. Compiled by reading each `process.env` use in
 
 ### Language models
 
-At least one of Gemini, NVIDIA NIM or Ollama is needed for a full check. Providers
-are tried in the order set by `data/taskRouting.json` (measured per task), or by
-`LLM_PROVIDER` if that is set; any other configured provider is a failover.
+At least one of Gemini, NVIDIA NIM or Ollama is needed for a full check. Gemini
+is optional. Providers are tried in the order set by `data/taskRouting.json`
+(measured per task), or by `LLM_PROVIDER` if that is set; any other configured
+provider is a failover. For a Gemini-free setup, leave `LLM_PROVIDER` unset:
+Ollama leads the writing and extraction tasks, while NIM leads premise checks
+because the shipped local model is not reliable enough for that task.
 
 | Variable | Default | What it does | Without it |
 |---|---|---|---|

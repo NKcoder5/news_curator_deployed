@@ -33,6 +33,12 @@ test('a changed body still invalidates the stored verdict', () => {
   assert.equal(isUsableCachedReport(cached, printOf(newBody, 'Headline')), false);
 });
 
+test('a body cannot reuse a current but un-fingerprinted verdict', () => {
+  const cached = { report: { schemaVersion: REPORT_SCHEMA_VERSION } };
+  const body = 'The publisher rewrote this story overnight and it now says something quite different from before.';
+  assert.equal(isUsableCachedReport(cached, printOf(body, 'Headline')), false);
+});
+
 // ----------------------------------------------------------- endpoint access
 
 const apiAccess = require('../middleware/apiAccess');

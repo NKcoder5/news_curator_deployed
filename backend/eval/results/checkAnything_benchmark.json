@@ -1,6 +1,6 @@
 {
   "summary": {
-    "ranAt": "2026-10-14T09:41:57.935Z",
+    "ranAt": "2026-10-21T17:23:21.850Z",
     "plainModel": "gemini-3.1-flash-lite, zero-shot, temperature 0",
     "claims": 22,
     "plain": {
@@ -10,21 +10,21 @@
       "accuracy": 0
     },
     "ours": {
-      "right": 22,
-      "abstained": 0,
-      "wrong": 0,
-      "accuracy": 1
+      "right": 18,
+      "abstained": 1,
+      "wrong": 3,
+      "accuracy": 0.8181818181818182
     },
     "byKind": {
       "figure": {
         "n": 2,
         "plain": 0,
-        "ours": 2
+        "ours": 0
       },
       "true": {
         "n": 9,
         "plain": 0,
-        "ours": 9
+        "ours": 7
       },
       "outcome": {
         "n": 2,
@@ -47,7 +47,7 @@
         "ours": 2
       }
     },
-    "medianSecondsOurs": 8.9
+    "medianSecondsOurs": 64
   },
   "rows": [
     {
@@ -59,14 +59,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 533
+        "ms": 924
       },
       "ours": {
-        "call": "FAKE",
-        "reason": "5 independent outlets report otherwise: “85 Medals”.",
-        "rule": "contradicted-by-multiple-independent-sources",
-        "confidence": 0.91,
-        "ms": 8905
+        "call": "PARTLY FALSE",
+        "reason": "Partly false: some of this is confirmed, but on “India aims to win 84 medals at the Asian Games 2026” outlets report “85 medals”.",
+        "rule": "claims-partly-false",
+        "confidence": 0.75,
+        "ms": 93893
       }
     },
     {
@@ -78,14 +78,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 638
+        "ms": 447
       },
       "ours": {
-        "call": "FAKE",
-        "reason": "4 independent outlets report otherwise: “85 Medals”.",
-        "rule": "contradicted-by-multiple-independent-sources",
-        "confidence": 0.84,
-        "ms": 8493
+        "call": "CANNOT VERIFY",
+        "reason": "No other outlet is reporting this, so nothing supports it either way.",
+        "rule": "no-independent-coverage",
+        "confidence": 0.5,
+        "ms": 63951
       }
     },
     {
@@ -97,14 +97,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 549
+        "ms": 492
       },
       "ours": {
-        "call": "REAL",
-        "reason": "Confirmed by 5 independent outlets reporting the same facts.",
-        "rule": "corroborated-by-multiple-independent-sources",
-        "confidence": 0.95,
-        "ms": 8930
+        "call": "FAKE",
+        "reason": "6 independent outlets report otherwise: “85-Medal Campaign”.",
+        "rule": "contradicted-by-multiple-independent-sources",
+        "confidence": 0.91,
+        "ms": 87555
       }
     },
     {
@@ -116,14 +116,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 451
+        "ms": 452
       },
       "ours": {
         "call": "FAKE",
-        "reason": "6 independent outlets report otherwise: “TVK wins Dharapuram and Madurantakam by-elections”.",
+        "reason": "4 independent outlets report otherwise: “TVK wins Dharapuram and Madurantakam by-elections”.",
         "rule": "contradicted-by-multiple-independent-sources",
-        "confidence": 0.91,
-        "ms": 12927
+        "confidence": 0.84,
+        "ms": 78855
       }
     },
     {
@@ -135,14 +135,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 397
+        "ms": 490
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 8 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 7 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.95,
-        "ms": 6657
+        "ms": 53498
       }
     },
     {
@@ -154,14 +154,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 523
+        "ms": 538
       },
       "ours": {
         "call": "FAKE",
-        "reason": "8 independent outlets report otherwise: “Slashes Repo Rate By 25 Basis Points”.",
+        "reason": "10 independent outlets report otherwise: “raised the repo rate by 25 basis points”.",
         "rule": "contradicted-by-multiple-independent-sources",
         "confidence": 0.91,
-        "ms": 7830
+        "ms": 56831
       }
     },
     {
@@ -173,14 +173,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 704
+        "ms": 539
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 7 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 9 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.95,
-        "ms": 8550
+        "ms": 48382
       }
     },
     {
@@ -192,14 +192,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 413
+        "ms": 650
       },
       "ours": {
         "call": "FAKE",
-        "reason": "Rated false by The Quint, FACTLY, Newschecker and 2 more after checking this exact claim.",
+        "reason": "Rated false by FACTLY, Newschecker, Moneycontrol.com and 1 more after checking this exact claim.",
         "rule": "rated-false-by-fact-checkers",
         "confidence": 0.95,
-        "ms": 11982
+        "ms": 60338
       }
     },
     {
@@ -211,14 +211,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 529
+        "ms": 431
       },
       "ours": {
         "call": "FAKE",
-        "reason": "Rated false by India Today, AFP Fact Check, PTI and 4 more after checking this exact claim.",
+        "reason": "Rated false by India Today, The Quint, FACTLY and 2 more after checking this exact claim.",
         "rule": "rated-false-by-fact-checkers",
         "confidence": 0.95,
-        "ms": 11779
+        "ms": 72086
       }
     },
     {
@@ -230,14 +230,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 481
+        "ms": 427
       },
       "ours": {
         "call": "FAKE",
-        "reason": "Rated false by The Quint, Boom Live, Alt News and 1 more after checking this exact claim.",
-        "rule": "rated-false-by-fact-checkers",
-        "confidence": 0.95,
-        "ms": 15424
+        "reason": "6 independent outlets report otherwise: “RBI has not asked banks to stop disbursing ₹500 notes; viral claim is false”.",
+        "rule": "contradicted-by-multiple-independent-sources",
+        "confidence": 0.91,
+        "ms": 56627
       }
     },
     {
@@ -249,14 +249,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 471
+        "ms": 501
       },
       "ours": {
         "call": "FAKE",
         "reason": "Rated false by CyberPeace Foundation and The Week after checking this exact claim.",
         "rule": "rated-false-by-fact-checkers",
         "confidence": 0.89,
-        "ms": 14620
+        "ms": 73838
       }
     },
     {
@@ -268,14 +268,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 536
+        "ms": 442
       },
       "ours": {
         "call": "FAKE",
-        "reason": "No outlet reports this, and this week's news says otherwise: “Income Tax Department’s outreach programme for jewellery traders” (The Hindu).",
-        "rule": "contradicted-by-current-coverage",
-        "confidence": 0.77,
-        "ms": 8187
+        "reason": "An independent outlet reports otherwise: “old income tax regime be discontinued leaving new regime as the only option”.",
+        "rule": "contradicted-by-one-independent-source",
+        "confidence": 0.62,
+        "ms": 53252
       }
     },
     {
@@ -287,14 +287,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 548
+        "ms": 451
       },
       "ours": {
         "call": "FAKE",
-        "reason": "9 independent outlets report otherwise: “Elon Musk to make Starlink affordable in India to compete with Ambani's Jio”.",
+        "reason": "11 independent outlets report otherwise: “Ambani's Reliance breaks silence on Musk, says Jio awaits same clearances”.",
         "rule": "contradicted-by-multiple-independent-sources",
         "confidence": 0.91,
-        "ms": 14164
+        "ms": 79961
       }
     },
     {
@@ -306,14 +306,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 444
+        "ms": 384
       },
       "ours": {
         "call": "FAKE",
-        "reason": "No outlet reports this, and this week's news says otherwise: “Elon Musk Praises Google CEO Sundar Pichai” (News18).",
-        "rule": "contradicted-by-current-coverage",
-        "confidence": 0.77,
-        "ms": 8049
+        "reason": "5 independent outlets report otherwise: “growing calls for Google CEO Sundar Pichai to step down”.",
+        "rule": "contradicted-by-multiple-independent-sources",
+        "confidence": 0.91,
+        "ms": 55044
       }
     },
     {
@@ -325,14 +325,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 559
+        "ms": 415
       },
       "ours": {
         "call": "FAKE",
-        "reason": "No outlet reports this, and this week's news says otherwise: “Rahul Gandhi's plea” (The Hindu).",
-        "rule": "contradicted-by-current-coverage",
-        "confidence": 0.77,
-        "ms": 8448
+        "reason": "The encyclopedia entry “Rahul Gandhi” says otherwise: “A member of the Indian National Congress (INC), he is currently serving as the 12th leader of the Opposition in Lok Sabha and as the memb…”",
+        "rule": "premise-contradicted-by-reference",
+        "confidence": 0.55,
+        "ms": 70478
       }
     },
     {
@@ -344,14 +344,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 499
+        "ms": 546
       },
       "ours": {
         "call": "FAKE",
-        "reason": "The encyclopedia entry “Karnataka” says otherwise: “The capital of the state, Bengaluru, is known as the Silicon Valley of India, for its immense contributi”",
+        "reason": "The encyclopedia entry “Chennai” says otherwise: “Chennai, also known as Madras, is the capital and largest city of Tamil Nadu, the southernmost state of India.”",
         "rule": "premise-contradicted-by-reference",
         "confidence": 0.55,
-        "ms": 7101
+        "ms": 48611
       }
     },
     {
@@ -363,14 +363,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 401
+        "ms": 583
       },
       "ours": {
         "call": "REAL",
         "reason": "Confirmed by 11 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.95,
-        "ms": 8544
+        "ms": 57159
       }
     },
     {
@@ -382,14 +382,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 712
+        "ms": 385
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 10 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 8 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
         "confidence": 0.95,
-        "ms": 7593
+        "ms": 56261
       }
     },
     {
@@ -401,14 +401,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 586
+        "ms": 449
       },
       "ours": {
-        "call": "REAL",
-        "reason": "Confirmed by 11 independent outlets reporting the same facts.",
-        "rule": "corroborated-by-multiple-independent-sources",
-        "confidence": 0.95,
-        "ms": 13577
+        "call": "FAKE",
+        "reason": "8 independent outlets report the opposite of what this says.",
+        "rule": "contradicted-by-multiple-independent-sources",
+        "confidence": 0.91,
+        "ms": 83537
       }
     },
     {
@@ -420,14 +420,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 526
+        "ms": 464
       },
       "ours": {
         "call": "REAL",
-        "reason": "Confirmed by 4 independent outlets reporting the same facts.",
+        "reason": "Confirmed by 6 independent outlets reporting the same facts.",
         "rule": "corroborated-by-multiple-independent-sources",
-        "confidence": 0.9,
-        "ms": 12704
+        "confidence": 0.95,
+        "ms": 76623
       }
     },
     {
@@ -439,14 +439,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 546
+        "ms": 381
       },
       "ours": {
         "call": "REAL",
         "reason": "One independent outlet reports the same facts.",
         "rule": "corroborated-by-one-independent-source",
         "confidence": 0.6,
-        "ms": 7106
+        "ms": 49358
       }
     },
     {
@@ -458,14 +458,14 @@
         "call": "ERROR",
         "reason": "The model could not be reached.",
         "model": "gemini-3.1-flash-lite",
-        "ms": 553
+        "ms": 422
       },
       "ours": {
         "call": "REAL",
         "reason": "One independent outlet reports the same facts.",
         "rule": "corroborated-by-one-independent-source",
         "confidence": 0.6,
-        "ms": 16035
+        "ms": 75299
       }
     }
   ]

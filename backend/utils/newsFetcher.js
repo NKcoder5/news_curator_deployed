@@ -361,7 +361,9 @@ const searchGoogleNews = async (query, excludeSourceName = '', pageSize = 10, la
 // story ("4 days", "code 7400") is caught on the snippet when no headline
 // states the detail. Used for claims that carry a figure or a code.
 const bingField = (block, tag) => ((block.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`)) || [])[1] || '');
-const searchBingNews = async (query, excludeSourceName = '', pageSize = 10) => {
+// It is also the first stand-in when Google News refuses the server (agents/claimVerificationAgent.js):
+// `strict` then lets a failure through as SearchUnavailableError instead of "nothing found".
+const searchBingNews = async (query, excludeSourceName = '', pageSize = 10, { strict = false } = {}) => {
   const q = String(query || '').trim();
   if (!q) return [];
   const url = `https://www.bing.com/news/search?q=${encodeURIComponent(q)}&format=rss`;
@@ -371,7 +373,8 @@ const searchBingNews = async (query, excludeSourceName = '', pageSize = 10) => {
       const response = await axios.get(url, { timeout: 8000, responseType: 'text', headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } });
       return String(response.data || '');
     });
-  } catch (_) {
+  } catch (error) {
+    if (strict) throw new SearchUnavailableError(`Bing News search could not run: ${error.message}`);
     return [];
   }
   const exclude = String(excludeSourceName || '').toLowerCase();
@@ -402,10 +405,11 @@ const searchBingNews = async (query, excludeSourceName = '', pageSize = 10) => {
 // them means "nothing found here", never a failed check.
 const GDELT_URL = 'https://api.gdeltproject.org/api/v2/doc/doc';
 
-const gdeltQuery = (text) => {
+const gdeltQuery = (text, worldwide = false) => {
   const words = String(text || '').replace(/[^\p{L}\p{N}\s]/gu, ' ').split(/\s+/)
     .filter(w => w.length >= 3).slice(0, 6);
-  return words.length >= 2 ? `${words.join(' ')} sourcecountry:india` : null;
+  if (words.length < 2) return null;
+  return worldwide ? words.join(' ') : `${words.join(' ')} sourcecountry:india`;
 };
 
 const gdeltDate = (value) => {
@@ -447,8 +451,10 @@ const gdeltSlot = (fn) => {
   return run;
 };
 
-const searchGdelt = async (query, excludeSourceName = '', pageSize = 10) => {
-  const q = gdeltQuery(query);
+// `worldwide` drops the India-only filter and `strict` lets a failure through as SearchUnavailableError:
+// both for GDELT standing in for Google News, where an error has to stay an error, not "nothing found".
+const searchGdelt = async (query, excludeSourceName = '', pageSize = 10, { worldwide = false, strict = false } = {}) => {
+  const q = gdeltQuery(query, worldwide);
   if (!q) return [];
   const url = `${GDELT_URL}?query=${encodeURIComponent(q)}&mode=artlist&format=json&sort=hybridrel&timespan=3months&maxrecords=${Math.min(50, pageSize * 3)}`;
   try {
@@ -457,9 +463,41 @@ const searchGdelt = async (query, excludeSourceName = '', pageSize = 10) => {
       return JSON.parse(String(response.data || '{}'));
     }));
     return fromGdelt(json, excludeSourceName, pageSize);
-  } catch (_) {
+  } catch (error) {
+    if (strict) throw new SearchUnavailableError(`GDELT search could not run: ${error.message}`);
     return [];
   }
+};
+
+/* ---------------------------------------------------------------------------
+   Can this server reach its news sources?
+
+   Google News answers the laptop and refused the deployed server: on 26 Oct, on
+   Render, the news feed's fallback to Google failed in under six seconds and every
+   claim search came back "other outlets could not be searched". Nothing showed it
+   until a reader's check failed. /ready now says which sources answer from where
+   the server runs, probed at most every ten minutes.
+--------------------------------------------------------------------------- */
+const PROBE_TTL_MS = 10 * 60 * 1000;
+let probe = null;
+const tryOne = async (fn) => {
+  const started = Date.now();
+  try {
+    const items = await fn();
+    return { ok: true, items: items.length, ms: Date.now() - started };
+  } catch (error) {
+    return { ok: false, error: String(error.response?.status || error.code || error.message).slice(0, 80), ms: Date.now() - started };
+  }
+};
+const probeNewsSources = () => {
+  if (probe && Date.now() - probe.at < PROBE_TTL_MS) return probe.result;
+  const result = Promise.all([
+    tryOne(() => searchGoogleNews('India news today', '', 5, 'en')),
+    tryOne(() => searchBingNews('India news today', '', 5, { strict: true })),
+    tryOne(() => searchGdelt('India election commission', '', 5, { worldwide: true, strict: true }))
+  ]).then(([google, bing, gdelt]) => ({ at: new Date().toISOString(), googleNews: google, bingNews: bing, gdelt }));
+  probe = { at: Date.now(), result };
+  return result;
 };
 
 /**
@@ -545,5 +583,6 @@ module.exports = {
   cached, withRetry, isNetworkError,
   searchGdelt,
   searchBingNews,
+  probeNewsSources,
   _gdelt: { gdeltQuery, gdeltDate, fromGdelt }
 };

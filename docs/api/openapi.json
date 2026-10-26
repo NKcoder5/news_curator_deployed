@@ -1219,6 +1219,10 @@
                   "lastSeenSeconds": { "type": "integer" },
                   "resting": { "type": "boolean" }
                 }
+              },
+              "newsSources": {
+                "type": ["object", "null"],
+                "description": "Whether Google News and GDELT answer from where the server runs, probed at most every ten minutes: each {ok, items, ms} or {ok: false, error, ms}. {pending: true} while the first probe is still out. Reported, not required: GDELT stands in for the news search when Google News refuses."
               }
             }
           }

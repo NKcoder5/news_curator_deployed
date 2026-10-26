@@ -20,6 +20,7 @@ const { checkConfig } = require('./utils/config');
 const { PROVIDERS } = require('./utils/llmProviders');
 const localNli = require('./services/localNli');
 const modelHost = require('./services/modelHost');
+const { probeNewsSources } = require('./utils/newsFetcher');
 
 // DB Connection
 const connectDB = require('./utils/db');
@@ -36,9 +37,12 @@ const PORT = process.env.PORT || 5000;
 // what happened, because four frontend files fall back to the Render API URL
 // while nothing here ever allowed the Render page to call it. The list is
 // configurable so a new deployment does not need a code change.
+// The web app's own Render address is listed here, not left to CORS_ORIGINS: on 26 Oct the deployed
+// server ran without that variable and the browser refused every call from the web app.
 const allowedOrigins = () => [
   'http://localhost:3000',
   'https://news-curator-deployed.onrender.com',
+  'https://news-curator-deployed-1.onrender.com',
   ...String(process.env.CORS_ORIGINS || '')
     .split(',')
     .map(o => o.trim())
@@ -142,16 +146,23 @@ const createApp = ({ rateLimits = {}, log = console.log } = {}) => {
   // is configured; without either, every check would fail or fall back.
   // Our own pair model is reported, not required: without it the checks it
   // serves fall back to the hosted models, as they did before it existed.
-  app.get('/ready', (req, res) => {
+  // Which news sources answer from where the server runs (utils/newsFetcher.js, probed at most every ten
+  // minutes) is reported, not required: GDELT stands in when Google News refuses.
+  app.get('/ready', async (req, res) => {
     const database = mongoose.connection.readyState === 1;
     const models = Object.values(PROVIDERS).some(p => p.isConfigured());
+    const newsSources = await Promise.race([
+      probeNewsSources(),
+      new Promise(resolve => setTimeout(() => resolve({ pending: true }), 10000).unref())
+    ]).catch(() => null);
     res.status(database && models ? 200 : 503).json({
       status: database && models ? 'READY' : 'NOT READY',
       checks: {
         database: database ? 'connected' : 'not connected',
         models: models ? 'configured' : 'none configured',
         ownModel: localNli.status(),
-        ownHardware: modelHost.status()
+        ownHardware: modelHost.status(),
+        newsSources
       }
     });
   });

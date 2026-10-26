@@ -891,6 +891,31 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, keywordsR
     }));
 
   const [fromClaim, ...batches] = await Promise.all([claimBatch, ...keywordBatches]);
+  // Google News (with NewsAPI behind it) refused every search. On the deployed server Google refuses
+  // requests that it answers from the laptop (26 Oct), and NewsAPI's 100 a day were long spent, so every
+  // claim came back "other outlets could not be searched". Bing News stands in, then GDELT worldwide (it
+  // answered 429 that day, so it is second), and the search counts as failed only when both fail.
+  const searchDown = batches.every(b => b.failed) && (fromClaim.failed || fromClaim.lists.every(l => l.length === 0));
+  const standInFrom = async () => {
+    const query = asQuery(headline || claim);
+    let bingRan = false;
+    try {
+      const bing = await searchBingNews(query, sourceName, 10, { strict: true });
+      bingRan = true;
+      if (bing.length) return { articles: bing.map(a => ({ ...a, foundIn: 'en' })) };
+    } catch (err) {
+      console.error('Bing News standing in for the news search could not run:', err.message);
+    }
+    try {
+      const gdelt = await searchGdelt(keywordsEn || keywords || query, sourceName, 10, { worldwide: true, strict: true });
+      return { articles: gdelt.map(a => ({ ...a, foundIn: 'en' })) };
+    } catch (err) {
+      console.error('GDELT standing in for the news search could not run:', err.message);
+      // Bing answered with nothing: a search that ran and found nothing, not one that could not run.
+      return { articles: [], failed: !bingRan };
+    }
+  };
+  const standIn = searchDown ? await standInFrom() : null;
 
   const seen = new Set();
   const merged = [];
@@ -914,6 +939,7 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, keywordsR
     }
   };
   addAll(interleaved);
+  if (standIn) addAll(standIn.articles);
 
   // A claim with a figure or a code is also searched where results carry the
   // article's own text (utils/newsFetcher.js, searchBingNews), without the
@@ -937,7 +963,7 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, keywordsR
     const t = String(a.title || '').toLowerCase();
     return distinctive.filter(w => t.includes(w)).length;
   };
-  if (distinctive.length >= 2 && merged.filter(a => mentions(a) >= 2).length < 2) {
+  if (!standIn && distinctive.length >= 2 && merged.filter(a => mentions(a) >= 2).length < 2) {
     const regional = await searchGdelt(keywordsEn || keywords || asQuery(claim), sourceName, 10).catch(() => []);
     addAll(regional.map(a => ({ ...a, foundIn: 'en' })));
   }
@@ -984,7 +1010,7 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, keywordsR
       const rest = ranked.filter(a => !reserved.includes(a)).slice(0, JUDGED_HEADLINES - reserved.length);
       return [...rest, ...reserved];
     })(),
-    searchFailed: batches.every(b => b.failed) && (fromClaim.failed || fromClaim.lists.every(l => l.length === 0))
+    searchFailed: searchDown && (!standIn || Boolean(standIn.failed))
   };
 };
 

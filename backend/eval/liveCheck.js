@@ -96,16 +96,23 @@ const checkMessage = async (input, { isUrl = false, trigger = 'eval' } = {}) => 
   };
 };
 
+// A check whose searches could not run measured the network, not the system. On 26 Oct the laptop's
+// internet dropped at rul-044 and every model and news request failed (ENOTFOUND): the remaining cases
+// came back "we could not complete the search", no provider answered to be counted as a fallback, and
+// the run carried on to the end, filing seventeen cases as missed.
+const UNMEASURED_RULES = new Set(['verification-unavailable']);
+const unmeasured = (row) => row.call === 'ERROR' || (row.degraded || []).length > 0 || UNMEASURED_RULES.has(row.rule);
+
 /**
- * Stops a run once the quota has gone: after `limit` cases in a row that
- * errored or were answered by fallback providers. What was done is kept, and
- * the run resumes from there once the quota resets.
+ * Stops a run once the quota or the network has gone: after `limit` cases in a
+ * row that errored, were answered by fallback providers, or could not search.
+ * What was done is kept, and the run resumes from there once it is back.
  */
 const quotaGuard = (limit = 2) => {
   let streak = 0;
   return {
     note: (row) => {
-      streak = row.call === 'ERROR' || row.degraded.length ? streak + 1 : 0;
+      streak = unmeasured(row) ? streak + 1 : 0;
       return streak >= limit;
     }
   };
@@ -120,7 +127,7 @@ const resultsFile = (name) => path.join(RESULTS, name);
 const keptRows = (file) => {
   if (!fs.existsSync(file)) return [];
   const { rows = [] } = JSON.parse(fs.readFileSync(file, 'utf8'));
-  return rows.filter(r => r.call !== 'ERROR' && !(r.degraded || []).length);
+  return rows.filter(r => !unmeasured(r));
 };
 
 const writeJson = (file, value) => {
@@ -144,5 +151,5 @@ const pause = (seconds) => new Promise(resolve => setTimeout(resolve, seconds * 
 
 module.exports = {
   ABSTENTIONS, outcomeOf, checkMessage, degradedLabels, quotaGuard, EXIT_RESUMABLE,
-  resultsFile, keptRows, writeJson, median, quantile, pause, GEMINI_LED
+  resultsFile, keptRows, writeJson, median, quantile, pause, GEMINI_LED, unmeasured
 };

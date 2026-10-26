@@ -191,7 +191,7 @@ const cleanUp = async (rows) => {
       rows.push(row);
       console.log(`${c.id.padEnd(5)} ${p.style.padEnd(8)} expected ${c.expected.padEnd(14)} got ${row.call.padEnd(14)} ${row.seconds.toFixed(1)}s${row.filed ? `  record ${String(row.filed.claimIds[0]).slice(-6)}` : ''}${row.degraded.length ? `  [fallback: ${row.degraded.join(', ')}]` : ''}`);
       save(rows);
-      if (guard.note(row)) { stoppedBecause = 'model quota: two checks in a row failed or fell back from Gemini'; break outer; }
+      if (guard.note(row)) { stoppedBecause = 'model quota or network: two checks in a row failed, fell back from Gemini, or could not search'; break outer; }
       await pause(gapSeconds);
     }
   }

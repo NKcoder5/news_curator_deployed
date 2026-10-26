@@ -151,3 +151,21 @@ test('the quota guard stops after two degraded or failed cases in a row', () => 
   assert.strictEqual(guard.note({ call: 'ERROR', degraded: [] }), false);
   assert.strictEqual(guard.note({ call: 'REAL', degraded: ['input understanding'] }), true);
 });
+
+// 26 Oct: the network dropped mid-run, every search failed, and seventeen cases were filed as missed
+// before the run ended on its own. A check that could not search measured the network.
+test('the guard stops when searches cannot run, and a resumed run checks those cases again', () => {
+  const { keptRows, unmeasured } = require('../eval/liveCheck');
+  const guard = quotaGuard();
+  const down = { call: 'CANNOT VERIFY', rule: 'verification-unavailable', degraded: [] };
+  assert.strictEqual(guard.note(down), false);
+  assert.strictEqual(guard.note(down), true);
+  assert.strictEqual(unmeasured(down), true);
+  assert.strictEqual(unmeasured({ call: 'CANNOT VERIFY', rule: 'no-independent-coverage', degraded: [] }), false);
+  const fs = require('fs');
+  const os = require('os');
+  const path = require('path');
+  const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'guard-')), 'run.json');
+  fs.writeFileSync(file, JSON.stringify({ rows: [{ id: 'a', call: 'FAKE', rule: 'rated-false-by-fact-checkers', degraded: [] }, { id: 'b', ...down }] }));
+  assert.deepStrictEqual(keptRows(file).map(r => r.id), ['a']);
+});

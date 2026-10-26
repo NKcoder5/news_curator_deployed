@@ -153,7 +153,7 @@ const save = (rows, stoppedBecause) => {
     if (sealed) process.stdout.write('.');
     else console.log(`${mark} ${c.id.padEnd(10)} ${c.category.padEnd(22)} expected ${c.expected.padEnd(19)} got ${row.call.padEnd(19)} ${row.seconds.toFixed(1)}s  ${row.detail.slice(0, 80)}${row.degraded.length ? `  [fallback: ${row.degraded.join(', ')}]` : ''}`);
     save(rows);
-    if (guard.note(row)) { stoppedBecause = 'model quota: two cases in a row failed or fell back from Gemini'; break; }
+    if (guard.note(row)) { stoppedBecause = 'model quota or network: two cases in a row failed, fell back from Gemini, or could not search'; break; }
     await pause(gapSeconds);
   }
 

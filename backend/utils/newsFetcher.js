@@ -321,7 +321,31 @@ function codePoint(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10FFFF ? 
  * Tamil Nadu by-election result is found the day it is declared. It needs no
  * key and has no daily quota. Only headlines, outlets and dates are used.
  */
+// Google News refuses the deployed server's address (26 Oct: 503 in about 6.6 s, every time) while it
+// answers the laptop, and six places search it: the claim, its figures, this week's coverage of the subject,
+// fact-check headlines, a blocked page's headline, the coverage comparison. A refusal now answers from
+// Bing News instead, and Google is left alone for ten minutes, so a check does not wait 6 s on each call
+// to be refused again. Google's "when:7d" becomes a date filter on Bing's results.
+const GOOGLE_REST_MS = 10 * 60 * 1000;
+let googleRestingUntil = 0;
+const fromBingInstead = async (query, excludeSourceName, pageSize, cause) => {
+  const when = String(query).match(/\s+when:(\d+)([dh])\b/i);
+  const plain = String(query).replace(/\s+when:\d+[dh]\b/gi, '').trim();
+  try {
+    const items = await searchBingNews(plain, excludeSourceName, when ? pageSize * 2 : pageSize, { strict: true });
+    const since = when ? Date.now() - Number(when[1]) * (when[2].toLowerCase() === 'h' ? 3600000 : 86400000) : null;
+    return (since ? items.filter(i => i.publishedAt && new Date(i.publishedAt).getTime() >= since) : items).slice(0, pageSize);
+  } catch (_) {
+    const unavailable = new SearchUnavailableError(`Google News search could not run: ${cause.message}`);
+    if (isNetworkError(cause)) unavailable.code = 'NETWORK_UNAVAILABLE';
+    throw unavailable;
+  }
+};
+
 const searchGoogleNews = async (query, excludeSourceName = '', pageSize = 10, language = 'en') => {
+  if (Date.now() < googleRestingUntil) {
+    return fromBingInstead(query, excludeSourceName, pageSize, new Error('Google News refused this server a few minutes ago'));
+  }
   const edition = GOOGLE_EDITIONS[language] || GOOGLE_EDITIONS.en;
   const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&${edition}`;
   let xml;
@@ -335,9 +359,9 @@ const searchGoogleNews = async (query, excludeSourceName = '', pageSize = 10, la
       return String(response.data || '');
     }));
   } catch (error) {
-    const unavailable = new SearchUnavailableError(`Google News search could not run: ${error.message}`);
-    if (isNetworkError(error)) unavailable.code = 'NETWORK_UNAVAILABLE';
-    throw unavailable;
+    // Refused (an HTTP error) rather than unreachable: Google is left alone for a while.
+    if (error.response) googleRestingUntil = Date.now() + GOOGLE_REST_MS;
+    return fromBingInstead(query, excludeSourceName, pageSize, error);
   }
 
   const exclude = String(excludeSourceName || '').toLowerCase();
@@ -504,8 +528,14 @@ const tryOne = async (fn) => {
 };
 const probeNewsSources = () => {
   if (probe && Date.now() - probe.at < PROBE_TTL_MS) return probe.result;
+  // Google is asked directly here, not through searchGoogleNews and its Bing stand-in: this reports
+  // whether Google itself answers.
+  const googleDirect = async () => {
+    const r = await axios.get('https://news.google.com/rss/search?q=India&hl=en-IN&gl=IN&ceid=IN:en', { timeout: 8000, responseType: 'text' });
+    return String(r.data || '').match(/<item>/g) || [];
+  };
   const result = Promise.all([
-    tryOne(() => searchGoogleNews('India news today', '', 5, 'en')),
+    tryOne(googleDirect),
     tryOne(() => searchBingNews('India news today', '', 5, { strict: true })),
     tryOne(() => searchGdelt('India election commission', '', 5, { worldwide: true, strict: true }))
   ]).then(([google, bing, gdelt]) => ({ at: new Date().toISOString(), googleNews: google, bingNews: bing, gdelt }));

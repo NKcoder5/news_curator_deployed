@@ -1,2 +1,3 @@
-# The shipped model is data: git must never rewrite its line endings.
-backend/models/** -text
+# The shipped model is data: git must never rewrite its line endings. Only the model's own folders: the
+# Mongoose schemas beside them in backend/models/*.js are source code and are normalised like the rest.
+backend/models/*/** -text

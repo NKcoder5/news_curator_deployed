@@ -315,11 +315,13 @@ test('writing checks: the text is fenced and every field is held to its shape', 
   assert.equal(clickbait.signals.length, 7);
 
   const { detectManipulation } = load('../agents/manipulationAgent');
-  replies.manipulation = { intensity: 'EXTREME', techniques: [{ technique: 'SYSTEM', quote: 'q' }, { technique: 'x' }], summary: 's' };
+  replies.manipulation = { intensity: 'EXTREME', techniques: [{ technique: 'SYSTEM', quote: 'q' }, { technique: 'x' }, { technique: 'name-calling', quote: 'traitors' }], summary: 's' };
   const manipulation = await detectManipulation(ATTACK, ATTACK);
   assertFenced(promptFor('manipulation'), 'manipulation');
+  // A technique that cannot be named is not counted: a finding about the writing only ever counts against
+  // a story, so an injected or garbled entry must not be turned into "loaded language".
   assert.equal(manipulation.techniques.length, 1);
-  assert.equal(manipulation.techniques[0].technique, 'loaded language');
+  assert.equal(manipulation.techniques[0].technique, 'name calling');
   assert.equal(manipulation.intensity, 'light');
 
   const { assessTransparency } = load('../agents/transparencyAgent');

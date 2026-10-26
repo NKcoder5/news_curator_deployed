@@ -1,4 +1,4 @@
-﻿// backend/agents/biasAgent.js
+// backend/agents/biasAgent.js
 // Factor 3: Bias and emotional-language detection — structured LLM call that
 // flags specific sentences so the frontend can highlight them.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
@@ -44,7 +44,10 @@ Return a JSON object with these keys:
   try {
     const result = await callNimApiJson(prompt, { maxTokens: 700, requiredKeys: ['bias_score'], label: 'bias' });
     let biasScore = Number(result.bias_score);
-    if (!Number.isFinite(biasScore)) biasScore = 0;
+    // A score that is not a number is no reading at all: taken as 0 it passed as "fully neutral".
+    if (result.bias_score === null || result.bias_score === '' || !Number.isFinite(biasScore)) {
+      throw new Error(`bias_score was not a number (${JSON.stringify(result.bias_score)?.slice(0, 40)})`);
+    }
     biasScore = Math.min(10, Math.max(0, biasScore));
 
     // Shown to the reader as highlights, so each is held to the shape asked

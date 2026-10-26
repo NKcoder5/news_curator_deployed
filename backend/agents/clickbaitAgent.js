@@ -1,4 +1,4 @@
-﻿// backend/agents/clickbaitAgent.js
+// backend/agents/clickbaitAgent.js
 // Factor 2: Clickbait headline detection — one structured LLM call that
 // scores the headline and names the specific clickbait signals found.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
@@ -42,7 +42,11 @@ Return a JSON object with these keys:
   try {
     const result = await callNimApiJson(prompt, { maxTokens: 450, requiredKeys: ['clickbait_score'], label: 'clickbait' });
     let clickbaitScore = Number(result.clickbait_score);
-    if (!Number.isFinite(clickbaitScore)) clickbaitScore = 0;
+    // A score that is not a number is no reading at all. It used to be taken as 0, "not clickbait",
+    // so a garbled reply passed as a clean headline; the pattern check answers instead.
+    if (result.clickbait_score === null || result.clickbait_score === '' || !Number.isFinite(clickbaitScore)) {
+      throw new Error(`clickbait_score was not a number (${JSON.stringify(result.clickbait_score)?.slice(0, 40)})`);
+    }
     clickbaitScore = Math.min(10, Math.max(0, clickbaitScore));
 
     return {

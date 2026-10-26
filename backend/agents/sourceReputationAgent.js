@@ -306,4 +306,21 @@ function getSourceReputation(sourceName, articleUrl, { trustedName = false } = {
   return unknown();
 }
 
-module.exports = { getSourceReputation, claimedOutlet };
+/**
+ * The reputation of a news search result's outlet.
+ *
+ * A Google News result links to a news.google.com redirect, not to the outlet, and rated by that address
+ * every outlet Google found was google.com: 7.5, "impersonating The Hindu". The Hindu lost its 8.5 and an
+ * unrated site found through Google gained a "high quality" 7.5. Google's results carry the outlet's own
+ * address beside the redirect, and that is what is rated; without it the outlet is unknown.
+ */
+const GOOGLE_NEWS_REDIRECT = /(^|\.)news\.google\.com$/i;
+function reputationOfResult(item) {
+  let url = item?.url || null;
+  try {
+    if (url && GOOGLE_NEWS_REDIRECT.test(new URL(url).hostname)) url = item.sourceUrl || null;
+  } catch (_) { /* not an address: rated by name rules below */ }
+  return getSourceReputation(item?.source, url);
+}
+
+module.exports = { getSourceReputation, reputationOfResult, claimedOutlet };

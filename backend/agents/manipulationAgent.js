@@ -85,6 +85,8 @@ const normalizeTechniqueName = (rawName) => {
   const cleaned = rawName.trim().toLowerCase().replace(/[-_]+/g, ' ').replace(/[éè]/g, 'e');
   if (TECHNIQUES[cleaned]) return cleaned;
   if (TECHNIQUE_ALIASES[cleaned]) return TECHNIQUE_ALIASES[cleaned];
+  // A fragment too short to name anything ("a", "no") must not match the first name containing it.
+  if (cleaned.length < 4) return null;
   for (const [alias, canonical] of Object.entries(TECHNIQUE_ALIASES)) {
     if (cleaned.includes(alias) || alias.includes(cleaned)) return canonical;
   }
@@ -174,7 +176,10 @@ Return a JSON object with these keys:
         const rawQuote = clip(t.quote || t.example || t.text || t.sentence || t.excerpt || t.matched_text || '', 600);
         const rawEffect = clip(t.effect || t.description || t.explanation || t.impact || t.role || '', 300);
 
-        const name = normalizeTechniqueName(rawTech) || oneOf(rawTech, TECHNIQUE_NAMES, 'loaded language');
+        // A technique that cannot be named is not counted. It used to be recorded as "loaded language",
+        // and a finding about the writing can only count against a story, so a model's unnamed or
+        // invented entry was held against it.
+        const name = normalizeTechniqueName(rawTech) || oneOf(rawTech, TECHNIQUE_NAMES, null);
         return {
           technique: name,
           definition: TECHNIQUES[name] || '',

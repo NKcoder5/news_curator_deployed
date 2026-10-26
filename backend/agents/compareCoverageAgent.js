@@ -1,4 +1,4 @@
-﻿// backend/agents/compareCoverageAgent.js
+// backend/agents/compareCoverageAgent.js
 // Compare Coverage: take one story and show how DIFFERENT outlets reported it.
 //
 // This reuses the same building blocks as the trust pipeline — the source
@@ -11,7 +11,7 @@
 // quality) which is clearly labelled as such in the UI.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { searchCoverageBroadening } = require('../utils/newsFetcher');
-const { getSourceReputation } = require('./sourceReputationAgent');
+const { reputationOfResult } = require('./sourceReputationAgent');
 const { analyzeClickbait } = require('./clickbaitAgent');
 const { UNTRUSTED_NOTICE, fence, oneOf, clip, clipList } = require('../utils/untrusted');
 
@@ -143,7 +143,7 @@ const compareCoverage = async ({ title, query, source, url }) => {
   const headlineResults = await Promise.all(selected.map(a => analyzeClickbait(a.title)));
 
   const outlets = selected.map((article, i) => {
-    const reputation = getSourceReputation(article.source, article.url);
+    const reputation = reputationOfResult(article);
     const headline = headlineResults[i];
     const coverageScore = Math.round(
       (reputation.score * COVERAGE_WEIGHTS.reputation + headline.score * COVERAGE_WEIGHTS.headline) * 10

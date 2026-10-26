@@ -38,4 +38,4 @@ const articleHistorySchema = new mongoose.Schema({
 // Compound index to ensure unique article per user
 articleHistorySchema.index({ userId: 1, articleId: 1 }, { unique: true });
 
-module.exports = mongoose.model('ArticleHistory', articleHistorySchema); 
+module.exports = mongoose.model('ArticleHistory', articleHistorySchema);

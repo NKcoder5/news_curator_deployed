@@ -38,7 +38,10 @@ const STOPWORDS = new Set([
   'more', 'most', 'very', 'just', 'now', 'then', 'than', 'so', 'if', 'not'
 ]);
 
-const MONTHS = /\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)\b/i;
+// "May" the month only with its capital: case-blind, "Prices may rise" counted as naming a date.
+const MONTH_NAMES = /\b(january|february|march|april|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)\b|\b(May)\b/;
+const MONTHS = { test: (text) => MONTH_NAMES.test(String(text).replace(/\b(?!May\b)\p{L}+/gu, w => w.toLowerCase())),
+  match: (text) => String(text).replace(/\b(?!May\b)\p{L}+/gu, w => w.toLowerCase()).match(MONTH_NAMES) };
 
 // Statements about the speaker's own feelings or preferences. These are not
 // false — they are simply not the kind of thing another outlet can confirm.
@@ -75,7 +78,7 @@ const findAnchors = (text) => {
       if (!clean) return;
       if (/\d/.test(clean)) { numbers.add(clean.toLowerCase()); return; }
       // The first word of a sentence is capitalised by grammar, not by being a
-       // name, so sentence openers and common stopwords are skipped. Genuine proper
+      // name, so sentence openers and common stopwords are skipped. Genuine proper
       // nouns ("India", "Modi", "Vijay") are kept.
       const lower = clean.toLowerCase();
       if (index === 0 && (SENTENCE_OPENERS.has(lower) || STOPWORDS.has(lower))) return;
@@ -85,7 +88,8 @@ const findAnchors = (text) => {
     });
   });
 
-  const dates = MONTHS.test(raw) ? [raw.match(MONTHS)[0]] : [];
+  const month = MONTHS.match(raw);
+  const dates = month ? [month[0]] : [];
   return { names: [...names], numbers: [...numbers], dates };
 };
 

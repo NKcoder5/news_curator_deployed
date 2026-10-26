@@ -4,7 +4,7 @@
 // whether that independent coverage supports or contradicts each claim.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { searchCoverageBroadening, searchGoogleNews, searchGdelt, searchBingNews } = require('../utils/newsFetcher');
-const { getSourceReputation } = require('./sourceReputationAgent');
+const { reputationOfResult } = require('./sourceReputationAgent');
 const { isSearchable } = require('../utils/language');
 const { filterRelevant, anchorTerms, distinctiveTerms } = require('./evidenceRelevance');
 const { judgePairs } = require('../services/localNli');
@@ -161,7 +161,7 @@ const figureConflicts = (claim, coverage) => {
   return conflicting.map(c => ({
     source: c.item.source, title: c.item.title, description: c.item.description || '', url: c.item.url,
     publishedAt: c.item.publishedAt, reported: c.reported,
-    reliability: getSourceReputation(c.item.source, c.item.url).score
+    reliability: reputationOfResult(c.item).score
   }));
 };
 const byFigures = (claim, coverage, why) => {
@@ -747,7 +747,7 @@ Return a JSON object with these keys:
         url: a.url,
         publishedAt: a.publishedAt,
         reported: a.reported || '',
-        reliability: getSourceReputation(a.source, a.url).score
+        reliability: reputationOfResult(a).score
       }));
 
   let verdict = judged;

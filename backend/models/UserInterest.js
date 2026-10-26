@@ -28,4 +28,4 @@ const userInterestSchema = new mongoose.Schema({
   }]
 });
 
-module.exports = mongoose.model('UserInterest', userInterestSchema); 
+module.exports = mongoose.model('UserInterest', userInterestSchema);

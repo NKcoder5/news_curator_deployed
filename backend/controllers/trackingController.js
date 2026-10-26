@@ -58,7 +58,7 @@ exports.getUserActivity = async (req, res) => {
     const activities = await UserActivity.find({ userId: req.user._id })
       .sort({ timestamp: -1 })
       .limit(50);
-    
+
     res.json(activities);
   } catch (error) {
     console.error('Error fetching activity history:', error);
@@ -71,7 +71,7 @@ exports.getUserInterests = async (req, res) => {
   try {
     const interests = await UserInterest.find({ userId: req.user._id })
       .sort({ interestScore: -1 });
-    
+
     res.json(interests);
   } catch (error) {
     console.error('Error fetching user interests:', error);
@@ -86,10 +86,10 @@ async function updateUserInterests(userId, category, source) {
     if (category === 'general') {
       return;
     }
-    
+
     // Find or create user interest for the category
     let userInterest = await UserInterest.findOne({ userId, category });
-    
+
     if (!userInterest) {
       userInterest = new UserInterest({
         userId,
@@ -113,4 +113,4 @@ async function updateUserInterests(userId, category, source) {
   } catch (error) {
     console.error('Error updating user interests:', error);
   }
-} 
+}

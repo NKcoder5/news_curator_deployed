@@ -5,16 +5,16 @@ exports.getProfile = async (req, res) => {
   try {
     // The user is already attached to the request by the auth middleware
     const user = req.user;
-    
+
     // Get top 3 user interests from UserInterest model
     const userInterests = await UserInterest.find({ userId: user._id })
       .sort({ interestScore: -1 })
       .limit(3)
       .select('category interestScore');
-    
+
     // Extract categories from top 3 user interests
     const interests = userInterests.map(interest => interest.category);
-    
+
     // Return user profile without sensitive information
     res.json({
       userId: user._id,
@@ -47,7 +47,7 @@ exports.updateProfile = async (req, res) => {
       .sort({ interestScore: -1 })
       .limit(3)
       .select('category interestScore');
-    
+
     // Extract categories from top 3 user interests
     const interests = userInterests.map(interest => interest.category);
 
@@ -65,4 +65,4 @@ exports.updateProfile = async (req, res) => {
     console.error('Error updating user profile:', err);
     res.status(500).json({ error: 'Error updating user profile' });
   }
-}; 
+};

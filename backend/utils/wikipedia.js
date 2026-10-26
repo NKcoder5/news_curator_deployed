@@ -88,4 +88,4 @@ function extractKeywords(text) {
   return words.filter(word => word.length > 3);
 }
 
-module.exports = { fetchWikipediaContent, extractKeywords, ReferenceUnavailableError }; 
+module.exports = { fetchWikipediaContent, extractKeywords, ReferenceUnavailableError };

@@ -45,7 +45,7 @@ exports.trackArticleView = async (req, res) => {
 exports.getUserArticleHistory = async (req, res) => {
   try {
     const userId = req.user.id;
-    
+
     const articleHistory = await ArticleHistory.find({ userId })
       .sort({ lastViewed: -1 })
       .limit(20);
@@ -55,4 +55,4 @@ exports.getUserArticleHistory = async (req, res) => {
     console.error('Error fetching article history:', error);
     res.status(500).json({ success: false, error: 'Error fetching article history' });
   }
-}; 
+};

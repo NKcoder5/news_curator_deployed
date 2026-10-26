@@ -342,7 +342,7 @@ const buildEvidenceLedger = ({
     staleClaims: perClaim.filter(c => c.stale).map(c => ({ claim: c.claim, newestSupport: c.newestSupport })),
     confirmedClaims: perClaim.filter(c => c.independentSupport > 0).map(c => c.claim),
     contradictedClaims: perClaim.filter(c => c.independentContradiction > 0)
-      .map(c => ({ claim: c.claim, fromTitle: c.fromTitle, reported: c.reportedAgainst.filter(q => q.length <= 80).sort((x, y) => y.length - x.length)[0] || null })),
+      .map(c => ({ claim: c.claim, fromTitle: c.fromTitle, against: c.independentContradiction, reported: c.reportedAgainst.filter(q => q.length <= 80).sort((x, y) => y.length - x.length)[0] || null })),
     premiseStatus: premiseResult?.status || 'not-run',
     // A professional fact-checking desk's published ruling on this same claim.
     // Kept apart from the news count for the same reason as the premise check:
@@ -599,9 +599,11 @@ const decideVerdict = (ledger) => {
   // confirms: the title is what it asserts, and true details under a false
   // title are how such forwards are made believable. "Punjab Anti-Drug
   // Activist Saved: Following the killing of ..." came back PARTLY FALSE.
+  // As certain as the evidence against the title, by the same measure as R1 and R2: two independent
+  // outlets make it false, one makes it probably false. One outlet used to make a title flatly false.
   const falseTitle = ledger.contradictedClaims.find(c => c.fromTitle);
   if (falseTitle) {
-    return decide('false', 'title-contradicted', [
+    return decide((falseTitle.against ?? 2) >= 2 ? 'false' : 'likely-false', 'title-contradicted', [
       `The message's title says: ${falseTitle.claim}`,
       falseTitle.reported ? `Independent outlets report: "${falseTitle.reported}".` : 'Independent outlets report otherwise.',
       ...ledger.confirmedClaims.slice(0, 2).map(c => `The details beneath it are confirmed: ${c}`)
@@ -1040,9 +1042,10 @@ const summarise = (verdict, ledger, rule = '') => {
   }
   if (rule === 'title-contradicted') {
     const t = (ledger.contradictedClaims || []).find(c => c.fromTitle);
+    const how = verdict === 'false' ? 'False' : 'Probably false';
     return t && t.reported
-      ? `False: the title says “${t.claim.replace(/\.$/, '')}”, but outlets report “${t.reported}”.`
-      : 'False: the title of this message is contradicted by independent reporting.';
+      ? `${how}: the title says “${t.claim.replace(/\.$/, '')}”, but ${(t.against ?? 2) >= 2 ? 'outlets report' : 'an independent outlet reports'} “${t.reported}”.`
+      : `${how}: the title of this message is contradicted by independent reporting.`;
   }
   if (rule === 'claims-partly-false') {
     const wrong = (ledger.contradictedClaims || [])[0];
@@ -1129,7 +1132,9 @@ const summarise = (verdict, ledger, rule = '') => {
     default:
       // The search did run for a too-recent story; it simply could not have
       // found anything. Saying it failed would be a different untruth.
-      if (ledger.tooRecentToCorroborate) return 'Too recent to check against other outlets yet — our news index runs about a day behind.';
+      // The lag is the configured one (utils/newsFetcher.js INDEX_LAG_HOURS): "about a day" was NewsAPI's,
+      // before the live Google News search, and kept telling readers so after the lag became 3 hours.
+      if (ledger.tooRecentToCorroborate) return `Too recent to check against other outlets yet — our news search runs ${describeAge(ledger.indexLagHours)} behind.`;
       if (!ledger.verificationRan) return 'We could not complete the search, so nothing has been checked.';
       return ledger.highImpact
         ? 'No other outlet is reporting this — and a story this big would normally be everywhere.'
@@ -1157,7 +1162,7 @@ const confidenceFor = (verdict, ledger, rule = '') => {
   if (rule === 'rated-true-by-fact-checkers') return cap(0.65 + 0.05 * Math.min(ledger.factChecks.length - 1, 2));
   if (rule === 'contradicted-by-current-coverage') return cap(0.62 + 0.05 * Math.min(ledger.presupposedAgainst - 2, 3));
   if (rule === 'claims-partly-false') return cap(0.75);
-  if (rule === 'title-contradicted') return cap(0.8);
+  if (rule === 'title-contradicted') return cap(verdict === 'false' ? 0.8 : 0.62);
   if (rule === 'media-not-confirmed-by-reports') return cap(0.5);
   if (rule === 'true-claim-carrying-a-false-one') return cap(0.65);
   if (rule === 'confirmed-claim-on-a-false-premise') return cap(0.65);

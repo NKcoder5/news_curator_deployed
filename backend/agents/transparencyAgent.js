@@ -21,7 +21,7 @@
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { languageDirective } = require('../utils/language');
 const { transparencyByRules } = require('./heuristics');
-const { UNTRUSTED_NOTICE, fence, clip, clipList } = require('../utils/untrusted');
+const { UNTRUSTED_NOTICE, fence, clip, clipList, asBool } = require('../utils/untrusted');
 
 // Each check contributes to the score. Weights reflect how strongly the
 // practice separates reported journalism from fabricated copy.
@@ -87,16 +87,20 @@ Return a JSON object with these keys:
   try {
     const result = await callNimApiJson(prompt, { maxTokens: 900, requiredKeys: ['checks'], label: 'transparency' });
     const raw = result.checks && typeof result.checks === 'object' && !Array.isArray(result.checks) ? result.checks : {};
+    // Read through asBool, as every other reply is: some models answer "true" as a string, and read as
+    // `=== true` every check then failed and the story was scored unsourced, a finding that counts
+    // against it.
+    const passed = (id) => asBool(raw[id]) === true;
 
     const checks = CHECKS.map(c => ({
       id: c.id,
       label: c.label,
       help: c.help,
-      passed: raw[c.id] === true
+      passed: passed(c.id)
     }));
 
     const earned = CHECKS.reduce(
-      (sum, c) => sum + (raw[c.id] === true ? c.weight : 0), 0
+      (sum, c) => sum + (passed(c.id) ? c.weight : 0), 0
     );
     const total = CHECKS.reduce((sum, c) => sum + c.weight, 0);
     let score = (earned / total) * 10;

@@ -5,19 +5,19 @@ const authMiddleware = async (req, res, next) => {
   try {
     // Get token from header
     const authHeader = req.header('Authorization');
-    
+
     if (!authHeader) {
       return res.status(401).json({ error: 'No authentication token, access denied' });
     }
-    
+
     // Check if the header starts with 'Bearer '
     if (!authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ error: 'Invalid token format' });
     }
-    
+
     // Extract the token
     const token = authHeader.replace('Bearer ', '');
-    
+
     if (!token) {
       return res.status(401).json({ error: 'No authentication token, access denied' });
     }
@@ -27,10 +27,10 @@ const authMiddleware = async (req, res, next) => {
       // The algorithm is pinned: a token that names a different one (or
       // "none") is refused rather than checked the way it asks to be.
       const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
-      
+
       // Get user from database
       const user = await User.findById(decoded.userId);
-      
+
       if (!user) {
         return res.status(401).json({ error: 'User not found' });
       }
@@ -48,4 +48,4 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware; 
+module.exports = authMiddleware;

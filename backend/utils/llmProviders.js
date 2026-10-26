@@ -46,10 +46,14 @@ const NIM_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 // every analysis began failing with HTTP 410, so the model is configurable and
 // these backups are tried automatically. Only models that actually respond
 // belong on this list.
+// Probed 26 Oct 2026, three stance questions each: nemotron-3-super-120b, kimi-k2.6, mistral-large-2 and
+// llama-3.1-nemotron-70b answered 404 although /models still lists them; deepseek-v4.1-flash, gemma-4-31b
+// and glm-5.3 gave no answer within 30 s. These three answered all three, right, in 1.4-11 s. The old
+// first choice was retired, so every fallback to NIM had been timing out on the two backups behind it.
 const NIM_MODELS = [
-  process.env.NIM_MODEL_NAME || 'nvidia/nemotron-3-super-120b-a12b',
-  'nvidia/ising-calibration-1.5-31b',
-  'google/diffusiongemma-26b-a4b-it'
+  process.env.NIM_MODEL_NAME || 'nvidia/nemotron-3-ultra-550b-a55b',
+  'openai/gpt-oss-20b',
+  'nvidia/nemotron-3.5-lightning-30b-a3b'
 ];
 
 const nim = {

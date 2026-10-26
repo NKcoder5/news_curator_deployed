@@ -2,7 +2,7 @@ const {
   resolveProviderChain,
   isRetired, isOverloaded, isRateLimited, isAuthFailure, isConnectionFailure
 } = require('./llmProviders');
-const { noteModelCall, currentContext } = require('./runContext');
+const { noteModelCall } = require('./runContext');
 
 // Provider endpoints, model lists and error classification all live in
 // llmProviders.js. This file is the gateway around them: one request gate, one
@@ -510,37 +510,53 @@ const storeJudgement = (key, value, provider = null, model = null) => {
   } catch (_) { /* as above */ }
 };
 
+// The same question asked twice at once (two readers checking one forward) is asked of the model once.
+const judgementsInFlight = new Map();
+
 const callNimApiJson = async (prompt, options = {}) => {
   const cacheable = options.temperature === 0;
-  const key = cacheable ? judgementKey(options.label || 'model call', prompt) : null;
-  if (cacheable) {
-    const hit = judgementCache.get(key);
-    if (hit && Date.now() - hit.at < JUDGEMENT_TTL_MS) {
-      noteModelCall({ label: options.label || 'model call', cached: true, provider: hit.provider || null, model: hit.model || null });
-      if (options.meta && typeof options.meta === 'object') Object.assign(options.meta, { provider: hit.provider || null, model: hit.model || null, cached: true });
-      return structuredClone(hit.value);
-    }
-    const stored = await storedJudgement(key);
-    if (stored) {
-      judgementCache.set(key, { at: Date.now(), value: structuredClone(stored.value), provider: stored.provider, model: stored.model });
-      noteModelCall({ label: options.label || 'model call', cached: true, provider: stored.provider, model: stored.model });
-      if (options.meta && typeof options.meta === 'object') Object.assign(options.meta, { provider: stored.provider, model: stored.model, cached: true });
-      return structuredClone(stored.value);
-    }
+  if (!cacheable) return callNimApiJsonUncached(prompt, options);
+  const key = judgementKey(options.label || 'model call', prompt);
+  const pending = judgementsInFlight.get(key);
+  if (pending) {
+    const shared = await pending;
+    noteModelCall({ label: options.label || 'model call', cached: true, provider: shared.provider, model: shared.model });
+    if (options.meta && typeof options.meta === 'object') Object.assign(options.meta, { provider: shared.provider, model: shared.model, cached: true });
+    return structuredClone(shared.value);
   }
-  const value = await callNimApiJsonUncached(prompt, options);
-  if (cacheable) {
-    // Which provider answered travels with the answer: a judgement a fallback model made is checked
-    // as one (agents/claimVerificationAgent.js), cached or not.
-    const own = {};
-    const calls = currentContext()?.calls || [];
-    const made = options.meta && options.meta.provider ? options.meta
-      : ([...calls].reverse().find(c => c.label === (options.label || 'model call') && !c.cached) || own);
-    judgementCache.set(key, { at: Date.now(), value: structuredClone(value), provider: made.provider || null, model: made.model || null });
-    if (judgementCache.size > 500) judgementCache.delete(judgementCache.keys().next().value);
-    storeJudgement(key, value, made.provider || null, made.model || null);
+  const asked = askOnce(key, prompt, options);
+  judgementsInFlight.set(key, asked);
+  try {
+    return structuredClone((await asked).value);
+  } finally {
+    judgementsInFlight.delete(key);
   }
-  return value;
+};
+
+const askOnce = async (key, prompt, options) => {
+  const hit = judgementCache.get(key);
+  if (hit && Date.now() - hit.at < JUDGEMENT_TTL_MS) {
+    noteModelCall({ label: options.label || 'model call', cached: true, provider: hit.provider || null, model: hit.model || null });
+    if (options.meta && typeof options.meta === 'object') Object.assign(options.meta, { provider: hit.provider || null, model: hit.model || null, cached: true });
+    return { value: hit.value, provider: hit.provider || null, model: hit.model || null };
+  }
+  const stored = await storedJudgement(key);
+  if (stored) {
+    judgementCache.set(key, { at: Date.now(), value: structuredClone(stored.value), provider: stored.provider, model: stored.model });
+    noteModelCall({ label: options.label || 'model call', cached: true, provider: stored.provider, model: stored.model });
+    if (options.meta && typeof options.meta === 'object') Object.assign(options.meta, { provider: stored.provider, model: stored.model, cached: true });
+    return { value: stored.value, provider: stored.provider, model: stored.model };
+  }
+  // Which provider answered travels with the answer: a judgement a fallback model made is checked as one
+  // (agents/claimVerificationAgent.js), cached or not. It is read from this call's own record, never
+  // guessed from the last call with the same label, which another claim's judgement running beside it
+  // could have made.
+  const made = options.meta && typeof options.meta === 'object' ? options.meta : {};
+  const value = await callNimApiJsonUncached(prompt, { ...options, meta: made });
+  judgementCache.set(key, { at: Date.now(), value: structuredClone(value), provider: made.provider || null, model: made.model || null });
+  if (judgementCache.size > 500) judgementCache.delete(judgementCache.keys().next().value);
+  storeJudgement(key, value, made.provider || null, made.model || null);
+  return { value, provider: made.provider || null, model: made.model || null };
 };
 
 const callNimApiJsonUncached = async (prompt, options = {}) => {

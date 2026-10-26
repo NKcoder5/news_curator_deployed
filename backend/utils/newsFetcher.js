@@ -51,15 +51,21 @@ const withRetry = async (fn, retries = 1, delayMs = 1500) => {
 
 // Search results are kept for ten minutes. A demo repeats the same searches,
 // and a repeated search then needs no network at all.
+// The search itself is kept, not only its answer: two channels of one check (or two readers' checks of
+// one forward) asking the same thing at once share one request. A search that fails is forgotten at once,
+// so the next caller asks again.
 const SEARCH_TTL_MS = 10 * 60 * 1000;
+const SEARCH_CACHE_MAX = 500;
 const searchCache = new Map();
-const cached = async (key, fn) => {
+const cached = (key, fn) => {
   const hit = searchCache.get(key);
-  if (hit && Date.now() - hit.at < SEARCH_TTL_MS) return hit.value;
-  const value = await fn();
-  searchCache.set(key, { at: Date.now(), value });
-  if (searchCache.size > 500) searchCache.delete(searchCache.keys().next().value);
-  return value;
+  if (hit && Date.now() - hit.at < SEARCH_TTL_MS) return hit.promise;
+  if (hit) searchCache.delete(key);
+  const entry = { at: Date.now(), promise: Promise.resolve().then(fn) };
+  searchCache.set(key, entry);
+  entry.promise.catch(() => { if (searchCache.get(key) === entry) searchCache.delete(key); });
+  while (searchCache.size > SEARCH_CACHE_MAX) searchCache.delete(searchCache.keys().next().value);
+  return entry.promise;
 };
 
 const describeNewsApiError = (err) => {
@@ -235,9 +241,21 @@ class SearchUnavailableError extends Error {
  * @param {number} [pageSize=10] - Max results
  * @returns {Promise<Array<{title: string, description: string, url: string, source: string, publishedAt: string}>>}
  */
+// NewsAPI's free plan answers 100 requests a day. Once it refuses for its quota or its key, every claim
+// with thin Google coverage used to ask again, wait for the same refusal and log it; it is now left alone
+// for an hour. Without a key it is never asked.
+const NEWS_API_REST_MS = 60 * 60 * 1000;
+let newsApiRestingUntil = 0;
+let newsApiRefusal = null;
 const searchNewsCoverage = async (query, excludeSourceName = '', pageSize = 10, language = 'en') => {
   const apiKey = process.env.NEWS_API_KEY;
   const url = 'https://newsapi.org/v2/everything';
+  if (!apiKey) {
+    throw Object.assign(new SearchUnavailableError('NewsAPI is not configured (NEWS_API_KEY is empty).'), { code: 'NEWS_KEY_INVALID', httpStatus: 503 });
+  }
+  if (Date.now() < newsApiRestingUntil && newsApiRefusal) {
+    throw Object.assign(new SearchUnavailableError(newsApiRefusal.message), { code: newsApiRefusal.code, httpStatus: newsApiRefusal.httpStatus });
+  }
 
   try {
     const response = await cached(`newsapi|${language}|${pageSize}|${query}`, () => withRetry(() => axios.get(url, {
@@ -282,6 +300,10 @@ const searchNewsCoverage = async (query, excludeSourceName = '', pageSize = 10, 
     const unavailable = new SearchUnavailableError(described.message || message);
     unavailable.code = described.code;
     unavailable.httpStatus = described.httpStatus;
+    if (['NEWS_QUOTA_EXHAUSTED', 'NEWS_KEY_INVALID'].includes(described.code) || [401, 426, 429].includes(status)) {
+      newsApiRestingUntil = Date.now() + NEWS_API_REST_MS;
+      newsApiRefusal = { message: unavailable.message, code: unavailable.code, httpStatus: unavailable.httpStatus };
+    }
     throw unavailable;
   }
 };

@@ -107,3 +107,30 @@ test('the wait a provider asks for is read from Retry-After or from Gemini\'s Re
     restore();
   }
 });
+
+// Two readers checking one forward at the same moment ask the same questions. Each judgement is asked of
+// the model once, and both get its answer, with the provider that gave it.
+test('the same judgement asked twice at once is asked of the model once', async () => {
+  let asked = 0;
+  const { gateway, restore } = withProvider(['only'], async () => {
+    asked += 1;
+    await new Promise(r => setTimeout(r, 30));
+    return '{"items": [1, 2]}';
+  });
+  try {
+    const metaA = {}; const metaB = {};
+    const prompt = `same question ${Date.now()}`;
+    const [a, b] = await Promise.all([
+      gateway.callNimApiJson(prompt, { label: 'stance judgement', temperature: 0, requiredKeys: ['items'], meta: metaA }),
+      gateway.callNimApiJson(prompt, { label: 'stance judgement', temperature: 0, requiredKeys: ['items'], meta: metaB })
+    ]);
+    assert.strictEqual(asked, 1);
+    assert.deepStrictEqual(a, { items: [1, 2] });
+    assert.deepStrictEqual(b, { items: [1, 2] });
+    assert.notStrictEqual(a, b, 'each caller gets its own copy');
+    assert.strictEqual(metaA.provider, 'fake');
+    assert.strictEqual(metaB.provider, 'fake');
+  } finally {
+    restore();
+  }
+});

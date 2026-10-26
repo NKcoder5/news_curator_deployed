@@ -174,3 +174,48 @@ test('a name the reference work could not be asked about is reported as unchecke
     delete require.cache[require.resolve('../agents/referenceCheck')];
   }
 });
+
+test('a search asked twice at once is made once; a failed one is asked again', async () => {
+  const { cached } = require('../utils/newsFetcher');
+  let made = 0;
+  const key = `test|${Date.now()}`;
+  const search = () => { made += 1; return new Promise(r => setTimeout(() => r(['result']), 20)); };
+  const [a, b] = await Promise.all([cached(key, search), cached(key, search)]);
+  assert.strictEqual(made, 1);
+  assert.deepStrictEqual(a, b);
+  let failures = 0;
+  const failing = () => { failures += 1; return Promise.reject(new Error('refused')); };
+  const failKey = `${key}|fail`;
+  await assert.rejects(() => cached(failKey, failing));
+  await assert.rejects(() => cached(failKey, failing));
+  assert.strictEqual(failures, 2, 'a failure is not remembered');
+});
+
+test('NewsAPI is not asked without a key, and is rested after it refuses for its quota', async () => {
+  const axiosPath = require.resolve('axios');
+  const fetcherPath = require.resolve('../utils/newsFetcher');
+  const realAxios = require.cache[axiosPath];
+  const saved = process.env.NEWS_API_KEY;
+  let calls = 0;
+  const actual = require('axios');
+  require.cache[axiosPath] = { id: axiosPath, filename: axiosPath, loaded: true, exports: Object.assign(Object.create(actual), {
+    get: async () => { calls += 1; throw Object.assign(new Error('Too many requests'), { response: { status: 429, data: { code: 'rateLimited', message: 'You have made too many requests.' } } }); }
+  }) };
+  delete require.cache[fetcherPath];
+  const error = console.error; console.error = () => {};
+  try {
+    const { searchNewsCoverage } = require('../utils/newsFetcher');
+    delete process.env.NEWS_API_KEY;
+    await assert.rejects(() => searchNewsCoverage('india medals'), (err) => err.searchUnavailable === true);
+    assert.strictEqual(calls, 0, 'no key, no request');
+    process.env.NEWS_API_KEY = 'test-key';
+    await assert.rejects(() => searchNewsCoverage('india medals'), (err) => err.code === 'NEWS_QUOTA_EXHAUSTED');
+    await assert.rejects(() => searchNewsCoverage('another query'), (err) => err.code === 'NEWS_QUOTA_EXHAUSTED');
+    assert.strictEqual(calls, 1, 'rested after the refusal');
+  } finally {
+    console.error = error;
+    if (saved === undefined) delete process.env.NEWS_API_KEY; else process.env.NEWS_API_KEY = saved;
+    if (realAxios) require.cache[axiosPath] = realAxios; else delete require.cache[axiosPath];
+    delete require.cache[fetcherPath];
+  }
+});

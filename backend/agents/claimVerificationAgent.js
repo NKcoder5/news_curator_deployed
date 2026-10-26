@@ -889,6 +889,14 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, keywordsR
       failed: found.length === 0 || found.every(f => f.failed)
     }));
 
+  // A claim with a figure or a code is also searched where results carry the
+  // article's own text (utils/newsFetcher.js, searchBingNews), without the
+  // figure, so reports giving the true one are found. It needs nothing the
+  // other searches find, so it runs beside them rather than after them.
+  const snippetSearch = hasFigure(claim) || numbersInContext(claim).length
+    ? searchBingNews(asQuery(withoutFigures(claim)), sourceName, 10).catch(() => [])
+    : null;
+
   const [fromClaim, ...batches] = await Promise.all([claimBatch, ...keywordBatches]);
   // Google News (with NewsAPI behind it) refused every search. On the deployed server Google refuses
   // requests that it answers from the laptop (26 Oct), and NewsAPI's 100 a day were long spent, so every
@@ -940,13 +948,7 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, keywordsR
   addAll(interleaved);
   if (standIn) addAll(standIn.articles);
 
-  // A claim with a figure or a code is also searched where results carry the
-  // article's own text (utils/newsFetcher.js, searchBingNews), without the
-  // figure, so reports giving the true one are found.
-  if (hasFigure(claim) || numbersInContext(claim).length) {
-    const snippets = await searchBingNews(asQuery(withoutFigures(claim)), sourceName, 10).catch(() => []);
-    addAll(snippets.map(a => ({ ...a, foundIn: 'en' })));
-  }
+  if (snippetSearch) addAll((await snippetSearch).map(a => ({ ...a, foundIn: 'en' })));
 
   // Local stories. National search editions carry little of what a district
   // reports — "Coimbatore district police seized drugs, gutkha and weapons"
@@ -962,20 +964,18 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, keywordsR
     const t = String(a.title || '').toLowerCase();
     return distinctive.filter(w => t.includes(w)).length;
   };
-  if (!standIn && distinctive.length >= 2 && merged.filter(a => mentions(a) >= 2).length < 2) {
-    const regional = await searchGdelt(keywordsEn || keywords || asQuery(claim), sourceName, 10).catch(() => []);
-    addAll(regional.map(a => ({ ...a, foundIn: 'en' })));
-  }
+  const regionalSearch = !standIn && distinctive.length >= 2 && merged.filter(a => mentions(a) >= 2).length < 2
+    ? searchGdelt(keywordsEn || keywords || asQuery(claim), sourceName, 10).catch(() => [])
+    : Promise.resolve([]);
 
   // When the coverage states a different figure for the same quantity — the
   // claim says 84 medals, a headline says 85 — that figure is searched for
   // directly, so every outlet reporting it is found and judged, not only the
   // one the general search happened to return.
   const competing = competingFigure(claim, merged) || [];
-  const probes = await Promise.all(competing.map(c =>
+  const probeSearches = competing.map(c =>
     searchGoogleNews(`${c.value} ${c.unit} ${withoutFigures(claim)}`.split(/\s+/).slice(0, 14).join(' '), sourceName, 8, 'en')
-      .catch(() => [])));
-  for (const found of probes) addAll(found.map(a => ({ ...a, foundIn: 'en' })));
+      .catch(() => []));
 
   // The same for a figure named by the word beside it: one headline reading
   // "Code 7500" against a claim of "code 7400" is searched for directly, so
@@ -988,8 +988,14 @@ const gatherCoverage = async ({ claim, headline, keywords, keywordsEn, keywordsR
       if (n && h.value !== n.value && besideValues.size < 2) besideValues.set(`${n.label} ${h.value}`, true);
     }
   }
-  const besideProbes = await Promise.all([...besideValues.keys()].map(v =>
-    searchGoogleNews(`${v} ${withoutFigures(claim)}`.split(/\s+/).slice(0, 14).join(' '), sourceName, 8, 'en').catch(() => [])));
+  const besideSearches = [...besideValues.keys()].map(v =>
+    searchGoogleNews(`${v} ${withoutFigures(claim)}`.split(/\s+/).slice(0, 14).join(' '), sourceName, 8, 'en').catch(() => []));
+
+  // The three follow-ups read only what the first searches found, not one another, so they run at once
+  // (GDELT alone waits up to six seconds for its turn); their results are added in a fixed order.
+  const [regional, probes, besideProbes] = await Promise.all([regionalSearch, Promise.all(probeSearches), Promise.all(besideSearches)]);
+  addAll(regional.map(a => ({ ...a, foundIn: 'en' })));
+  for (const found of probes) addAll(found.map(a => ({ ...a, foundIn: 'en' })));
   for (const found of besideProbes) addAll(found.map(a => ({ ...a, foundIn: 'en' })));
   return {
     // Up to three places are kept for the regional-language press: ranked by

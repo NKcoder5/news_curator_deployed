@@ -35,6 +35,7 @@ const { analyzeBias } = require('../agents/biasAgent');
 const { verifyClaims } = require('../agents/claimVerificationAgent');
 const { detectManipulation } = require('../agents/manipulationAgent');
 const { assessTransparency } = require('../agents/transparencyAgent');
+const { analyzeWriting } = require('../agents/writingChecks');
 const checkCredibility = require('../agents/credibilityAgent');
 const { WEIGHTS } = require('../agents/trustAnalysisAgent');
 const { limitText, TEXT_BUDGET } = require('../utils/articleText');
@@ -59,6 +60,9 @@ const CONFIGS = {
   'no-source':      { source: false, clickbait: true,  bias: true,  manipulation: true,  transparency: true,  verification: false },
   // Source-blind content analysis — the headline configuration, leak-free.
   'content-only':   { source: false, clickbait: true,  bias: true,  manipulation: true,  transparency: true,  verification: false },
+  // The same four factors read by one model call (agents/writingChecks.js, WRITING_CHECKS=merged), on the
+  // same articles, so the likelihood ratios can be measured again for the prompt that will produce them.
+  'content-merged': { source: false, clickbait: true,  bias: true,  manipulation: true,  transparency: true,  verification: false, merged: true },
   // The Phase I content pipeline (clickbait + bias only), so the two factors
   // added in Phase II can be credited separately.
   'content-v1':     { source: false, clickbait: true,  bias: true,  manipulation: false, transparency: false, verification: false },
@@ -75,6 +79,8 @@ function parseArgs() {
     else if (args[i] === '--seed') out.seed = parseInt(args[++i]);
     else if (args[i] === '--show-source') out.hideSource = false;
     else if (args[i] === '--out') out.out = args[++i];
+    // Only the articles another run's results file holds: the same articles, read another way.
+    else if (args[i] === '--ids-from') out.idsFrom = args[++i];
   }
   if (!out.data) { console.error('Missing --data <csv>'); process.exit(1); }
   if (!CONFIGS[out.config]) {
@@ -185,10 +191,11 @@ async function evalOne(item, cfg, hideSource) {
   // many calls are actually in flight. A factor that fails still rejects,
   // aborting the article so it is retried on resume.
   const jobs = [];
-  if (cfg.clickbait) jobs.push(['clickbait', analyzeClickbait(title)]);
-  if (cfg.bias) jobs.push(['bias', analyzeBias(title, text)]);
-  if (cfg.manipulation) jobs.push(['manipulation', detectManipulation(title, text)]);
-  if (cfg.transparency) jobs.push(['transparency', assessTransparency(title, text)]);
+  const merged = cfg.merged ? analyzeWriting(title, text) : null;
+  if (cfg.clickbait) jobs.push(['clickbait', merged ? merged.then(w => w.clickbait) : analyzeClickbait(title)]);
+  if (cfg.bias) jobs.push(['bias', merged ? merged.then(w => w.bias) : analyzeBias(title, text)]);
+  if (cfg.manipulation) jobs.push(['manipulation', merged ? merged.then(w => w.manipulation) : detectManipulation(title, text)]);
+  if (cfg.transparency) jobs.push(['transparency', merged ? merged.then(w => w.transparency) : assessTransparency(title, text)]);
 
   const settled = await Promise.all(jobs.map(([, p]) => p));
   const degraded = [];
@@ -224,7 +231,11 @@ async function evalOne(item, cfg, hideSource) {
 
 async function main() {
   const opts = parseArgs();
-  const items = loadDataset(opts.data, opts.sample, opts.seed);
+  let items = loadDataset(opts.data, opts.sample, opts.seed);
+  if (opts.idsFrom) {
+    const wanted = new Set(fs.readFileSync(opts.idsFrom, 'utf8').split(/\r?\n/).filter(l => l.trim()).map(l => JSON.parse(l).id));
+    items = items.filter(it => wanted.has(it.id));
+  }
   const outFile = opts.out || path.join(__dirname, 'results',
     `${path.basename(opts.data).replace(/\.csv$/, '')}_${opts.config}_seed${opts.seed}.jsonl`);
   fs.mkdirSync(path.dirname(outFile), { recursive: true });

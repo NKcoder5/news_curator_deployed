@@ -50,6 +50,11 @@ const NO_CLAMP = args.includes('--no-clamp');
 // a model against data it was not estimated on in a way that is not a
 // held-out test but a mismatch.
 const CLEAN_ONLY = args.includes('--clean-only');
+// --input <file.jsonl>: one run only, split by the article's own id, so two readings of the same articles
+// (eval/runEval.js --ids-from) are tested on the same held-out half. Without it every run in the results
+// folders is pooled, and two readings of one article count as two articles.
+const INPUT = args.includes('--input') ? args[args.indexOf('--input') + 1] : null;
+const OUT = args.includes('--out') ? args[args.indexOf('--out') + 1] : 'scoring-validation.json';
 
 const FABRICATED = 0;
 
@@ -62,14 +67,18 @@ const isTestRecord = (id) => {
 };
 
 const loadRecords = () => {
-  const dirs = ['results', 'results_archive_20260910_pre6factor', 'results_llama31_archive']
+  const dirs = INPUT ? [] : ['results', 'results_archive_20260910_pre6factor', 'results_llama31_archive']
     .map(dir => path.join(__dirname, dir))
     .filter(dir => fs.existsSync(dir));
+  const files = INPUT
+    ? [path.resolve(INPUT)]
+    : dirs.flatMap(dir => fs.readdirSync(dir).filter(f => f.endsWith('.jsonl') && !f.startsWith('smoke')).map(f => path.join(dir, f)));
 
   const records = [];
-  for (const dir of dirs) {
-    for (const file of fs.readdirSync(dir).filter(f => f.endsWith('.jsonl') && !f.startsWith('smoke'))) {
-      for (const line of fs.readFileSync(path.join(dir, file), 'utf8').trim().split('\n')) {
+  {
+    for (const filePath of files) {
+      const file = path.basename(filePath);
+      for (const line of fs.readFileSync(filePath, 'utf8').trim().split(/\r?\n/)) {
         try {
           const row = JSON.parse(line);
           if (!row.factors || (row.label !== 0 && row.label !== 1)) continue;
@@ -84,7 +93,7 @@ const loadRecords = () => {
           } else if (CLEAN_ONLY) {
             continue;
           }
-          records.push({ id: `${file}:${row.id}`, label: row.label, factors });
+          records.push({ id: INPUT ? String(row.id) : `${file}:${row.id}`, label: row.label, factors });
         } catch (_) { /* ignore a truncated line */ }
       }
     }
@@ -397,7 +406,7 @@ const main = () => {
     note: 'ISOT only, content factors only: source identity is hidden on this corpus and historical articles have no live coverage, so neither provenance nor corroboration is exercised here. The adversarial benchmark covers what this cannot.'
   };
 
-  fs.writeFileSync(path.join(__dirname, 'results/scoring-validation.json'), JSON.stringify(result, null, 2));
+  fs.writeFileSync(path.join(__dirname, 'results', OUT), JSON.stringify(result, null, 2));
 
   const line = (label, m) =>
     `${label.padEnd(24)} acc ${String(m.accuracy).padEnd(8)} AUC ${String(m.rocAuc).padEnd(8)} ECE ${String(m.ece).padEnd(8)} ECE-accusing ${String(m.eceWhenAccusing).padEnd(8)} precision ${m.precisionWhenAccusing}`;
@@ -413,7 +422,7 @@ const main = () => {
   for (const band of result.weightOfEvidenceIsotonic.reliability) {
     console.log(`   ${band.band.padEnd(10)} n=${String(band.n).padStart(4)}   says ${String(band.stated).padEnd(7)} actually ${band.observed}`);
   }
-  console.log(`\nWritten to ${path.relative(process.cwd(), path.join(__dirname, 'results/scoring-validation.json'))}`);
+  console.log(`\nWritten to ${path.relative(process.cwd(), path.join(__dirname, 'results', OUT))}`);
 };
 
 main();

@@ -82,6 +82,9 @@ it alone for two minutes when a call finds it gone, and counts it as gone three
 minutes after the last check-in. `GET /ready` shows `checks.ownHardware`.
 | `LLM_PROVIDER` | none | Forces the provider order, e.g. `gemini,nim,ollama`. When set it overrides the routing table. | Routing table order. |
 | `LLM_MAX_CONCURRENT` (alias `NIM_MAX_CONCURRENT`) | per provider: Gemini 6, NIM 2, Ollama 2 | Calls allowed in flight per provider. | Default. |
+| `LLM_HEDGE_MS` | `8000` | A Gemini call still unanswered after this long is also sent to the same model on another key; the first answer is used and the other request cancelled. `0` turns hedging off. | Default. |
+| `WRITING_CHECKS` | see `backend/.env.example` | `merged` reads the four writing checks (headline, bias, persuasion, sourcing) in one model call (`agents/writingChecks.js`); anything else makes four calls. The likelihood ratios in `data/evidenceWeights.json` are measured on one of the two readings, named in that file's `sources`; run the other only for measurement. | See the default. |
+| `READING_DEADLINE_MS` | `20000` (three times that on own hardware, and for a re-check) | How long Check Anything waits for the message's reading before going on with its sentences as its claims. | Default. |
 
 **With no provider configured** the system still answers, with less: the four
 writing checks fall back to word-pattern matching and are listed in the report's

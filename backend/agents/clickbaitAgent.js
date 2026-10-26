@@ -7,6 +7,29 @@ const { clickbaitByRules } = require('./heuristics');
 const { UNTRUSTED_NOTICE, fence, clip, clipList } = require('../utils/untrusted');
 
 /**
+ * The model's reply read into the factor's result. Shared with the merged writing check
+ * (agents/writingChecks.js), so both paths read a reply the same way.
+ * @throws when the reply carries no usable score
+ */
+const readClickbait = (result) => {
+  let clickbaitScore = Number(result?.clickbait_score);
+  // A score that is not a number is no reading at all. It used to be taken as 0, "not clickbait",
+  // so a garbled reply passed as a clean headline; the pattern check answers instead.
+  if (!result || result.clickbait_score === null || result.clickbait_score === '' || !Number.isFinite(clickbaitScore)) {
+    throw new Error(`clickbait_score was not a number (${JSON.stringify(result?.clickbait_score)?.slice(0, 40)})`);
+  }
+  clickbaitScore = Math.min(10, Math.max(0, clickbaitScore));
+  return {
+    // Invert: high score = trustworthy headline, consistent with the other factors
+    score: Math.round((10 - clickbaitScore) * 10) / 10,
+    isClickbait: clickbaitScore >= 5,
+    signals: clipList(result.signals, 7, 120),
+    explanation: clip(result.explanation, 500) || 'No explanation provided.',
+    method: 'model'
+  };
+};
+
+/**
  * Analyze a headline for clickbait characteristics.
  * @param {string} title - The article headline
  * @returns {Promise<{score: number, isClickbait: boolean, signals: string[], explanation: string}>}
@@ -43,22 +66,7 @@ Return a JSON object with these keys:
     // Temperature 0: the writing checks feed a verdict (verdictEngine R7) and the probability, so the same
     // headline must read the same on every run; asked at 0, the reading is also remembered.
     const result = await callNimApiJson(prompt, { maxTokens: 450, temperature: 0, requiredKeys: ['clickbait_score'], label: 'clickbait' });
-    let clickbaitScore = Number(result.clickbait_score);
-    // A score that is not a number is no reading at all. It used to be taken as 0, "not clickbait",
-    // so a garbled reply passed as a clean headline; the pattern check answers instead.
-    if (result.clickbait_score === null || result.clickbait_score === '' || !Number.isFinite(clickbaitScore)) {
-      throw new Error(`clickbait_score was not a number (${JSON.stringify(result.clickbait_score)?.slice(0, 40)})`);
-    }
-    clickbaitScore = Math.min(10, Math.max(0, clickbaitScore));
-
-    return {
-      // Invert: high score = trustworthy headline, consistent with the other factors
-      score: Math.round((10 - clickbaitScore) * 10) / 10,
-      isClickbait: clickbaitScore >= 5,
-      signals: clipList(result.signals, 7, 120),
-      explanation: clip(result.explanation, 500) || 'No explanation provided.',
-      method: 'model'
-    };
+    return readClickbait(result);
   } catch (err) {
     // Fall back to the pattern check rather than inventing a neutral score.
     console.error('Clickbait analysis failed, falling back to rules:', err.message);
@@ -66,4 +74,4 @@ Return a JSON object with these keys:
   }
 };
 
-module.exports = { analyzeClickbait };
+module.exports = { analyzeClickbait, readClickbait };

@@ -15,6 +15,7 @@ const { analyzeBias } = require('./biasAgent');
 const { verifyClaims, extractClaims } = require('./claimVerificationAgent');
 const { detectManipulation } = require('./manipulationAgent');
 const { assessTransparency } = require('./transparencyAgent');
+const { analyzeWriting, mergedWriting } = require('./writingChecks');
 const { checkPremises } = require('./referenceCheck');
 const { checkFactCheckers } = require('./factCheckSearch');
 const { factCheckDeskOf } = require('../utils/factCheckDesks');
@@ -328,14 +329,28 @@ const UNREAD = {
  *
  * @returns {Object} the started work, to pass to analyzeTrust as `early`
  */
+/**
+ * The four writing checks, started: one model call when WRITING_CHECKS=merged (agents/writingChecks.js),
+ * four otherwise. Each factor's result is its own promise either way.
+ */
+const startWritingChecks = (title, text, language) => {
+  if (!mergedWriting()) {
+    return {
+      clickbait: analyzeClickbait(title, language),
+      bias: analyzeBias(title, text, language),
+      manipulation: detectManipulation(title, text, language),
+      transparency: assessTransparency(title, text, language)
+    };
+  }
+  const all = analyzeWriting(title, text, language);
+  return Object.fromEntries(['clickbait', 'bias', 'manipulation', 'transparency'].map(f => [f, all.then(w => w[f])]));
+};
+
 const startMessageChecks = ({ title, content }) => {
   const text = cleanText(content);
   const language = detectLanguage(`${title} ${text}`);
   const tasks = {
-    clickbait: analyzeClickbait(title, language),
-    bias: analyzeBias(title, text, language),
-    manipulation: detectManipulation(title, text, language),
-    transparency: assessTransparency(title, text, language),
+    ...startWritingChecks(title, text, language),
     premises: checkPremises(title, text).catch(() => ({ status: 'error', checked: [], contradictions: [], explanation: 'The reference check could not run.' }))
   };
   // A message refused after it is read never collects these; a failure among
@@ -506,12 +521,11 @@ const analyzeTrust = async ({
   const earlyPremises = !evidenceText && usable && usable.tasks.premises;
 
   // The writing checks run beside the evidence and are collected after it (see writingCanDecide below).
-  const writingTasks = {
-    clickbait: timed('clickbait', () => fromEarly('clickbait', () => analyzeClickbait(title, language)), { from: since('clickbait'), unread: UNREAD.writing }),
-    bias: timed('bias', () => fromEarly('bias', () => analyzeBias(title, text, language)), { from: since('bias'), unread: UNREAD.writing }),
-    manipulation: timed('manipulation', () => fromEarly('manipulation', () => detectManipulation(title, text, language)), { from: since('manipulation'), unread: UNREAD.writing }),
-    transparency: timed('transparency', () => fromEarly('transparency', () => assessTransparency(title, text, language)), { from: since('transparency'), unread: UNREAD.writing })
-  };
+  // Started once for all four factors when they were not started early (a merged call serves all four).
+  let started = null;
+  const fresh = (name) => () => { started = started || startWritingChecks(title, text, language); return started[name]; };
+  const writingTasks = Object.fromEntries(['clickbait', 'bias', 'manipulation', 'transparency'].map(name => [name,
+    timed(name, () => fromEarly(name, fresh(name)), { from: since(name), unread: UNREAD.writing })]));
 
   const [
     verificationResult, premiseResult, factCheckResult, currentCoverageResult

@@ -11,6 +11,45 @@ const BIAS_TYPES =['political bias', 'emotional manipulation', 'loaded language'
 const LEANS = ['left', 'center', 'right', 'none-detected'];
 
 /**
+ * The model's reply read into the factor's result. Shared with the merged writing check
+ * (agents/writingChecks.js), so both paths read a reply the same way.
+ * @throws when the reply carries no usable score
+ */
+const readBias = (result) => {
+  let biasScore = Number(result?.bias_score);
+  // A score that is not a number is no reading at all: taken as 0 it passed as "fully neutral".
+  if (!result || result.bias_score === null || result.bias_score === '' || !Number.isFinite(biasScore)) {
+    throw new Error(`bias_score was not a number (${JSON.stringify(result?.bias_score)?.slice(0, 40)})`);
+  }
+  biasScore = Math.min(10, Math.max(0, biasScore));
+
+  // Shown to the reader as highlights, so each is held to the shape asked
+  // for: a sentence, one of the named types, a short reason.
+  const flagged = Array.isArray(result.flagged_sentences)
+    ? result.flagged_sentences
+        .filter(f => f && typeof f === 'object' && clip(f.sentence, 600))
+        .slice(0, 8)
+        .map(f => ({
+          sentence: clip(f.sentence, 600),
+          type: oneOf(f.type, BIAS_TYPES, 'bias'),
+          reason: clip(f.reason, 300)
+        }))
+    : [];
+
+  const biasLevel = biasScore <= 2 ? 'low' : biasScore <= 5 ? 'moderate' : 'high';
+
+  return {
+    // Invert: high score = objective article
+    score: Math.round((10 - biasScore) * 10) / 10,
+    biasLevel,
+    politicalLean: oneOf(result.political_lean, LEANS, 'none-detected'),
+    flaggedSentences: flagged,
+    explanation: clip(result.explanation, 500) || 'No explanation provided.',
+    method: 'model'
+  };
+};
+
+/**
  * Analyze article text for bias and emotionally manipulative language.
  * @param {string} title - Article headline
  * @param {string} content - Article body text (may be truncated by the news API)
@@ -44,41 +83,11 @@ Return a JSON object with these keys:
   try {
     // Temperature 0, as the other writing checks (see clickbaitAgent.js).
     const result = await callNimApiJson(prompt, { maxTokens: 700, temperature: 0, requiredKeys: ['bias_score'], label: 'bias' });
-    let biasScore = Number(result.bias_score);
-    // A score that is not a number is no reading at all: taken as 0 it passed as "fully neutral".
-    if (result.bias_score === null || result.bias_score === '' || !Number.isFinite(biasScore)) {
-      throw new Error(`bias_score was not a number (${JSON.stringify(result.bias_score)?.slice(0, 40)})`);
-    }
-    biasScore = Math.min(10, Math.max(0, biasScore));
-
-    // Shown to the reader as highlights, so each is held to the shape asked
-    // for: a sentence, one of the named types, a short reason.
-    const flagged = Array.isArray(result.flagged_sentences)
-      ? result.flagged_sentences
-          .filter(f => f && typeof f === 'object' && clip(f.sentence, 600))
-          .slice(0, 8)
-          .map(f => ({
-            sentence: clip(f.sentence, 600),
-            type: oneOf(f.type, BIAS_TYPES, 'bias'),
-            reason: clip(f.reason, 300)
-          }))
-      : [];
-
-    const biasLevel = biasScore <= 2 ? 'low' : biasScore <= 5 ? 'moderate' : 'high';
-
-    return {
-      // Invert: high score = objective article
-      score: Math.round((10 - biasScore) * 10) / 10,
-      biasLevel,
-      politicalLean: oneOf(result.political_lean, LEANS, 'none-detected'),
-      flaggedSentences: flagged,
-      explanation: clip(result.explanation, 500) || 'No explanation provided.',
-      method: 'model'
-    };
+    return readBias(result);
   } catch (err) {
     console.error('Bias analysis failed, falling back to rules:', err.message);
     return { ...biasByRules(title, content), degraded: true };
   }
 };
 
-module.exports = { analyzeBias };
+module.exports = { analyzeBias, readBias, BIAS_TYPES, LEANS };

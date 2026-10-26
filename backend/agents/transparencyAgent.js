@@ -41,6 +41,60 @@ const CHECKS = [
 const CHECK_IDS = CHECKS.map(c => c.id);
 
 /**
+ * The model's reply read into the factor's result. Shared with the merged writing check
+ * (agents/writingChecks.js), so both paths read a reply the same way.
+ * @throws when there is no reply object at all
+ */
+const readTransparency = (result) => {
+  // A reply with no object at all is no reading; a checklist in the wrong shape reads as nothing passed,
+  // as it always has (the weights were measured on that reading).
+  if (!result || typeof result !== 'object' || Array.isArray(result)) throw new Error('no sourcing reading in the reply');
+  const raw = result.checks && typeof result.checks === 'object' && !Array.isArray(result.checks) ? result.checks : {};
+  // Read through asBool, as every other reply is: some models answer "true" as a string, and read as
+  // `=== true` every check then failed and the story was scored unsourced, a finding that counts
+  // against it.
+  const passed = (id) => asBool(raw[id]) === true;
+
+  const checks = CHECKS.map(c => ({
+    id: c.id,
+    label: c.label,
+    help: c.help,
+    passed: passed(c.id)
+  }));
+
+  const earned = CHECKS.reduce(
+    (sum, c) => sum + (passed(c.id) ? c.weight : 0), 0
+  );
+  const total = CHECKS.reduce((sum, c) => sum + c.weight, 0);
+  let score = (earned / total) * 10;
+
+  const vagueAttributions = clipList(result.vague_attributions, 5, 200);
+
+  // Each unattributable appeal costs a little beyond the checklist itself:
+  // it is the signature move of fabricated copy.
+  score = Math.max(0, score - Math.min(2, vagueAttributions.length * 0.5));
+  score = Math.round(score * 10) / 10;
+
+  const passedCount = checks.filter(c => c.passed).length;
+  const level = score >= 7.5 ? 'well sourced'
+    : score >= 5 ? 'partly sourced'
+    : score >= 2.5 ? 'thinly sourced'
+    : 'unsourced';
+
+  return {
+    score,
+    level,
+    checks,
+    passedCount,
+    totalChecks: CHECK_IDS.length,
+    namedExamples: clipList(result.named_examples, 4, 120),
+    vagueAttributions,
+    summary: clip(result.summary, 500),
+    method: 'model'
+  };
+};
+
+/**
  * Assess how checkable an article is.
  * @param {string} title
  * @param {string} content
@@ -88,53 +142,11 @@ Return a JSON object with these keys:
     // Temperature 0, as the other writing checks (see clickbaitAgent.js): the sourcing score counts
     // towards a verdict (verdictEngine R7).
     const result = await callNimApiJson(prompt, { maxTokens: 900, temperature: 0, requiredKeys: ['checks'], label: 'transparency' });
-    const raw = result.checks && typeof result.checks === 'object' && !Array.isArray(result.checks) ? result.checks : {};
-    // Read through asBool, as every other reply is: some models answer "true" as a string, and read as
-    // `=== true` every check then failed and the story was scored unsourced, a finding that counts
-    // against it.
-    const passed = (id) => asBool(raw[id]) === true;
-
-    const checks = CHECKS.map(c => ({
-      id: c.id,
-      label: c.label,
-      help: c.help,
-      passed: passed(c.id)
-    }));
-
-    const earned = CHECKS.reduce(
-      (sum, c) => sum + (passed(c.id) ? c.weight : 0), 0
-    );
-    const total = CHECKS.reduce((sum, c) => sum + c.weight, 0);
-    let score = (earned / total) * 10;
-
-    const vagueAttributions = clipList(result.vague_attributions, 5, 200);
-
-    // Each unattributable appeal costs a little beyond the checklist itself:
-    // it is the signature move of fabricated copy.
-    score = Math.max(0, score - Math.min(2, vagueAttributions.length * 0.5));
-    score = Math.round(score * 10) / 10;
-
-    const passedCount = checks.filter(c => c.passed).length;
-    const level = score >= 7.5 ? 'well sourced'
-      : score >= 5 ? 'partly sourced'
-      : score >= 2.5 ? 'thinly sourced'
-      : 'unsourced';
-
-    return {
-      score,
-      level,
-      checks,
-      passedCount,
-      totalChecks: CHECK_IDS.length,
-      namedExamples: clipList(result.named_examples, 4, 120),
-      vagueAttributions,
-      summary: clip(result.summary, 500),
-      method: 'model'
-    };
+    return readTransparency(result);
   } catch (err) {
     console.error('Transparency analysis failed, falling back to rules:', err.message);
     return { ...transparencyByRules(title, content, CHECKS), degraded: true };
   }
 };
 
-module.exports = { assessTransparency, CHECKS };
+module.exports = { assessTransparency, readTransparency, CHECKS };

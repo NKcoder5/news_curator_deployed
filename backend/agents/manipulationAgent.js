@@ -97,6 +97,70 @@ const normalizeTechniqueName = (rawName) => {
 };
 
 /**
+ * The model's reply read into the factor's result. Shared with the merged writing check
+ * (agents/writingChecks.js), so both paths read a reply the same way.
+ */
+const readManipulation = (result) => {
+  if (!result || typeof result !== 'object') throw new Error('no persuasion reading in the reply');
+  let rawList = [];
+  if (Array.isArray(result)) {
+    rawList = result;
+  } else if (Array.isArray(result.techniques)) {
+    rawList = result.techniques;
+  } else if (Array.isArray(result.persuasion_techniques)) {
+    rawList = result.persuasion_techniques;
+  } else if (Array.isArray(result.items)) {
+    rawList = result.items;
+  } else if (result.techniques && typeof result.techniques === 'object') {
+    rawList = Object.entries(result.techniques).map(([k, v]) => ({
+      technique: k,
+      ...(typeof v === 'object' && v !== null ? v : { quote: v })
+    }));
+  }
+
+  const techniques = rawList
+    .filter(t => t && typeof t === 'object')
+    .map(t => {
+      const rawTech = clip(t.technique || t.name || t.type || t.technique_name || t.persuasion_technique || '', 60);
+      const rawQuote = clip(t.quote || t.example || t.text || t.sentence || t.excerpt || t.matched_text || '', 600);
+      const rawEffect = clip(t.effect || t.description || t.explanation || t.impact || t.role || '', 300);
+
+      // A technique that cannot be named is not counted. It used to be recorded as "loaded language",
+      // and a finding about the writing can only count against a story, so a model's unnamed or
+      // invented entry was held against it.
+      const name = normalizeTechniqueName(rawTech) || oneOf(rawTech, TECHNIQUE_NAMES, null);
+      return {
+        technique: name,
+        definition: TECHNIQUES[name] || '',
+        quote: rawQuote,
+        effect: rawEffect
+      };
+    })
+    .filter(t => t.technique && t.quote)
+    .slice(0, 3);
+
+  const intensity = oneOf(result.intensity, ['none', 'light', 'moderate', 'heavy'], null)
+    || (techniques.length === 0 ? 'none'
+      : techniques.length === 1 ? 'light'
+      : techniques.length === 2 ? 'moderate' : 'heavy');
+
+  // Each distinct technique costs 2.6 points. The cost per technique is tied
+  // to how many we ask for: at "at most 5" it was 1.6, and simply keeping
+  // that after cutting to 3 would have floored this factor at 5.2, making it
+  // impossible for a heavily manipulative article to score badly here.
+  const score = Math.round(Math.max(0, Math.min(10, 10 - techniques.length * 2.6)) * 10) / 10;
+
+  return {
+    score,
+    intensity,
+    techniques,
+    summary: clip(result.summary, 500),
+    distinctCount: new Set(techniques.map(t => t.technique)).size,
+    method: 'model'
+  };
+};
+
+/**
  * Detect persuasion techniques in an article, with the exact text of each.
  * @param {string} title
  * @param {string} content
@@ -155,62 +219,7 @@ Return a JSON object with these keys:
     // towards a verdict (verdictEngine R7).
     const result = await callNimApiJson(prompt, { maxTokens: 600, temperature: 0, requiredKeys: ['techniques'], allowArray: true, label: 'manipulation' });
 
-    let rawList = [];
-    if (Array.isArray(result)) {
-      rawList = result;
-    } else if (Array.isArray(result.techniques)) {
-      rawList = result.techniques;
-    } else if (Array.isArray(result.persuasion_techniques)) {
-      rawList = result.persuasion_techniques;
-    } else if (Array.isArray(result.items)) {
-      rawList = result.items;
-    } else if (result.techniques && typeof result.techniques === 'object') {
-      rawList = Object.entries(result.techniques).map(([k, v]) => ({
-        technique: k,
-        ...(typeof v === 'object' && v !== null ? v : { quote: v })
-      }));
-    }
-
-    const techniques = rawList
-      .filter(t => t && typeof t === 'object')
-      .map(t => {
-        const rawTech = clip(t.technique || t.name || t.type || t.technique_name || t.persuasion_technique || '', 60);
-        const rawQuote = clip(t.quote || t.example || t.text || t.sentence || t.excerpt || t.matched_text || '', 600);
-        const rawEffect = clip(t.effect || t.description || t.explanation || t.impact || t.role || '', 300);
-
-        // A technique that cannot be named is not counted. It used to be recorded as "loaded language",
-        // and a finding about the writing can only count against a story, so a model's unnamed or
-        // invented entry was held against it.
-        const name = normalizeTechniqueName(rawTech) || oneOf(rawTech, TECHNIQUE_NAMES, null);
-        return {
-          technique: name,
-          definition: TECHNIQUES[name] || '',
-          quote: rawQuote,
-          effect: rawEffect
-        };
-      })
-      .filter(t => t.technique && t.quote)
-      .slice(0, 3);
-
-    const intensity = oneOf(result.intensity, ['none', 'light', 'moderate', 'heavy'], null)
-      || (techniques.length === 0 ? 'none'
-        : techniques.length === 1 ? 'light'
-        : techniques.length === 2 ? 'moderate' : 'heavy');
-
-    // Each distinct technique costs 2.6 points. The cost per technique is tied
-    // to how many we ask for: at "at most 5" it was 1.6, and simply keeping
-    // that after cutting to 3 would have floored this factor at 5.2, making it
-    // impossible for a heavily manipulative article to score badly here.
-    const score = Math.round(Math.max(0, Math.min(10, 10 - techniques.length * 2.6)) * 10) / 10;
-
-    return {
-      score,
-      intensity,
-      techniques,
-      summary: clip(result.summary, 500),
-      distinctCount: new Set(techniques.map(t => t.technique)).size,
-      method: 'model'
-    };
+    return readManipulation(result);
   } catch (err) {
     console.error('Manipulation analysis failed, falling back to rules:', err.message);
     const rules = manipulationByRules(title, content);
@@ -220,4 +229,4 @@ Return a JSON object with these keys:
   }
 };
 
-module.exports = { detectManipulation, TECHNIQUES };
+module.exports = { detectManipulation, readManipulation, TECHNIQUES, TECHNIQUE_NAMES };

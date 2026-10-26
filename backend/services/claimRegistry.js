@@ -23,7 +23,7 @@ const { claimHistory } = require('./claimMemory');
 const { trackRecordFor } = require('./ruleReliability');
 const { getSourceReputation } = require('../agents/sourceReputationAgent');
 
-const CALLS = ['REAL', 'FAKE', 'PARTLY FALSE', 'CANNOT VERIFY'];
+const CALLS = ['REAL', 'FAKE', 'PARTLY FALSE', 'MISLEADING', 'CANNOT VERIFY'];
 const SORTS = ['recent', 'checked'];
 const MAX_LIMIT = 50;
 const DEFAULT_LIMIT = 20;

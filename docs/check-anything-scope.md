@@ -54,6 +54,7 @@ so the page still works, less well.
 | **REAL** | Independent outlets confirm it, a fact-checking desk rated it true, or a reference work states a standing fact |
 | **FAKE** | Outlets report otherwise, fact-checkers rated it false, this week's news rules it out, a premise is contradicted by a reference work, or it is old news shared as new |
 | **PARTLY FALSE** | One claim in the message is confirmed and another contradicted, or a true claim carries one this week's news rules out |
+| **MISLEADING** | Fact-checking desks rated this very claim misleading or missing context, and nothing else makes it false |
 | **CANNOT VERIFY** | Nothing bears on it either way, or only part of the message is confirmed |
 | **Refused** | Nothing in it can be checked; the reason is given |
 | **SATIRE** | It comes from a satirical publisher |

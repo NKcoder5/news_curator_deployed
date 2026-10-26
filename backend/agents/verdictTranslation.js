@@ -11,8 +11,8 @@ const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { UNTRUSTED_NOTICE, fence, clip } = require('../utils/untrusted');
 
 const CALL_WORDS = {
-  ta: { FAKE: 'போலி', REAL: 'உண்மை', 'CANNOT VERIFY': 'உறுதிப்படுத்த முடியவில்லை', 'PARTLY FALSE': 'பகுதி பொய்' },
-  hi: { FAKE: 'फर्जी', REAL: 'सच', 'CANNOT VERIFY': 'पुष्टि नहीं हो सकी', 'PARTLY FALSE': 'आंशिक रूप से गलत' }
+  ta: { FAKE: 'போலி', REAL: 'உண்மை', 'CANNOT VERIFY': 'உறுதிப்படுத்த முடியவில்லை', 'PARTLY FALSE': 'பகுதி பொய்', MISLEADING: 'தவறாக வழிநடத்துகிறது' },
+  hi: { FAKE: 'फर्जी', REAL: 'सच', 'CANNOT VERIFY': 'पुष्टि नहीं हो सकी', 'PARTLY FALSE': 'आंशिक रूप से गलत', MISLEADING: 'भ्रामक' }
 };
 
 /**

@@ -46,6 +46,8 @@ test('the call filter ignores case and the search is trimmed', () => {
   const p = parseListQuery({ call: 'partly false', q: '  asian games  ' });
   assert.strictEqual(p.call, 'PARTLY FALSE');
   assert.strictEqual(p.q, 'asian games');
+  // A claim the desks found misleading is filed MISLEADING, and can be listed by it.
+  assert.strictEqual(parseListQuery({ call: 'misleading' }).call, 'MISLEADING');
 });
 
 test('ids are 24 hex digits and nothing else', () => {

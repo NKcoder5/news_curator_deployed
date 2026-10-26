@@ -69,6 +69,20 @@ test(`a fact-checker's "false" never makes a verdict less false (${grid.length} 
   assert.deepStrictEqual(broken, []);
 });
 
+const misleadingRuling = { status: 'misleading', matches: [{ publisher: 'BOOM', finding: 'misleading', rating: 'Missing context', claimReviewed: 'the claim', url: 'https://boom.test/r', via: 'claimreview' }] };
+
+test(`a fact-checker's "misleading" never makes a verdict less false (${grid.length} combinations)`, () => {
+  const broken = [];
+  for (const { label, input } of grid) {
+    const before = replayVerdict(input);
+    const trial = clone(input);
+    trial.factCheckResult = misleadingRuling;
+    const after = replayVerdict(trial);
+    if (falsity(after.call) < falsity(before.call)) broken.push(`${label}: ${before.call} -> ${after.call} (${after.rule})`);
+  }
+  assert.deepStrictEqual(broken, []);
+});
+
 test('more outlets reporting otherwise never make a verdict less false', () => {
   const broken = [];
   for (const { label, input } of grid) {

@@ -4,7 +4,7 @@
     "title": "Pure Press API",
     "version": "1.0.0",
     "summary": "Evidence-based checking of news and viral messages.",
-    "description": "The API behind Pure Press. Its centre is **Check Anything**: send a link, a pasted message or a screenshot and get back a call (REAL, FAKE, PARTLY FALSE, CANNOT VERIFY, NOT A FACTUAL CLAIM or SATIRE), the one-sentence reason, the rule that decided it, the evidence it rests on and what would change it.\n\nThe verdict is reached by fixed rules from recorded evidence (`backend/agents/verdictEngine.js`), not by a language model's opinion, so every field below that explains a verdict was computed from the same inputs the verdict was.\n\n**Authentication.** Accounts sign in with `POST /api/auth/login` and send the returned token as `Authorization: Bearer <token>`. Tokens last 24 hours. The analysis endpoints under `/api/ai` spend scarce news and model quota, so they need a signed-in reader (or, for the evaluation scripts, the `x-internal-key` header). The claims registry under `/api/claims` is public and read-only.\n\n**Errors** are JSON objects with an `error` message written for the reader; some carry a machine-readable `code` or extra fields, documented per operation.\n\n**Streaming.** `POST /api/ai/analyze-content/stream` and `POST /api/ai/trust-analysis/stream` answer with newline-delimited JSON (`application/x-ndjson`): one JSON object per line, each with a `type`. Read them with `fetch()` and a stream reader; `EventSource` cannot be used because the input is POSTed.",
+    "description": "The API behind Pure Press. Its centre is **Check Anything**: send a link, a pasted message or a screenshot and get back a call (REAL, FAKE, PARTLY FALSE, MISLEADING, CANNOT VERIFY, NOT A FACTUAL CLAIM or SATIRE), the one-sentence reason, the rule that decided it, the evidence it rests on and what would change it.\n\nThe verdict is reached by fixed rules from recorded evidence (`backend/agents/verdictEngine.js`), not by a language model's opinion, so every field below that explains a verdict was computed from the same inputs the verdict was.\n\n**Authentication.** Accounts sign in with `POST /api/auth/login` and send the returned token as `Authorization: Bearer <token>`. Tokens last 24 hours. The analysis endpoints under `/api/ai` spend scarce news and model quota, so they need a signed-in reader (or, for the evaluation scripts, the `x-internal-key` header). The claims registry under `/api/claims` is public and read-only.\n\n**Errors** are JSON objects with an `error` message written for the reader; some carry a machine-readable `code` or extra fields, documented per operation.\n\n**Streaming.** `POST /api/ai/analyze-content/stream` and `POST /api/ai/trust-analysis/stream` answer with newline-delimited JSON (`application/x-ndjson`): one JSON object per line, each with a `type`. Read them with `fetch()` and a stream reader; `EventSource` cannot be used because the input is POSTed.",
     "contact": {
       "name": "Pure Press",
       "url": "https://github.com/NKcoder5/news_curator_deployed"
@@ -829,7 +829,7 @@
             "name": "call",
             "in": "query",
             "description": "Only claims whose latest verdict is this call (case-insensitive).",
-            "schema": { "type": "string", "enum": ["REAL", "FAKE", "PARTLY FALSE", "CANNOT VERIFY"] }
+            "schema": { "type": "string", "enum": ["REAL", "FAKE", "PARTLY FALSE", "MISLEADING", "CANNOT VERIFY"] }
           },
           {
             "name": "sort",
@@ -1381,13 +1381,13 @@
       },
       "Call": {
         "type": "string",
-        "enum": ["REAL", "FAKE", "PARTLY FALSE", "CANNOT VERIFY", "NOT A FACTUAL CLAIM", "SATIRE"],
-        "description": "The answer in one phrase. `CANNOT VERIFY` is not a claim that the story is false: it means nothing independent supports it yet."
+        "enum": ["REAL", "FAKE", "PARTLY FALSE", "MISLEADING", "CANNOT VERIFY", "NOT A FACTUAL CLAIM", "SATIRE"],
+        "description": "The answer in one phrase. `MISLEADING` is a fact-checking desk's finding on this very claim: something real, twisted or stripped of its context. `CANNOT VERIFY` is not a claim that the story is false: it means nothing independent supports it yet."
       },
       "VerdictClass": {
         "type": "string",
-        "enum": ["false", "likely-false", "mixed", "outdated", "unverified", "opinion", "satire", "likely-true", "corroborated"],
-        "description": "The verdict class behind the call. `outdated` is old news shared as new and is called FAKE; `mixed` is called PARTLY FALSE."
+        "enum": ["false", "likely-false", "mixed", "misleading", "outdated", "unverified", "opinion", "satire", "likely-true", "corroborated"],
+        "description": "The verdict class behind the call. `outdated` is old news shared as new and is called FAKE; `mixed` is called PARTLY FALSE; `misleading` is called MISLEADING."
       },
       "VerdictLevel": {
         "type": "string",
@@ -2478,11 +2478,12 @@
           "calls": {
             "type": "object",
             "description": "Claims by latest call.",
-            "required": ["REAL", "FAKE", "PARTLY FALSE", "CANNOT VERIFY", "other"],
+            "required": ["REAL", "FAKE", "PARTLY FALSE", "MISLEADING", "CANNOT VERIFY", "other"],
             "properties": {
               "REAL": { "type": "integer" },
               "FAKE": { "type": "integer" },
               "PARTLY FALSE": { "type": "integer" },
+              "MISLEADING": { "type": "integer" },
               "CANNOT VERIFY": { "type": "integer" },
               "other": { "type": "integer" }
             }

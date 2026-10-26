@@ -65,12 +65,30 @@ test('a claim fact-checkers rated false is FAKE even when no newsroom covered it
   assert.ok(decision.grounds.some(g => /The Quint reviewed/.test(g)));
 });
 
-test('a misleading rating is probably false, not false', () => {
+test('a misleading rating is answered MISLEADING, not FAKE', () => {
   const decision = decideVerdict(ledgerFor({
     factCheckResult: { status: 'misleading', matches: [review('BOOM', 'misleading', 'Misleading')] }
   }));
-  assert.strictEqual(decision.verdict, 'likely-false');
+  assert.strictEqual(decision.call, 'MISLEADING');
+  assert.strictEqual(decision.verdict, 'misleading');
+  assert.strictEqual(decision.level, 'likely-false');
   assert.strictEqual(decision.rule, 'rated-misleading-by-fact-checkers');
+  assert.match(decision.oneLine, /BOOM\) found this misleading/);
+  assert.ok(decision.ceiling <= 3.5);
+});
+
+test('a misleading rating never softens what the other evidence says', () => {
+  // Two outlets report otherwise: FAKE without the ruling, and FAKE with it, the desk's finding added.
+  const outlet = (source, title) => ({ source, title, description: '', url: `https://${source.replace(/\s/g, '')}.test/x`, reliability: 8, reported: 'otherwise' });
+  const decision = decideVerdict(ledgerFor({
+    claims: [{
+      claim: 'All Saturdays are bank holidays from November.', verdict: 'contradicted', supportingEvidence: [],
+      contradictingEvidence: [outlet('The Hindu', 'Banks open on Saturdays as usual, RBI says'), outlet('NDTV', 'No change to bank working days in November')]
+    }],
+    factCheckResult: { status: 'misleading', matches: [review('BOOM', 'misleading', 'Misleading')] }
+  }));
+  assert.strictEqual(decision.call, 'FAKE');
+  assert.ok(decision.grounds.some(g => /BOOM/.test(g)), 'the desk’s finding is among the grounds');
 });
 
 test('a ruling overtaken by wide current reporting is shown as a disagreement, not settled', () => {

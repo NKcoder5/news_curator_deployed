@@ -8,11 +8,11 @@ import { RULE_LABELS } from '../components/EvidenceBoard';
 import { VerdictBadge as DesignVerdictBadge } from '../components/ui';
 
 // Colour is never the only signal: the badge always carries the verdict's name.
-const CALL_CLASS = { REAL: 'for', FAKE: 'against', 'PARTLY FALSE': 'mixed', 'CANNOT VERIFY': 'none' };
+const CALL_CLASS = { REAL: 'for', FAKE: 'against', 'PARTLY FALSE': 'mixed', MISLEADING: 'mixed', 'CANNOT VERIFY': 'none' };
 export const callClass = (call) => `call-${CALL_CLASS[call] || 'none'}`;
 
 export const CALL_NAMES = {
-  REAL: 'Real', FAKE: 'Fake', 'PARTLY FALSE': 'Partly false', 'CANNOT VERIFY': 'Unproven'
+  REAL: 'Real', FAKE: 'Fake', 'PARTLY FALSE': 'Partly false', MISLEADING: 'Misleading', 'CANNOT VERIFY': 'Unproven'
 };
 
 /** The design system's verdict badge, named as the registry names verdicts. */

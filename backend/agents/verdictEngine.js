@@ -80,6 +80,15 @@ const VERDICT_CLASSES = {
     ceiling: 3.5,
     advice: 'Part of this is true and part is not. Do not share it as it stands.'
   },
+  // Something real, twisted or stripped of its context: a fact-checking desk's
+  // "misleading", "missing context" or "out of context" on this very claim.
+  misleading: {
+    label: 'Misleading',
+    call: 'MISLEADING',
+    level: 'likely-false',
+    ceiling: 3.5,
+    advice: 'Fact-checkers found this misleading: it twists or strips the context from something real. Do not share it as stated.'
+  },
   // It happened — but not now. The coverage that confirms it is weeks or
   // years old, and the message presents it as today's news.
   outdated: {
@@ -606,11 +615,20 @@ const decideVerdict = (ledger) => {
     if (ledger.independentContradiction > 0) {
       reasons.push(`Separately, ${ledger.independentContradiction} independent news ${ledger.independentContradiction === 1 ? 'outlet reports' : 'outlets report'} facts that conflict with it.`);
     }
-    return ledger.factCheckStatus === 'debunked'
-      ? decide('false', 'rated-false-by-fact-checkers', reasons,
-        'Professional fact-checkers have investigated this and found it false. Do not share it.')
-      : decide('likely-false', 'rated-misleading-by-fact-checkers', reasons,
-        'Fact-checkers found this misleading: it twists or strips the context from something real. Do not share it as stated.');
+    if (ledger.factCheckStatus === 'debunked') {
+      return decide('false', 'rated-false-by-fact-checkers', reasons,
+        'Professional fact-checkers have investigated this and found it false. Do not share it.');
+    }
+    // A desk's "misleading" is its own answer, MISLEADING: something real, twisted or stripped of its
+    // context. It used to be called FAKE, so 18 of the first 60 rulings (rated misleading by their desks)
+    // could never come back right. It is never softer than the other evidence: where outlets or the
+    // encyclopedia already make the message false or partly false, that verdict stands, with the
+    // desks' finding added to its grounds.
+    const withoutRuling = decideVerdict({ ...ledger, factCheckStatus: 'none', factChecks: [] });
+    if (withoutRuling.call === 'FAKE' || withoutRuling.call === 'PARTLY FALSE') {
+      return { ...withoutRuling, grounds: [...withoutRuling.grounds, ...reasons] };
+    }
+    return decide('misleading', 'rated-misleading-by-fact-checkers', reasons);
   }
 
   // R0c — Several claims, and the evidence splits between them: one confirmed

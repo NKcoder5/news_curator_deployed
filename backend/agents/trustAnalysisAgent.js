@@ -23,24 +23,10 @@ const { buildEvidenceLedger, decideVerdict, applyCeiling, compactLedgerInput } =
 const { assessProbability } = require('./weightOfEvidence');
 const { detectLanguage } = require('../utils/language');
 
-// A note on professional fact-check matching
-// ------------------------------------------
-// A seventh factor matched an article's claims against verdicts published by
-// professional fact-checkers. It is no longer part of the pipeline. Both routes
-// to that evidence proved impractical here:
-//
-//   - Google's Fact Check Tools API requires a billing-enabled account.
-//   - Reading ClaimReview markup off fact-checkers' own pages works, but the
-//     only way to find the right page is the news search, and the free news tier
-//     allows 100 requests a day in total — a budget the article feed and
-//     cross-source verification already depend on.
-//
-// Searching the fact-checkers directly was tested and does not work: their
-// search pages render results in JavaScript, so there is nothing to read.
-//
-// agents/factCheckAgent.js and utils/claimReviewReader.js are kept, working and
-// unwired, for anyone who has a Fact Check Tools key — re-adding the import, a
-// weight below, and the factor entry is all it takes. See the README.
+// Professional fact-checkers' rulings are an evidence channel of their own (agents/factCheckSearch.js):
+// the ClaimReview index is read through the Fact Check Explorer's public endpoint, which needs no key, or
+// through the official Fact Check Tools API when FACT_CHECK_API_KEY is set, and a matched ruling is
+// weighed by the verdict engine (rule R0b), not added to the presentation score below.
 
 // Factor weights.
 //

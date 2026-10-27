@@ -81,6 +81,22 @@ const claimTime = (modelTime, claim, message, english, kind) => {
   return time;
 };
 
+// A forecast whose date has passed is a claim about what happened. "Starting 1st April 2026, the Income
+// Tax Department will have the legal authority to access social media activity" (rated misleading) was
+// read in October 2026 as a prediction by a fallback model, and refused as naming nothing to check (rulings
+// 1-60, 27 Oct). The latest date a message names, when it is before today, makes its forecast an event.
+const MONTH_INDEX = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+const NAMED_DATE = /\b(?:(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?)?(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.?\s*(\d{1,2})?(?:st|nd|rd|th)?,?\s+((?:19|20)\d{2})\b/gi;
+const datePassed = (text, now = Date.now()) => {
+  const dates = [...String(text || '').matchAll(NAMED_DATE)].map(m => {
+    const month = MONTH_INDEX[m[2].slice(0, 3).toLowerCase()];
+    const day = Number(m[1] || m[3]) || null;
+    // A month named without a day has passed only once the month is over.
+    return day ? Date.UTC(Number(m[4]), month, day) : Date.UTC(Number(m[4]), month + 1, 1);
+  });
+  return dates.length > 0 && Math.max(...dates) <= now;
+};
+
 // Keywords arrive as a string or as a list, sometimes comma-separated; the
 // search wants plain words.
 const asWords = (value) => (Array.isArray(value) ? value.join(' ') : String(value || ''))
@@ -162,8 +178,9 @@ const understandInput = async (text) => {
       // script and English in English. Search in English for those.
       const native = clip(asWords(c.search_keywords), 120);
       const keywords = romanized || !native ? (keywordsEn || claim) : native;
-      const kind = oneOf(c.kind, KINDS, 'event');
-      const time = oneOf(c.time, TIMES, null);
+      const forecastOverdue = oneOf(c.kind, KINDS, 'event') === 'prediction' && datePassed(`${c.claim} ${body}`);
+      const kind = forecastOverdue ? 'event' : oneOf(c.kind, KINDS, 'event');
+      const time = forecastOverdue ? 'past' : oneOf(c.time, TIMES, null);
       // A claim the model calls checkable must still name something: a model
       // can talk itself into "checkable" about "something big is coming".
       const anchors = findAnchors(claim);
@@ -241,4 +258,4 @@ const understandInput = async (text) => {
   };
 };
 
-module.exports = { understandInput, LANGUAGE_NAMES, presentedAsNow, claimTime };
+module.exports = { understandInput, LANGUAGE_NAMES, presentedAsNow, claimTime, datePassed };

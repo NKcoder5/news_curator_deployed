@@ -31,3 +31,36 @@ test('a claim is about now only when the message places it in the present', () =
   assert.strictEqual(claimTime('past', 'Chandrayaan-3 landed on the Moon.', 'Chandrayaan-3 lands on the Moon today', '', 'event'), 'now');
   assert.strictEqual(claimTime('timeless', 'Giraffe is a mammal.', 'Giraffe is a mammal', '', 'standing_fact'), 'timeless');
 });
+
+// Rulings 1-60, 27 Oct: "Starting 1st April 2026, the Income Tax Department will have the legal authority
+// to access social media activity" was read by a fallback model as a prediction, held back as uncheckable,
+// and refused as naming nothing. A forecast whose date has passed is a claim about what happened.
+test('a forecast whose date has passed is checked as an event', async () => {
+  const { datePassed } = require('../agents/inputUnderstanding');
+  const now = Date.UTC(2026, 9, 27);
+  assert.strictEqual(datePassed('Starting 1st April 2026, the department will', now), true);
+  assert.strictEqual(datePassed('from September 2026', now), true, 'a month that is over');
+  assert.strictEqual(datePassed('from October 2026', now), false, 'the current month is not over');
+  assert.strictEqual(datePassed('by December 31, 2026 the RBI will', now), false);
+  assert.strictEqual(datePassed('RBI will cut rates in December', now), false, 'no year, no date');
+
+  const nimPath = require.resolve('../utils/nvidiaNimApi');
+  const real = require.cache[nimPath];
+  require.cache[nimPath] = { id: nimPath, filename: nimPath, loaded: true, exports: {
+    callNimApi: async () => '', extractJson: () => null,
+    callNimApiJson: async () => ({ language: 'en', speech_act: 'assertion', english: 'x',
+      claims: [{ claim: 'The Income Tax Department will have legal authority to access social media activity from 1 April 2026.', kind: 'prediction', time: 'future', checkable: false, subject: 'Income Tax Department' }] })
+  } };
+  const modPath = require.resolve('../agents/inputUnderstanding');
+  delete require.cache[modPath];
+  try {
+    const { understandInput } = require(modPath);
+    const read = await understandInput('Starting 1st April 2026, the Income Tax Department will have the legal authority to access social media activity, emails, cloud data to curb tax evasion.');
+    assert.strictEqual(read.checkableClaims.length, 1);
+    assert.strictEqual(read.checkableClaims[0].kind, 'event');
+    assert.strictEqual(read.checkableClaims[0].time, 'past');
+  } finally {
+    if (real) require.cache[nimPath] = real; else delete require.cache[nimPath];
+    delete require.cache[modPath];
+  }
+});

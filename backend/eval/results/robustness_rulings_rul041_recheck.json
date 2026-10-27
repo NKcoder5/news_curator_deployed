@@ -1,0 +1,83 @@
+{
+  "summary": {
+    "ranAt": "2026-10-27T03:23:31.551Z",
+    "suite": "rulings",
+    "complete": true,
+    "stoppedBecause": null,
+    "checksThisRun": 1,
+    "cases": 1,
+    "overall": {
+      "n": 1,
+      "right": 1,
+      "safe": 0,
+      "missed": 0,
+      "wrong": 0
+    },
+    "byCategory": {
+      "rated misleading": {
+        "n": 1,
+        "right": 1,
+        "safe": 0,
+        "missed": 0,
+        "wrong": 0
+      }
+    },
+    "medianSeconds": 17.585
+  },
+  "rows": [
+    {
+      "id": "rul-041",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Starting 1st April 2026, the Income Tax Department will have the legal authority to access social media activity, emails, cloud data to curb tax evasion.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://digiteye.in/from-1st-april-2026-can-the-income-tax-department-access-social-media-emails-and-cloud-data-fact-check/"
+      ],
+      "labelledOn": "2025-12-29",
+      "ruling": {
+        "publisher": "DigitEye India",
+        "rating": "Misleading. Section 247 of the Income Tax Act 2025 does not grant blanket surveillance powers. It extends existing search and seizure authority to digital formats for targeted investigations into serious tax evasion, without routine intrusion into honest taxpayers’ affairs."
+      },
+      "call": "MISLEADING",
+      "rule": "rated-misleading-by-fact-checkers",
+      "confidence": 0.68,
+      "kind": null,
+      "detail": "Fact-checkers (FACTLY) found this misleading.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "urgent"
+        ],
+        "english": "Starting 1st April 2026, the Income Tax Department will have the legal authority to access social media activity, emails, cloud data to curb tax evasion.",
+        "claims": [
+          {
+            "claim": "The Income Tax Department has been granted legal authority to access social media activity, emails, and cloud data starting April 1, 2026.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 17.585,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    }
+  ]
+}

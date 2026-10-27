@@ -1,0 +1,617 @@
+{
+  "summary": {
+    "ranAt": "2026-10-27T03:18:29.362Z",
+    "suite": "rulings",
+    "complete": true,
+    "stoppedBecause": null,
+    "checksThisRun": 11,
+    "cases": 11,
+    "overall": {
+      "n": 11,
+      "right": 4,
+      "safe": 2,
+      "missed": 5,
+      "wrong": 0
+    },
+    "byCategory": {
+      "rated misleading": {
+        "n": 5,
+        "right": 0,
+        "safe": 2,
+        "missed": 3,
+        "wrong": 0
+      },
+      "rated false": {
+        "n": 6,
+        "right": 4,
+        "safe": 0,
+        "missed": 2,
+        "wrong": 0
+      }
+    },
+    "medianSeconds": 15.995
+  },
+  "rows": [
+    {
+      "id": "rul-001",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The viral video shows Uttar Pradesh’s Ayodhya Ram Temple tableau at the 2026 Republic Day parade.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/this-ayodhya-tableau-seen-in-the-viral-video-was-showcased-by-uttar-pradesh-during-the-2024-republic-day-parade-not-in-2026/"
+      ],
+      "labelledOn": "2026-01-30",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The viral video shows Uttar Pradesh’s Ayodhya Ram Temple tableau at the 2026 Republic Day parade.",
+        "claims": [
+          {
+            "claim": "The Uttar Pradesh Ayodhya Ram Temple tableau was featured at the 2026 Republic Day parade.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 15.995,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "nim": 1,
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-010",
+      "category": "rated false",
+      "language": "en",
+      "input": "The bird flu vaccine being used on Australia's penguins is an mRNA vaccine.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C7423WM"
+      ],
+      "labelledOn": "2026-09-09",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.82,
+      "kind": null,
+      "detail": "Rated false by AAP after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The bird flu vaccine being used on Australia's penguins is an mRNA vaccine.",
+        "claims": [
+          {
+            "claim": "The bird flu vaccine being used on Australia's penguins is an mRNA vaccine.",
+            "time": "past",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 16.638,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "nim": 1,
+          "gemini": 5,
+          "cached": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-014",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "PM Narendra Modi said “Israel is fatherland and India is motherland,” referring to himself during his speech in Israel.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/pm-modis-statement-that-israel-is-fatherland-and-india-is-motherland-was-made-in-reference-to-indian-origin-jews-living-in-israel/"
+      ],
+      "labelledOn": "2026-02-26",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "fact-checkers-and-reporting-disagree",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "Fact-checkers rated this false, but 4 independent outlets now report it.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "PM Narendra Modi said “Israel is fatherland and India is motherland,” referring to himself during his speech in Israel.",
+        "claims": [
+          {
+            "claim": "Narendra Modi said \"Israel is fatherland and India is motherland\" during a speech in Israel.",
+            "time": "past",
+            "kind": "quote",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 17.291,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-029",
+      "category": "rated false",
+      "language": "en",
+      "input": "Actual footage of Nepal flood survivor",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C7WK7KE"
+      ],
+      "labelledOn": "2026-09-11",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "AI-generated"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.86,
+      "kind": null,
+      "detail": "Rated false by The Quint after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Actual footage of Nepal flood survivor",
+        "claims": [
+          {
+            "claim": "The provided footage shows a survivor of the Nepal floods.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 30.711,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "nim": 1,
+          "gemini": 5
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-039",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Gold worth ₹1.28 lakh crore has gone missing from India’s treasury.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/no-gold-worth-%E2%82%B91-28-lakh-crore-has-not-gone-missing-from-indias-treasury/"
+      ],
+      "labelledOn": "2026-02-19",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-one-independent-source",
+      "confidence": 0.62,
+      "kind": null,
+      "detail": "An independent outlet reports otherwise: “Gold worth Rs 1280000000000 wiped out”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "emotional"
+        ],
+        "english": "Gold worth ₹1.28 lakh crore has gone missing from India’s treasury.",
+        "claims": [
+          {
+            "claim": "Gold worth 1.28 lakh crore rupees has gone missing from India's treasury.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 10.126,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "gemini": 7,
+          "cached": 2,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-041",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Starting 1st April 2026, the Income Tax Department will have the legal authority to access social media activity, emails, cloud data to curb tax evasion.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://digiteye.in/from-1st-april-2026-can-the-income-tax-department-access-social-media-emails-and-cloud-data-fact-check/"
+      ],
+      "labelledOn": "2025-12-29",
+      "ruling": {
+        "publisher": "DigitEye India",
+        "rating": "Misleading. Section 247 of the Income Tax Act 2025 does not grant blanket surveillance powers. It extends existing search and seizure authority to digital formats for targeted investigations into serious tax evasion, without routine intrusion into honest taxpayers’ affairs."
+      },
+      "call": "REFUSED",
+      "rule": null,
+      "confidence": null,
+      "kind": "too-vague",
+      "detail": "This does not name anyone, anywhere or any figure, so there is nothing specific to look up.",
+      "readAs": null,
+      "memory": null,
+      "seconds": 1.67,
+      "modelCalls": {
+        "total": 1,
+        "byProvider": {
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-047",
+      "category": "rated false",
+      "language": "en",
+      "input": "Genuine comparison of a Nepalese town before and after August 2026 floods.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C6YF89F"
+      ],
+      "labelledOn": "2026-09-03",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.86,
+      "kind": null,
+      "detail": "Rated false by Lead Stories and Yahoo after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Genuine comparison of a Nepalese town before and after August 2026 floods.",
+        "claims": [
+          {
+            "claim": "A Nepalese town experienced floods in August 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 15.622,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-048",
+      "category": "rated false",
+      "language": "en",
+      "input": "Abhijeet Dipke was slapped during the October 2 protest in Mumbai.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-old-video-of-abhijeet-dipke-slapped-in-jaipur-falsely-linked-to-mumbai-protest/"
+      ],
+      "labelledOn": "2026-10-09",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Abhijeet Dipke was slapped during the October 2 protest in Mumbai.",
+        "claims": [
+          {
+            "claim": "Abhijeet Dipke was slapped during the October 2 protest in Mumbai.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.663,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-053",
+      "category": "rated false",
+      "language": "en",
+      "input": "the video originates from Bogra, Bangladesh, where a female teacher was brutally assaulted by a local miscreant.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://rumorscanner.com/en/fact-check-en/claim-video-from-bogra-bangladesh-female-teacher-brutally-assaulted/216633"
+      ],
+      "labelledOn": "2026-09-02",
+      "ruling": {
+        "publisher": "Rumor Scanner",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.85,
+      "kind": null,
+      "detail": "Rated false by NewsMeter after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "emotional"
+        ],
+        "english": "the video originates from Bogra, Bangladesh, where a female teacher was brutally assaulted by a local miscreant.",
+        "claims": [
+          {
+            "claim": "A female teacher was brutally assaulted by a local miscreant in Bogra, Bangladesh.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 21.152,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "nim": 1,
+          "gemini": 5
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-059",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The video shows Gen-Z protesters in Delhi in September 2026 demanding the removal of EVMs and the resignation of CEC Gyanesh Kumar.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/a-2024-video-of-a-protest-against-evms-in-delhi-is-shared-as-a-september-2026-protest-demanding-cec-gyanesh-kumars-resignation/"
+      ],
+      "labelledOn": "2026-09-28",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Rated false by The Quint, Boom Live and NewsMeter after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The video shows Gen-Z protesters in Delhi in September 2026 demanding the removal of EVMs and the resignation of CEC Gyanesh Kumar.",
+        "claims": [
+          {
+            "claim": "Gen-Z protesters in Delhi demanded the removal of EVMs and the resignation of Chief Election Commissioner Gyanesh Kumar in September 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 14.121,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1,
+          "cached": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-060",
+      "category": "rated false",
+      "language": "en",
+      "input": "A News 1st-style news card shows Foreign Minister Vijitha Herath making three statements at the UN General Assembly: aid for animals after Cyclone Ditwah, a vow to prosecute the Rajapaksas and other opposition figures, and that Tamil fighters would never be called terrorists.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://srilanka.factcrescendo.com/english/misleading-posts-circulating-in-the-lead-up-to-the-un-general-assembly-session/"
+      ],
+      "labelledOn": "2026-10-07",
+      "ruling": {
+        "publisher": "Fact Crescendo Sri Lanka",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A News 1st-style news card shows Foreign Minister Vijitha Herath making three statements at the UN General Assembly: aid for animals after Cyclone Ditwah, a vow to prosecute the Rajapaksas and other opposition figures, and that Tamil fighters would never be called terrorists.",
+        "claims": [
+          {
+            "claim": "Foreign Minister Vijitha Herath announced aid for animals after Cyclone Ditwah at the UN General Assembly.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          },
+          {
+            "claim": "Foreign Minister Vijitha Herath vowed to prosecute the Rajapaksas and other opposition figures at the UN General Assembly.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          },
+          {
+            "claim": "Foreign Minister Vijitha Herath stated that Tamil fighters would never be called terrorists at the UN General Assembly.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 25.297,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 7
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    }
+  ]
+}

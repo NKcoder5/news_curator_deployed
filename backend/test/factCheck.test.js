@@ -284,3 +284,21 @@ test('reports of the event cannot overtake desks\' rulings on a video of it', ()
   assert.strictEqual(decision.rule, 'rated-false-by-fact-checkers');
   assert.strictEqual(decision.call, 'FAKE');
 });
+
+// Rulings 1-60, 27 Oct: desks that reviewed "Abhijeet Dipke was slapped during the October 2 protest in
+// Mumbai" word for word were set aside because their headlines name the old video that disproved it.
+test('a review is about media when the claim it examined is, not when its headline names the evidence', () => {
+  assert.strictEqual(mediaScopeCompatible(
+    'Abhijeet Dipke was slapped during the October 2 protest in Mumbai.',
+    'Abhijeet Dipke was slapped during the October 2 protest in Mumbai.',
+    'CJP’s Abhijeet Dipke Slapped During Mumbai Protest? Old Video Goes Viral'
+  ), true);
+  // The case the guard exists for still stands: the desk examined a video, the reader states a fact.
+  assert.strictEqual(mediaScopeCompatible(
+    'C. Joseph Vijay is the Chief Minister of Tamil Nadu.',
+    'The video shows anti-Hindi protests intensifying in Tamil Nadu after C. Joseph Vijay took the oath as Chief Minister on 10 May 2026.',
+    'An old video is being shared'
+  ), false);
+  // A desk found only by its headline is judged by its headline.
+  assert.strictEqual(mediaScopeCompatible('Floods hit Bangkok this week.', '', 'Old video of flooded Bangkok streets shared as recent'), false);
+});

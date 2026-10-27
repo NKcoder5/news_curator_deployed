@@ -361,7 +361,12 @@ const isMediaClaim = (text) => MEDIA_WORDS.test(String(text || ''));
  */
 const mediaScopeCompatible = (userText, reviewedClaim, reviewTitle) => {
   const userHasMedia = isMediaClaim(userText);
-  const reviewHasMedia = isMediaClaim(reviewedClaim) || isMediaClaim(reviewTitle);
+  // What the desk examined is the claim it states it reviewed; its headline names how it settled it
+  // ("Old video goes viral"). FACTLY and NewsMobile reviewed "Abhijeet Dipke was slapped during the
+  // October 2 protest in Mumbai" word for word, and were set aside because their headlines name the old
+  // video that disproves it (rulings 1-60, 27 Oct: two such cases came back CANNOT VERIFY). The headline
+  // is read only when no reviewed claim is given (a desk found through the news search).
+  const reviewHasMedia = String(reviewedClaim || '').trim() ? isMediaClaim(reviewedClaim) : isMediaClaim(reviewTitle);
   // If the review is about a video/photo/clip, but the user text makes no mention
   // of any media artifact, the review is debunking the media, not the user's text.
   if (reviewHasMedia && !userHasMedia) {
@@ -533,5 +538,7 @@ module.exports = {
   isMediaClaim,
   excludedReview,
   deskOf,
-  domainOf
+  domainOf,
+  // For diagnosing retrieval apart from matching (eval and debugging only).
+  __test: { searchClaimReviews, searchFactCheckHeadlines }
 };

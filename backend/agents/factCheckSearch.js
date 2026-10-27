@@ -34,6 +34,19 @@ const { searchGoogleNews, cached, withRetry } = require('../utils/newsFetcher');
 const { UNTRUSTED_NOTICE, fence, addressesModel, asBool, oneOf, clip, numberedItems } = require('../utils/untrusted');
 const { noteModelCall } = require('../utils/runContext');
 const { signatureOf } = require('../services/claimSignature');
+const { isRelevant } = require('./evidenceRelevance');
+
+// A review is of the same claim only if it is at least about it, by the same fixed test news evidence must
+// pass before a model's reading of it counts (agents/evidenceRelevance.js: a shared name, place or figure,
+// and another distinctive word). Measured on rulings 61-120, 27 Oct: "Native-born workers accounted for all
+// U.S. job gains from January to June 2025" (rated true) was matched to PolitiFact's review of "100% of net
+// job creation under the Biden administration has gone to the foreign-born", which shares only "job", and
+// came back FAKE. Text in an Indian script shares no words with an English claim, and is left to the
+// matcher, which reads across languages.
+const INDIC_SCRIPT = /[\u{0900}-\u{0D7F}]/u;
+const aboutTheClaim = (claimText, reviewed) => !String(reviewed || '').trim()
+  || INDIC_SCRIPT.test(`${claimText} ${reviewed}`)
+  || isRelevant(claimText, { title: reviewed }).relevant;
 
 const FINDINGS = new Set(['false', 'true', 'misleading']);
 
@@ -465,6 +478,10 @@ const checkFactCheckers = async (claims = [], { title = '', text = '' } = {}) =>
     // reader can see both: they differ, legitimately, when the user's text
     // negates the claim the desk checked.
     const rated = ratingClass(candidate.rating);
+    if (!aboutTheClaim(claimText, candidate.claimReviewed || candidate.title)) {
+      console.warn(`Fact-check match: a review of "${String(candidate.claimReviewed || candidate.title).slice(0, 80)}" shares no name and too few words with the claim; set aside.`);
+      continue;
+    }
     if (!mediaScopeCompatible(claimText, candidate.claimReviewed, candidate.title)) {
       console.warn(`Fact-check match: review about a media artifact (${candidate.claimReviewed || candidate.title}) does not match plain text claim ("${claimText}"); set aside.`);
       continue;
@@ -539,6 +556,7 @@ module.exports = {
   excludedReview,
   deskOf,
   domainOf,
+  aboutTheClaim,
   // For diagnosing retrieval apart from matching (eval and debugging only).
   __test: { searchClaimReviews, searchFactCheckHeadlines }
 };

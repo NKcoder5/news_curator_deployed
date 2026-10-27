@@ -302,3 +302,17 @@ test('a review is about media when the claim it examined is, not when its headli
   // A desk found only by its headline is judged by its headline.
   assert.strictEqual(mediaScopeCompatible('Floods hit Bangkok this week.', '', 'Old video of flooded Bangkok streets shared as recent'), false);
 });
+
+// Rulings 61-120, 27 Oct: a review of another claim ("100% of net job creation under the Biden
+// administration has gone to the foreign-born") was matched to "Native-born workers accounted for all U.S.
+// job gains from January to June 2025" (rated true) and made it FAKE.
+test('a review must be about the claim, by the test news evidence passes, before it can match', () => {
+  const { aboutTheClaim } = require('../agents/factCheckSearch');
+  assert.strictEqual(aboutTheClaim('Native-born workers accounted for all U.S. job gains from January to June 2025.',
+    'Says “100% of net job creation under the Biden administration has gone to the foreign-born.”'), false);
+  assert.strictEqual(aboutTheClaim('Banks will be closed every Saturday and Sunday.', 'Every Saturday has been declared a bank holiday'), true);
+  assert.strictEqual(aboutTheClaim('Abhijeet Dipke was slapped during the October 2 protest in Mumbai.',
+    'Cockroach Janta Party (CJP) founder Abhijeet Dipke was attacked during a protest at Mumbai’s Shivaji Park on 02 October 2026.'), true);
+  assert.strictEqual(aboutTheClaim('Rahul Gandhi resigned from Parliament.', 'राहुल गांधी ने संसद से इस्तीफा दिया'), true, 'another script is left to the matcher');
+  assert.strictEqual(aboutTheClaim('Rahul Gandhi resigned from Parliament.', ''), true, 'nothing to compare');
+});

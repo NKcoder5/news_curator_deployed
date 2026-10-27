@@ -1,0 +1,41 @@
+{
+  "summary": {
+    "ranAt": "2026-10-27T08:09:28.202Z",
+    "suite": "rulings",
+    "complete": true,
+    "stoppedBecause": null,
+    "checksThisRun": 200,
+    "cases": 200,
+    "overall": {
+      "n": 200,
+      "right": 97,
+      "safe": 34,
+      "missed": 52,
+      "wrong": 17
+    },
+    "byCategory": {
+      "rated misleading": {
+        "n": 57,
+        "right": 2,
+        "safe": 30,
+        "missed": 20,
+        "wrong": 5
+      },
+      "rated false": {
+        "n": 126,
+        "right": 93,
+        "safe": 4,
+        "missed": 23,
+        "wrong": 6
+      },
+      "rated true": {
+        "n": 17,
+        "right": 2,
+        "safe": 0,
+        "missed": 9,
+        "wrong": 6
+      }
+    },
+    "medianSeconds": 12.7135
+  }
+}

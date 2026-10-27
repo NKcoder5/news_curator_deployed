@@ -1,0 +1,3182 @@
+{
+  "summary": {
+    "ranAt": "2026-10-27T04:13:13.093Z",
+    "suite": "rulings",
+    "complete": false,
+    "stoppedBecause": "model quota or network: two cases in a row failed, fell back from Gemini, or could not search",
+    "checksThisRun": 60,
+    "cases": 62,
+    "overall": {
+      "n": 60,
+      "right": 32,
+      "safe": 16,
+      "missed": 12,
+      "wrong": 0
+    },
+    "byCategory": {
+      "rated misleading": {
+        "n": 19,
+        "right": 2,
+        "safe": 15,
+        "missed": 2,
+        "wrong": 0
+      },
+      "rated false": {
+        "n": 40,
+        "right": 30,
+        "safe": 1,
+        "missed": 9,
+        "wrong": 0
+      },
+      "rated true": {
+        "n": 1,
+        "right": 0,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 0
+      }
+    },
+    "medianSeconds": 8.608
+  },
+  "rows": [
+    {
+      "id": "rul-003",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "A video showing Prime Minister Narendra Modi interacting with Congress leaders Mallikarjun Kharge, Rahul Gandhi, and Priyanka Gandhi Vadra at the wedding reception of NCP (SP) leader Supriya Sule’s daughter in August 2026.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/an-old-video-of-pm-modi-interacting-with-congress-leaders-is-shared-with-false-claim-of-visuals-from-supriya-sules-daughters-wedding-reception/"
+      ],
+      "labelledOn": "2026-08-17",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.89,
+      "kind": null,
+      "detail": "Rated false by The Quint and Newschecker after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A video showing Prime Minister Narendra Modi interacting with Congress leaders Mallikarjun Kharge, Rahul Gandhi, and Priyanka Gandhi Vadra at the wedding reception of NCP (SP) leader Supriya Sule’s daughter in August 2026.",
+        "claims": [
+          {
+            "claim": "A video shows Prime Minister Narendra Modi interacting with Congress leaders Mallikarjun Kharge, Rahul Gandhi, and Priyanka Gandhi Vadra at the wedding reception of Nationalist Congress Party (Sharadchandra Pawar) leader Supriya Sule’s daughter in August 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 10.641,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-004",
+      "category": "rated false",
+      "language": "en",
+      "input": "A viral video circulating on social media allegedly shows CCTV footage of the October 7, 2026, building collapse in Seemapuri, Delhi, in which five people died.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-video-claiming-to-show-delhi-building-collapse-is-ai-generated/"
+      ],
+      "labelledOn": "2026-10-16",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.82,
+      "kind": null,
+      "detail": "Rated false by CyberPeace Foundation after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "hedged",
+        "tone": [
+          "neutral",
+          "alarmist"
+        ],
+        "english": "A viral video circulating on social media allegedly shows CCTV footage of the October 7, 2026, building collapse in Seemapuri, Delhi, in which five people died.",
+        "claims": [
+          {
+            "claim": "A viral video shows CCTV footage of the building collapse in Seemapuri, Delhi, on October 7, 2026, in which five people died.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.204,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "gemini": 7,
+          "cached": 2,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-005",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Viral photo of a bus stuck at the mouth of 4 lanes abruptly narrowing into 2, in the Mira Bhayandar flyover in Mumbai",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://www.altnews.in/bus-stuck-at-narrowing-of-lanes-on-mumbai-flyover-no-photo-shared-by-kerala-congress-is-ai-generated/"
+      ],
+      "labelledOn": "2026-02-09",
+      "ruling": {
+        "publisher": "Alt News",
+        "rating": "Mostly False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.93,
+      "kind": null,
+      "detail": "Rated false by Telugu Post, BOOM Fact Check and NewsMobile after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Viral photo of a bus stuck at the mouth of 4 lanes abruptly narrowing into 2, in the Mira Bhayandar flyover in Mumbai",
+        "claims": [
+          {
+            "claim": "A bus is stuck at the mouth of 4 lanes abruptly narrowing into 2 on the Mira Bhayandar flyover in Mumbai.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 11.981,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-006",
+      "category": "rated false",
+      "language": "en",
+      "input": "Pictures show actress Nayanthara with a shaved head while visiting a temple.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.boomlive.in/fact-check/actress-nayanthara-temple-bald-look-claim-fact-check-32088"
+      ],
+      "labelledOn": "2026-08-19",
+      "ruling": {
+        "publisher": "Boom Live",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.85,
+      "kind": null,
+      "detail": "Rated false by The Quint after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Pictures show actress Nayanthara with a shaved head while visiting a temple.",
+        "claims": [
+          {
+            "claim": "Actress Nayanthara visited a temple with a shaved head.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 6.581,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-007",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The video shows a large number of farmers in Rajasthan participating in a protest over the Aravalli Hills.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/old-unrelated-videos-from-maharashtra-are-falsely-shared-linking-them-to-the-aravalli-hills-protests/"
+      ],
+      "labelledOn": "2025-12-24",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.9,
+      "kind": null,
+      "detail": "Rated false by AFP Fact Check and The Quint after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The video shows a large number of farmers in Rajasthan participating in a protest over the Aravalli Hills.",
+        "claims": [
+          {
+            "claim": "A large number of farmers in Rajasthan are participating in a protest over the Aravalli Hills.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.604,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "gemini": 7,
+          "cached": 2,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-008",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Video shows a BJP victory celebration on West Bengal’s Howrah Bridge.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://www.boomlive.in/fact-check/viral-video-bjp-win-celebration-west-bengal-claim-fact-check-31144"
+      ],
+      "labelledOn": "2026-05-04",
+      "ruling": {
+        "publisher": "BOOM Fact Check",
+        "rating": "Misleading"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Rated false by FACTLY, Alt News, The Quint and 1 more after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "celebratory"
+        ],
+        "english": "Video shows a BJP victory celebration on West Bengal's Howrah Bridge.",
+        "claims": [
+          {
+            "claim": "A video shows a Bharatiya Janata Party victory celebration on the Howrah Bridge in West Bengal.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 13.682,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-010",
+      "category": "rated false",
+      "language": "en",
+      "input": "The bird flu vaccine being used on Australia's penguins is an mRNA vaccine.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C7423WM"
+      ],
+      "labelledOn": "2026-09-09",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The bird flu vaccine being used on Australia's penguins is an mRNA vaccine.",
+        "claims": [
+          {
+            "claim": "The bird flu vaccine being used on Australia's penguins is an mRNA vaccine.",
+            "time": "past",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.459,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "cached": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-012",
+      "category": "rated false",
+      "language": "en",
+      "input": "This video shows a male Congress worker attacking a female Delhi Police officer.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/video-does-not-show-male-congress-worker-beating-female-delhi-police-officer-fact-check"
+      ],
+      "labelledOn": "2026-10-15",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.82,
+      "kind": null,
+      "detail": "Rated false by BOOM Fact Check after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "urgent"
+        ],
+        "english": "This video shows a male Congress worker attacking a female Delhi Police officer.",
+        "claims": [
+          {
+            "claim": "A male Congress worker attacked a female Delhi Police officer in this video.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 11.024,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 8
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-013",
+      "category": "rated false",
+      "language": "en",
+      "input": "This video shows Delhi Police taking action against protesters during the 2026 BRICS Summit.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/police-dragging-woman-by-hair-delhi-protester-brics-fact-check"
+      ],
+      "labelledOn": "2026-09-16",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.86,
+      "kind": null,
+      "detail": "Rated false by BOOM Fact Check after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "This video shows Delhi Police taking action against protesters during the 2026 BRICS Summit.",
+        "claims": [
+          {
+            "claim": "Delhi Police took action against protesters during the 2026 BRICS Summit.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 5.438,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-014",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "PM Narendra Modi said “Israel is fatherland and India is motherland,” referring to himself during his speech in Israel.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/pm-modis-statement-that-israel-is-fatherland-and-india-is-motherland-was-made-in-reference-to-indian-origin-jews-living-in-israel/"
+      ],
+      "labelledOn": "2026-02-26",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "MISLEADING",
+      "rule": "rated-misleading-by-fact-checkers",
+      "confidence": 0.72,
+      "kind": null,
+      "detail": "Fact-checkers (BOOM Fact Check and Press Trust of India) found this misleading.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "PM Narendra Modi said “Israel is fatherland and India is motherland,” referring to himself during his speech in Israel.",
+        "claims": [
+          {
+            "claim": "Narendra Modi said that Israel is the fatherland and India is the motherland, referring to himself during his speech in Israel.",
+            "time": "past",
+            "kind": "quote",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 5.737,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-016",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Cockroach Janta Party (CJP) founder Abhijeet Dipke was attacked during a protest at Mumbai’s Shivaji Park on 02 October 2026.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/this-video-of-the-assault-on-abhijeet-dipke-is-from-jaipur-not-mumbai/"
+      ],
+      "labelledOn": "2026-10-05",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.82,
+      "kind": null,
+      "detail": "Rated false by NewsMobile after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Cockroach Janta Party (CJP) founder Abhijeet Dipke was attacked during a protest at Mumbai’s Shivaji Park on 02 October 2026.",
+        "claims": [
+          {
+            "claim": "Cockroach Janta Party founder Abhijeet Dipke was attacked during a protest at Mumbai’s Shivaji Park on 02 October 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 11.973,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-018",
+      "category": "rated false",
+      "language": "en",
+      "input": "The video shows the crowd at Rahul Gandhi's 'Chhatron Ki Goonj' event in Pune.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/this-video-does-not-show-rahul-gandhis-chhatron-ki-goonj-event-in-pune-false-claim-fact-check"
+      ],
+      "labelledOn": "2026-08-25",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Rated false by BOOM Fact Check, India Today and AFP Fact Check after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The video shows the crowd at Rahul Gandhi's 'Chhatron Ki Goonj' event in Pune.",
+        "claims": [
+          {
+            "claim": "The video shows the crowd at Rahul Gandhi's 'Chhatron Ki Goonj' event in Pune.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 10.682,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "gemini": 8,
+          "cached": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-021",
+      "category": "rated false",
+      "language": "en",
+      "input": "The video shows a 20-year-old Hindu girl in Bangladesh being forced into marriage with a 65-year-old Muslim man.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/scripted-video-claiming-to-show-an-old-man-marrying-a-young-girl-goes-viral-fact-check"
+      ],
+      "labelledOn": "2026-10-06",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.85,
+      "kind": null,
+      "detail": "Rated false by BOOM Fact Check after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "emotional"
+        ],
+        "english": "The video shows a 20-year-old Hindu girl in Bangladesh being forced into marriage with a 65-year-old Muslim man.",
+        "claims": [
+          {
+            "claim": "A 20-year-old Hindu girl in Bangladesh was forced into marriage with a 65-year-old Muslim man.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.514,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 7
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-022",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "It may be \"better\" if fewer children received flu shots; a Cochrane review \"found that there is no evidence that the flu vaccine prevents serious disease or that it prevents hospitalizations or death in children.”",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://www.factcheck.org/2026/01/the-facts-on-the-vaccines-the-cdc-no-longer-recommends-for-all-kids/"
+      ],
+      "labelledOn": "2026-01-15",
+      "ruling": {
+        "publisher": "FactCheck.org",
+        "rating": "Misleading"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "hedged",
+        "tone": [
+          "neutral"
+        ],
+        "english": "It may be \"better\" if fewer children received flu shots; a Cochrane review \"found that there is no evidence that the flu vaccine prevents serious disease or that it prevents hospitalizations or death in children.\"",
+        "claims": [
+          {
+            "claim": "A Cochrane review found that there is no evidence that the flu vaccine prevents serious disease, hospitalizations, or death in children.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.95,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-023",
+      "category": "rated false",
+      "language": "en",
+      "input": "Four Hindus reportedly killed by Islamist extremists inside their home in Rangpur, Bangladesh.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://rumorscanner.com/en/fact-check-en/claims-communalism-in-killing-of-four-including-teacher-ganapati-in-rangpur-are-baseless/215728"
+      ],
+      "labelledOn": "2026-08-24",
+      "ruling": {
+        "publisher": "Rumor Scanner",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.82,
+      "kind": null,
+      "detail": "Rated false by Alt News after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "hedged",
+        "tone": [
+          "alarmist",
+          "emotional"
+        ],
+        "english": "Four Hindus reportedly killed by Islamist extremists inside their home in Rangpur, Bangladesh.",
+        "claims": [
+          {
+            "claim": "Four Hindus were killed by Islamist extremists inside their home in Rangpur, Bangladesh.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.256,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "gemini": 7,
+          "cached": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-025",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The viral video showing a man raising derogatory slogans against the RSS is from Uttar Pradesh.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/this-viral-video-of-a-man-making-derogatory-slogans-against-the-rss-is-not-from-uttar-pradesh-it-is-from-telangana/"
+      ],
+      "labelledOn": "2026-01-23",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.82,
+      "kind": null,
+      "detail": "Rated false by Telugu Post after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The viral video showing a man raising derogatory slogans against the RSS is from Uttar Pradesh.",
+        "claims": [
+          {
+            "claim": "The viral video showing a man raising derogatory slogans against the RSS is from Uttar Pradesh.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.156,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "cached": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-026",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Visuals of CJP’s protest demanding the resignation of CEC Gyanesh Kumar at Shivaji Park ground in Mumbai on 02 October 2026.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/an-old-bhopal-public-meeting-video-is-being-falsely-shared-as-a-cjp-protest-video-in-mumbai/"
+      ],
+      "labelledOn": "2026-10-07",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.82,
+      "kind": null,
+      "detail": "Rated false by Telugu Post after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Visuals of CJP’s protest demanding the resignation of CEC Gyanesh Kumar at Shivaji Park ground in Mumbai on 02 October 2026.",
+        "claims": [
+          {
+            "claim": "CJP held a protest demanding the resignation of Chief Election Commissioner Gyanesh Kumar at Shivaji Park ground in Mumbai on 02 October 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.533,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "gemini": 8,
+          "cached": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-029",
+      "category": "rated false",
+      "language": "en",
+      "input": "Actual footage of Nepal flood survivor",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C7WK7KE"
+      ],
+      "labelledOn": "2026-09-11",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "AI-generated"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "emotional",
+          "neutral"
+        ],
+        "english": "Actual footage of Nepal flood survivor",
+        "claims": [
+          {
+            "claim": "This is actual footage of a Nepal flood survivor.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.801,
+      "modelCalls": {
+        "total": 5,
+        "byProvider": {
+          "gemini": 4,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-031",
+      "category": "rated false",
+      "language": "en",
+      "input": "Video shows West Bengal Minister Arjun Singh hoisting the BJP flag instead of the national flag on Independence Day.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.boomlive.in/fact-check/viral-video-west-bengal-minister-arjun-singh-bjp-flag-independence-day-fact-check-32071"
+      ],
+      "labelledOn": "2026-08-17",
+      "ruling": {
+        "publisher": "BOOM Fact Check",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Rated false by India Today, Alt News, OpIndia and 1 more after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Video shows West Bengal Minister Arjun Singh hoisting the BJP flag instead of the national flag on Independence Day.",
+        "claims": [
+          {
+            "claim": "West Bengal Minister Arjun Singh hoisted the BJP flag instead of the national flag on Independence Day.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.079,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-032",
+      "category": "rated false",
+      "language": "en",
+      "input": "Fiji's HIV surge is connected to it being a highly Covid-vaccinated country",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.D2PH7T4"
+      ],
+      "labelledOn": "2026-10-15",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.85,
+      "kind": null,
+      "detail": "Rated false by AAP after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "neutral"
+        ],
+        "english": "Fiji's HIV surge is connected to it being a highly Covid-vaccinated country",
+        "claims": [
+          {
+            "claim": "Fiji's HIV surge is connected to it being a highly Covid-vaccinated country.",
+            "time": "past",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 10.169,
+      "modelCalls": {
+        "total": 5,
+        "byProvider": {
+          "gemini": 5
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-036",
+      "category": "rated false",
+      "language": "en",
+      "input": "This video shows the recent protest against CEC Gyanesh Kumar at Delhi's Jantar Mantar.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/old-video-falsely-linked-to-delhi-jantar-mantar-protests-against-cec-gyanesh-kumar-fact-check"
+      ],
+      "labelledOn": "2026-09-28",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.94,
+      "kind": null,
+      "detail": "Rated false by BOOM Fact Check, Vishvas News Fact Check Hindi and CyberPeace after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "This video shows the recent protest against CEC Gyanesh Kumar at Delhi's Jantar Mantar.",
+        "claims": [
+          {
+            "claim": "A recent protest against Chief Election Commissioner Gyanesh Kumar took place at Jantar Mantar in Delhi.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 12.14,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-040",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Visuals show a massive sacred Shaligram stone discovered after Nepal was hit by floods on August 26, 2026.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://www.boomlive.in/fact-check/viral-nepal-massive-shaligram-stone-found-after-flood-fact-check-32183"
+      ],
+      "labelledOn": "2026-09-04",
+      "ruling": {
+        "publisher": "BOOM Fact Check",
+        "rating": "Misleading"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.94,
+      "kind": null,
+      "detail": "Rated false by Alt News, The Quint, India Today and 1 more after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "emotional"
+        ],
+        "english": "Visuals show a massive sacred Shaligram stone discovered after Nepal was hit by floods on August 26, 2026.",
+        "claims": [
+          {
+            "claim": "A massive sacred Shaligram stone was discovered after Nepal was hit by floods on August 26, 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.137,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-044",
+      "category": "rated false",
+      "language": "en",
+      "input": "The video shows Pakistani and Bangladeshi people supporting Dhruv Rathee's London protest.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://english.factcrescendo.com/2026/10/20/old-unrelated-video-shared-as-pakistani-bangladeshi-people-supporting-dhruv-rathee-in-london/"
+      ],
+      "labelledOn": "2026-10-20",
+      "ruling": {
+        "publisher": "Fact Crescendo",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.86,
+      "kind": null,
+      "detail": "Rated false by BOOM Fact Check after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The video shows Pakistani and Bangladeshi people supporting Dhruv Rathee's London protest.",
+        "claims": [
+          {
+            "claim": "The video shows Pakistani and Bangladeshi people supporting Dhruv Rathee's London protest.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.208,
+      "modelCalls": {
+        "total": 11,
+        "byProvider": {
+          "gemini": 8,
+          "cached": 2,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-045",
+      "category": "rated false",
+      "language": "en",
+      "input": "This video shows Bangladeshi nationals raising thier flag during protests in Virar, Mumbai.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/bangladesh-flag-in-mumbai-protests-false-claim-fact-check"
+      ],
+      "labelledOn": "2026-10-07",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.93,
+      "kind": null,
+      "detail": "Rated false by India Today, BOOM Fact Check and FACTLY after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "urgent"
+        ],
+        "english": "This video shows Bangladeshi nationals raising their flag during protests in Virar, Mumbai.",
+        "claims": [
+          {
+            "claim": "Bangladeshi nationals raised their flag during protests in Virar, Mumbai.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 6.708,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-046",
+      "category": "rated false",
+      "language": "en",
+      "input": "The video shows the Gandak Barrage Project, which protected Bihar from Nepal floods.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/video-of-bhatghar-dam-in-pune-falsely-shared-to-show-gandak-barrage-fact-check"
+      ],
+      "labelledOn": "2026-09-07",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.9,
+      "kind": null,
+      "detail": "Rated false by AFP Fact Check, vishvasnews.com and Vishvas News Fact Check Hindi after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The video shows the Gandak Barrage Project, which protected Bihar from Nepal floods.",
+        "claims": [
+          {
+            "claim": "The video shows the Gandak Barrage Project, which protected Bihar from Nepal floods.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.296,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-048",
+      "category": "rated false",
+      "language": "en",
+      "input": "Abhijeet Dipke was slapped during the October 2 protest in Mumbai.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-old-video-of-abhijeet-dipke-slapped-in-jaipur-falsely-linked-to-mumbai-protest/"
+      ],
+      "labelledOn": "2026-10-09",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "MISLEADING",
+      "rule": "rated-misleading-by-fact-checkers",
+      "confidence": 0.68,
+      "kind": null,
+      "detail": "Fact-checkers (FACTLY) found this misleading.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Abhijeet Dipke was slapped during the October 2 protest in Mumbai.",
+        "claims": [
+          {
+            "claim": "Abhijeet Dipke was slapped during the October 2 protest in Mumbai.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.578,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-050",
+      "category": "rated false",
+      "language": "en",
+      "input": "Video shows an elephant rescuing a man during the Nepal floods",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C7LQ6KF"
+      ],
+      "labelledOn": "2026-09-08",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.89,
+      "kind": null,
+      "detail": "Rated false by Snopes.com after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Video shows an elephant rescuing a man during the Nepal floods",
+        "claims": [
+          {
+            "claim": "A video shows an elephant rescuing a man during the Nepal floods.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.015,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-052",
+      "category": "rated false",
+      "language": "en",
+      "input": "Young women dancing in the middle of a crowd with the claim that it was recorded during the recent Cockroach Janta Party (CJP) protests demanding the resignation of Chief Election Commissioner (CEC) Gyanesh Kumar",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-iit-delhi-dance-video-falsely-linked-to-protests-against-cec-gyanesh-kumar/"
+      ],
+      "labelledOn": "2026-10-14",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.85,
+      "kind": null,
+      "detail": "Rated false by India Today after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Young women dancing in the middle of a crowd with notValid claim that it was recorded during the recent Cockroach Janta Party (CJP) protests demanding the resignation of Chief Election Commissioner (CEC) Gyanesh Kumar",
+        "claims": [
+          {
+            "claim": "A video of young women dancing in the middle of a crowd was recorded during the Cockroach Janta Party protests demanding the resignation of Chief Election Commissioner Gyanesh Kumar.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.285,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-053",
+      "category": "rated false",
+      "language": "en",
+      "input": "the video originates from Bogra, Bangladesh, where a female teacher was brutally assaulted by a local miscreant.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://rumorscanner.com/en/fact-check-en/claim-video-from-bogra-bangladesh-female-teacher-brutally-assaulted/216633"
+      ],
+      "labelledOn": "2026-09-02",
+      "ruling": {
+        "publisher": "Rumor Scanner",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "emotional"
+        ],
+        "english": "the video originates from Bogra, Bangladesh, where a female teacher was brutally assaulted by a local miscreant.",
+        "claims": [
+          {
+            "claim": "A video shows a female teacher being brutally assaulted by a local miscreant in Bogra, Bangladesh.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 11.969,
+      "modelCalls": {
+        "total": 5,
+        "byProvider": {
+          "gemini": 5
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-054",
+      "category": "rated false",
+      "language": "en",
+      "input": "Italian Embassy statement criticised Rahul Gandhi's for disrespecting Georgia Meloni",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.altnews.in/republic-gujarat-samachar-write-reports-based-on-fake-italian-embassy-statement/"
+      ],
+      "labelledOn": "2026-08-16",
+      "ruling": {
+        "publisher": "Alt News",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.82,
+      "kind": null,
+      "detail": "Rated false by The Quint after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Italian Embassy statement criticised Rahul Gandhi for disrespecting Georgia Meloni",
+        "claims": [
+          {
+            "claim": "The Italian Embassy issued a statement criticizing Rahul Gandhi for disrespecting Giorgia Meloni.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.47,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-056",
+      "category": "rated false",
+      "language": "en",
+      "input": "The video shows illegal migrants raising Bangladeshi flags in Virar, Maharashtra.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factly.in/this-viral-video-does-not-show-illegal-migrants-raising-bangladeshi-flags-in-virar-maharashtra-it-is-from-an-ad-shoot/"
+      ],
+      "labelledOn": "2026-10-06",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "FALSE"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.9,
+      "kind": null,
+      "detail": "Rated false by India Today, The Quint and BOOM Fact Check after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist"
+        ],
+        "english": "The video shows illegal migrants raising Bangladeshi flags in Virar, Maharashtra.",
+        "claims": [
+          {
+            "claim": "Illegal migrants raised Bangladeshi flags in Virar, Maharashtra.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.531,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-057",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The video shows a massive crowd gathered at Rahul Gandhi’s ‘Chhatron Ki Goonj’ event in Pune, Maharashtra in August 2026.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/an-unrelated-video-from-mexico-falsely-shared-as-showing-visuals-of-a-massive-crowd-at-rahul-gandhis-chhatron-ki-goonj-event-in-pune/"
+      ],
+      "labelledOn": "2026-08-25",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.94,
+      "kind": null,
+      "detail": "Rated false by BOOM Fact Check, India Today, AFP Fact Check and 2 more after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "celebratory"
+        ],
+        "english": "The video shows a massive crowd gathered at Rahul Gandhi's 'Chhatron Ki Goonj' event in Pune, Maharashtra in August 2026.",
+        "claims": [
+          {
+            "claim": "A massive crowd gathered at Rahul Gandhi's 'Chhatron Ki Goonj' event in Pune, Maharashtra in August 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.305,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1,
+          "cached": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-059",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The video shows Gen-Z protesters in Delhi in September 2026 demanding the removal of EVMs and the resignation of CEC Gyanesh Kumar.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/a-2024-video-of-a-protest-against-evms-in-delhi-is-shared-as-a-september-2026-protest-demanding-cec-gyanesh-kumars-resignation/"
+      ],
+      "labelledOn": "2026-09-28",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "MISLEADING",
+      "rule": "rated-misleading-by-fact-checkers",
+      "confidence": 0.72,
+      "kind": null,
+      "detail": "Fact-checkers (lighthousejournalism.com and CyberPeace Foundation) found this misleading.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "urgent"
+        ],
+        "english": "The video shows Gen-Z protesters in Delhi in September 2026 demanding the removal of EVMs and the resignation of CEC Gyanesh Kumar.",
+        "claims": [
+          {
+            "claim": "In September 2026, Gen-Z protesters in Delhi demanded the removal of electronic voting machines and the resignation of Chief Election Commissioner Gyanesh Kumar.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 13.063,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1,
+          "cached": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-061",
+      "category": "rated false",
+      "language": "en",
+      "input": "Video shows female protester roughed up Jharkhand Police during protest",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.altnews.in/bjp-shares-patna-video-as-female-protester-roughed-up-by-jharkhand-police/"
+      ],
+      "labelledOn": "2026-08-13",
+      "ruling": {
+        "publisher": "Alt News",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-one-independent-source",
+      "confidence": 0.62,
+      "kind": null,
+      "detail": "An independent outlet reports otherwise: “BJP Shares Video From Bihar as One of Police Action on Jharkhand Protester”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "urgent"
+        ],
+        "english": "Video shows female protester roughed up Jharkhand Police during protest",
+        "claims": [
+          {
+            "claim": "A video shows a female protester being roughed up by Jharkhand Police during a protest.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.302,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-063",
+      "category": "rated false",
+      "language": "en",
+      "input": "Video shows Bangladesh flags raised by illegal migrants in a protest in Mumbai, Maharashtra",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.boomlive.in/fact-check/video-does-not-show-bangladeshis-protesting-in-mumbai-it-is-an-ad-shoot-32335"
+      ],
+      "labelledOn": "2026-10-05",
+      "ruling": {
+        "publisher": "BOOM Fact Check",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.93,
+      "kind": null,
+      "detail": "Rated false by India Today, The Quint and FACTLY after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "emotional"
+        ],
+        "english": "Video shows Bangladesh flags raised by illegal migrants in a protest in Mumbai, Maharashtra",
+        "claims": [
+          {
+            "claim": "A video shows Bangladesh flags raised by illegal migrants in a protest in Mumbai, Maharashtra.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.454,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "gemini": 7,
+          "cached": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-065",
+      "category": "rated false",
+      "language": "en",
+      "input": "Japan has named a Covid mRNA vaccine the most deadly drug in the history of humankind.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://fullfact.org/world/japan-covid-deadly-vaccine-false-claim/"
+      ],
+      "labelledOn": "2026-08-27",
+      "ruling": {
+        "publisher": "Full Fact",
+        "rating": "False. Japan has done no such thing. Approved mRNA Covid-19 vaccines are considered safe."
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist"
+        ],
+        "english": "Japan has named a Covid mRNA vaccine the most deadly drug in the history of humankind.",
+        "claims": [
+          {
+            "claim": "Japan has named a COVID-19 mRNA vaccine the most deadly drug in the history of humankind.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.78,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-070",
+      "category": "rated false",
+      "language": "en",
+      "input": "This video shows a little girl was brutally raped and murdered by BJP goons in West Bengal.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/video-from-bangladesh-falsely-shared-as-one-of-rape-murder-case-in-west-bengal-fact-check"
+      ],
+      "labelledOn": "2026-08-30",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.86,
+      "kind": null,
+      "detail": "Rated false by BOOM Fact Check and India Today after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "emotional",
+          "angry"
+        ],
+        "english": "This video shows a little girl was brutally raped and murdered by BJP goons in West Bengal.",
+        "claims": [
+          {
+            "claim": "A little girl was brutally raped and murdered by BJP members in West Bengal.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 16.549,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [
+        "premise check"
+      ],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-072",
+      "category": "rated true",
+      "language": "en",
+      "input": "Native-born workers accounted for all U.S. job gains during the six-month period from January to June 2025.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.snopes.com/fact-check/native-born-workers-job-growth/"
+      ],
+      "labelledOn": "2025-07-18",
+      "ruling": {
+        "publisher": "Snopes.com",
+        "rating": "True"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Native-born workers accounted for all U.S. job gains during the six-month period from January to June 2025.",
+        "claims": [
+          {
+            "claim": "Native-born workers accounted for all United States job gains during the six-month period from January to June 2025.",
+            "time": "past",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 21.758,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-073",
+      "category": "rated false",
+      "language": "en",
+      "input": "Under the 1939 Cancer Act it's a criminal offense for medical practitioners to even advise patients on potential cancer cures.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://fullfact.org/health/cancer-act-1939-illegal-to-cure-cancer/"
+      ],
+      "labelledOn": "2026-08-18",
+      "ruling": {
+        "publisher": "Full Fact",
+        "rating": "False. The Cancer Act 1939 prohibits advertisements promoting cancer treatments to the general public. It doesn’t prevent medical practitioners from treating patients."
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.85,
+      "kind": null,
+      "detail": "Rated false by Reuters after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Under the 1939 Cancer Act it's a criminal offense for medical practitioners to even advise patients on potential cancer cures.",
+        "claims": [
+          {
+            "claim": "Under the 1939 Cancer Act, it is a criminal offense for medical practitioners to advise patients on potential cancer cures.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 16.596,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-074",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Video of a man being assaulted by an Assam BJP MLA during a bridge inauguration ceremony.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/an-old-video-of-aiudf-mla-samsul-huda-assaulting-a-man-is-being-falsely-shared-as-a-bjp-mlas-attack/"
+      ],
+      "labelledOn": "2026-08-27",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-one-independent-source",
+      "confidence": 0.62,
+      "kind": null,
+      "detail": "An independent outlet reports otherwise: “Old Video From Assam Falsely Shared as Recent Clip of BJP MLA Assaulting a Man”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "emotional"
+        ],
+        "english": "Video of a man being assaulted by an Assam BJP MLA during a bridge inauguration ceremony.",
+        "claims": [
+          {
+            "claim": "An Assam BJP MLA assaulted a man during a bridge inauguration ceremony.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 10.449,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-075",
+      "category": "rated false",
+      "language": "en",
+      "input": "Prime Minister Narendra Modi gave a statement against the upper castes.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.vishvasnews.com/english/politics/fact-check-pm-modi-did-not-make-any-statement-against-the-upper-castes-a-clip-from-a-10-year-old-video-is-viral/"
+      ],
+      "labelledOn": "2026-08-27",
+      "ruling": {
+        "publisher": "vishvasnews.com",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.85,
+      "kind": null,
+      "detail": "Rated false by India Today after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Prime Minister Narendra Modi gave a statement against the upper castes.",
+        "claims": [
+          {
+            "claim": "Prime Minister Narendra Modi gave a statement against the upper castes.",
+            "time": "past",
+            "kind": "quote",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 12.056,
+      "modelCalls": {
+        "total": 5,
+        "byProvider": {
+          "gemini": 5
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-077",
+      "category": "rated false",
+      "language": "en",
+      "input": "A viral video claims that Prime Minister Narendra Modi said he would eliminate poverty in India in one stroke.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-pm-modi-did-not-promise-to-end-poverty-viral-video-is-cropped/"
+      ],
+      "labelledOn": "2026-09-16",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Rated false by FACTLY, PTI, Organiser and 1 more after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A viral video claims that Prime Minister Narendra Modi said he would eliminate poverty in India in one stroke.",
+        "claims": [
+          {
+            "claim": "Prime Minister Narendra Modi stated that he would eliminate poverty in India in one stroke.",
+            "time": "past",
+            "kind": "quote",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.638,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-080",
+      "category": "rated false",
+      "language": "en",
+      "input": "This photo shows newlywed Bangladeshi Couple Nazrul Islam Abdul Basir and Siri Akhtar, who were executed in Saudi Arabia.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/old-unrelated-photo-falsely-linked-to-saudi-arabia-executing-bangladeshi-man-woman-fact-check"
+      ],
+      "labelledOn": "2026-10-20",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.9,
+      "kind": null,
+      "detail": "Rated false by BOOM Fact Check after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "emotional"
+        ],
+        "english": "This photo shows newlywed Bangladeshi Couple Nazrul Islam Abdul Basir and Siri Akhtar, who were executed in Saudi Arabia.",
+        "claims": [
+          {
+            "claim": "Newlywed Bangladeshi couple Nazrul Islam Abdul Basir and Siri Akhtar were executed in Saudi Arabia.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 10.697,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "nim": 1,
+          "gemini": 6,
+          "cached": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-083",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Kolkata's Suhrawardy Avenue was named to honour Huseyn Shaheed Suhrawardy, who is responsible for the Great Calcutta Killings of 1946.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://www.boomlive.in/fact-check/who-was-kolkatas-suhrawardy-avenue-named-after-a-fact-check-31782"
+      ],
+      "labelledOn": "2026-06-25",
+      "ruling": {
+        "publisher": "BOOM Fact Check",
+        "rating": "Misleading"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.7,
+      "kind": null,
+      "detail": "2 independent outlets report otherwise: “BJP Government Confuses Its Suhrawardys, Renames Kolkata Road Honouring Surgeon”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Kolkata's Suhrawardy Avenue was named to honour Huseyn Shaheed Suhrawardy, who is responsible for the Great Calcutta Killings of 1946.",
+        "claims": [
+          {
+            "claim": "Kolkata's Suhrawardy Avenue was named to honour Huseyn Shaheed Suhrawardy, who is responsible for the Great Calcutta Killings of 1946.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 10.488,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 6,
+          "cached": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-088",
+      "category": "rated false",
+      "language": "en",
+      "input": "Video Shows Salman Khan With Tamil Nadu CM Vijay",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-ai-generated-video-falsely-shows-salman-khan-with-tamil-nadu-cm-vijay/"
+      ],
+      "labelledOn": "2026-08-28",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "AI-Generated"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-one-independent-source",
+      "confidence": 0.62,
+      "kind": null,
+      "detail": "An independent outlet reports otherwise: “AI-Generated Video Falsely Shows Salman Khan With Vijay And Sonam Wangchuk”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Video Shows Salman Khan With Tamil Nadu CM Vijay",
+        "claims": [
+          {
+            "claim": "A video shows Salman Khan with Tamil Nadu Chief Minister Vijay.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.974,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-089",
+      "category": "rated false",
+      "language": "en",
+      "input": "Mebendazole is a \"cure\" for cancer and a Johns Hopkins patent proves it",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C73C8KE"
+      ],
+      "labelledOn": "2026-09-11",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "uncorroborated-high-impact-with-risk-signals",
+      "confidence": 0.55,
+      "kind": null,
+      "detail": "No outlet is reporting this, and it carries several marks of a fabricated story.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Mebendazole is a \"cure\" for cancer and a Johns Hopkins patent proves it",
+        "claims": [
+          {
+            "claim": "Mebendazole is a cure for cancer and a Johns Hopkins patent proves it.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.997,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-091",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "A video allegedly shows Greta Thunberg joining an Indian protest in London against Chief Election Commissioner Gyanesh Kumar.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://digiteye.in/does-this-video-show-greta-thunberg-demanding-the-resignation-of-cec-gyanesh-kumar-in-october-in-london-fact-check/"
+      ],
+      "labelledOn": "2026-10-19",
+      "ruling": {
+        "publisher": "DigitEye India",
+        "rating": "The claim is misleading. The video shows older footage from July 26, 2026, not a protest in October 2026 against Gyanesh Kumar. The footage is instead linked to Greta Thunberg’s reaction to the resignation of India’s Education Minister, Dharmendra Pradhan, in July 2026 at Trafalgar Square, London."
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.94,
+      "kind": null,
+      "detail": "Rated false by The Quint and Newschecker after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A video allegedly shows Greta Thunberg joining an Indian protest in London against Chief Election Commissioner Gyanesh Kumar.",
+        "claims": [
+          {
+            "claim": "A video shows Greta Thunberg joining an Indian protest in London against Chief Election Commissioner Gyanesh Kumar.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 13.077,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-095",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The video shows a mother and her daughter being swept away in the 2026 Nepal floods.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/an-old-video-of-sisters-trapped-in-a-flash-flood-in-the-philippines-is-shared-as-footage-from-the-2026-nepal-floods/"
+      ],
+      "labelledOn": "2026-09-10",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.89,
+      "kind": null,
+      "detail": "Rated false by NewsMobile after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "emotional",
+          "urgent"
+        ],
+        "english": "The video shows a mother and her daughter being swept away in the 2026 Nepal floods.",
+        "claims": [
+          {
+            "claim": "The video shows a mother and her daughter being swept away in the 2026 Nepal floods.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 5.776,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-099",
+      "category": "rated false",
+      "language": "en",
+      "input": "A viral video shows a giant shark swimming through a waterlogged residential locality in Nepal following the recent devastating floods.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-viral-video-showing-shark-in-nepal-floods-is-ai-generated/"
+      ],
+      "labelledOn": "2026-08-31",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.85,
+      "kind": null,
+      "detail": "Rated false by NewsMeter after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "urgent"
+        ],
+        "english": "A viral video shows a giant shark swimming through a waterlogged residential locality in Nepal following the recent devastating floods.",
+        "claims": [
+          {
+            "claim": "A giant shark was seen swimming through a waterlogged residential locality in Nepal following the recent floods.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.822,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-100",
+      "category": "rated false",
+      "language": "en",
+      "input": "A viral video shows a Chinese helicopter capturing the glacial outburst that caused the recent Nepal-Tibet floods.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-this-glacier-flood-video-is-not-from-nepal/"
+      ],
+      "labelledOn": "2026-09-03",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.82,
+      "kind": null,
+      "detail": "Rated false by CyberPeace after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A viral video shows a Chinese helicopter capturing the glacial outburst that caused the recent Nepal-Tibet floods.",
+        "claims": [
+          {
+            "claim": "A viral video shows a Chinese helicopter capturing the glacial outburst that caused the recent Nepal-Tibet floods.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 5.348,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-101",
+      "category": "rated false",
+      "language": "en",
+      "input": "Viral video falsely shows a woman bathing in the Ganga wearing a bikini.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-video-of-woman-bathing-in-river-ganga-in-bikini-is-ai-generated/"
+      ],
+      "labelledOn": "2026-09-23",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.86,
+      "kind": null,
+      "detail": "Rated false by Alt News and LatestLY after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Viral video falsely shows a woman bathing in the Ganga wearing a bikini.",
+        "claims": [
+          {
+            "claim": "A viral video shows a woman bathing in the Ganga wearing a bikini.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.048,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-103",
+      "category": "rated false",
+      "language": "en",
+      "input": "The video shows people arriving at the Cockroach Janta Party (CJP) protest at Jantar Mantar, Delhi, on 10 October 2026.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/old-video-of-farmers-protest-falsely-linked-to-recent-cjp-protest-fact-check"
+      ],
+      "labelledOn": "2026-10-11",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "media-not-confirmed-by-reports",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "Not confirmed: outlets report the event, but none says this video or picture shows it.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The video shows people arriving at the Cockroach Janta Party (CJP) protest at Jantar Mantar, Delhi, on 10 October 2026.",
+        "claims": [
+          {
+            "claim": "People arrived at the Cockroach Janta Party protest at Jantar Mantar in Delhi on 10 October 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.904,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-104",
+      "category": "rated false",
+      "language": "en",
+      "input": "The video shows the police firing tear gas at the protesters during the recent Cockroach Janta Party protests at Jantar Mantar, Delhi.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/old-video-of-police-firing-tear-gas-claimed-to-show-recent-cjp-protests-fact-check"
+      ],
+      "labelledOn": "2026-10-13",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "urgent"
+        ],
+        "english": "The video shows the police firing tear gas at the protesters during the recent Cockroach Janta Party protests at Jantar Mantar, Delhi.",
+        "claims": [
+          {
+            "claim": "Police fired tear gas at protesters during Cockroach Janta Party protests at Jantar Mantar, Delhi.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 5.834,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-106",
+      "category": "rated false",
+      "language": "en",
+      "input": "A Canadian court has ruled that there was no Tamil genocide in Sri Lanka, following a legal battle led by Dr. Neville Hewage.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://srilanka.factcrescendo.com/english/false-claim-canada-court-ruled-no-tamil-genocide-in-sri-lanka/"
+      ],
+      "labelledOn": "2026-08-31",
+      "ruling": {
+        "publisher": "Fact Crescendo Sri Lanka",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.85,
+      "kind": null,
+      "detail": "Rated false by AFP Fact Check after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A Canadian court has ruled that there was no Tamil genocide in Sri Lanka, following a legal battle led by Dr. Neville Hewage.",
+        "claims": [
+          {
+            "claim": "A Canadian court ruled that there was no Tamil genocide in Sri Lanka following a legal battle led by Dr. Neville Hewage.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.392,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-109",
+      "category": "rated false",
+      "language": "en",
+      "input": "Videos show Cockroach Janta Party protest in Delhi.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.D3483T3"
+      ],
+      "labelledOn": "2026-10-15",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "media-not-confirmed-by-reports",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "Not confirmed: outlets report the event, but none says this video or picture shows it.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Videos show Cockroach Janta Party protest in Delhi.",
+        "claims": [
+          {
+            "claim": "Videos show a Cockroach Janta Party protest in Delhi.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.746,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-110",
+      "category": "rated false",
+      "language": "en",
+      "input": "Sri Lanka will no longer get free vaccines from the World Bank",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C8L379E"
+      ],
+      "labelledOn": "2026-09-24",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "REFUSED",
+      "rule": null,
+      "confidence": null,
+      "kind": "too-vague",
+      "detail": "This does not name anyone, anywhere or any figure, so there is nothing specific to look up.",
+      "readAs": null,
+      "memory": null,
+      "seconds": 1.941,
+      "modelCalls": {
+        "total": 1,
+        "byProvider": {
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-112",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The videos show people being rescued from debris following the August 2026 flash floods in Nepal.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/these-videos-do-not-show-rescue-operations-in-nepal-after-the-flash-floods/"
+      ],
+      "labelledOn": "2026-09-03",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.82,
+      "kind": null,
+      "detail": "Rated false by India Today after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The videos show people being rescued from debris following the August 2026 flash floods in Nepal.",
+        "claims": [
+          {
+            "claim": "The videos show people being rescued from debris following the August 2026 flash floods in Nepal.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.206,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-113",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The viral video shows the demolition of a 300-year-old temple in Chitrakoot, Uttar Pradesh, carried out following orders from the Uttar Pradesh government.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/this-video-of-a-bulldozer-demolishing-a-temple-is-from-madhya-pradesh-not-uttar-pradesh/"
+      ],
+      "labelledOn": "2026-01-29",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.85,
+      "kind": null,
+      "detail": "Rated false by NewsMeter after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "alarmist"
+        ],
+        "english": "The viral video shows the demolition of a 300-year-old temple in Chitrakoot, Uttar Pradesh, carried out following orders from the Uttar Pradesh government.",
+        "claims": [
+          {
+            "claim": "A 300-year-old temple in Chitrakoot, Uttar Pradesh, was demolished following orders from the Uttar Pradesh government.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.937,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "gemini": 7,
+          "cached": 2,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-115",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Video of massive crowd at Jantar Mantar, Delhi, protesting against reservations and demanding a rollback of the UGC Equity Regulations on 21 August 2026.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/bhopal-farmers-protest-video-falsely-shared-as-ugc-roll-back-protests-in-delhi/"
+      ],
+      "labelledOn": "2026-08-28",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": null,
+      "memory": null,
+      "seconds": 20.924,
+      "modelCalls": {
+        "total": 0,
+        "byProvider": {}
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-117",
+      "category": "rated false",
+      "language": "en",
+      "input": "The video shows PM Modi speaking out against the upper castes and instigating Dalits.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/clipped-video-of-pm-modi-shared-to-show-him-speaking-against-the-upper-caste-false-claim-fact-check"
+      ],
+      "labelledOn": "2026-08-29",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "verification-unavailable",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "We could not complete the search, so nothing has been checked.",
+      "readAs": null,
+      "memory": null,
+      "seconds": 3.07,
+      "modelCalls": {
+        "total": 0,
+        "byProvider": {}
+      },
+      "degraded": [],
+      "outcome": "missed"
+    }
+  ]
+}

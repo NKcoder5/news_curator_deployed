@@ -316,3 +316,11 @@ test('a review must be about the claim, by the test news evidence passes, before
   assert.strictEqual(aboutTheClaim('Rahul Gandhi resigned from Parliament.', 'राहुल गांधी ने संसद से इस्तीफा दिया'), true, 'another script is left to the matcher');
   assert.strictEqual(aboutTheClaim('Rahul Gandhi resigned from Parliament.', ''), true, 'nothing to compare');
 });
+
+// The gate's first form cost two cases on the regression run (27 Oct): desks state claims more generally
+// than the message, without its place ("The bird flu vaccine is an mRNA vaccine").
+test('a review sharing three distinctive words is about the claim even without a shared name', () => {
+  const { aboutTheClaim } = require('../agents/factCheckSearch');
+  assert.strictEqual(aboutTheClaim("The bird flu vaccine being used on Australia's penguins is an mRNA vaccine.", 'The bird flu vaccine is an mRNA vaccine.'), true);
+  assert.strictEqual(aboutTheClaim('The video shows a large number of farmers in Rajasthan participating in a protest.', 'The video shows people protesting over the recent Aravali issue.'), false, 'media words are not shared substance');
+});

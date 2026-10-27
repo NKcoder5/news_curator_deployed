@@ -43,10 +43,20 @@ const { isRelevant } = require('./evidenceRelevance');
 // job creation under the Biden administration has gone to the foreign-born", which shares only "job", and
 // came back FAKE. Text in an Indian script shares no words with an English claim, and is left to the
 // matcher, which reads across languages.
+// Desks often state a claim more generally than the message does, without its place or name: "The bird
+// flu vaccine is an mRNA vaccine" for "The bird flu vaccine being used on Australia's penguins is an mRNA
+// vaccine". Such a review shares no name but three or more distinctive words, which a review of another
+// claim does not (the one above shares one), so that counts too. Words every media claim uses ("video",
+// "shows") are not counted: "The video shows people protesting over the recent Aravali issue" is not about
+// "The video shows farmers in Rajasthan".
 const INDIC_SCRIPT = /[\u{0900}-\u{0D7F}]/u;
-const aboutTheClaim = (claimText, reviewed) => !String(reviewed || '').trim()
-  || INDIC_SCRIPT.test(`${claimText} ${reviewed}`)
-  || isRelevant(claimText, { title: reviewed }).relevant;
+const MEDIA_FRAMING = new Set(['video', 'show', 'shows', 'image', 'photo', 'picture', 'viral', 'clip', 'footage', 'visual']);
+const SHARED_WORDS_ALONE = 3;
+const aboutTheClaim = (claimText, reviewed) => {
+  if (!String(reviewed || '').trim() || INDIC_SCRIPT.test(`${claimText} ${reviewed}`)) return true;
+  const read = isRelevant(claimText, { title: reviewed });
+  return read.relevant || read.shared.filter(t => !MEDIA_FRAMING.has(t)).length >= SHARED_WORDS_ALONE;
+};
 
 const FINDINGS = new Set(['false', 'true', 'misleading']);
 

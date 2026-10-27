@@ -1,0 +1,3229 @@
+{
+  "summary": {
+    "ranAt": "2026-10-27T03:56:26.342Z",
+    "suite": "rulings",
+    "complete": true,
+    "stoppedBecause": null,
+    "checksThisRun": 60,
+    "cases": 60,
+    "overall": {
+      "n": 60,
+      "right": 29,
+      "safe": 13,
+      "missed": 15,
+      "wrong": 3
+    },
+    "byCategory": {
+      "rated false": {
+        "n": 42,
+        "right": 28,
+        "safe": 2,
+        "missed": 11,
+        "wrong": 1
+      },
+      "rated true": {
+        "n": 3,
+        "right": 0,
+        "safe": 0,
+        "missed": 2,
+        "wrong": 1
+      },
+      "rated misleading": {
+        "n": 15,
+        "right": 1,
+        "safe": 11,
+        "missed": 2,
+        "wrong": 1
+      }
+    },
+    "medianSeconds": 11.568
+  },
+  "rows": [
+    {
+      "id": "rul-061",
+      "category": "rated false",
+      "language": "en",
+      "input": "Video shows female protester roughed up Jharkhand Police during protest",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.altnews.in/bjp-shares-patna-video-as-female-protester-roughed-up-by-jharkhand-police/"
+      ],
+      "labelledOn": "2026-08-13",
+      "ruling": {
+        "publisher": "Alt News",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.86,
+      "kind": null,
+      "detail": "Rated false by NewsMeter after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Video shows female protester roughed up Jharkhand Police during protest",
+        "claims": [
+          {
+            "claim": "A female protester was roughed up by Jharkhand Police during a protest.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 11.93,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-062",
+      "category": "rated false",
+      "language": "en",
+      "input": "Video of mosque that survived the Nepal-Tibet floods.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C7NE9NQ"
+      ],
+      "labelledOn": "2026-09-09",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Video of mosque that survived the Nepal-Tibet floods.",
+        "claims": [
+          {
+            "claim": "A mosque survived the floods in Nepal and Tibet.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 14.131,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1,
+          "cached": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-063",
+      "category": "rated false",
+      "language": "en",
+      "input": "Video shows Bangladesh flags raised by illegal migrants in a protest in Mumbai, Maharashtra",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.boomlive.in/fact-check/video-does-not-show-bangladeshis-protesting-in-mumbai-it-is-an-ad-shoot-32335"
+      ],
+      "labelledOn": "2026-10-05",
+      "ruling": {
+        "publisher": "BOOM Fact Check",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.93,
+      "kind": null,
+      "detail": "Rated false by India Today, The Quint and FACTLY after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist"
+        ],
+        "english": "Video shows Bangladesh flags raised by illegal migrants in a protest in Mumbai, Maharashtra",
+        "claims": [
+          {
+            "claim": "A video shows Bangladesh flags raised by illegal migrants in a protest in Mumbai, Maharashtra.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.861,
+      "modelCalls": {
+        "total": 11,
+        "byProvider": {
+          "gemini": 8,
+          "cached": 2,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-064",
+      "category": "rated false",
+      "language": "en",
+      "input": "Indian Army Chief General Dhiraj Seth stated that Major Rajendra Pratap drank cow urine for 40 days to quench his thirst during the 1965 India-Pakistan war and urged modern soldiers to continue the practice.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factly.in/this-video-showing-coas-general-dhiraj-seth-promoting-the-consumption-of-cow-urine-has-been-digitally-manipulated/"
+      ],
+      "labelledOn": "2026-10-05",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "FALSE"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.7,
+      "kind": null,
+      "detail": "2 independent outlets report otherwise: “Clip of COAS Dhiraj Seth Stating That Major Pratap Drank Urine Is Altered”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Indian Army Chief General Dhiraj Seth stated that Major Rajendra Pratap drank cow urine for 40 days to quench his thirst during the 1965 India-Pakistan war and urged modern soldiers to continue the practice.",
+        "claims": [
+          {
+            "claim": "Indian Army Chief General Dhiraj Seth stated that Major Rajendra Pratap drank cow urine for 40 days to quench his thirst during the 1965 India-Pakistan war and urged modern soldiers to continue the practice.",
+            "time": "past",
+            "kind": "quote",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.444,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-065",
+      "category": "rated false",
+      "language": "en",
+      "input": "Japan has named a Covid mRNA vaccine the most deadly drug in the history of humankind.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://fullfact.org/world/japan-covid-deadly-vaccine-false-claim/"
+      ],
+      "labelledOn": "2026-08-27",
+      "ruling": {
+        "publisher": "Full Fact",
+        "rating": "False. Japan has done no such thing. Approved mRNA Covid-19 vaccines are considered safe."
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.9,
+      "kind": null,
+      "detail": "Rated false by AFP Fact Check, USA Today and Science Feedback after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist"
+        ],
+        "english": "Japan has named a Covid mRNA vaccine the most deadly drug in the history of humankind.",
+        "claims": [
+          {
+            "claim": "Japan named a COVID-19 mRNA vaccine the most deadly drug in the history of humankind.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 11.035,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-066",
+      "category": "rated false",
+      "language": "en",
+      "input": "World Economic Forum suggests mixing vaccines into drinking water supply.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C93L4NT"
+      ],
+      "labelledOn": "2026-09-28",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "neutral"
+        ],
+        "english": "World Economic Forum suggests mixing vaccines into drinking water supply.",
+        "claims": [
+          {
+            "claim": "World Economic Forum suggests mixing vaccines into the drinking water supply.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.081,
+      "modelCalls": {
+        "total": 4,
+        "byProvider": {
+          "gemini": 4
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-067",
+      "category": "rated false",
+      "language": "en",
+      "input": "A video allegedly shows people protesting at Delhi’s Jantar Mantar against India’s caste-based reservation system.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://digiteye.in/does-this-video-show-people-protesting-at-jantar-mantar-over-caste-based-reservation-fact-check/"
+      ],
+      "labelledOn": "2026-09-09",
+      "ruling": {
+        "publisher": "DigitEye India",
+        "rating": "The claim is false. The video is unrelated to the Jantar Mantar protests and actually shows a procession from the 2026 Jagannath Rath Yatra in Puri, Odisha. While protests against India’s caste-based reservation system were held at Jantar Mantar, the viral video does not show those protests."
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "media-not-confirmed-by-reports",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "Not confirmed: outlets report the event, but none says this video or picture shows it.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "hedged",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A video allegedly shows people protesting at Delhi’s Jantar Mantar against India’s caste-based reservation system.",
+        "claims": [
+          {
+            "claim": "A video shows people protesting at Jantar Mantar in Delhi against India's caste-based reservation system.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.877,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-068",
+      "category": "rated false",
+      "language": "en",
+      "input": "Fighter jet attack caused the Nepal floods",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C7N94CQ"
+      ],
+      "labelledOn": "2026-09-09",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "AI-generated"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.7,
+      "kind": null,
+      "detail": "2 independent outlets report otherwise: “a 2,000-foot-wide glacier triggered deadly Nepal floods”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "alarmist"
+        ],
+        "english": "Fighter jet attack caused the Nepal floods",
+        "claims": [
+          {
+            "claim": "A fighter jet attack caused the Nepal floods.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 17.006,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-069",
+      "category": "rated false",
+      "language": "en",
+      "input": "Pakistan central bank announces discontinuation of 10-rupee banknotes.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C7M38CQ"
+      ],
+      "labelledOn": "2026-09-15",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "old-news-presented-as-new",
+      "confidence": 0.7,
+      "kind": null,
+      "detail": "This is old news: the latest report of it found is from 2026-08-26, not now.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Pakistan central bank announces discontinuation of 10-rupee banknotes.",
+        "claims": [
+          {
+            "claim": "The State Bank of Pakistan has announced the discontinuation of 10-rupee banknotes.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 18.942,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "nim": 1,
+          "gemini": 5
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-070",
+      "category": "rated false",
+      "language": "en",
+      "input": "This video shows a little girl was brutally raped and murdered by BJP goons in West Bengal.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/video-from-bangladesh-falsely-shared-as-one-of-rape-murder-case-in-west-bengal-fact-check"
+      ],
+      "labelledOn": "2026-08-30",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.86,
+      "kind": null,
+      "detail": "Rated false by BOOM Fact Check and India Today after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "emotional",
+          "angry"
+        ],
+        "english": "This video shows a little girl was brutally raped and murdered by BJP goons in West Bengal.",
+        "claims": [
+          {
+            "claim": "A little girl was raped and murdered by BJP members in West Bengal.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 26.836,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 4,
+          "nim": 2
+        }
+      },
+      "degraded": [
+        "premise check"
+      ],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-071",
+      "category": "rated false",
+      "language": "en",
+      "input": "Genuine video of recent floods in Padang, West Sumatra, Indonesia",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.D3948WE"
+      ],
+      "labelledOn": "2026-10-16",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "media-not-confirmed-by-reports",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "Not confirmed: outlets report the event, but none says this video or picture shows it.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "urgent"
+        ],
+        "english": "Genuine video of recent floods in Padang, West Sumatra, Indonesia",
+        "claims": [
+          {
+            "claim": "A recent flood occurred in Padang, West Sumatra, Indonesia.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.297,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-072",
+      "category": "rated true",
+      "language": "en",
+      "input": "Native-born workers accounted for all U.S. job gains during the six-month period from January to June 2025.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.snopes.com/fact-check/native-born-workers-job-growth/"
+      ],
+      "labelledOn": "2025-07-18",
+      "ruling": {
+        "publisher": "Snopes.com",
+        "rating": "True"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.86,
+      "kind": null,
+      "detail": "Rated false by PolitiFact after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Native-born workers accounted for all U.S. job gains during the six-month period from January to June 2025.",
+        "claims": [
+          {
+            "claim": "Native-born workers accounted for all United States job gains during the six-month period from January to June 2025.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.709,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    },
+    {
+      "id": "rul-073",
+      "category": "rated false",
+      "language": "en",
+      "input": "Under the 1939 Cancer Act it's a criminal offense for medical practitioners to even advise patients on potential cancer cures.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://fullfact.org/health/cancer-act-1939-illegal-to-cure-cancer/"
+      ],
+      "labelledOn": "2026-08-18",
+      "ruling": {
+        "publisher": "Full Fact",
+        "rating": "False. The Cancer Act 1939 prohibits advertisements promoting cancer treatments to the general public. It doesn’t prevent medical practitioners from treating patients."
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.89,
+      "kind": null,
+      "detail": "Rated false by AAP and Reuters after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Under the 1939 Cancer Act it's a criminal offense for medical practitioners to even advise patients on potential cancer cures.",
+        "claims": [
+          {
+            "claim": "Under the 1939 Cancer Act, it is a criminal offense for medical practitioners to advise patients on potential cancer cures.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 15.398,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-074",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Video of a man being assaulted by an Assam BJP MLA during a bridge inauguration ceremony.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/an-old-video-of-aiudf-mla-samsul-huda-assaulting-a-man-is-being-falsely-shared-as-a-bjp-mlas-attack/"
+      ],
+      "labelledOn": "2026-08-27",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "MISLEADING",
+      "rule": "rated-misleading-by-fact-checkers",
+      "confidence": 0.72,
+      "kind": null,
+      "detail": "Fact-checkers (The Quint and NewsMobile) found this misleading.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "emotional"
+        ],
+        "english": "Video of a man being assaulted by an Assam BJP MLA during a bridge inauguration ceremony.",
+        "claims": [
+          {
+            "claim": "An Assam BJP MLA assaulted a man during a bridge inauguration ceremony.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.112,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-075",
+      "category": "rated false",
+      "language": "en",
+      "input": "Prime Minister Narendra Modi gave a statement against the upper castes.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.vishvasnews.com/english/politics/fact-check-pm-modi-did-not-make-any-statement-against-the-upper-castes-a-clip-from-a-10-year-old-video-is-viral/"
+      ],
+      "labelledOn": "2026-08-27",
+      "ruling": {
+        "publisher": "vishvasnews.com",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.89,
+      "kind": null,
+      "detail": "Rated false by India Today and Telugu Post after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Prime Minister Narendra Modi gave a statement against the upper castes.",
+        "claims": [
+          {
+            "claim": "Prime Minister Narendra Modi gave a statement against the upper castes.",
+            "time": "past",
+            "kind": "quote",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 18.581,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "nim": 1,
+          "gemini": 5
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-076",
+      "category": "rated false",
+      "language": "en",
+      "input": "Aircraft rotating on the tarmac as ground support equipment crashes into it and airport staff run for safety",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-ai-generated-video-falsely-shows-plane-spinning-during-cyclone/"
+      ],
+      "labelledOn": "2026-10-09",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "REFUSED",
+      "rule": null,
+      "confidence": null,
+      "kind": "too-vague",
+      "detail": "This does not name anyone, anywhere or any figure, so there is nothing specific to look up.",
+      "readAs": null,
+      "memory": null,
+      "seconds": 6.762,
+      "modelCalls": {
+        "total": 1,
+        "byProvider": {
+          "gemini": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-077",
+      "category": "rated false",
+      "language": "en",
+      "input": "A viral video claims that Prime Minister Narendra Modi said he would eliminate poverty in India in one stroke.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-pm-modi-did-not-promise-to-end-poverty-viral-video-is-cropped/"
+      ],
+      "labelledOn": "2026-09-16",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.89,
+      "kind": null,
+      "detail": "Rated false by FACTLY after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A viral video claims that Prime Minister Narendra Modi said he would eliminate poverty in India in one stroke.",
+        "claims": [
+          {
+            "claim": "Prime Minister Narendra Modi said he would eliminate poverty in India in one stroke.",
+            "time": "past",
+            "kind": "quote",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 22.443,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-078",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The video shows women police personnel assaulting students during the Cockroach Janata Party (CJP) protest in Delhi on 04 October 2026.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/an-unrelated-video-is-being-shared-of-police-personnel-assaulting-students-during-the-cjp-protest-in-delhi/"
+      ],
+      "labelledOn": "2026-10-09",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.91,
+      "kind": null,
+      "detail": "5 independent outlets report otherwise: “Delhi Police have arrested four men in connection with a viral video”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "urgent"
+        ],
+        "english": "The video shows women police personnel assaulting students during the Cockroach Janata Party (CJP) protest in Delhi on 04 October 2026.",
+        "claims": [
+          {
+            "claim": "A video shows women police personnel assaulting students during the Cockroach Janata Party protest in Delhi on 04 October 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.67,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 7
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-079",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "In July 2026, a chef claimed he knew U.S. Sen. Rand Paul, R-Ky., was vaccinated because he attended an event the chef cooked for in early 2022 that required unmasked attendees to provide a negative COVID-19 test.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://www.snopes.com/fact-check/joe-gera-chef-rand-paul-covid-19/"
+      ],
+      "labelledOn": "2026-08-04",
+      "ruling": {
+        "publisher": "Snopes.com",
+        "rating": "Mixture"
+      },
+      "call": "REAL",
+      "rule": "corroborated-by-one-independent-source",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "One independent outlet reports the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "In July 2026, a chef claimed he knew U.S. Sen. Rand Paul, R-Ky., was vaccinated because he attended an event the chef cooked for in early 2022 that required unmasked attendees to provide a negative COVID-19 test.",
+        "claims": [
+          {
+            "claim": "In July 2026, a chef claimed he knew U.S. Senator Rand Paul was vaccinated because he attended an event the chef cooked for in early 2022 that required unmasked attendees to provide a negative COVID-19 test.",
+            "time": "past",
+            "kind": "quote",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 6.896,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    },
+    {
+      "id": "rul-080",
+      "category": "rated false",
+      "language": "en",
+      "input": "This photo shows newlywed Bangladeshi Couple Nazrul Islam Abdul Basir and Siri Akhtar, who were executed in Saudi Arabia.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/old-unrelated-photo-falsely-linked-to-saudi-arabia-executing-bangladeshi-man-woman-fact-check"
+      ],
+      "labelledOn": "2026-10-20",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.9,
+      "kind": null,
+      "detail": "Rated false by BOOM Fact Check after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "emotional"
+        ],
+        "english": "This photo shows newlywed Bangladeshi Couple Nazrul Islam Abdul Basir and Siri Akhtar, who were executed in Saudi Arabia.",
+        "claims": [
+          {
+            "claim": "A newlywed Bangladeshi couple named Nazrul Islam Abdul Basir and Siri Akhtar were executed in Saudi Arabia.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.183,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 6,
+          "cached": 1,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-081",
+      "category": "rated false",
+      "language": "en",
+      "input": "Three hurricanes arriving at the same time means they were engineered",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.D3B83T4"
+      ],
+      "labelledOn": "2026-10-16",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "alarmist"
+        ],
+        "english": "Three hurricanes arriving at the same time means they were engineered",
+        "claims": [
+          {
+            "claim": "Three hurricanes arriving at the same time were engineered.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 16.42,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 4,
+          "cached": 1,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-082",
+      "category": "rated false",
+      "language": "en",
+      "input": "The flash flooding in Nepal and Tibet is a hoax.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://fullfact.org/world/nepal-flood-hoax-false/"
+      ],
+      "labelledOn": "2026-09-04",
+      "ruling": {
+        "publisher": "Full Fact",
+        "rating": "False. The Nepal flash flood was a disaster caused by a rock-glacier collapse. Direct footage from amateur videos and satellite imagery have documented its impact."
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.91,
+      "kind": null,
+      "detail": "8 independent outlets report otherwise: “Deadly flash flood wipes away villages in Nepal, Tibet”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The flash flooding in Nepal and Tibet is a hoax.",
+        "claims": [
+          {
+            "claim": "The flash flooding in Nepal and Tibet is a hoax.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 14.169,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1,
+          "cached": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-083",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Kolkata's Suhrawardy Avenue was named to honour Huseyn Shaheed Suhrawardy, who is responsible for the Great Calcutta Killings of 1946.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://www.boomlive.in/fact-check/who-was-kolkatas-suhrawardy-avenue-named-after-a-fact-check-31782"
+      ],
+      "labelledOn": "2026-06-25",
+      "ruling": {
+        "publisher": "BOOM Fact Check",
+        "rating": "Misleading"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.93,
+      "kind": null,
+      "detail": "Rated false by Alt News, Maktoob and Muslim Network TV after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Kolkata's Suhrawardy Avenue was named to honour Huseyn Shaheed Suhrawardy, who is responsible for the Great Calcutta Killings of 1946.",
+        "claims": [
+          {
+            "claim": "Suhrawardy Avenue in Kolkata is named after Huseyn Shaheed Suhrawardy.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          },
+          {
+            "claim": "Huseyn Shaheed Suhrawardy was responsible for the Great Calcutta Killings of 1946.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 28.376,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1,
+          "cached": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-084",
+      "category": "rated false",
+      "language": "en",
+      "input": "The schoolboy who went viral for calling the Grade 5 Scholarship Exam \"easy-peasy\" topped the island with 193 marks.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://srilanka.factcrescendo.com/english/false-claims-on-the-student-who-went-viral-for-saying-the-scholarship-exam-was-easy/"
+      ],
+      "labelledOn": "2026-09-04",
+      "ruling": {
+        "publisher": "Fact Crescendo Sri Lanka",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "celebratory"
+        ],
+        "english": "The schoolboy who went viral for calling the Grade 5 Scholarship Exam \"easy-peasy\" topped the island with 193 marks.",
+        "claims": [
+          {
+            "claim": "The schoolboy who called the Grade 5 Scholarship Exam easy-peasy scored 193 marks and topped the island.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.02,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-085",
+      "category": "rated false",
+      "language": "en",
+      "input": "A Chinese dam caused the floods in Nepal.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C77Y263"
+      ],
+      "labelledOn": "2026-09-16",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A Chinese dam caused the floods in Nepal.",
+        "claims": [
+          {
+            "claim": "A Chinese dam caused the floods in Nepal.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 6.497,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-086",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The video shows the dead bodies of people who died in the Assam floods.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/a-staged-video-is-falsely-shared-as-showing-the-dead-bodies-of-2026-assam-flood-victims/"
+      ],
+      "labelledOn": "2026-07-31",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "media-not-confirmed-by-reports",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "Not confirmed: outlets report the event, but none says this video or picture shows it.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "emotional"
+        ],
+        "english": "The video shows the dead bodies of people who died in the Assam floods.",
+        "claims": [
+          {
+            "claim": "The video shows the dead bodies of people who died in the Assam floods.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.402,
+      "modelCalls": {
+        "total": 5,
+        "byProvider": {
+          "gemini": 5
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-087",
+      "category": "rated true",
+      "language": "en",
+      "input": "Maltese families pay tax on the same property twice — once when it is purchased, and again when it is transferred via inheritance.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.spunt.mt/malta-fact-check/does-maltese-property-really-get-taxed-twice-on-inheritance"
+      ],
+      "labelledOn": "2026-05-07",
+      "ruling": {
+        "publisher": "Spunt.mt",
+        "rating": "True"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Maltese families pay tax on the same property twice — once when it is purchased, and again when it is transferred via inheritance.",
+        "claims": [
+          {
+            "claim": "Maltese families pay tax on the same property twice, once when it is purchased and again when it is transferred via inheritance.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 19.275,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1,
+          "cached": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-088",
+      "category": "rated false",
+      "language": "en",
+      "input": "Video Shows Salman Khan With Tamil Nadu CM Vijay",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-ai-generated-video-falsely-shows-salman-khan-with-tamil-nadu-cm-vijay/"
+      ],
+      "labelledOn": "2026-08-28",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "AI-Generated"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.85,
+      "kind": null,
+      "detail": "Rated false by CyberPeace Foundation after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Video Shows Salman Khan With Tamil Nadu CM Vijay",
+        "claims": [
+          {
+            "claim": "Salman Khan appeared in a video with Tamil Nadu Chief Minister Vijay.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 16.418,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-089",
+      "category": "rated false",
+      "language": "en",
+      "input": "Mebendazole is a \"cure\" for cancer and a Johns Hopkins patent proves it",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C73C8KE"
+      ],
+      "labelledOn": "2026-09-11",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.89,
+      "kind": null,
+      "detail": "Rated false by Science Feedback and Reuters after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist"
+        ],
+        "english": "Mebendazole is a cure for cancer and a Johns Hopkins patent proves it",
+        "claims": [
+          {
+            "claim": "Mebendazole is a cure for cancer.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          },
+          {
+            "claim": "Johns Hopkins holds a patent proving Mebendazole is a cure for cancer.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 18.671,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-090",
+      "category": "rated false",
+      "language": "en",
+      "input": "The video shows children being swept away by the Nepal floods.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/ai-generated-video-children-being-swept-away-by-nepal-floods-false-claim-fact-check"
+      ],
+      "labelledOn": "2026-09-13",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-one-independent-source",
+      "confidence": 0.62,
+      "kind": null,
+      "detail": "An independent outlet reports otherwise: “AI-Generated Video Shared To Show Children Being Swept Away by Nepal Floods”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "emotional"
+        ],
+        "english": "The video shows children being swept away by the Nepal floods.",
+        "claims": [
+          {
+            "claim": "A video shows children being swept away by floods in Nepal.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 23.125,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "nim": 1,
+          "gemini": 5
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-091",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "A video allegedly shows Greta Thunberg joining an Indian protest in London against Chief Election Commissioner Gyanesh Kumar.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://digiteye.in/does-this-video-show-greta-thunberg-demanding-the-resignation-of-cec-gyanesh-kumar-in-october-in-london-fact-check/"
+      ],
+      "labelledOn": "2026-10-19",
+      "ruling": {
+        "publisher": "DigitEye India",
+        "rating": "The claim is misleading. The video shows older footage from July 26, 2026, not a protest in October 2026 against Gyanesh Kumar. The footage is instead linked to Greta Thunberg’s reaction to the resignation of India’s Education Minister, Dharmendra Pradhan, in July 2026 at Trafalgar Square, London."
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.9,
+      "kind": null,
+      "detail": "Rated false by Organiser after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A video allegedly shows Greta Thunberg joining an Indian protest in London against Chief Election Commissioner Gyanesh Kumar.",
+        "claims": [
+          {
+            "claim": "A video shows Greta Thunberg joining an Indian protest in London against Chief Election Commissioner Gyanesh Kumar.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.609,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-092",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Trump's executive order on Gold Standard Childhood Vaccine Recommendations \"finally aligns the United States with other advanced and developed nations around the world.”",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://www.factcheck.org/2026/08/trump-and-rfk-jr-repeat-false-and-misleading-vaccine-claims/"
+      ],
+      "labelledOn": "2026-08-11",
+      "ruling": {
+        "publisher": "FactCheck.org",
+        "rating": "Misleading"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.91,
+      "kind": null,
+      "detail": "6 independent outlets report otherwise: “Doctors push back on Trump executive order to change childhood vaccine schedule”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Trump's executive order on Gold Standard Childhood Vaccine Recommendations \"finally aligns the United States with other advanced and developed nations around the world.\"",
+        "claims": [
+          {
+            "claim": "Donald Trump signed an executive order on Gold Standard Childhood Vaccine Recommendations that aligns the United States with other advanced and developed nations.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 10.375,
+      "modelCalls": {
+        "total": 11,
+        "byProvider": {
+          "gemini": 8,
+          "cached": 2,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-093",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "\"The only [vaccines] that have been safety tested in a randomized placebo-controlled trial is the COVID vaccine ... So we do not know whether those vaccines are causing downstream effects.\"",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://www.factcheck.org/2026/04/the-persistent-misleading-claim-that-vaccines-arent-properly-tested-for-safety/"
+      ],
+      "labelledOn": "2026-04-27",
+      "ruling": {
+        "publisher": "FactCheck.org",
+        "rating": "Misleading"
+      },
+      "call": "FAKE",
+      "rule": "premise-contradicted-by-reference",
+      "confidence": 0.55,
+      "kind": null,
+      "detail": "The encyclopedia entry “COVID-19” says otherwise: “Several COVID-19 vaccines have been approved and distributed in various countries, many of which have initiated mass vaccination campaigns.”",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The only vaccines that have been safety tested in a randomized placebo-controlled trial is the COVID vaccine. So we do not know whether those vaccines are causing downstream effects.",
+        "claims": [
+          {
+            "claim": "Only COVID-19 vaccines have been safety tested in a randomized placebo-controlled trial.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          },
+          {
+            "claim": "Childhood and other non-COVID vaccines have not been safety tested in randomized placebo-controlled trials.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 16.104,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "gemini": 7,
+          "cached": 1,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-094",
+      "category": "rated false",
+      "language": "en",
+      "input": "An X post claimed more Indians will move to Ireland in 2026 than the total number of “babies born to Irish mothers.”",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://annielab.org/2026/10/12/misleading-most-irish-visas-granted-to-indians-are-for-short-stays/"
+      ],
+      "labelledOn": "2026-10-12",
+      "ruling": {
+        "publisher": "annie lab",
+        "rating": "False. Available Irish data does not support the claim that Indian migration exceeded births to Irish mothers. In 2025, more than 70% newly born babies were registered as Irish and 10% were UK or EU country nationals (excluding Ireland). Although registered nationalities do not necessarily indicate the babies were “born to Irish mothers,” the 2025 statistics clearly indicate that the number of long-term stay visas granted to Indian nationals was much smaller than the proportion of births registered as Irish nationals that year. The statistical trend in 2026 up to August is no different from 2025."
+      },
+      "call": "REFUSED",
+      "rule": null,
+      "confidence": null,
+      "kind": "too-vague",
+      "detail": "This does not name anyone, anywhere or any figure, so there is nothing specific to look up.",
+      "readAs": null,
+      "memory": null,
+      "seconds": 14.314,
+      "modelCalls": {
+        "total": 4,
+        "byProvider": {
+          "nim": 1,
+          "gemini": 3
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-095",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The video shows a mother and her daughter being swept away in the 2026 Nepal floods.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/an-old-video-of-sisters-trapped-in-a-flash-flood-in-the-philippines-is-shared-as-footage-from-the-2026-nepal-floods/"
+      ],
+      "labelledOn": "2026-09-10",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.89,
+      "kind": null,
+      "detail": "Rated false by NewsMobile after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "emotional",
+          "alarmist"
+        ],
+        "english": "The video shows a mother and her daughter being swept away in the 2026 Nepal floods.",
+        "claims": [
+          {
+            "claim": "A video shows a mother and her daughter being swept away in the 2026 Nepal floods.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 5.731,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-096",
+      "category": "rated false",
+      "language": "en",
+      "input": "Picture of Virat Kohli and Anushka Sharma celebrating Ganesh Chaturthi",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-virat-kohli-anushka-sharma-ganesh-chaturthi-photo-is-ai-generated/"
+      ],
+      "labelledOn": "2026-09-16",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "AI-Generated"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "media-not-confirmed-by-reports",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "Not confirmed: outlets report the event, but none says this video or picture shows it.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "celebratory",
+          "neutral"
+        ],
+        "english": "Picture of Virat Kohli and Anushka Sharma celebrating Ganesh Chaturthi",
+        "claims": [
+          {
+            "claim": "Virat Kohli and Anushka Sharma celebrated Ganesh Chaturthi.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.693,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-097",
+      "category": "rated false",
+      "language": "en",
+      "input": "Video Shows Salman Khan With Tamil Nadu CM Vijay At Student Protest",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-ai-generated-video-falsely-shows-salman-with-vijay-at-student-protest/"
+      ],
+      "labelledOn": "2026-08-28",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "AI-generated"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-one-independent-source",
+      "confidence": 0.62,
+      "kind": null,
+      "detail": "An independent outlet reports otherwise: “AI-Generated Video Falsely Shows Salman Khan With Tamil Nadu CM Vijay”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Video Shows Salman Khan With Tamil Nadu CM Vijay At Student Protest",
+        "claims": [
+          {
+            "claim": "A video shows Salman Khan with Tamil Nadu Chief Minister Vijay at a student protest.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 11.47,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-098",
+      "category": "rated false",
+      "language": "en",
+      "input": "The video shows a young woman criticising the ongoing CJP protest demanding Chief Election Commissioner Gyanesh Kumar’s resignation.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factly.in/this-viral-video-of-a-young-woman-criticising-the-cjp-protests-demanding-gyanesh-kumars-resignation-is-ai-generated/"
+      ],
+      "labelledOn": "2026-10-14",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "FALSE"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.7,
+      "kind": null,
+      "detail": "2 independent outlets report otherwise: “AI-Generated Video Falsely Shared as Gen-Z Girl ‘Destroying CJP With Facts’”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The video shows a young woman criticising the ongoing CJP protest demanding Chief Election Commissioner Gyanesh Kumar’s resignation.",
+        "claims": [
+          {
+            "claim": "A video shows a young woman criticising the ongoing CJP protest demanding Chief Election Commissioner Gyanesh Kumar's resignation.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.884,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-099",
+      "category": "rated false",
+      "language": "en",
+      "input": "A viral video shows a giant shark swimming through a waterlogged residential locality in Nepal following the recent devastating floods.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-viral-video-showing-shark-in-nepal-floods-is-ai-generated/"
+      ],
+      "labelledOn": "2026-08-31",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.93,
+      "kind": null,
+      "detail": "Rated false by NewsMeter, Press Trust of India and FACTLY after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "urgent"
+        ],
+        "english": "A viral video shows a giant shark swimming through a waterlogged residential locality in Nepal following the recent devastating floods.",
+        "claims": [
+          {
+            "claim": "A giant shark was filmed swimming through a flooded residential area in Nepal.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 22.563,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-100",
+      "category": "rated false",
+      "language": "en",
+      "input": "A viral video shows a Chinese helicopter capturing the glacial outburst that caused the recent Nepal-Tibet floods.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-this-glacier-flood-video-is-not-from-nepal/"
+      ],
+      "labelledOn": "2026-09-03",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.9,
+      "kind": null,
+      "detail": "Rated false by AFP Fact Check, NewsMeter and Reuters after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A viral video shows a Chinese helicopter capturing the glacial outburst that caused the recent Nepal-Tibet floods.",
+        "claims": [
+          {
+            "claim": "A viral video shows a Chinese helicopter capturing the glacial outburst that caused the recent Nepal-Tibet floods.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 18.837,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "nim": 1,
+          "gemini": 7,
+          "cached": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-101",
+      "category": "rated false",
+      "language": "en",
+      "input": "Viral video falsely shows a woman bathing in the Ganga wearing a bikini.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-video-of-woman-bathing-in-river-ganga-in-bikini-is-ai-generated/"
+      ],
+      "labelledOn": "2026-09-23",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.9,
+      "kind": null,
+      "detail": "Rated false by Alt News, NewsMeter and LatestLY after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Viral video falsely shows a woman bathing in the Ganga wearing a bikini.",
+        "claims": [
+          {
+            "claim": "A viral video shows a woman bathing in the Ganga wearing a bikini.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 16.421,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "nim": 1,
+          "gemini": 5
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-102",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Adult vaccines increase risk of Alzheimer's and Dementia for a full decade",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C2Z92KE"
+      ],
+      "labelledOn": "2026-07-24",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "Misleading"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.84,
+      "kind": null,
+      "detail": "4 independent outlets report otherwise: “High-Dose Influenza Vaccination Linked to Lower Alzheimer Dementia Risk”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist"
+        ],
+        "english": "Adult vaccines increase risk of Alzheimer's and Dementia for a full decade",
+        "claims": [
+          {
+            "claim": "Adult vaccines increase the risk of Alzheimer's disease and dementia for a period of ten years.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 20.777,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-103",
+      "category": "rated false",
+      "language": "en",
+      "input": "The video shows people arriving at the Cockroach Janta Party (CJP) protest at Jantar Mantar, Delhi, on 10 October 2026.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/old-video-of-farmers-protest-falsely-linked-to-recent-cjp-protest-fact-check"
+      ],
+      "labelledOn": "2026-10-11",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.93,
+      "kind": null,
+      "detail": "Rated false by vishvasnews.com, Organiser and Vishvas News Fact Check Hindi after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The video shows people arriving at the Cockroach Janta Party (CJP) protest at Jantar Mantar, Delhi, on 10 October 2026.",
+        "claims": [
+          {
+            "claim": "People arrived at the Cockroach Janta Party protest at Jantar Mantar, Delhi, on 10 October 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 23.342,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "nim": 1,
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-104",
+      "category": "rated false",
+      "language": "en",
+      "input": "The video shows the police firing tear gas at the protesters during the recent Cockroach Janta Party protests at Jantar Mantar, Delhi.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/old-video-of-police-firing-tear-gas-claimed-to-show-recent-cjp-protests-fact-check"
+      ],
+      "labelledOn": "2026-10-13",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "MISLEADING",
+      "rule": "rated-misleading-by-fact-checkers",
+      "confidence": 0.68,
+      "kind": null,
+      "detail": "Fact-checkers (The Times of India) found this misleading.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The video shows the police firing tear gas at the protesters during the recent Cockroach Janta Party protests at Jantar Mantar, Delhi.",
+        "claims": [
+          {
+            "claim": "Police fired tear gas at Cockroach Janta Party protesters at Jantar Mantar in Delhi.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 12.928,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "nim": 1,
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-105",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Two consecutive earthquakes in Iran triggered by the U.S. militarys alleged use of a new and unprecedented weapon during its recent strikes.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://www.misbar.com/en/factcheck/2026/06/30/does-video-show-us-weapon-triggering-two-earthquakes-iran"
+      ],
+      "labelledOn": "2026-06-30",
+      "ruling": {
+        "publisher": "misbar.com",
+        "rating": "misleading"
+      },
+      "call": "FAKE",
+      "rule": "absent-from-heavy-coverage",
+      "confidence": 0.58,
+      "kind": null,
+      "detail": "16 outlets covered United States military and Iran this week, and none reports this.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "urgent"
+        ],
+        "english": "Two consecutive earthquakes in Iran triggered by the U.S. militarys alleged use of a new and unprecedented weapon during its recent strikes.",
+        "claims": [
+          {
+            "claim": "The United States military used a new and unprecedented weapon during recent strikes that triggered two consecutive earthquakes in Iran.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 24.187,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1,
+          "cached": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-106",
+      "category": "rated false",
+      "language": "en",
+      "input": "A Canadian court has ruled that there was no Tamil genocide in Sri Lanka, following a legal battle led by Dr. Neville Hewage.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://srilanka.factcrescendo.com/english/false-claim-canada-court-ruled-no-tamil-genocide-in-sri-lanka/"
+      ],
+      "labelledOn": "2026-08-31",
+      "ruling": {
+        "publisher": "Fact Crescendo Sri Lanka",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.82,
+      "kind": null,
+      "detail": "Rated false by AFP Fact Check after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "A Canadian court has ruled that there was no Tamil genocide in Sri Lanka, following a legal battle led by Dr. Neville Hewage.",
+        "claims": [
+          {
+            "claim": "A Canadian court ruled that there was no Tamil genocide in Sri Lanka.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 15.455,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-107",
+      "category": "rated true",
+      "language": "en",
+      "input": "“... six out of 10 young people with no job …”",
+      "expected": "REAL",
+      "sources": [
+        "https://africacheck.org/fact-checks/reports/sona-2026-data-showed-modest-economic-progress-south-africa-middle-east"
+      ],
+      "labelledOn": "2026-03-11",
+      "ruling": {
+        "publisher": "Africa Check",
+        "rating": "Mostly correct"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist"
+        ],
+        "english": "six out of 10 young people with no job",
+        "claims": [
+          {
+            "claim": "60% of young people are unemployed.",
+            "time": "past",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 13.921,
+      "modelCalls": {
+        "total": 5,
+        "byProvider": {
+          "nim": 1,
+          "gemini": 4
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-108",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Anthony Fauci, the chief medical adviser to the U.S. president during the COVID-19 pandemic, had a pulmonary infarct that was a side effect of a COVID-19 vaccine months earlier.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://www.snopes.com/fact-check/fauci-pulmonary-infarction-covid/"
+      ],
+      "labelledOn": "2026-07-28",
+      "ruling": {
+        "publisher": "Snopes.com",
+        "rating": "Mixture"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Anthony Fauci, the chief medical adviser to the U.S. president during the COVID-19 pandemic, had a pulmonary infarct that was a side effect of a COVID-19 vaccine months earlier.",
+        "claims": [
+          {
+            "claim": "Anthony Fauci suffered a pulmonary infarct as a side effect of a COVID-19 vaccine.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 23.619,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-109",
+      "category": "rated false",
+      "language": "en",
+      "input": "Videos show Cockroach Janta Party protest in Delhi.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.D3483T3"
+      ],
+      "labelledOn": "2026-10-15",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.82,
+      "kind": null,
+      "detail": "Rated false by The Quint after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Videos show Cockroach Janta Party protest in Delhi.",
+        "claims": [
+          {
+            "claim": "Videos show a protest by the Cockroach Janta Party in Delhi.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 11.623,
+      "modelCalls": {
+        "total": 9,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1,
+          "own model": 1
+        }
+      },
+      "degraded": [
+        "fact-check match"
+      ],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-110",
+      "category": "rated false",
+      "language": "en",
+      "input": "Sri Lanka will no longer get free vaccines from the World Bank",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.C8L379E"
+      ],
+      "labelledOn": "2026-09-24",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "MISLEADING",
+      "rule": "rated-misleading-by-fact-checkers",
+      "confidence": 0.68,
+      "kind": null,
+      "detail": "Fact-checkers (Fact Crescendo Sri Lanka) found this misleading.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Sri Lanka will no longer get free vaccines from the World Bank",
+        "claims": [
+          {
+            "claim": "Sri Lanka will no longer get free vaccines from the World Bank.",
+            "time": "now",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.57,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-111",
+      "category": "rated false",
+      "language": "en",
+      "input": "Army Chief Dhiraj Seth seen dancing with Major's wife.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.vishvasnews.com/english/ai-check/fact-check-fake-ai-video-from-pakistan-circulated-as-indian-army-chief-dancing-with-a-majors-wife/"
+      ],
+      "labelledOn": "2026-10-06",
+      "ruling": {
+        "publisher": "vishvasnews.com",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.7,
+      "kind": null,
+      "detail": "2 independent outlets report otherwise: “AI-Altered Video Shared With False Claim About Army Chief Dancing With Woman”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "alarmist"
+        ],
+        "english": "Army Chief Dhiraj Seth seen dancing with Major's wife.",
+        "claims": [
+          {
+            "claim": "Army Chief Dhiraj Seth was seen dancing with a Major's wife.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.778,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-112",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The videos show people being rescued from debris following the August 2026 flash floods in Nepal.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/these-videos-do-not-show-rescue-operations-in-nepal-after-the-flash-floods/"
+      ],
+      "labelledOn": "2026-09-03",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.86,
+      "kind": null,
+      "detail": "Rated false by India Today after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The videos show people being rescued from debris following the August 2026 flash floods in Nepal.",
+        "claims": [
+          {
+            "claim": "Videos show people being rescued from debris following the August 2026 flash floods in Nepal.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 5.646,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-113",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "The viral video shows the demolition of a 300-year-old temple in Chitrakoot, Uttar Pradesh, carried out following orders from the Uttar Pradesh government.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/this-video-of-a-bulldozer-demolishing-a-temple-is-from-madhya-pradesh-not-uttar-pradesh/"
+      ],
+      "labelledOn": "2026-01-29",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.85,
+      "kind": null,
+      "detail": "Rated false by NewsMeter after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "neutral"
+        ],
+        "english": "The viral video shows the demolition of a 300-year-old temple in Chitrakoot, Uttar Pradesh, carried out following orders from the Uttar Pradesh government.",
+        "claims": [
+          {
+            "claim": "A viral video shows the demolition of a 300-year-old temple in Chitrakoot, Uttar Pradesh, carried out following orders from the Uttar Pradesh government.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.534,
+      "modelCalls": {
+        "total": 10,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1,
+          "cached": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-114",
+      "category": "rated false",
+      "language": "en",
+      "input": "Indian and Pakistani naval vessels coming dangerously close to each other in the Arabian Sea",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-2011-india-pakistan-naval-incident-video-falsely-linked-to-recent-collision/"
+      ],
+      "labelledOn": "2026-09-23",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Confirmed by 10 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "urgent"
+        ],
+        "english": "Indian and Pakistani naval vessels coming dangerously close to each other in the Arabian Sea",
+        "claims": [
+          {
+            "claim": "Indian and Pakistani naval vessels came dangerously close to each other in the Arabian Sea.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 11.513,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    },
+    {
+      "id": "rul-115",
+      "category": "rated misleading",
+      "language": "en",
+      "input": "Video of massive crowd at Jantar Mantar, Delhi, protesting against reservations and demanding a rollback of the UGC Equity Regulations on 21 August 2026.",
+      "expected": "MISLEADING",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "FAKE"
+      ],
+      "sources": [
+        "https://factly.in/bhopal-farmers-protest-video-falsely-shared-as-ugc-roll-back-protests-in-delhi/"
+      ],
+      "labelledOn": "2026-08-28",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "MISLEADING"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.89,
+      "kind": null,
+      "detail": "Rated false by The Quint and NewsMeter after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "alarmist"
+        ],
+        "english": "Video of massive crowd at Jantar Mantar, Delhi, protesting against reservations and demanding a rollback of the UGC Equity Regulations on 21 August 2026.",
+        "claims": [
+          {
+            "claim": "A massive crowd protested at Jantar Mantar in Delhi against reservations and demanded a rollback of the UGC Equity Regulations on 21 August 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 13.214,
+      "modelCalls": {
+        "total": 11,
+        "byProvider": {
+          "gemini": 8,
+          "nim": 1,
+          "cached": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "safe"
+    },
+    {
+      "id": "rul-116",
+      "category": "rated false",
+      "language": "en",
+      "input": "Video Shows Virat Kohli Saying Rohit Sharma Is Retiring Soon",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-ai-generated-video-falsely-claims-virat-kohli-said-rohit-sharma-is-retiring-soon/"
+      ],
+      "labelledOn": "2026-09-28",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "AI-Generated"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.7,
+      "kind": null,
+      "detail": "2 independent outlets report otherwise: “AI-Generated Video Falsely Claims Virat Kohli Said Rohit Sharma Is Retiring Soon”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Video Shows Virat Kohli Saying Rohit Sharma Is Retiring Soon",
+        "claims": [
+          {
+            "claim": "A video shows Virat Kohli saying Rohit Sharma is retiring soon.",
+            "time": "past",
+            "kind": "quote",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.709,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-117",
+      "category": "rated false",
+      "language": "en",
+      "input": "The video shows PM Modi speaking out against the upper castes and instigating Dalits.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.thequint.com/news/webqoof/clipped-video-of-pm-modi-shared-to-show-him-speaking-against-the-upper-caste-false-claim-fact-check"
+      ],
+      "labelledOn": "2026-08-29",
+      "ruling": {
+        "publisher": "The Quint",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Rated false by vishvasnews.com, Telugu Post, India Today and 1 more after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "alarmist"
+        ],
+        "english": "The video shows PM Modi speaking out against the upper castes and instigating Dalits.",
+        "claims": [
+          {
+            "claim": "A video shows Prime Minister Narendra Modi speaking out against upper castes and instigating Dalits.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 12.486,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-118",
+      "category": "rated false",
+      "language": "en",
+      "input": "group of boys finding a backpack filled with ₹500 Indian currency notes in Nepal floodwater",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.newsmobile.in/nm-fact-checker/verified-old-video-from-up-falsely-linked-to-nepal-floods/"
+      ],
+      "labelledOn": "2026-09-09",
+      "ruling": {
+        "publisher": "NewsMobile",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "emotional"
+        ],
+        "english": "group of boys finding a backpack filled with ₹500 Indian currency notes in Nepal floodwater",
+        "claims": [
+          {
+            "claim": "A group of boys found a backpack filled with ₹500 Indian currency notes in Nepal floodwater.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.013,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rul-119",
+      "category": "rated false",
+      "language": "en",
+      "input": "Viral videos show Hindu groups, including Bajrang Dal, mobilising activists to oppose the CJP protest at Delhi’s Jantar Mantar on 10 October 2026.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factly.in/old-unrelated-videos-shared-as-hindu-groups-mobilising-to-oppose-cjp-protest-in-delhi/"
+      ],
+      "labelledOn": "2026-10-09",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "FALSE"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Rated false by The Quint, Boom Live, Press Trust of India and 1 more after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "urgent"
+        ],
+        "english": "Viral videos show Hindu groups, including Bajrang Dal, mobilising activists to oppose the CJP protest at Delhi’s Jantar Mantar on 10 October 2026.",
+        "claims": [
+          {
+            "claim": "Viral videos show Hindu groups, including Bajrang Dal, mobilising activists to oppose the CJP protest at Delhi’s Jantar Mantar on 10 October 2026.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 10.169,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rul-120",
+      "category": "rated false",
+      "language": "en",
+      "input": "The video shows actor Sanjay Dutt making controversial remarks about Muslims, saffronisation, and Kashmir.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factly.in/this-video-of-sanjay-dutt-allegedly-making-controversial-remarks-about-muslims-saffronisation-and-kashmir-is-ai-manipulated/"
+      ],
+      "labelledOn": "2026-10-08",
+      "ruling": {
+        "publisher": "FACTLY",
+        "rating": "FALSE"
+      },
+      "call": "FAKE",
+      "rule": "rated-false-by-fact-checkers",
+      "confidence": 0.89,
+      "kind": null,
+      "detail": "Rated false by Newschecker and NewsMeter after checking this exact claim.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The video shows actor Sanjay Dutt making controversial remarks about Muslims, saffronisation, and Kashmir.",
+        "claims": [
+          {
+            "claim": "Actor Sanjay Dutt made controversial remarks about Muslims, saffronisation, and Kashmir in a video.",
+            "time": "past",
+            "kind": "quote",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.496,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    }
+  ]
+}

@@ -228,6 +228,11 @@ const searchFactCheckHeadlines = async (query) => {
  * and the large international ones actually use; anything else is "unrated"
  * and left to the matcher to read.
  */
+const DENIAL = new RegExp([
+  String.raw`\b(?:not|never|no longer|\w+n['’]t)\s+(?:\w+\s+){0,2}?(?:true|correct|accurate|genuine|real|authentic|verified|happen(?:ed)?|occur(?:red)?)\b`,
+  String.raw`\bno such\b`, String.raw`\bforg(?:ery|ed)\b`, String.raw`\bartificial intelligence\b`,
+  String.raw`\b(?:made|created|generated) (?:using|with|by) ai\b`, String.raw`\bai[\s-](?:made|video|image|photo|clip)s?\b`
+].join('|'));
 const ratingClass = (rating) => {
   const r = String(rating || '').toLowerCase();
   if (!r) return 'unrated';
@@ -235,6 +240,10 @@ const ratingClass = (rating) => {
   // nothing), they turned a desk's ruling around.
   if (/\b(mostly false|partly false|partially false|partly true|partially true|half[\s-]true|mixture|mixed|missing context|lacks context|needs context|out of context|misleading|exaggerat|distort|cherry|misattribut|misrepresent|old (video|photo|image)|satire|spoof)/.test(r)) return 'misleading';
   if (/\b(false|fake|incorrect|inaccurate|wrong|fabricated|hoax|baseless|untrue|not true|not real|not genuine|not authentic|no evidence|pants on fire|pinocchio|scam|doctored|morphed|edited|altered|deepfake|ai[\s-]generated|manipulated|debunk|bogus|rumou?r)/.test(r)) return 'false';
+  // A desk's sentence in place of a label denies as often as it confirms: "That's not correct", "This isn't
+  // true", "These videos aren't real", "No such incident occurred", "a forgery" (a "genuine" further on
+  // names the real edition). Read as "true" by the words below, each turned a ruling around.
+  if (DENIAL.test(r)) return 'false';
   if (/\b(true|correct|accurate|genuine|real|verified|authentic)\b/.test(r)) return 'true';
   return 'unrated';
 };

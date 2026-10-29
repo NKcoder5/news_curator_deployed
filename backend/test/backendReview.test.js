@@ -114,6 +114,24 @@ test('desk ratings: "partly true" is misleading, "not real" and "inaccurate" are
   assert.strictEqual(ratingClass('Unverified'), 'unrated');
 });
 
+test('desk ratings written as a sentence: a denial is false, whatever true-sounding word follows', () => {
+  const { ratingClass } = require('../agents/factCheckSearch');
+  // Ratings taken from the Google fact-check index (rulings pool 2, 29 Oct 2026); each read as "true" before.
+  for (const rating of [
+    'That’s not correct. Labour has won nine majorities, including four which were won while the party was in opposition.',
+    'This isn’t correct according to the latest figures, which show just over 6% of asylum seekers are housed in Scotland.',
+    'The NHS says this isn’t true. There was a local pilot in Gloucestershire for lower-league football.',
+    'These videos aren’t real and were made using artificial intelligence.',
+    'The clip of a crying soldier at the start of this video isn’t real and was made using AI.',
+    'No such incident occurred. Neither NATO nor Estonia reported any airspace violation.',
+    'The Les Echos front page circulating online is a forgery. In the genuine edition of Sept. 7, 2026, that space carries another article.',
+    'It never happened'
+  ]) assert.strictEqual(ratingClass(rating), 'false', rating);
+  for (const rating of ['True', 'Mostly True', 'Correct Attribution', 'Mostly correct', 'Correct', 'Accurate']) {
+    assert.strictEqual(ratingClass(rating), 'true', rating);
+  }
+});
+
 test('"Rs" is a currency only as a word of its own', () => {
   const { readNumbers } = require('../services/claimSignature');
   assert.deepStrictEqual(readNumbers('Mars 2 mission launched').numbers.map(n => n.unit), ['mission']);

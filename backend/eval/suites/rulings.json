@@ -1,5 +1,5 @@
 {
- "about": "Claims ruled on by professional fact-checking desks (Google fact-check index, ClaimReview), reviewed since 2024-10-01; the label is the desk's published rating, with the ruling's link and date. Built by eval/buildRulingSuite.js on 2026-10-21. Run with FACT_CHECK_CHANNEL=off as well: with the channel on it finds the very ruling a case is labelled from.",
+ "about": "Claims ruled on by professional fact-checking desks (Google fact-check index, ClaimReview), reviewed since 2024-10-01; the label is the desk's published rating, with the ruling's link and date. Built by eval/buildRulingSuite.js on 2026-10-21. Run with FACT_CHECK_CHANNEL=off as well: with the channel on it finds the very ruling a case is labelled from. Relabelled 2026-10-29 (eval/buildRulingSuite.js --relabel): {\"true->false\":4}.",
  "cases": [
   {
    "id": "rul-001",
@@ -3117,10 +3117,10 @@
   },
   {
    "id": "rul-167",
-   "category": "rated true",
+   "category": "rated false",
    "language": "en",
    "input": "The Chancellor Rachel Reeves said in an interview with Iain Dale on the BBC that 4,000 UK residents can sign up to an investment scheme with £200 which will see them receive up to £2,300 a month as dividends from taxes.",
-   "expected": "REAL",
+   "expected": "FAKE",
    "sources": [
     "https://fullfact.org/online/fake-rachel-reeves-investment-scheme-bbc-advert-facebook/"
    ],
@@ -3128,7 +3128,11 @@
    "ruling": {
     "publisher": "Full Fact",
     "rating": "Both the article, and the interview are not real. This is not government policy."
-   }
+   },
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ]
   },
   {
    "id": "rul-168",
@@ -4104,10 +4108,10 @@
   },
   {
    "id": "rul-220",
-   "category": "rated true",
+   "category": "rated false",
    "language": "en",
    "input": "UK residents now have to pay dozens of different taxes, none of which existed 100 years ago.",
-   "expected": "REAL",
+   "expected": "FAKE",
    "sources": [
     "https://fullfact.org/economy/facebook-posts-taxes-hundred-years-old-partly-false/"
    ],
@@ -4115,7 +4119,11 @@
    "ruling": {
     "publisher": "Full Fact",
     "rating": "This isn’t correct. Income tax and levies on beer, tobacco and petrol have existed for more than a century, as well as a precursor to inheritance tax. Some of the taxes listed as modern-day taxes don’t exist in the UK."
-   }
+   },
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ]
   },
   {
    "id": "rul-221",
@@ -5175,10 +5183,10 @@
   },
   {
    "id": "rul-277",
-   "category": "rated true",
+   "category": "rated false",
    "language": "en",
    "input": "Pictures show a Beaver Scout group visiting a mosque, with one image showing a boy kneeling while another remains standing.",
-   "expected": "REAL",
+   "expected": "FAKE",
    "sources": [
     "https://fullfact.org/culture-and-society/ai-image-beaver-scouts-mosque-visit/"
    ],
@@ -5186,7 +5194,11 @@
    "ruling": {
     "publisher": "Full Fact",
     "rating": "These images aren’t real and have been made with artificial intelligence."
-   }
+   },
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ]
   },
   {
    "id": "rul-278",
@@ -5247,10 +5259,10 @@
   },
   {
    "id": "rul-281",
-   "category": "rated true",
+   "category": "rated false",
    "language": "en",
    "input": "The Cancer Act 1939 makes it illegal for doctors to advise patients on cancer cures.",
-   "expected": "REAL",
+   "expected": "FAKE",
    "sources": [
     "https://fullfact.org/health/cancer-act-1939-doesnt-criminalise-cancer-cures/"
    ],
@@ -5258,7 +5270,11 @@
    "ruling": {
     "publisher": "Full Fact",
     "rating": "This isn’t true. The Act in fact restricts advertising treatments and cures for cancer to the general public."
-   }
+   },
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ]
   },
   {
    "id": "rul-282",

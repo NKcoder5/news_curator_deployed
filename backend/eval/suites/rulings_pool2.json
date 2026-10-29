@@ -1,0 +1,2757 @@
+{
+ "about": "Claims ruled on by professional fact-checking desks (Google fact-check index, ClaimReview), reviewed since 2024-10-01; the label is the desk's published rating, with the ruling's link and date. Built by eval/buildRulingSuite.js --queries world --out rulings_pool2 --prefix rp2 --caps true=80,misleading=0,false=same on 2026-10-29. Run with FACT_CHECK_CHANNEL=off as well: with the channel on it finds the very ruling a case is labelled from. Relabelled 2026-10-29 (eval/buildRulingSuite.js --relabel): {\"true->false\":8}.",
+ "cases": [
+  {
+   "id": "rp2-001",
+   "category": "rated false",
+   "language": "en",
+   "input": "Ballots are disqualified when marked by poll workers",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D3738T3"
+   ],
+   "labelledOn": "2026-10-14",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-002",
+   "category": "rated false",
+   "language": "en",
+   "input": "A photo shows Ven. Galagoda Aththe Gnanasara Thero wearing a prison jumper, without his robe, during his imprisonment in 2018.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://srilanka.factcrescendo.com/english/edited-photo-of-gnanasara-thero-wearing-a-prison-jumper-without-his-monks-robe-in-2018/"
+   ],
+   "labelledOn": "2026-10-08",
+   "ruling": {
+    "publisher": "Fact Crescendo Sri Lanka",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-003",
+   "category": "rated false",
+   "language": "en",
+   "input": "New Zealand's planned methane-reducing jab for cows uses mRNA technology",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D3NW9CU"
+   ],
+   "labelledOn": "2026-10-21",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-004",
+   "category": "rated true",
+   "language": "en",
+   "input": "A photograph authentically shows a mushroom cloud of smoke rising from a Russian warehouse after it was bombed in a Ukrainian drone strike.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/smoke-russian-ukrainian-drone/"
+   ],
+   "labelledOn": "2026-07-23",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-005",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta currently has one of the highest corporate tax rates in Europe, at around 35%.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/does-malta-really-have-one-of-the-highest-corporate-tax-rates-in-europe.html"
+   ],
+   "labelledOn": "2026-05-10",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-006",
+   "category": "rated true",
+   "language": "en",
+   "input": "In June 2023, U.S. Vice President JD Vance posted on X: \"In this house we believe: Black Lives Matter. No human is illegal. Prigozhin is a Liberal reformer. Love is love.\"",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/vance-black-lives-matter-joke/"
+   ],
+   "labelledOn": "2026-07-02",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "Correct Attribution"
+   }
+  },
+  {
+   "id": "rp2-007",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta's negotiating position on gas supply is difficult because of the current energy crisis — the Electrogas–SOCAR pricing contract is close to expiry while LNG markets remain volatile.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/is-malta-s-gas-supply-negotiating-position-really-difficult-due-to-the-crisis.html"
+   ],
+   "labelledOn": "2026-05-04",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-008",
+   "category": "rated false",
+   "language": "en",
+   "input": "Photos of Beyoncé and shirtless Jeffrey Epstein and Trump on a plane are real and from the Epstein files.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://leadstories.com/hoax-alert/2026/10/fact-check-fake-image-that-shows-beyonce-with-shirtless-trump-and-epstein-is-not-from-epstein-files.html"
+   ],
+   "labelledOn": "2026-10-27",
+   "ruling": {
+    "publisher": "Lead Stories",
+    "rating": "AI-Generated"
+   }
+  },
+  {
+   "id": "rp2-009",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta has the highest employment rate in EU history and is the best in Europe for job creation.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/is-malta-really-the-best-in-europe-for-employment-and-job-creation"
+   ],
+   "labelledOn": "2026-05-01",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-010",
+   "category": "rated false",
+   "language": "en",
+   "input": "A video shows UK police confiscating a mannequin after complaints from the Pakistani community it was dressed in “immodest clothing”.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://fullfact.org/culture-and-society/video-does-not-show-police-seizing-mannequin-over-Pakistani-complaints-repeat/"
+   ],
+   "labelledOn": "2026-10-26",
+   "ruling": {
+    "publisher": "Full Fact",
+    "rating": "False. This video actually shows police officers attending a protest in November 2025 against the government’s decision to ban Palestine Action."
+   }
+  },
+  {
+   "id": "rp2-011",
+   "category": "rated false",
+   "language": "en",
+   "input": "$140 million found at former Ukrainian defense official's home",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.C9YL4NQ"
+   ],
+   "labelledOn": "2026-10-06",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-012",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta's economy is among the best in Europe.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/is-malta-s-economy-really-among-the-best-in-europe.html"
+   ],
+   "labelledOn": "2026-05-04",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly true"
+   }
+  },
+  {
+   "id": "rp2-013",
+   "category": "rated true",
+   "language": "en",
+   "input": "A Tennessee woman spent six months in jail after an artificial intelligence tool misidentified her as a North Dakota bank fraud suspect.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/ai-tennessee-woman-jail/"
+   ],
+   "labelledOn": "2026-07-19",
+   "ruling": {
+    "publisher": "Snopes.com",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-014",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta is recording the most business activity and corporate profit in its history.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/does-malta-really-have-most-business-activity-and-profit-in-history"
+   ],
+   "labelledOn": "2026-05-09",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-015",
+   "category": "rated false",
+   "language": "en",
+   "input": "Israelis recite Hanuman Chalisa in Hebrew at a concert honouring pilot Smit Machchhar.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.newsmobile.in/nm-fact-checker/verified-video-of-israeli-band-reciting-hanuman-chalisa-is-ai-generated/"
+   ],
+   "labelledOn": "2026-10-28",
+   "ruling": {
+    "publisher": "NewsMobile",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-016",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta has high workplace stress compared with the EU average — 57% of Maltese employees report significant work stress, vs 39% EU average.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/do-57-percent-of-maltese-employees-really-experience-significant-workplace-stress"
+   ],
+   "labelledOn": "2026-05-05",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-017",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta negotiated four energy-sector derogations in this legislature, including three on the EU's energy-reduction request.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-malta-really-negotiate-four-energy-derogations-this-legislature.html"
+   ],
+   "labelledOn": "2026-04-30",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-018",
+   "category": "rated true",
+   "language": "en",
+   "input": "A video authentically shows U.S. President Donald Trump in 1987 saying that the U.S. should \"go in\" and take Iran's oil.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/trump-video-iran-oil/"
+   ],
+   "labelledOn": "2026-09-16",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-019",
+   "category": "rated true",
+   "language": "en",
+   "input": "The IMF says Malta will remain below a 3% deficit despite continued energy support.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/does-the-imf-really-project-malta-s-deficit-below-3-percent-despite-energy-subsidies"
+   ],
+   "labelledOn": "2026-04-30",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-020",
+   "category": "rated false",
+   "language": "en",
+   "input": "Government to Split Ukrainians Into Three Legal Categories by Language",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.stopfake.org/en/fake-government-to-split-ukrainians-into-three-legal-categories-by-language/"
+   ],
+   "labelledOn": "2026-10-09",
+   "ruling": {
+    "publisher": "StopFake",
+    "rating": "The legislative initiative is entirely fabricated: dividing Ukrainians into three categories according to the language they use in everyday life would be not only unconstitutional but also impossible in practice."
+   }
+  },
+  {
+   "id": "rp2-021",
+   "category": "rated true",
+   "language": "en",
+   "input": "Some grocery stores in the U.S. are selling 3D-printed salmon meat manufactured by an Israeli company.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/3d-printed-salmon-israel/"
+   ],
+   "labelledOn": "2026-10-19",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-022",
+   "category": "rated true",
+   "language": "en",
+   "input": "The administration of U.S. President Donald Trump announced the end of a Medicare subsidy program aimed to help lower the cost of prescription drugs.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/trump-medicare-part-d-subsidies/"
+   ],
+   "labelledOn": "2026-07-30",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-023",
+   "category": "rated false",
+   "language": "en",
+   "input": "All Filipinos with a national ID or any valid ID can receive P5,000 and a sack of rice by registering on a website.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://verafiles.org/articles/fact-check-no-5k-cash-rice-subsidy-for-national-id-holders"
+   ],
+   "labelledOn": "2026-10-07",
+   "ruling": {
+    "publisher": "VERA Files",
+    "rating": "Fake"
+   }
+  },
+  {
+   "id": "rp2-024",
+   "category": "rated false",
+   "language": "en",
+   "input": "A social media post claims that former Surigao del Norte 2nd District representative Robert “Ace” Barbers said former senator Antonio Trillanes IV would be the number 1 senatorial candidate if he runs because he is loved by the Filipino people.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.rappler.com/newsbreak/fact-check/ace-barbers-antonio-trillanes-senatorial-race/"
+   ],
+   "labelledOn": "2026-10-16",
+   "ruling": {
+    "publisher": "Rappler",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-025",
+   "category": "rated false",
+   "language": "en",
+   "input": "New Zealand Labour said it will appoint Jacinda Ardern as the next governor-general if elected.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.aap.com.au/factcheck/no-labour-hasnt-promised-to-make-jacinda-ardern-nz-governor-general/"
+   ],
+   "labelledOn": "2026-10-14",
+   "ruling": {
+    "publisher": "AAP",
+    "rating": "False. Labour has not made any such commitment and the claim is based on a fake campaign poster."
+   }
+  },
+  {
+   "id": "rp2-026",
+   "category": "rated true",
+   "language": "en",
+   "input": "PN has a poor track record on energy.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/does-pn-really-have-a-poor-track-record-on-energy"
+   ],
+   "labelledOn": "2026-05-11",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-027",
+   "category": "rated false",
+   "language": "en",
+   "input": "Millions found in Ukrainian defense official's home",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D2MB9KE"
+   ],
+   "labelledOn": "2026-10-09",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-028",
+   "category": "rated false",
+   "language": "en",
+   "input": "There is a real video of Australian Prime Minister Anthony Albanese suddenly collapsing and falling off a stage.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://leadstories.com/hoax-alert/2026/10/fact-check-fake-video-australian-pm-collapsing-falling-face-first-ground.html"
+   ],
+   "labelledOn": "2026-10-06",
+   "ruling": {
+    "publisher": "Lead Stories",
+    "rating": "AI-Generated"
+   }
+  },
+  {
+   "id": "rp2-029",
+   "category": "rated true",
+   "language": "en",
+   "input": "U.S. Speaker of the House Mike Johnson said that salaries for members of Congress have been frozen since 2009, and added, “we should at least let them engage in some stock trading so they can continue to, you know, take care of their family.”",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/mike-johnson-congress-stock-trading-quote/"
+   ],
+   "labelledOn": "2026-05-19",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "Correct Attribution"
+   }
+  },
+  {
+   "id": "rp2-030",
+   "category": "rated false",
+   "language": "en",
+   "input": "Sri Lanka recorded 385,000 Muslim births and 750,000 Sinhala abortions",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.C88U8G4"
+   ],
+   "labelledOn": "2026-10-06",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-031",
+   "category": "rated true",
+   "language": "en",
+   "input": "Labour criticised PN's 15% corporate tax proposal, then announced a similar lower corporate tax for Maltese companies before the election.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-labour-really-change-position-on-lower-corporate-tax-for-maltese-companies"
+   ],
+   "labelledOn": "2026-05-04",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-032",
+   "category": "rated true",
+   "language": "en",
+   "input": "An image shared on social media authentically shows a post by former U.S. Rep. Marjorie Talyor Greene criticizing President Donald Trump's \"broken campaign promises.\"",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/marjorie-taylor-greene-response-trump/"
+   ],
+   "labelledOn": "2026-10-16",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-033",
+   "category": "rated true",
+   "language": "en",
+   "input": "1,000 babies were born thanks to Malta's IVF reform.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-1000-babies-really-come-from-malta-s-ivf-reform-and-did-borg-vote-against"
+   ],
+   "labelledOn": "2026-05-03",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-034",
+   "category": "rated false",
+   "language": "en",
+   "input": "Danish Analyst Says Ukrainians Could Be Barred From the EU Over Environmental and Epidemic Threats",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.stopfake.org/en/fake-danish-analyst-says-ukrainians-could-be-barred-from-the-eu-over-environmental-and-epidemic-threats/"
+   ],
+   "labelledOn": "2026-10-24",
+   "ruling": {
+    "publisher": "StopFake",
+    "rating": "The newspaper front page is fabricated, and so is the Danish expert's quote. Responding to a StopFake inquiry, a representative for Lykke Friis explained that she often comments on Ukraine in the media but has never called for closing the EU's borders."
+   }
+  },
+  {
+   "id": "rp2-035",
+   "category": "rated true",
+   "language": "en",
+   "input": "Maureen Galindo, a Texas Democratic congressional candidate, proposed turning an Immigration and Customs Enforcement detention center into a \"prison for American Zionists\" that would double as a \"castration processing center\" for pedophiles.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/maureen-galindo-zionists-quote/"
+   ],
+   "labelledOn": "2026-05-22",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-036",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta's population has increased by around 150,000 people over the past 13 years.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/has-malta-s-population-really-grown-by-150000-people-over-the-past-13-years"
+   ],
+   "labelledOn": "2026-05-05",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-037",
+   "category": "rated true",
+   "language": "en",
+   "input": "Labour promised a €66M tax cut and more than doubled it to €140M.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-labour-really-more-than-double-the-66m-tax-cut-to-140m"
+   ],
+   "labelledOn": "2026-05-04",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-038",
+   "category": "rated false",
+   "language": "en",
+   "input": "A video shows a real event with Trump and tall, blond figures in a cave.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://leadstories.com/hoax-alert/2026/10/fact-check-fake-video-of-trump-with-blond-giants-does-not-show-real-event.html"
+   ],
+   "labelledOn": "2026-10-19",
+   "ruling": {
+    "publisher": "Lead Stories",
+    "rating": "AI-Generated"
+   }
+  },
+  {
+   "id": "rp2-039",
+   "category": "rated false",
+   "language": "en",
+   "input": "Philippine Drug Enforcement Agency named Ferdinand Marcos Jr. and his son Sandro Marcos as financiers of the foiled drug smuggling attempt in Laos.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://verafiles.org/articles/fact-check-pdea-did-not-say-marcos-rep-sandro-are-financiers-of-laos-drug-smuggling"
+   ],
+   "labelledOn": "2026-10-26",
+   "ruling": {
+    "publisher": "VERA Files",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-040",
+   "category": "rated false",
+   "language": "en",
+   "input": "Asylum seekers can vote in South Africa",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D3V2463"
+   ],
+   "labelledOn": "2026-10-27",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-041",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta's curriculum is outdated, and the government acknowledges this by having begun discussions to update it.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/is-malta-s-curriculum-really-outdated-and-does-the-government-acknowledge-it"
+   ],
+   "labelledOn": "2026-05-05",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-042",
+   "category": "rated false",
+   "language": "en",
+   "input": "Labour has only ever won three majorities.",
+   "expected": "FAKE",
+   "sources": [
+    "https://fullfact.org/politics/how-many-majorities-has-labour-won/"
+   ],
+   "labelledOn": "2026-07-08",
+   "ruling": {
+    "publisher": "Full Fact",
+    "rating": "That’s not correct. Labour has won nine majorities, including four which were won while the party was in opposition."
+   },
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ]
+  },
+  {
+   "id": "rp2-043",
+   "category": "rated false",
+   "language": "en",
+   "input": "Voting ballots that are marked by poll workers are disqualified.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.snopes.com/fact-check/ballot-disqualified-poll-workers/"
+   ],
+   "labelledOn": "2026-10-13",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-044",
+   "category": "rated true",
+   "language": "en",
+   "input": "Gaming today represents 11% of the Maltese economy.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/does-gaming-really-represent-11-percent-of-the-maltese-economy"
+   ],
+   "labelledOn": "2026-05-09",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-045",
+   "category": "rated false",
+   "language": "en",
+   "input": "Ukrainian Drone Damaged Portuguese F-16s at Estonian Air Base",
+   "expected": "FAKE",
+   "sources": [
+    "https://www.stopfake.org/en/fake-ukrainian-drone-damaged-portuguese-f-16s-at-estonian-air-base/"
+   ],
+   "labelledOn": "2026-08-15",
+   "ruling": {
+    "publisher": "StopFake",
+    "rating": "No such incident occurred. Neither NATO nor Estonia reported any airspace violation on August 6, any drone shootdown, or any damage to aircraft. The site hosting the \"story\" is a clone of The Defense Post, and the footage of burning wreckage in the video was generated by artificial intelligence and spliced into a genuine NATO video report."
+   },
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ]
+  },
+  {
+   "id": "rp2-046",
+   "category": "rated false",
+   "language": "en",
+   "input": "France's Army Would Last Just Seven Days Against Russia, Statista Says",
+   "expected": "FAKE",
+   "sources": [
+    "https://www.stopfake.org/en/fake-france-s-army-would-last-just-seven-days-against-russia-statista-says/"
+   ],
+   "labelledOn": "2026-07-22",
+   "ruling": {
+    "publisher": "StopFake",
+    "rating": "Neither Statista nor the Institute for the Study of War published any such study. The infographic circulating online is a forgery built on Statista's visual branding. The real debate about France's insufficient stockpiles of certain types of ammunition does not mean the country would be defeated by Russia in seven days."
+   },
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ]
+  },
+  {
+   "id": "rp2-047",
+   "category": "rated false",
+   "language": "en",
+   "input": "Australia has issued a decision to investigate and prosecute Australian-Israeli dual nationals who served in the Israeli military in Gaza.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.aap.com.au/factcheck/false-claims-spread-about-australian-idf-prosecutions/"
+   ],
+   "labelledOn": "2026-10-12",
+   "ruling": {
+    "publisher": "AAP",
+    "rating": "False. The government has not issued such a decision."
+   }
+  },
+  {
+   "id": "rp2-048",
+   "category": "rated false",
+   "language": "en",
+   "input": "Real photo shows Natalie Harp with a blue surgical glove sitting with Donald Trump in a car.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://leadstories.com/hoax-alert/2026/10/fact-check-image-of-natalie-harp-with-surgical-glove-is-not-real-photo.html"
+   ],
+   "labelledOn": "2026-10-06",
+   "ruling": {
+    "publisher": "Lead Stories",
+    "rating": "Edited"
+   }
+  },
+  {
+   "id": "rp2-049",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta tripled the size of its economy over 12 years.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-malta-really-triple-the-size-of-its-economy-over-12-years"
+   ],
+   "labelledOn": "2026-05-04",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-050",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta's last fiscal surplus was in 2019, before the pandemic.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/was-malta-s-last-fiscal-surplus-really-in-2019-before-the-pandemic"
+   ],
+   "labelledOn": "2026-05-09",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-051",
+   "category": "rated false",
+   "language": "en",
+   "input": "One hundred sixty-three votes for then-Democratic presidential candidate Joe Biden in 2020 all came from one house in Oklahoma.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.snopes.com/news/2026/10/11/oklahoma-house-2020-election-biden/"
+   ],
+   "labelledOn": "2026-10-11",
+   "ruling": {
+    "publisher": "Snopes.com",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-052",
+   "category": "rated false",
+   "language": "en",
+   "input": "A viral image circulating on social media claims to show AISA President Neha Bora with Congress leader Shashi Tharoor.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.newsmobile.in/nm-fact-checker/verified-viral-photo-of-neha-bora-with-shashi-tharoor-is-ai-altered/"
+   ],
+   "labelledOn": "2026-10-22",
+   "ruling": {
+    "publisher": "NewsMobile",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-053",
+   "category": "rated false",
+   "language": "en",
+   "input": "The Office of the President announced the official removal of Grades 11 and 12 from the country’s education system.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.rappler.com/newsbreak/fact-check/no-palace-announcement-abolishing-grade-11-12/"
+   ],
+   "labelledOn": "2026-10-23",
+   "ruling": {
+    "publisher": "Rappler",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-054",
+   "category": "rated true",
+   "language": "en",
+   "input": "U.S. President Donald Trump said he feels \"badly\" for seven current and former male Cornell University students whom a female former student has accused of sexual assault and rape because they \"won't get a fair shake.\"",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/trump-badly-cornell-7/"
+   ],
+   "labelledOn": "2026-10-05",
+   "ruling": {
+    "publisher": "Snopes.com",
+    "rating": "Correct Attribution"
+   }
+  },
+  {
+   "id": "rp2-055",
+   "category": "rated false",
+   "language": "en",
+   "input": "Small boat crossings went “up and up” while Robert Jenrick was immigration minister.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://fullfact.org/immigration/burnham-jenrick-small-boat-crossings/"
+   ],
+   "labelledOn": "2026-10-27",
+   "ruling": {
+    "publisher": "Full Fact",
+    "rating": "Incorrect. During Robert Jenrick’s 13 months as immigration minister both the number of migrants arriving by small boat and the number of small boats crossing actually fell."
+   }
+  },
+  {
+   "id": "rp2-056",
+   "category": "rated true",
+   "language": "en",
+   "input": "Youth unemployment in Malta is among the lowest ever recorded.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/is-maltese-youth-unemployment-really-among-the-lowest-ever-recorded.html"
+   ],
+   "labelledOn": "2026-05-06",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-057",
+   "category": "rated true",
+   "language": "en",
+   "input": "U.S. Vice President J.D. Vance once said, “You don't turn the Titanic around overnight. It takes time to fix what was broken,” describing the state of the U.S. economy.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/vance-us-economy-titanic/"
+   ],
+   "labelledOn": "2026-10-21",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "Correct Attribution"
+   }
+  },
+  {
+   "id": "rp2-058",
+   "category": "rated false",
+   "language": "en",
+   "input": "A video shows Australian Prime Minister Anthony Albanese collapsing face-first off a stage.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://fullfact.org/world/video-of-australian-PM-collapsing-AI-fake/"
+   ],
+   "labelledOn": "2026-10-08",
+   "ruling": {
+    "publisher": "Full Fact",
+    "rating": "The events in the video aren't real—it’s AI-generated. The clip originated from a parody account which noted that it was made with Grok’s AI video generator."
+   }
+  },
+  {
+   "id": "rp2-059",
+   "category": "rated true",
+   "language": "en",
+   "input": "“Public debt stands at approximately around 67% to date of GDP.”",
+   "expected": "REAL",
+   "sources": [
+    "https://africacheck.org/fact-checks/reports/kenyas-finance-minister-defends-infrastructure-fund-includes-misleading-claims"
+   ],
+   "labelledOn": "2026-03-20",
+   "ruling": {
+    "publisher": "Africa Check",
+    "rating": "Correct"
+   }
+  },
+  {
+   "id": "rp2-060",
+   "category": "rated false",
+   "language": "en",
+   "input": "Vice President Sara Duterte and her brother, Davao City Mayor Sebastian \"Baste\" Duterte, said the Senate threw out the impeachment case against the Vice President and that the trial wasted public funds.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.rappler.com/newsbreak/fact-check/ai-generated-sara-baste-duterte-impeachment-trial-dismissal/"
+   ],
+   "labelledOn": "2026-10-26",
+   "ruling": {
+    "publisher": "Rappler",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-061",
+   "category": "rated true",
+   "language": "en",
+   "input": "The national minimum wage was increased year after year for all workers.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-pl-really-increase-the-minimum-wage-every-single-year.html"
+   ],
+   "labelledOn": "2026-05-01",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-062",
+   "category": "rated true",
+   "language": "en",
+   "input": "A Tennessee school board voted to enact a policy that banned LGBTQ+ Pride flags and allowed only the United States flag or Tennessee state flag to hang in public schools.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/tennessee-school-pride-flag/"
+   ],
+   "labelledOn": "2026-07-31",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-063",
+   "category": "rated false",
+   "language": "en",
+   "input": "Neha Bora owns and traveled in a Toyota Camry worth Rs 60-70 lakh",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.altnews.in/did-neha-bora-go-to-mandir-marg-police-station-in-her-luxury-car-no-the-vehicle-belongs-to-her-lawyer/"
+   ],
+   "labelledOn": "2026-10-27",
+   "ruling": {
+    "publisher": "Alt News",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-064",
+   "category": "rated false",
+   "language": "en",
+   "input": "The Same 'Actor With a Little Dog' Keeps Appearing in Photos After Russian Strikes",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.stopfake.org/en/fake-the-same-actor-with-a-little-dog-keeps-appearing-in-photos-after-russian-strikes/"
+   ],
+   "labelledOn": "2026-10-15",
+   "ruling": {
+    "publisher": "StopFake",
+    "rating": "The fake post was created with artificial intelligence: propagandists generated two images and combined them with a genuine photograph taken after a Russian strike on Rivne on Oct. 13, 2026. The aim was to pass off real evidence of the aftermath of Russian attacks as staged footage."
+   }
+  },
+  {
+   "id": "rp2-065",
+   "category": "rated false",
+   "language": "en",
+   "input": "A video shows a huge fire following a major strike on an oil facility in Israel.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://fullfact.org/conflict/2020-market-fire-uae-repeat-not-israel/"
+   ],
+   "labelledOn": "2026-10-09",
+   "ruling": {
+    "publisher": "Full Fact",
+    "rating": "False. This video was filmed in the UAE in 2020 and shows a fire that broke out at a market."
+   }
+  },
+  {
+   "id": "rp2-066",
+   "category": "rated true",
+   "language": "en",
+   "input": "IMF says Malta will have the best growth up to 2031.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-the-imf-really-say-malta-will-have-the-best-growth-up-to-2031"
+   ],
+   "labelledOn": "2026-05-04",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-067",
+   "category": "rated false",
+   "language": "en",
+   "input": "Nigerian leader awards $7 billion port deal to crony",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D3AU7ZW"
+   ],
+   "labelledOn": "2026-10-19",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-068",
+   "category": "rated false",
+   "language": "en",
+   "input": "Former senator Antonio Trillanes IV has been cited in contempt and faces possible arrest over his criticism of the Senate impeachment court in Vice President Sara Duterte's trial.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.rappler.com/newsbreak/fact-check/antonio-trillanes-iv-not-cited-contempt-impeachment-court/"
+   ],
+   "labelledOn": "2026-10-13",
+   "ruling": {
+    "publisher": "Rappler",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-069",
+   "category": "rated true",
+   "language": "en",
+   "input": "EC and IMF criticise Malta over energy subsidies.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/do-the-ec-and-imf-really-criticise-malta-over-energy-subsidies.html"
+   ],
+   "labelledOn": "2026-05-04",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-070",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta reached fiscal targets agreed with the European Commission earlier than planned.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-malta-really-reach-fiscal-targets-earlier-than-planned"
+   ],
+   "labelledOn": "2026-05-04",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-071",
+   "category": "rated false",
+   "language": "en",
+   "input": "Nearly 60,000 Indian migrants arrive in New Zealand each year.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.aap.com.au/factcheck/nz-first-candidate-vastly-inflates-indian-migration-numbers/"
+   ],
+   "labelledOn": "2026-10-09",
+   "ruling": {
+    "publisher": "AAP",
+    "rating": "False. The figure is based on visas issued, not arrivals, and around 17,000 Indian migrants arrived in the past year."
+   }
+  },
+  {
+   "id": "rp2-072",
+   "category": "rated true",
+   "language": "en",
+   "input": "Israeli Prime Minister Benjamin Netanyahu said Hamas' Oct. 7, 2023, attack on Israel “is equal to 40,000 innocent Americans slaughtered in less than 24 hours. That's 16 times 9/11. Sixteen 9/11s that occurred not very far from here.”",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/netanyahu-oct-7-16-911s/"
+   ],
+   "labelledOn": "2026-09-25",
+   "ruling": {
+    "publisher": "Snopes.com",
+    "rating": "Correct Attribution"
+   }
+  },
+  {
+   "id": "rp2-073",
+   "category": "rated true",
+   "language": "en",
+   "input": "The Carer's Grant started at €500 per year and was later increased to half the national minimum wage.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-the-carer-s-grant-really-rise-from-500-euro-to-half-the-minimum-wage"
+   ],
+   "labelledOn": "2026-04-29",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-074",
+   "category": "rated true",
+   "language": "en",
+   "input": "A 21-year-old woman died during a rope jump in Brazil after crew members forgot to attach her to security equipment before she jumped.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/brazil-bridge-accident/"
+   ],
+   "labelledOn": "2026-06-15",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-075",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta remains heavily dependent on fossil fuels, especially gas, for electricity generation.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/is-malta-really-heavily-dependent-on-fossil-fuels-for-electricity.html"
+   ],
+   "labelledOn": "2026-05-04",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-076",
+   "category": "rated false",
+   "language": "en",
+   "input": "Did police name Tyler Gregory Sternbach as the Silver Rail Elementary school shooting suspect in Bend Oregon?",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://leadstories.com/hoax-alert/2026/10/fact-check-police-did-not-name-tyler-gregory-sternbach-silver-rail-elementary-school-shooting-suspect-bend-oregon.html"
+   ],
+   "labelledOn": "2026-10-16",
+   "ruling": {
+    "publisher": "Lead Stories",
+    "rating": "Wrong Person"
+   }
+  },
+  {
+   "id": "rp2-077",
+   "category": "rated true",
+   "language": "en",
+   "input": "Global energy prices rose sharply, Malta paid energy subsidies for households, and Robert Abela decided to keep those subsidies in place rather than pass increases onto bills.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-malta-really-keep-energy-bills-low-while-international-prices-spiked"
+   ],
+   "labelledOn": "2026-05-03",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-078",
+   "category": "rated false",
+   "language": "en",
+   "input": "Videos show medical professionals promoting an antifungal nail treatment.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.aap.com.au/factcheck/fake-ai-doctors-used-to-promote-one-star-antifungal-treatment/"
+   ],
+   "labelledOn": "2026-10-27",
+   "ruling": {
+    "publisher": "AAP",
+    "rating": "False. The medical professionals are AI generated."
+   }
+  },
+  {
+   "id": "rp2-079",
+   "category": "rated false",
+   "language": "en",
+   "input": "Indian students attacked and set fire to an Indian Air Force base",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D3TF3WE"
+   ],
+   "labelledOn": "2026-10-23",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-080",
+   "category": "rated true",
+   "language": "en",
+   "input": "Images authentically show a sculpture of Jesus Christ holding two Uzi submachine guns.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/uzi-jesus-statue-france/"
+   ],
+   "labelledOn": "2026-09-22",
+   "ruling": {
+    "publisher": "Snopes.com",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-081",
+   "category": "rated false",
+   "language": "en",
+   "input": "Les Echos Accused Zelensky of 'Laughter Over the Bones' of a Million Dead Ukrainians",
+   "expected": "FAKE",
+   "sources": [
+    "https://www.stopfake.org/en/fake-les-echos-accused-zelensky-of-laughter-over-the-bones-of-a-million-dead-ukrainians/"
+   ],
+   "labelledOn": "2026-09-17",
+   "ruling": {
+    "publisher": "StopFake",
+    "rating": "The Les Echos front page circulating online is a forgery. In the genuine edition of Sept. 7, 2026, that space carries an article about Germany's Alternative für Deutschland (AfD). The photograph and the text were swapped out, attributing to the French paper statements that appear nowhere on the real front page."
+   },
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ]
+  },
+  {
+   "id": "rp2-082",
+   "category": "rated false",
+   "language": "en",
+   "input": "The video shows the Israeli passengers aboard Flydubai Flight FZ1073 celebrating after helping subdue an attacker after the violent cockpit incident.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.thequint.com/news/webqoof/old-video-falsely-shared-to-show-the-allegedly-hijacked-flydubai-flight-fact-check"
+   ],
+   "labelledOn": "2026-10-05",
+   "ruling": {
+    "publisher": "The Quint",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-083",
+   "category": "rated false",
+   "language": "en",
+   "input": "uniforms were being transported to Delhi for BJP and RSS supporters to impersonate police personnel and assault protesters",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.newsmobile.in/nm-fact-checker/verified-this-video-does-not-show-police-uniforms-being-supplied-to-bjp-rss-workers/"
+   ],
+   "labelledOn": "2026-10-22",
+   "ruling": {
+    "publisher": "NewsMobile",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-084",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta's renewable share rose from under 3% in 2013 to 17.2% in 2024.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-malta-s-renewable-energy-share-really-grow-from-under-3-percent-to-17-2-percent"
+   ],
+   "labelledOn": "2026-04-30",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-085",
+   "category": "rated false",
+   "language": "en",
+   "input": "This image authentically shows AISA's Neha Bora seated with Congress leader Shashi Tharoor",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.thequint.com/news/webqoof/ai-edited-image-shashi-tharoor-neha-bora-fact-check"
+   ],
+   "labelledOn": "2026-10-20",
+   "ruling": {
+    "publisher": "The Quint",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-086",
+   "category": "rated true",
+   "language": "en",
+   "input": "The European Commission opened infringement proceedings against Malta over non-transposition of an EU energy directive.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-the-european-commission-really-open-infringement-proceedings-against-malta-on-energy"
+   ],
+   "labelledOn": "2026-05-04",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-087",
+   "category": "rated true",
+   "language": "en",
+   "input": "The first Malta-Sicily interconnector was a PN investment.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/was-the-first-malta-sicily-interconnector-really-a-pn-investment"
+   ],
+   "labelledOn": "2026-05-04",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-088",
+   "category": "rated false",
+   "language": "en",
+   "input": "There were zero small boat crossings before Brexit.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://fullfact.org/immigration/small-boat-crossings-predate-brexit/"
+   ],
+   "labelledOn": "2026-10-14",
+   "ruling": {
+    "publisher": "Full Fact",
+    "rating": "False. There is plenty of evidence of small boat crossings taking place both before the UK left the EU in 2020, and before the EU referendum in 2016, although numbers have increased substantially since 2018."
+   }
+  },
+  {
+   "id": "rp2-089",
+   "category": "rated false",
+   "language": "en",
+   "input": "A compilation video shows a 23-year-old Ukrainian soldier crying as he is sent to the front lines.",
+   "expected": "FAKE",
+   "sources": [
+    "https://fullfact.org/conflict/fake-video-ukrainian-soldier-crying-ai-facebook/"
+   ],
+   "labelledOn": "2026-09-29",
+   "ruling": {
+    "publisher": "Full Fact",
+    "rating": "The clip of a crying soldier at the start of this video isn’t real and was made using AI."
+   },
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ]
+  },
+  {
+   "id": "rp2-090",
+   "category": "rated false",
+   "language": "en",
+   "input": "Philippines will fine users 50 million pesos for improper social media use.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D2KE2WE"
+   ],
+   "labelledOn": "2026-10-09",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-091",
+   "category": "rated false",
+   "language": "en",
+   "input": "Former president Rodrigo Duterte has returned to the Philippines.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.rappler.com/newsbreak/fact-check/rodrigo-duterte-not-back-philippines-old-news-report/"
+   ],
+   "labelledOn": "2026-10-22",
+   "ruling": {
+    "publisher": "Rappler",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-092",
+   "category": "rated false",
+   "language": "en",
+   "input": "Scotland is housing 10% of the UK’s asylum seekers.",
+   "expected": "FAKE",
+   "sources": [
+    "https://fullfact.org/politics/asylum-seekers-scotland-6percent/"
+   ],
+   "labelledOn": "2026-05-05",
+   "ruling": {
+    "publisher": "Full Fact",
+    "rating": "This isn’t correct according to the latest figures, which show just over 6% of asylum seekers who are being supported by the UK government are housed in Scotland."
+   },
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ]
+  },
+  {
+   "id": "rp2-093",
+   "category": "rated true",
+   "language": "en",
+   "input": "A video authentically shows U.S. President Donald Trump neglecting to salute two Marines upon disembarking Marine One on Oct. 20.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/trump-forgets-salute-marines/"
+   ],
+   "labelledOn": "2026-10-21",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-094",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta has among the lowest energy prices in the EU — first cheapest for households and second cheapest for businesses.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/does-malta-really-have-among-the-lowest-energy-prices-in-the-eu"
+   ],
+   "labelledOn": "2026-04-30",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-095",
+   "category": "rated false",
+   "language": "en",
+   "input": "A video shows a man playing music on a speaker and passengers clapping and filming after the attack on an Israel-bound Flydubai flight where a pilot was attacked.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://fullfact.org/world/old-video-israel-basketball-player-shared-flydubai-incident/"
+   ],
+   "labelledOn": "2026-10-08",
+   "ruling": {
+    "publisher": "Full Fact",
+    "rating": "False. The video has been online since at least August 2025."
+   }
+  },
+  {
+   "id": "rp2-096",
+   "category": "rated false",
+   "language": "en",
+   "input": "Zelensky buys $42 million bunker in Nova Scotia",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D4GU6G3"
+   ],
+   "labelledOn": "2026-10-27",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-097",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta's housing-affordability issue is the consequence of fast population growth driven by foreign-worker inflows.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/is-malta-s-housing-affordability-issue-really-due-to-population-growth.html"
+   ],
+   "labelledOn": "2026-05-08",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-098",
+   "category": "rated false",
+   "language": "en",
+   "input": "A photo shows Prime Minister Anthony Albanese arriving in the US alone, without a greeting party.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.aap.com.au/factcheck/liberal-mp-shares-fake-ai-image-of-pms-airport-arrival/"
+   ],
+   "labelledOn": "2026-10-06",
+   "ruling": {
+    "publisher": "AAP",
+    "rating": "False. The image is AI-generated."
+   }
+  },
+  {
+   "id": "rp2-099",
+   "category": "rated true",
+   "language": "en",
+   "input": "Public debt fell below 47% of GDP, compared to 70% under the PN administration.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-malta-s-public-debt-really-fall-from-70-percent-under-pn-to-below-47-percent-under-pl"
+   ],
+   "labelledOn": "2026-04-29",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-100",
+   "category": "rated false",
+   "language": "en",
+   "input": "French high school students protest on top of burning car near Eiffel Tower",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D3794CR"
+   ],
+   "labelledOn": "2026-10-13",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-101",
+   "category": "rated false",
+   "language": "en",
+   "input": "A video allegedly shows French protestors clashing with the police and protesting in the streets.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://digiteye.in/does-this-video-really-show-protestors-clashing-with-police-in-france-fact-check/"
+   ],
+   "labelledOn": "2026-10-23",
+   "ruling": {
+    "publisher": "DigitEye India",
+    "rating": "The claim is false. The video originates from pro-European Union protests in Tbilisi, Georgia, in 2024, not France. The demonstrations erupted after the Georgian government announced its decision to suspend negotiations on joining the European Union until 2028."
+   }
+  },
+  {
+   "id": "rp2-102",
+   "category": "rated false",
+   "language": "en",
+   "input": "Screenshots show news headlines detailing allegations involving Australian Greens senator Jordon Steele-John.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.aap.com.au/factcheck/fabricated-headlines-distort-allegations-against-greens-senator/"
+   ],
+   "labelledOn": "2026-10-28",
+   "ruling": {
+    "publisher": "AAP",
+    "rating": "False. The headlines have been fabricated using artificial intelligence and the news outlets did not report these details."
+   }
+  },
+  {
+   "id": "rp2-103",
+   "category": "rated false",
+   "language": "en",
+   "input": "A video shows a group of Muslim men praying on an Australian street.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://aap.com.au/factcheck/muslim-worshippers-on-aussie-street-are-ai-creations/"
+   ],
+   "labelledOn": "2026-10-13",
+   "ruling": {
+    "publisher": "AAP",
+    "rating": "False. The video is AI-generated."
+   }
+  },
+  {
+   "id": "rp2-104",
+   "category": "rated false",
+   "language": "en",
+   "input": "46 lawmakers from the House of Representatives voted to impeach President Ferdinand Marcos Jr. at the height of Vice President Sara Duterte’s own impeachment trial.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.rappler.com/newsbreak/fact-check/congress-no-voting-new-impeachment-case-against-marcos/"
+   ],
+   "labelledOn": "2026-10-05",
+   "ruling": {
+    "publisher": "Rappler",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-105",
+   "category": "rated true",
+   "language": "en",
+   "input": "Photos authentically show a gold-covered statue depicting a naked U.S. President Donald Trump on display at the European Parliament in Strasbourg, France, in early October.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/trump-gold-naked-statue/"
+   ],
+   "labelledOn": "2026-10-07",
+   "ruling": {
+    "publisher": "Snopes.com",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-106",
+   "category": "rated false",
+   "language": "en",
+   "input": "US President Donald Trump will make a courtesy call on Vice President Sara Duterte when he visits the Philippines next month, and Duterte will be the president by then.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.rappler.com/newsbreak/fact-check/no-report-donald-trump-courtesy-call-sara-duterte-ferdinand-marcos-jr-remains-president/"
+   ],
+   "labelledOn": "2026-10-28",
+   "ruling": {
+    "publisher": "Rappler",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-107",
+   "category": "rated true",
+   "language": "en",
+   "input": "Ohio gubernatorial candidate Amy Acton's birth mother, Donna Arthur, remained married to Acton's stepfather, Cledith Arthur, until 2004, despite him being charged with raping Acton when she was 12.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/amy-acton-mom-ad/"
+   ],
+   "labelledOn": "2026-10-23",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-108",
+   "category": "rated false",
+   "language": "en",
+   "input": "Philippine leader Ferdinand Marcos admits plans to cancel 2028 elections.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D3868KE"
+   ],
+   "labelledOn": "2026-10-16",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-109",
+   "category": "rated false",
+   "language": "en",
+   "input": "The Sept. 30 impeachment trial of Vice President Sara Duterte was canceled because some senator-judges had a “traumatic experience” while questioning her brother, Davao City Mayor Sebastian “Baste” Duterte. This is false.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://verafiles.org/articles/fact-check-saras-trial-postponed-not-because-senator-judges-were-traumatized-by-baste-duterte"
+   ],
+   "labelledOn": "2026-10-07",
+   "ruling": {
+    "publisher": "VERA Files",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-110",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta has €11.4 billion in public debt and pays €814,000 per day in interest.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/is-malta-s-public-debt-really-114bn-with-814000-daily-in-interest"
+   ],
+   "labelledOn": "2026-05-08",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-111",
+   "category": "rated false",
+   "language": "en",
+   "input": "UN expert concludes that Thailand must return a village to Cambodia.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D2946NQ"
+   ],
+   "labelledOn": "2026-10-07",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-112",
+   "category": "rated false",
+   "language": "en",
+   "input": "An image authentically shows a protester wearing a shirt that read “Release the Epstein Files” at a Trump rally in Youngstown, Ohio, on Oct. 12.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.snopes.com/fact-check/image-ohio-trump-rally-protester/"
+   ],
+   "labelledOn": "2026-10-14",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "Fake"
+   }
+  },
+  {
+   "id": "rp2-113",
+   "category": "rated false",
+   "language": "en",
+   "input": "Clip shows PTI supporters setting governor house on fire.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D388863"
+   ],
+   "labelledOn": "2026-10-15",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-114",
+   "category": "rated false",
+   "language": "en",
+   "input": "The image shows a Pakistani military aircraft destroyed at Aden Airport and their aircrews killed following Houthi attacks targeting the airport.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.misbar.com/en/factcheck/2026/10/10/does-image-show-pakistani-aircraft-destroyed-aden-airport-following-houthi-attacks"
+   ],
+   "labelledOn": "2026-10-10",
+   "ruling": {
+    "publisher": "misbar.com",
+    "rating": "fake"
+   }
+  },
+  {
+   "id": "rp2-115",
+   "category": "rated true",
+   "language": "en",
+   "input": "The planned third Malta–Sicily interconnector would initially provide 200MW and could scale to 400MW.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/will-the-third-interconnector-really-deliver-200mw-and-scale-to-400mw"
+   ],
+   "labelledOn": "2026-04-30",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-116",
+   "category": "rated true",
+   "language": "en",
+   "input": "The European Commission previously pushed Malta to cut energy subsidies, and a previous PN government followed an EU austerity template.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-the-european-commission-really-push-malta-to-cut-energy-subsidies"
+   ],
+   "labelledOn": "2026-05-03",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly true"
+   }
+  },
+  {
+   "id": "rp2-117",
+   "category": "rated true",
+   "language": "en",
+   "input": "On Oct. 25, U.S. President Donald Trump said at a Michigan campaign rally, \"By the way, I looked at one hell of a beautiful a** before — Nicki Minaj.\"",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/trump-nicki-minaj-beautiful-butt/"
+   ],
+   "labelledOn": "2026-10-28",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "Correct Attribution"
+   }
+  },
+  {
+   "id": "rp2-118",
+   "category": "rated false",
+   "language": "en",
+   "input": "Trump published an X post about selling fighter jets to Taiwan",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D3372T8"
+   ],
+   "labelledOn": "2026-10-19",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-119",
+   "category": "rated false",
+   "language": "en",
+   "input": "Sri Lanka records 385,000 Muslim births and 750,000 Sinhalese abortions a year, and Muslims will become the majority by 2060 unless each Sinhalese family has more than three children.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://srilanka.factcrescendo.com/english/385000-muslim-births-750000-sinhala-abortions-annually-social-media-claim-is-false/"
+   ],
+   "labelledOn": "2026-10-13",
+   "ruling": {
+    "publisher": "Fact Crescendo Sri Lanka",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-120",
+   "category": "rated false",
+   "language": "en",
+   "input": "A former James Talarico student has accused him of sexual assault",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D3ZE6T6"
+   ],
+   "labelledOn": "2026-10-22",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-121",
+   "category": "rated true",
+   "language": "en",
+   "input": "Last weekend, U.S. President Donald Trump's administration chopped down 430 trees and planned to cut down hundreds more from East Potomac Park in Washington, D.C., the same site where Trump plans to renovate a golf course, court documents confirm.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/trump-cut-down-430-trees/"
+   ],
+   "labelledOn": "2026-10-16",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-122",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta has one of the best breast cancer survival rates in Europe.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/does-malta-really-have-one-of-the-best-breast-cancer-survival-rates-in-europe"
+   ],
+   "labelledOn": "2026-05-11",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-123",
+   "category": "rated true",
+   "language": "en",
+   "input": "The U.S. Department of Housing and Urban Development updated its policy on what could reasonably be accommodated as a service animal, effectively removing untrained \"emotional support animals.\"",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/hud-emotional-support-animals/"
+   ],
+   "labelledOn": "2026-05-27",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-124",
+   "category": "rated false",
+   "language": "en",
+   "input": "PH Comelec calendar of activities proof that village elections a go",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D38B6NQ"
+   ],
+   "labelledOn": "2026-10-17",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-125",
+   "category": "rated true",
+   "language": "en",
+   "input": "“The barrel has moved from US$60 in February to $101 today.”",
+   "expected": "REAL",
+   "sources": [
+    "https://africacheck.org/fact-checks/reports/global-oil-prices-rise-and-fall-kenyas-pump-prices-stay-high-data-says-mostly"
+   ],
+   "labelledOn": "2026-04-30",
+   "ruling": {
+    "publisher": "Africa Check",
+    "rating": "Mostly correct"
+   }
+  },
+  {
+   "id": "rp2-126",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta has the highest healthy life expectancy in Europe.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/does-malta-really-have-the-highest-healthy-life-expectancy-in-europe"
+   ],
+   "labelledOn": "2026-05-11",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-127",
+   "category": "rated false",
+   "language": "en",
+   "input": "The Police Media Spokesperson said everyone sharing 'Vas Kavi' (curse verses) on social media will be punished under the law.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://srilanka.factcrescendo.com/english/false-post-claims-police-will-punish-social-media-vas-kavi-shares/"
+   ],
+   "labelledOn": "2026-10-22",
+   "ruling": {
+    "publisher": "Fact Crescendo Sri Lanka",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-128",
+   "category": "rated true",
+   "language": "en",
+   "input": "Video authentically shows U.S. President Donald Trump making a strange \"EHHH!\" sound midsentence during a speech at an Oct. 21 campaign rally for Sen. Darline Graham in South Carolina.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/trump-makes-strange-noise-rally/"
+   ],
+   "labelledOn": "2026-10-23",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-129",
+   "category": "rated true",
+   "language": "en",
+   "input": "U.S. President Joe Biden's administration renamed roughly 650 geographic features.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/biden-rename-geographic-features/"
+   ],
+   "labelledOn": "2026-09-08",
+   "ruling": {
+    "publisher": "Snopes.com",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-130",
+   "category": "rated false",
+   "language": "en",
+   "input": "Denzel Washington said he is a \"steadfast supporter\" of Donald Trump",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D36H4ZQ"
+   ],
+   "labelledOn": "2026-10-13",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-131",
+   "category": "rated true",
+   "language": "en",
+   "input": "Labour reduced electricity prices 12 years ago and kept them stable.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-labour-really-reduce-electricity-prices-12-years-ago-and-keep-them-stable"
+   ],
+   "labelledOn": "2026-05-04",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-132",
+   "category": "rated false",
+   "language": "en",
+   "input": "Photos and video show a protester in a Pink Panther costume being arrested by police during the protests in France.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://srilanka.factcrescendo.com/english/pink-panther-france-protest-arrest-ai-images-false/"
+   ],
+   "labelledOn": "2026-10-21",
+   "ruling": {
+    "publisher": "Fact Crescendo Sri Lanka",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-133",
+   "category": "rated false",
+   "language": "en",
+   "input": "A Filipino suspect in the drug shipment intercepted in Laos, who was reportedly a former employee of former House Speaker Martin Romualdez, identified presidential son and Ilocos Norte 1st District Representative Sandro Marcos as the alleged mastermind behind the operation.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.rappler.com/newsbreak/fact-check/no-reports-link-sandro-marcos-martin-romualdez-laos-drug-bust/"
+   ],
+   "labelledOn": "2026-10-23",
+   "ruling": {
+    "publisher": "Rappler",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-134",
+   "category": "rated false",
+   "language": "en",
+   "input": "Tom Holland imitated late Philippine university varsity basketball player",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.factrakers.org/post/tom-holland-imitated-spider-man-co-star-not-baterbonia"
+   ],
+   "labelledOn": "2026-10-16",
+   "ruling": {
+    "publisher": "FactRakers",
+    "rating": "ALTERED"
+   }
+  },
+  {
+   "id": "rp2-135",
+   "category": "rated false",
+   "language": "en",
+   "input": "The NHS is considering making attending a Premier League match an official treatment option to help tackle depression.",
+   "expected": "FAKE",
+   "sources": [
+    "https://fullfact.org/health/nhs-not-prescribing-premier-league-match-for-depression/"
+   ],
+   "labelledOn": "2026-07-31",
+   "ruling": {
+    "publisher": "Full Fact",
+    "rating": "The NHS says this isn’t true. There was a local pilot in Gloucestershire for lower-league football, but not for Premier League tickets."
+   },
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ]
+  },
+  {
+   "id": "rp2-136",
+   "category": "rated false",
+   "language": "en",
+   "input": "The private jet seized in Laos for alleged drug smuggling bound for the Philippines is the same aircraft that took Rodrigo Duterte to The Hague, Netherlands.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://verafiles.org/articles/fact-check-jet-seized-in-laos-not-the-same-one-that-flew-duterte-to-the-hague"
+   ],
+   "labelledOn": "2026-10-14",
+   "ruling": {
+    "publisher": "VERA Files",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-137",
+   "category": "rated true",
+   "language": "en",
+   "input": "Debt fell from around 70% of GDP to 46.4%, despite energy subsidies and wage supplement spending.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-malta-s-debt-really-fall-from-70-to-46-percent-of-gdp"
+   ],
+   "labelledOn": "2026-05-19",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-138",
+   "category": "rated false",
+   "language": "en",
+   "input": "An image authentically shows attendees at one of U.S. President Donald Trump's rallies punching the face of a protester wearing a shirt that says \"RELEASE THE EPSTEIN FILES.\"",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.snopes.com/fact-check/trump-rally-epstein-protester/"
+   ],
+   "labelledOn": "2026-10-15",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "Fake"
+   }
+  },
+  {
+   "id": "rp2-139",
+   "category": "rated false",
+   "language": "en",
+   "input": "An image shows a full flight watching \"Trump TV\"",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D2EW8WE"
+   ],
+   "labelledOn": "2026-10-06",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "AI-generated"
+   }
+  },
+  {
+   "id": "rp2-140",
+   "category": "rated true",
+   "language": "en",
+   "input": "More than half of employers say Malta has an employment/workers shortage.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/do-more-than-half-of-employers-really-say-malta-has-a-worker-shortage.html"
+   ],
+   "labelledOn": "2026-05-19",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "Mostly True"
+   }
+  },
+  {
+   "id": "rp2-141",
+   "category": "rated false",
+   "language": "en",
+   "input": "Labour to appoint Jacinda Ardern as governor-general if it wins election.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D3WT9WE"
+   ],
+   "labelledOn": "2026-10-23",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-142",
+   "category": "rated false",
+   "language": "en",
+   "input": "The video shows Israelis singing the Hindu Shloka 'Hanuman Chalisa' in Hebrew at a Tel Aviv beach in Israel.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.thequint.com/news/webqoof/viral-video-of-israelis-singing-hanuman-chalisa-in-tel-aviv-ai-generated-fact-check"
+   ],
+   "labelledOn": "2026-10-28",
+   "ruling": {
+    "publisher": "The Quint",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-143",
+   "category": "rated false",
+   "language": "en",
+   "input": "Malabon City Lone District Representative Antolin “Lenlen” Oreta III pointed out Vice President Sara Duterte’s multiple travels to The Hague, Netherlands while bringing up President Ferdinand Marcos Jr. 's modernization plan for the Philippines.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.rappler.com/newsbreak/fact-check/malabon-congressman-did-not-slam-sara-duterte-travels/"
+   ],
+   "labelledOn": "2026-10-05",
+   "ruling": {
+    "publisher": "Rappler",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-144",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta no longer has an unemployment problem.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/has-malta-really-eliminated-its-unemployment-problem.html"
+   ],
+   "labelledOn": "2026-05-09",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-145",
+   "category": "rated false",
+   "language": "en",
+   "input": "Robbery in South Africa thwarted by employee",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D3V7463"
+   ],
+   "labelledOn": "2026-10-21",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-146",
+   "category": "rated false",
+   "language": "en",
+   "input": "A compilation video shows three clips of the Ukrainian President Volodymyr Zelenskyy dancing.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://fullfact.org/world/zelenskyy-belly-dancing-ai-deepfake-repeat/"
+   ],
+   "labelledOn": "2026-10-15",
+   "ruling": {
+    "publisher": "Full Fact",
+    "rating": "Although one of the clips is a genuine video from Mr Zelenskyy’s previous career as a comic actor, the others are actually AI deepfakes."
+   }
+  },
+  {
+   "id": "rp2-147",
+   "category": "rated false",
+   "language": "en",
+   "input": "Graph shows firm's exit polling on Alberta independence election",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D3VB964"
+   ],
+   "labelledOn": "2026-10-20",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-148",
+   "category": "rated false",
+   "language": "en",
+   "input": "Clip shows explosion at Wainwright military base in Alberta, Canada",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://factcheck.afp.com/doc.afp.com.D3R38ZQ"
+   ],
+   "labelledOn": "2026-10-19",
+   "ruling": {
+    "publisher": "AFP Fact Check",
+    "rating": "False"
+   }
+  },
+  {
+   "id": "rp2-149",
+   "category": "rated false",
+   "language": "en",
+   "input": "A video authentically shows a newborn baby with a mustache sitting upright against a pillow in a hospital room.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.snopes.com/fact-check/baby-born-mustache-video/"
+   ],
+   "labelledOn": "2026-10-26",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "Fake"
+   }
+  },
+  {
+   "id": "rp2-150",
+   "category": "rated true",
+   "language": "en",
+   "input": "Reducing the energy density of meals reliably cuts calorie intake — by an average of 709 calories per day when applied across all foods served — while the volume of food eaten stays the same or increases, and compensatory eating at later meals is statistically negligible.",
+   "expected": "REAL",
+   "sources": [
+    "https://fitchef.com/grounded-truth-map/"
+   ],
+   "labelledOn": "2026-08-22",
+   "ruling": {
+    "publisher": "FitChef",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-151",
+   "category": "rated true",
+   "language": "en",
+   "input": "U.S. President Donald Trump said that if Democrats win, \"You’re going to be thrown into a system where everyone gets healthcare.\"",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/trump-healthcare-democrats-win-quote/"
+   ],
+   "labelledOn": "2026-10-20",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "Correct Attribution"
+   }
+  },
+  {
+   "id": "rp2-152",
+   "category": "rated false",
+   "language": "en",
+   "input": "Videos show the Australian border force on ships intercepting small boats, including one where an official shoots near people in a dinghy.",
+   "expected": "FAKE",
+   "sources": [
+    "https://fullfact.org/immigration/ai-generated-videos-australian-border-force/"
+   ],
+   "labelledOn": "2026-04-17",
+   "ruling": {
+    "publisher": "Full Fact",
+    "rating": "These videos aren’t real and were made using artificial intelligence."
+   },
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ]
+  },
+  {
+   "id": "rp2-153",
+   "category": "rated true",
+   "language": "en",
+   "input": "Lake Ontario was named by Indigenous people, not after the Canadian province of Ontario.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/lake-ontario-name-canada/"
+   ],
+   "labelledOn": "2026-08-28",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-154",
+   "category": "rated false",
+   "language": "en",
+   "input": "Labour extended the Energy Profits Levy to 2028, then 2029, then 2030.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://fullfact.org/economy/kemi-badenoch-energy-profits-levy/"
+   ],
+   "labelledOn": "2026-10-08",
+   "ruling": {
+    "publisher": "Full Fact",
+    "rating": "This is partly incorrect. The extension to 2028 was made by a Conservative government. An extension to 2029 was announced by a Conservative government but doesn’t appear to have been implemented. Labour later extended the levy to 2030."
+   }
+  },
+  {
+   "id": "rp2-155",
+   "category": "rated true",
+   "language": "en",
+   "input": "Malta's top tax-band ceiling was last revised in 2012 under a PN government — and has not been adjusted since to reflect inflation and cost-of-living increases.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/has-malta-s-top-tax-band-really-not-been-revised-since-2012"
+   ],
+   "labelledOn": "2026-05-07",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-156",
+   "category": "rated true",
+   "language": "en",
+   "input": "On Oct. 13, U.S. President Donald Trump posted an AI video on his Truth Social account showing himself playing with a tiger.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/trump-posts-tiger-video-ai/"
+   ],
+   "labelledOn": "2026-10-14",
+   "ruling": {
+    "publisher": "Snopes.com",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-157",
+   "category": "rated true",
+   "language": "en",
+   "input": "The administration of U.S. President Donald Trump is cutting access to student loans for degrees that have low earning potential, including social work.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.snopes.com/fact-check/trump-cutting-student-loans/"
+   ],
+   "labelledOn": "2026-09-30",
+   "ruling": {
+    "publisher": "Snopes",
+    "rating": "True"
+   }
+  },
+  {
+   "id": "rp2-158",
+   "category": "rated false",
+   "language": "en",
+   "input": "Governor-General Sam Mostyn said \"dismiss the government\" in the wake of the Bondi terror attack.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://www.aap.com.au/factcheck/governor-general-targeted-with-fake-constitutional-crisis/"
+   ],
+   "labelledOn": "2026-10-06",
+   "ruling": {
+    "publisher": "AAP",
+    "rating": "False. The quote has been fabricated by foreign-run disinformation pages."
+   }
+  },
+  {
+   "id": "rp2-159",
+   "category": "rated false",
+   "language": "en",
+   "input": "A compilation video of eight clips shows US strikes on Iran.",
+   "expected": "FAKE",
+   "alsoAcceptable": [
+    "PARTLY FALSE",
+    "MISLEADING"
+   ],
+   "sources": [
+    "https://fullfact.org/conflict/video-compilation-us-strikes-iran-old-footage-and-fake/"
+   ],
+   "labelledOn": "2026-10-05",
+   "ruling": {
+    "publisher": "Full Fact",
+    "rating": "The video includes two old clips from Gaza and Lebanon as well as multiple fake videos."
+   }
+  },
+  {
+   "id": "rp2-160",
+   "category": "rated true",
+   "language": "en",
+   "input": "A measure recognising social security contributions paid before the age of 18, particularly affecting women, added 2,000 pensioners.",
+   "expected": "REAL",
+   "sources": [
+    "https://www.spunt.mt/malta-fact-check/did-a-policy-measure-really-add-2000-more-people-to-the-pensioner-population.html"
+   ],
+   "labelledOn": "2026-04-29",
+   "ruling": {
+    "publisher": "Spunt.mt",
+    "rating": "True"
+   }
+  }
+ ]
+}

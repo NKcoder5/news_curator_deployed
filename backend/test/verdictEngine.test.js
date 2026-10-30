@@ -337,7 +337,9 @@ const supported = (claim) => ({ claim, verdict: 'supported', supportingEvidence:
 
 test('a claim about what a video or picture shows is not confirmed by reports of the event', () => {
   for (const claim of ['An image shows a house that survived flooding in Nepal.', 'A video showing PM Modi interacting with Congress leaders at the meeting.',
-    'Actual footage of a Nepal flood survivor.', 'The video shows the Gandak Barrage protecting Bihar from the Nepal floods.', 'Visuals of the protest at Shivaji Park.']) {
+    'Actual footage of a Nepal flood survivor.', 'The video shows the Gandak Barrage protecting Bihar from the Nepal floods.', 'Visuals of the protest at Shivaji Park.',
+    // Rulings pool 2, 30 Oct: called REAL on reports of the poll.
+    'Graph shows the Nepal flood toll by district.']) {
     const d = decideVerdict(ledgerFor({ claims: [supported(claim)] }));
     assert.strictEqual(d.call, 'CANNOT VERIFY', claim);
     assert.strictEqual(d.rule, 'media-not-confirmed-by-reports', claim);

@@ -32,7 +32,8 @@
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 const fs = require('fs');
 const path = require('path');
-const { checkMessage, outcomeOf, quotaGuard, EXIT_RESUMABLE, resultsFile, keptRows, writeJson, median, pause } = require('./liveCheck');
+const { checkMessage, outcomeOf, quotaGuard, EXIT_RESUMABLE, resultsFile, keptRows, writeJson, median, pause,
+  unmeasured, networkUp, waitForNetwork } = require('./liveCheck');
 const { deskOf, domainOf } = require('../agents/factCheckSearch');
 
 const args = process.argv.slice(2);
@@ -71,6 +72,7 @@ const cases = suite.cases
   .slice(0, limit);
 
 const jsonFile = resultsFile(`robustness_${outName}.json`);
+const NETWORK_ATTEMPTS = 4;
 let checks = 0;   // live checks made by this run, for eval/runDay5.js's budget
 
 const tally = (list) => ({
@@ -145,8 +147,18 @@ const save = (rows, stoppedBecause) => {
         .filter(Boolean).join('\n');
     }
     // A case whose input is a link is checked as one, flagged or not (rp-41 and rp-43 were refused as text).
-    const result = await checkMessage(c.input, { isUrl: Boolean(c.isUrl) || /^https?:\/\/\S+$/i.test(String(c.input).trim()) });
-    checks += 1;
+    // A check that could not be measured while the internet is down measured the outage: wait for the
+    // connection and check the same case again, rather than stop (the sealed part cannot resume). A quota
+    // spent leaves the internet up, and the guard below stops the run as before.
+    let result;
+    for (let attempt = 1; ; attempt += 1) {
+      result = await checkMessage(c.input, { isUrl: Boolean(c.isUrl) || /^https?:\/\/\S+$/i.test(String(c.input).trim()) });
+      checks += 1;
+      if (!unmeasured(result) || attempt >= NETWORK_ATTEMPTS || await networkUp()) break;
+      console.log(`\n${sealed ? 'A case' : c.id} could not be measured and the internet is down; waiting for it to come back (${new Date().toISOString().slice(11, 16)} UTC).`);
+      if (!await waitForNetwork()) break;
+      console.log(`The internet is back (${new Date().toISOString().slice(11, 16)} UTC); checking ${sealed ? 'the case' : c.id} again.`);
+    }
     const row = { ...c, ...result, outcome: outcomeOf(c, result.call) };
     rows.push(row);
     const mark = { right: '✓', safe: '~', missed: '○', wrong: '✗' }[row.outcome];

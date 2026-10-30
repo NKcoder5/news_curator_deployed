@@ -149,7 +149,28 @@ const quantile = (values, q) => {
 
 const pause = (seconds) => new Promise(resolve => setTimeout(resolve, seconds * 1000));
 
+// Is the internet there? The news search and the main model answer at all (any HTTP status will do).
+// On 29 and 30 Oct the laptop's connection dropped three times in a day; a run the quota guard stops
+// then resumes, but the sealed part of a suite cannot resume, so a drop would cut it short.
+const PROBES = ['https://news.google.com/', 'https://generativelanguage.googleapis.com/'];
+const networkUp = async (probes = PROBES) => {
+  const axios = require('axios');
+  const answers = await Promise.all(probes.map(url => axios.head(url, { timeout: 8000, maxRedirects: 0, validateStatus: () => true })
+    .then(() => true, () => false)));
+  return answers.every(Boolean);
+};
+
+/** Waits for the internet to come back: true once it is, false after `maxMinutes` without it. */
+const waitForNetwork = async ({ everySeconds = 30, maxMinutes = 180, up = networkUp } = {}) => {
+  const until = Date.now() + maxMinutes * 60000;
+  while (Date.now() < until) {
+    if (await up()) return true;
+    await pause(everySeconds);
+  }
+  return false;
+};
+
 module.exports = {
-  ABSTENTIONS, outcomeOf, checkMessage, degradedLabels, quotaGuard, EXIT_RESUMABLE,
+  ABSTENTIONS, outcomeOf, checkMessage, degradedLabels, quotaGuard, EXIT_RESUMABLE, networkUp, waitForNetwork,
   resultsFile, keptRows, writeJson, median, quantile, pause, GEMINI_LED, unmeasured
 };

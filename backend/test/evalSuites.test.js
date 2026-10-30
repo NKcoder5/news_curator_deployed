@@ -169,3 +169,13 @@ test('the guard stops when searches cannot run, and a resumed run checks those c
   fs.writeFileSync(file, JSON.stringify({ rows: [{ id: 'a', call: 'FAKE', rule: 'rated-false-by-fact-checkers', degraded: [] }, { id: 'b', ...down }] }));
   assert.deepStrictEqual(keptRows(file).map(r => r.id), ['a']);
 });
+
+// 29-30 Oct: the laptop's internet dropped three times in a day. A run waits for it rather than stop,
+// since the sealed part of a suite cannot resume.
+test('a run waits for the internet to come back, and gives up after its limit', async () => {
+  const { waitForNetwork } = require('../eval/liveCheck');
+  let probes = 0;
+  assert.strictEqual(await waitForNetwork({ everySeconds: 0, maxMinutes: 1, up: async () => (probes += 1) >= 3 }), true);
+  assert.strictEqual(probes, 3);
+  assert.strictEqual(await waitForNetwork({ everySeconds: 0, maxMinutes: 0.0005, up: async () => false }), false);
+});

@@ -30,6 +30,11 @@ test('a claim is about now only when the message places it in the present', () =
   assert.strictEqual(claimTime('now', 'Banks will stay shut.', 'Banks shut from Monday!!', '', 'event'), 'now');
   assert.strictEqual(claimTime('past', 'Chandrayaan-3 landed on the Moon.', 'Chandrayaan-3 lands on the Moon today', '', 'event'), 'now');
   assert.strictEqual(claimTime('timeless', 'Giraffe is a mammal.', 'Giraffe is a mammal', '', 'standing_fact'), 'timeless');
+  // Rulings pool 2, 30 Oct: a report of an announcement made is not news of today.
+  const medicare = 'The administration of U.S. President Donald Trump announced the end of a Medicare subsidy program aimed to help lower the cost of prescription drugs.';
+  assert.strictEqual(claimTime('now', medicare, medicare, '', 'event'), 'past');
+  assert.strictEqual(claimTime('now', 'The government announces school holidays.', 'Govt announces school holidays for all schools', '', 'event'), 'now');
+  assert.strictEqual(claimTime('now', 'The gazette announced holidays.', 'Gazette announced holidays from November', '', 'event'), 'now');
 });
 
 // Rulings 1-60, 27 Oct: "Starting 1st April 2026, the Income Tax Department will have the legal authority
@@ -59,6 +64,37 @@ test('a forecast whose date has passed is checked as an event', async () => {
     assert.strictEqual(read.checkableClaims.length, 1);
     assert.strictEqual(read.checkableClaims[0].kind, 'event');
     assert.strictEqual(read.checkableClaims[0].time, 'past');
+  } finally {
+    if (real) require.cache[nimPath] = real; else delete require.cache[nimPath];
+    delete require.cache[modPath];
+  }
+});
+
+// Rulings pool 2, 30 Oct: "Mike Johnson said that salaries for members of Congress have been frozen since
+// 2009, and added, ..." (rated Correct Attribution) was read as his statement and, separately, the bare
+// salaries claim, which reports of a later pay rise contradicted: PARTLY FALSE. A report of what a named
+// person said is checked as that statement; the reported words alone are not the sender's claim.
+test('a named speaker\'s reported words are not checked as a claim of their own', async () => {
+  const message = 'U.S. Speaker of the House Mike Johnson said that salaries for members of Congress have been frozen since 2009, and added, “we should at least let them engage in some stock trading so they can continue to, you know, take care of their family.”';
+  const reading = (claims) => async () => ({ language: 'en', speech_act: 'assertion', english: message, claims });
+  const content = { claim: 'Salaries for members of the United States Congress have been frozen since 2009.', kind: 'standing_fact', time: 'timeless', checkable: true, subject: 'Congress salaries' };
+  const quote = { claim: 'Mike Johnson said that members of Congress should be allowed to engage in stock trading to support their families.', kind: 'quote', time: 'past', checkable: true, subject: 'Mike Johnson' };
+  const nimPath = require.resolve('../utils/nvidiaNimApi');
+  const modPath = require.resolve('../agents/inputUnderstanding');
+  const real = require.cache[nimPath];
+  const readWith = async (claims, text = message) => {
+    require.cache[nimPath] = { id: nimPath, filename: nimPath, loaded: true, exports: {
+      callNimApi: async () => '', extractJson: () => null, callNimApiJson: reading(claims) } };
+    delete require.cache[modPath];
+    return require(modPath).understandInput(text);
+  };
+  try {
+    assert.deepStrictEqual((await readWith([content, quote])).claims.map(c => c.kind), ['quote']);
+    // Without the speaker's statement among the claims, nothing is dropped: the content is all there is.
+    assert.strictEqual((await readWith([content])).claims.length, 1);
+    // A sender's own assertion is untouched.
+    const own = 'Salaries for members of Congress have been frozen since 2009.';
+    assert.strictEqual((await readWith([content, quote], own)).claims.length, 2);
   } finally {
     if (real) require.cache[nimPath] = real; else delete require.cache[nimPath];
     delete require.cache[modPath];

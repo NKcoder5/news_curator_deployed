@@ -27,6 +27,7 @@
 // works — less well — rather than not at all.
 const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { findAnchors } = require('./checkability');
+const { distinctiveTerms } = require('./evidenceRelevance');
 const { UNTRUSTED_NOTICE, fence, asBool, oneOf, clip, clipList, addressesModel } = require('../utils/untrusted');
 
 const SPEECH_ACTS = new Set(['assertion', 'question', 'hedged', 'sarcasm', 'opinion', 'exhortation', 'prediction', 'mixed']);
@@ -72,13 +73,40 @@ const presentedAsNow = (claim, message, kind = 'event') => {
 // successfully launched the EOS-05 satellite" came back FAKE on one run of
 // the held-out suite and REAL on the next. Without a word placing it in the
 // present — today, this week, breaking, from tomorrow, will — "now" is read
-// as "past".
-const NOW_MARKERS = /\b(?:today|tonight|now|currently|just|breaking|latest|live|ongoing|tomorrow|will|announce[sd]?|this (?:week|morning|evening|afternoon|month|year)|(?:on|from|by|till|until|before) (?:tomorrow|today|tonight|midnight|next|this|monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december|\d))\b|is being|are being|இன்று|இப்போது|நாளை|आज|अभी|कल/i;
+// as "past". "Announced" in the past tense is a report of something done, not news of today: "The
+// administration of Donald Trump announced the end of a Medicare subsidy program" (rated true) kept the
+// model's "now", its August coverage made it old news passed off as new, and it came back FAKE (rulings
+// pool 2, 30 Oct). A decision announced for later still names its time ("from November", "from midnight").
+const NOW_MARKERS = /\b(?:today|tonight|now|currently|just|breaking|latest|live|ongoing|tomorrow|will|announces?|this (?:week|morning|evening|afternoon|month|year)|(?:on|from|by|till|until|before) (?:tomorrow|today|tonight|midnight|next|this|monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december|\d))\b|is being|are being|இன்று|இப்போது|நாளை|आज|अभी|कल/i;
 const claimTime = (modelTime, claim, message, english, kind) => {
   if (presentedAsNow(claim, message, kind) && modelTime !== 'future') return 'now';
   const time = modelTime || 'past';
   if (time === 'now' && !NOW_MARKERS.test(`${message} ${english || ''}`)) return 'past';
   return time;
+};
+
+// A report of what a named person said is a claim that they said it, not a claim of what they said.
+// "U.S. Speaker of the House Mike Johnson said that salaries for members of Congress have been frozen
+// since 2009, and added, ..." (rated Correct Attribution) was read as two claims, the second the bare
+// "Salaries for members of the United States Congress have been frozen since 2009", which reports of a
+// later pay rise contradicted: PARTLY FALSE (rulings pool 2, 30 Oct). When the reading keeps the
+// speaker's statement as a quote, a claim made of the reported words alone is dropped.
+const REPORTED_SPEECH = /((?:\p{Lu}[\p{L}'’.-]*\s+){0,3}\p{Lu}[\p{L}'’.-]*)\s+(?:said|says|claimed|claims|stated|states|added|argued|wrote|writes|tweeted|posted|told\s+[^,.]{1,40}?)[\s,:]+(?:that\s+)?(.{12,})/u;
+const REPORTED_SHARE = 2 / 3;
+const reportedSpeech = (message) => {
+  const m = String(message || '').match(REPORTED_SPEECH);
+  return m ? { speaker: distinctiveTerms(m[1]), clause: distinctiveTerms(m[2]) } : null;
+};
+const withoutReportedContent = (claims, message) => {
+  const reported = reportedSpeech(message);
+  if (!reported || !reported.speaker.size) return claims;
+  const names = (text) => [...distinctiveTerms(text)].some(w => reported.speaker.has(w));
+  if (!claims.some(c => c.kind === 'quote' && names(c.claim))) return claims;
+  return claims.filter(c => {
+    if (c.kind === 'quote' || names(c.claim)) return true;
+    const words = [...distinctiveTerms(c.claim)];
+    return !words.length || words.filter(w => reported.clause.has(w)).length / words.length < REPORTED_SHARE;
+  });
 };
 
 // A forecast whose date has passed is a claim about what happened. "Starting 1st April 2026, the Income
@@ -120,7 +148,7 @@ Return a JSON object with these keys:
 - "tone": a list of one to three of "neutral", "alarmist", "emotional", "celebratory", "sarcastic", "angry", "urgent".
 - "english": the whole message in plain English, without emoji. Copy it if it is already English.
 - "claims": up to 3 factual claims the message makes or asks about, most important first. List only what the message asserts or asks about, never the background it takes for granted: a person's job or title ("General Dhiraj Seth is the Army chief"), that an organisation exists, or that an event took place when the message is about what happened at it. Those are not claims the message makes, and checking them separately would confirm the background while the real claim is false. Likewise an opinion merely takes facts for granted: "Vijay is the best Chief Minister Tamil Nadu has ever had" asserts an opinion and no fact, so it has no claims, while "TVK is unstoppable — it won both bypolls" asserts that TVK won both bypolls. Each is an object with:
-  - "claim": one neutral, declarative English sentence. Spell names in full and in their usual English form ("Modi ji" → "Narendra Modi", "தவெக" → "TVK"; keep abbreviations such as TVK, DMK, RBI). For a question, the proposition asked about ("Did India win 84 medals?" → "India won 84 medals at the Asian Games 2026."). For a hedge, the claim being passed on, not the hedge. For sarcasm, the literal claim being mocked ("Oh sure, and Musk bought Jio too" → "Elon Musk bought Reliance Jio."). Keep negation exactly as stated ("TVK did not lose" stays negative). Keep every figure, place and date the message gives, and add none it does not.
+  - "claim": one neutral, declarative English sentence. Spell names in full and in their usual English form ("Modi ji" → "Narendra Modi", "தவெக" → "TVK"; keep abbreviations such as TVK, DMK, RBI). For a question, the proposition asked about ("Did India win 84 medals?" → "India won 84 medals at the Asian Games 2026."). For a hedge, the claim being passed on, not the hedge. For a report of what a named person or organisation said, claimed or wrote ("Mike Johnson said that congressional pay has been frozen since 2009"), the claim is that they said it, kind "quote", keeping the speaker; do not list what they said as a claim of its own: the message reports the statement, it does not make it (a hedge differs: "I heard that…", "my friend says…" pass a rumour on, and the rumour is the claim). For sarcasm, the literal claim being mocked ("Oh sure, and Musk bought Jio too" → "Elon Musk bought Reliance Jio."). Keep negation exactly as stated ("TVK did not lose" stays negative). Keep every figure, place and date the message gives, and add none it does not.
   - "time": "now" if presented as happening today or this week — even when the event itself happened long ago ("Chandrayaan-3 lands on the Moon today" is "now": the message presents it as today's news, and that is what must be checked). Keep "today" as the word "today" in the claim; do not replace it with a date, "past" for an earlier event, "timeless" for a standing fact, "future" only for a forecast of something that has not happened ("RBI will cut rates in December"). An announcement or decision reported as made, even one that takes effect later ("gazette declares holidays from November", "notes invalid from midnight"), is "now": the claim is that the announcement was made.
   - "kind": "event", "figure", "quote", "standing_fact", "prediction" (a forecast, not a reported decision) or "opinion". A message that states as settled that an authority or organisation will do something soon — a power cut in Madurai from tomorrow, banks shut from Monday, notes invalid from midnight — is claiming the decision has been announced: write the claim as that announcement ("A week-long power cut in Madurai from tomorrow has been announced"), with time "now" and kind "event". Only a forecast of an outcome nobody has yet decided ("RBI will cut rates in December", "petrol prices will rise") is a "prediction".
   - "checkable": true if it names a specific person, organisation, place, event or figure, or states a general fact about something a reference work describes — an animal, a plant, a substance, a natural phenomenon, a body in space, a country ("Giraffe is a fish", "The sun rises in the west", "Water boils at 100 degrees Celsius") — so that news reports or a reference work could confirm or refute it. A general fact is kind "standing_fact", time "timeless", and its subject is the thing it is about ("giraffe", "Sun"). Opinions, predictions and vague statements are false, and so is anything about a private person known only to the sender ("my neighbour Ramesh bought a car", "my friend's son got a job"): no news report or reference work covers private lives.
@@ -223,6 +251,8 @@ const understandInput = async (text) => {
           && (asBool(c.checkable) === true || ['event', 'figure', 'quote', 'standing_fact'].includes(kind))
       };
     });
+
+  claims.splice(0, claims.length, ...withoutReportedContent(claims, body));
 
   // The title before a colon is checked even if the model left it out:
   // "Punjab Anti-Drug Activist Saved: Following the killing of ..." was read

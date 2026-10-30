@@ -65,6 +65,19 @@ test('a reference entry cannot confirm today\'s news', () => {
   assert.notStrictEqual(decision.call, 'REAL');
 });
 
+// Rulings pool 2, 30 Oct: an entry on the congressman confirmed that he "pointed out" a rival's travels.
+test('a reference entry confirms dated history, not an undated occasion, a quote or a video', () => {
+  const byEntry = (claim, kind) => decideVerdict(ledgerFor(
+    [{ claim, verdict: 'no-coverage', time: 'past', kind, supportingEvidence: [], contradictingEvidence: [] }],
+    { premiseResult: { status: 'consistent', contradictions: [], confirmations: [{ entity: 'X', referenceStates: 'X is a Filipino politician.' }] } }
+  ));
+  assert.notStrictEqual(byEntry('Representative Antolin Oreta III pointed out Vice President Sara Duterte\'s travels to The Hague.', 'event').call, 'REAL');
+  assert.notStrictEqual(byEntry('Antolin Oreta III said that Sara Duterte travelled to The Hague.', 'quote').call, 'REAL');
+  assert.notStrictEqual(byEntry('Video shows Antolin Oreta III at a hearing in 2025.', 'event').call, 'REAL');
+  assert.strictEqual(byEntry('Mahatma Gandhi was born in 1869.', 'event').rule, 'confirmed-by-reference');
+  assert.strictEqual(byEntry('Bitcoin is a cryptocurrency.', 'standing_fact').rule, 'confirmed-by-reference');
+});
+
 const twoClaims = (week) => ledgerFor([
   { claim: 'Narendra Modi launched projects worth Rs 13,000 crore in Chennai.', verdict: 'supported', time: 'now',
     supportingEvidence: [outlet('DD News', 'PM launches Rs 13,000 crore projects in Chennai'), outlet('NDTV', 'Modi unveils projects worth over Rs 13,000 crore')], contradictingEvidence: [] },

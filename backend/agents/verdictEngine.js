@@ -363,7 +363,13 @@ const buildEvidenceLedger = ({
     // about standing or past facts, where an encyclopedia is the right witness
     // — never for today's events, which it cannot have recorded.
     premiseConfirmations: premiseResult?.confirmations || [],
-    referenceCanConfirm: perClaim.some(c => c.kind === 'standing_fact' || c.time === 'timeless' || c.time === 'past'),
+    // A reference work records standing facts and dated history ("Mahatma Gandhi was born in 1869"), not
+    // an occasion: an entry on a congressman confirmed that he "pointed out" a rival's travels at a hearing
+    // (rated false; rulings pool 2, 30 Oct), as entries had "a founder was attacked during a protest" and a
+    // video. A past event counts only with its year; a quote or a piece of media never.
+    referenceCanConfirm: perClaim.some(c => c.kind === 'standing_fact' || c.time === 'timeless'
+      || (c.time === 'past' && c.kind !== 'quote' && !isMediaAssertion(c.claim)
+        && (c.kind !== 'event' || /\b(?:1[0-9]|20)\d{2}\b/.test(c.claim)))),
     staleClaims: perClaim.filter(c => c.stale).map(c => ({ claim: c.claim, newestSupport: c.newestSupport })),
     confirmedClaims: perClaim.filter(c => c.independentSupport > 0).map(c => c.claim),
     contradictedClaims: perClaim.filter(c => c.independentContradiction > 0)

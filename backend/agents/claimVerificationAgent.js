@@ -6,7 +6,7 @@ const { callNimApiJson } = require('../utils/nvidiaNimApi');
 const { searchCoverageBroadening, searchGoogleNews, searchGdelt, searchBingNews } = require('../utils/newsFetcher');
 const { reputationOfResult } = require('./sourceReputationAgent');
 const { isSearchable } = require('../utils/language');
-const { filterRelevant, anchorTerms, distinctiveTerms } = require('./evidenceRelevance');
+const { filterRelevant, anchorTerms, distinctiveTerms, isOpinionPiece } = require('./evidenceRelevance');
 const { judgePairs } = require('../services/localNli');
 const { noteModelCall } = require('../utils/runContext');
 const { FACT_CHECK_DESKS } = require('./factCheckSearch');
@@ -711,10 +711,14 @@ Return a JSON object with these keys:
     const quoted = clip(it.reported, 200).trim() || String(coverage[it.n - 1]?.title || '').trim();
     return /\?["'”’)\]]*$/.test(quoted);
   };
+  // An opinion piece argues; it does not report. "TMID Editorial - Rising turnover, falling profits: Malta
+  // must protect its businesses" was read as one outlet reporting otherwise, and made a minister's claim of
+  // record business profits (rated true) FAKE (rulings pool 2, 30 Oct).
+  const opinionOnly = (it) => isOpinionPiece(coverage[it.n - 1]);
   // A disagreement counts only about the same event, and only when the two
   // statements cannot both hold: the same guard the premise check uses.
   const supportingIndices = items
-    .filter(it => stance(it) === 'agree' && asBool(it.same_event) !== false && !asksOnly(it))
+    .filter(it => stance(it) === 'agree' && asBool(it.same_event) !== false && !asksOnly(it) && !opinionOnly(it))
     .map(it => it.n);
   // A contradiction has to be found in the headline itself: the words the
   // model quotes as what the outlet reports must actually be there. A quote
@@ -726,7 +730,7 @@ Return a JSON object with these keys:
     return Boolean(item) && norm(item.title + ' ' + (item.description || '')).includes(quoted);
   };
   const contradictingIndices = items
-    .filter(it => stance(it) === 'disagree' && asBool(it.same_event) === true && asBool(it.both_can_be_true) === false && inHeadline(it) && !asksOnly(it))
+    .filter(it => stance(it) === 'disagree' && asBool(it.same_event) === true && asBool(it.both_can_be_true) === false && inHeadline(it) && !asksOnly(it) && !opinionOnly(it))
     .map(it => it.n);
   const reportedByItem = new Map(items.map(it => [it.n, clip(it.reported, 200)]));
   // More disagreeing than agreeing is a contradiction; any agreement otherwise is support.

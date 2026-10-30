@@ -216,4 +216,19 @@ const filterRelevant = (claim, evidenceItems = []) => {
   return { kept, dropped, unanchored, note };
 };
 
-module.exports = { isRelevant, filterRelevant, distinctiveTerms, anchorTerms, MIN_SHARED_TERMS };
+// An editorial, column, op-ed or letter argues a view; its headline is not a report of what happened, for
+// or against a claim. Marked by the section in the headline ("Opinion | ...", "TMID Editorial - ...",
+// "Comment: ...") or in the link's path (/opinion/, /editorial/).
+// A word before the section is a masthead in capitals ("TMID Editorial"), not "Public opinion: ...".
+const OPINION_SECTION = /^(?:(\S+)\s+)?(?:editorial|opinion|op-?ed|comment|commentary|column|letters?|letter to the editor|viewpoint|guest (?:column|essay|post))\s*[:|–—-]\s/i;
+const OPINION_SUFFIX = /\s[|–—]\s*(?:opinion|editorial|op-?ed|commentary)\b/i;
+const OPINION_PATH = /\/(?:opinion|opinions|editorials?|op-?eds?|commentary|columns?|letters)\//i;
+const isOpinionPiece = (item) => {
+  if (!item) return false;
+  const title = String(item.title || '').trim();
+  const section = title.match(OPINION_SECTION);
+  return Boolean(section && (!section[1] || /^\p{Lu}{2,6}$/u.test(section[1])))
+    || OPINION_SUFFIX.test(title) || OPINION_PATH.test(String(item.url || ''));
+};
+
+module.exports = { isRelevant, filterRelevant, distinctiveTerms, anchorTerms, isOpinionPiece, MIN_SHARED_TERMS };

@@ -149,3 +149,21 @@ test('a body named in full matches its initials, and 5.50 matches 5.5', () => {
   assert.strictEqual(isRelevant('A secret chemical leak forced the overnight evacuation of three districts',
     { title: 'Chemical leak forces overnight evacuation in Ohio' }).relevant, false);
 });
+
+test('an opinion piece is known by its section, in the headline or the link', () => {
+  const { isOpinionPiece } = require('../agents/evidenceRelevance');
+  for (const title of [
+    'TMID Editorial - Rising turnover, falling profits: Malta must protect its businesses',
+    'Opinion | The tariff numbers do not add up', 'OPINION: Why the budget fails families',
+    'Editorial: A pay rise Congress did not earn', 'Op-Ed: Medicare cuts will hurt seniors',
+    'Comment: The NHS cannot cope', 'Letters: Readers on the housing crisis',
+    'The tariff numbers do not add up | Opinion'
+  ]) assert.ok(isOpinionPiece({ title }), title);
+  assert.ok(isOpinionPiece({ title: 'Why profits fell', url: 'https://example.com/opinion/2026/10/why-profits-fell' }));
+  for (const title of [
+    'Supreme Court opinion - justices split on tariff case', 'Public opinion turns against the tariffs',
+    'Public opinion: most voters back the tariffs', 'Court opinion: judges split',
+    'Malta business profits hit record high', 'Minister comments on falling profits',
+    'Column of tanks seen near the border'
+  ]) assert.ok(!isOpinionPiece({ title, url: 'https://example.com/news/2026/a' }), title);
+});

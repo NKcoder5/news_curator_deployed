@@ -249,3 +249,20 @@ test('the verdict is weighed on the headlines that survive the relevance check',
   assert.strictEqual(judged.contradictingEvidence.length, 2);
   assert.strictEqual(judged.verdict, 'contradicted');
 });
+
+// Rulings pool 2, 30 Oct: "TMID Editorial - Rising turnover, falling profits: Malta must protect its
+// businesses" was read as one outlet reporting otherwise, and made a claim of record profits (rated true)
+// FAKE. An opinion piece argues a view; it is not a report for or against the claim.
+test('an editorial or opinion column is not evidence either way', async () => {
+  reset(null);
+  hostedProvider = 'gemini';
+  const claim = 'Malta is recording the highest business activity and corporate profit in its history.';
+  const pieces = [
+    outlet('The Malta Independent', 'TMID Editorial - Rising turnover, falling profits: Malta must protect its businesses'),
+    outlet('Times of Malta', 'Opinion | Business profits are not what the minister says')
+  ];
+  hostedReply = { items: pieces.map((_, i) => ({ n: i + 1, stance: 'disagree', same_event: true, both_can_be_true: false, reported: '' })), explanation: 'hosted' };
+  const judged = await judgeClaim(claim, pieces);
+  assert.strictEqual(judged.contradictingEvidence.length, 0);
+  assert.notStrictEqual(judged.verdict, 'contradicted');
+});

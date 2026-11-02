@@ -1,0 +1,691 @@
+{
+  "summary": {
+    "ranAt": "2026-10-30T10:08:30.043Z",
+    "suite": "rulings_pool2",
+    "complete": true,
+    "stoppedBecause": null,
+    "checksThisRun": 13,
+    "cases": 13,
+    "overall": {
+      "n": 13,
+      "right": 4,
+      "safe": 0,
+      "missed": 3,
+      "wrong": 6
+    },
+    "byCategory": {
+      "rated true": {
+        "n": 10,
+        "right": 3,
+        "safe": 0,
+        "missed": 2,
+        "wrong": 5
+      },
+      "rated false": {
+        "n": 3,
+        "right": 1,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 1
+      }
+    },
+    "medianSeconds": 12.204
+  },
+  "rows": [
+    {
+      "id": "rp2-014",
+      "category": "rated true",
+      "language": "en",
+      "input": "Malta is recording the most business activity and corporate profit in its history.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.spunt.mt/malta-fact-check/does-malta-really-have-most-business-activity-and-profit-in-history"
+      ],
+      "labelledOn": "2026-05-09",
+      "ruling": {
+        "publisher": "Spunt.mt",
+        "rating": "True"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "no-independent-coverage",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "No other outlet is reporting this, so nothing supports it either way.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "celebratory"
+        ],
+        "english": "Malta is recording the most business activity and corporate profit in its history.",
+        "claims": [
+          {
+            "claim": "Malta is recording the highest level of business activity and corporate profit in its history.",
+            "time": "past",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 13.646,
+      "modelCalls": {
+        "total": 4,
+        "byProvider": {
+          "gemini": 4
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rp2-022",
+      "category": "rated true",
+      "language": "en",
+      "input": "The administration of U.S. President Donald Trump announced the end of a Medicare subsidy program aimed to help lower the cost of prescription drugs.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.snopes.com/fact-check/trump-medicare-part-d-subsidies/"
+      ],
+      "labelledOn": "2026-07-30",
+      "ruling": {
+        "publisher": "Snopes",
+        "rating": "True"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "fact-checkers-and-reporting-disagree",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "Fact-checkers rated this false, but 9 independent outlets now report it.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The administration of U.S. President Donald Trump announced the end of a Medicare subsidy program aimed to help lower the cost of prescription drugs.",
+        "claims": [
+          {
+            "claim": "The administration of U.S. President Donald Trump announced the end of a Medicare subsidy program aimed to help lower the cost of prescription drugs.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 8.366,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rp2-027",
+      "category": "rated false",
+      "language": "en",
+      "input": "Millions found in Ukrainian defense official's home",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.D2MB9KE"
+      ],
+      "labelledOn": "2026-10-09",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-one-independent-source",
+      "confidence": 0.62,
+      "kind": null,
+      "detail": "An independent outlet reports the opposite of what this says.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "alarmist",
+          "urgent"
+        ],
+        "english": "Millions found in Ukrainian defense official's home",
+        "claims": [
+          {
+            "claim": "Millions of dollars were found in the home of a Ukrainian defense official.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 21.932,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rp2-029",
+      "category": "rated true",
+      "language": "en",
+      "input": "U.S. Speaker of the House Mike Johnson said that salaries for members of Congress have been frozen since 2009, and added, “we should at least let them engage in some stock trading so they can continue to, you know, take care of their family.”",
+      "expected": "REAL",
+      "sources": [
+        "https://www.snopes.com/fact-check/mike-johnson-congress-stock-trading-quote/"
+      ],
+      "labelledOn": "2026-05-19",
+      "ruling": {
+        "publisher": "Snopes",
+        "rating": "Correct Attribution"
+      },
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.88,
+      "kind": null,
+      "detail": "Confirmed by 5 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "U.S. Speaker of the House Mike Johnson said that salaries for members of Congress have been frozen since 2009, and added, “we should at least let them engage in some stock trading so they can continue to, you know, take care of their family.”",
+        "claims": [
+          {
+            "claim": "Mike Johnson said that salaries for members of Congress have been frozen since 2009 and that they should be allowed to engage in stock trading to take care of their families.",
+            "time": "past",
+            "kind": "quote",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.494,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rp2-033",
+      "category": "rated true",
+      "language": "en",
+      "input": "1,000 babies were born thanks to Malta's IVF reform.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.spunt.mt/malta-fact-check/did-1000-babies-really-come-from-malta-s-ivf-reform-and-did-borg-vote-against"
+      ],
+      "labelledOn": "2026-05-03",
+      "ruling": {
+        "publisher": "Spunt.mt",
+        "rating": "True"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.77,
+      "kind": null,
+      "detail": "3 independent outlets report otherwise: “590 babies born through IVF in over a decade”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "celebratory"
+        ],
+        "english": "1,000 babies were born thanks to Malta's IVF reform.",
+        "claims": [
+          {
+            "claim": "1,000 babies have been born as a result of Malta's IVF reform.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.984,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "cached": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    },
+    {
+      "id": "rp2-072",
+      "category": "rated true",
+      "language": "en",
+      "input": "Israeli Prime Minister Benjamin Netanyahu said Hamas' Oct. 7, 2023, attack on Israel “is equal to 40,000 innocent Americans slaughtered in less than 24 hours. That's 16 times 9/11. Sixteen 9/11s that occurred not very far from here.”",
+      "expected": "REAL",
+      "sources": [
+        "https://www.snopes.com/fact-check/netanyahu-oct-7-16-911s/"
+      ],
+      "labelledOn": "2026-09-25",
+      "ruling": {
+        "publisher": "Snopes.com",
+        "rating": "Correct Attribution"
+      },
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.82,
+      "kind": null,
+      "detail": "Confirmed by 4 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral",
+          "alarmist"
+        ],
+        "english": "Israeli Prime Minister Benjamin Netanyahu said Hamas' Oct. 7, 2023, attack on Israel “is equal to 40,000 innocent Americans slaughtered in less than 24 hours. That's 16 times 9/11. Sixteen 9/11s that occurred not very far from here.”",
+        "claims": [
+          {
+            "claim": "Benjamin Netanyahu said that the October 7, 2023, Hamas attack on Israel is equal to 40,000 innocent Americans slaughtered in less than 24 hours and is equivalent to 16 times 9/11.",
+            "time": "past",
+            "kind": "quote",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.235,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    },
+    {
+      "id": "rp2-073",
+      "category": "rated true",
+      "language": "en",
+      "input": "The Carer's Grant started at €500 per year and was later increased to half the national minimum wage.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.spunt.mt/malta-fact-check/did-the-carer-s-grant-really-rise-from-500-euro-to-half-the-minimum-wage"
+      ],
+      "labelledOn": "2026-04-29",
+      "ruling": {
+        "publisher": "Spunt.mt",
+        "rating": "Mostly True"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-one-independent-source",
+      "confidence": 0.62,
+      "kind": null,
+      "detail": "An independent outlet reports otherwise: “increase to €7,500”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The Carer's Grant started at €500 per year and was later increased to half the national minimum wage.",
+        "claims": [
+          {
+            "claim": "The Carer's Grant started at 500 Euros per year.",
+            "time": "past",
+            "kind": "standing_fact",
+            "checkable": true
+          },
+          {
+            "claim": "The Carer's Grant was increased to half the national minimum wage.",
+            "time": "past",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 10.983,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "cached": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    },
+    {
+      "id": "rp2-094",
+      "category": "rated true",
+      "language": "en",
+      "input": "Malta has among the lowest energy prices in the EU — first cheapest for households and second cheapest for businesses.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.spunt.mt/malta-fact-check/does-malta-really-have-among-the-lowest-energy-prices-in-the-eu"
+      ],
+      "labelledOn": "2026-04-30",
+      "ruling": {
+        "publisher": "Spunt.mt",
+        "rating": "True"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-one-independent-source",
+      "confidence": 0.62,
+      "kind": null,
+      "detail": "An independent outlet reports otherwise: “Malta Ranks Second Cheapest”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Malta has among the lowest energy prices in the EU — first cheapest for households and second cheapest for businesses.",
+        "claims": [
+          {
+            "claim": "Malta has the lowest energy prices for households in the European Union.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          },
+          {
+            "claim": "Malta has the second lowest energy prices for businesses in the European Union.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 14.401,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    },
+    {
+      "id": "rp2-126",
+      "category": "rated true",
+      "language": "en",
+      "input": "Malta has the highest healthy life expectancy in Europe.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.spunt.mt/malta-fact-check/does-malta-really-have-the-highest-healthy-life-expectancy-in-europe"
+      ],
+      "labelledOn": "2026-05-11",
+      "ruling": {
+        "publisher": "Spunt.mt",
+        "rating": "True"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-one-independent-source",
+      "confidence": 0.62,
+      "kind": null,
+      "detail": "An independent outlet reports otherwise: “Bulgaria ranks among Europe's top three for healthy life expectancy”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Malta has the highest healthy life expectancy in Europe.",
+        "claims": [
+          {
+            "claim": "Malta has the highest healthy life expectancy in Europe.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 14.506,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    },
+    {
+      "id": "rp2-143",
+      "category": "rated false",
+      "language": "en",
+      "input": "Malabon City Lone District Representative Antolin “Lenlen” Oreta III pointed out Vice President Sara Duterte’s multiple travels to The Hague, Netherlands while bringing up President Ferdinand Marcos Jr. 's modernization plan for the Philippines.",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://www.rappler.com/newsbreak/fact-check/malabon-congressman-did-not-slam-sara-duterte-travels/"
+      ],
+      "labelledOn": "2026-10-05",
+      "ruling": {
+        "publisher": "Rappler",
+        "rating": "False"
+      },
+      "call": "REAL",
+      "rule": "confirmed-by-reference",
+      "confidence": 0.7,
+      "kind": null,
+      "detail": "The encyclopedia entry on Antolin Oreta III confirms it: “Antolin \"Lenlen\" Aquino Oreta III (born September 16, 1971), is a Filipino politician who has served as a member of the House of Represen…”",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Malabon City Lone District Representative Antolin “Lenlen” Oreta III pointed out Vice President Sara Duterte’s multiple travels to The Hague, Netherlands while bringing up President Ferdinand Marcos Jr. 's modernization plan for the Philippines.",
+        "claims": [
+          {
+            "claim": "Antolin Oreta III stated that Vice President Sara Duterte made multiple travels to The Hague, Netherlands.",
+            "time": "past",
+            "kind": "quote",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 13.596,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 6,
+          "cached": 2
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    },
+    {
+      "id": "rp2-144",
+      "category": "rated true",
+      "language": "en",
+      "input": "Malta no longer has an unemployment problem.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.spunt.mt/malta-fact-check/has-malta-really-eliminated-its-unemployment-problem.html"
+      ],
+      "labelledOn": "2026-05-09",
+      "ruling": {
+        "publisher": "Spunt.mt",
+        "rating": "True"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.84,
+      "kind": null,
+      "detail": "4 independent outlets report otherwise: “Unemployment Rate: Third Lowest In The EU”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Malta no longer has an unemployment problem.",
+        "claims": [
+          {
+            "claim": "Malta has no unemployment problem.",
+            "time": "past",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 12.204,
+      "modelCalls": {
+        "total": 5,
+        "byProvider": {
+          "gemini": 5
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    },
+    {
+      "id": "rp2-147",
+      "category": "rated false",
+      "language": "en",
+      "input": "Graph shows firm's exit polling on Alberta independence election",
+      "expected": "FAKE",
+      "alsoAcceptable": [
+        "PARTLY FALSE",
+        "MISLEADING"
+      ],
+      "sources": [
+        "https://factcheck.afp.com/doc.afp.com.D3VB964"
+      ],
+      "labelledOn": "2026-10-20",
+      "ruling": {
+        "publisher": "AFP Fact Check",
+        "rating": "False"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "media-not-confirmed-by-reports",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "Not confirmed: outlets report the event, but none says this video or picture shows it.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Graph shows firm's exit polling on Alberta independence election",
+        "claims": [
+          {
+            "claim": "A firm conducted exit polling regarding an Alberta independence election.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.543,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 6
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rp2-156",
+      "category": "rated true",
+      "language": "en",
+      "input": "On Oct. 13, U.S. President Donald Trump posted an AI video on his Truth Social account showing himself playing with a tiger.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.snopes.com/fact-check/trump-posts-tiger-video-ai/"
+      ],
+      "labelledOn": "2026-10-14",
+      "ruling": {
+        "publisher": "Snopes.com",
+        "rating": "True"
+      },
+      "call": "REAL",
+      "rule": "corroborated-by-multiple-independent-sources",
+      "confidence": 0.95,
+      "kind": null,
+      "detail": "Confirmed by 7 independent outlets reporting the same facts.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "On Oct. 13, U.S. President Donald Trump posted an AI video on his Truth Social account showing himself playing with a tiger.",
+        "claims": [
+          {
+            "claim": "Donald Trump posted an AI video on his Truth Social account on October 13, 2026, showing himself playing with a tiger.",
+            "time": "past",
+            "kind": "event",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 41.334,
+      "modelCalls": {
+        "total": 4,
+        "byProvider": {
+          "gemini": 4
+        }
+      },
+      "degraded": [],
+      "outcome": "right"
+    }
+  ]
+}

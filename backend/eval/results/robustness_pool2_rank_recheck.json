@@ -1,0 +1,238 @@
+{
+  "summary": {
+    "ranAt": "2026-10-30T10:18:17.993Z",
+    "suite": "rulings_pool2",
+    "complete": true,
+    "stoppedBecause": null,
+    "checksThisRun": 4,
+    "cases": 4,
+    "overall": {
+      "n": 4,
+      "right": 0,
+      "safe": 0,
+      "missed": 1,
+      "wrong": 3
+    },
+    "byCategory": {
+      "rated true": {
+        "n": 4,
+        "right": 0,
+        "safe": 0,
+        "missed": 1,
+        "wrong": 3
+      }
+    },
+    "medianSeconds": 8.7045
+  },
+  "rows": [
+    {
+      "id": "rp2-073",
+      "category": "rated true",
+      "language": "en",
+      "input": "The Carer's Grant started at €500 per year and was later increased to half the national minimum wage.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.spunt.mt/malta-fact-check/did-the-carer-s-grant-really-rise-from-500-euro-to-half-the-minimum-wage"
+      ],
+      "labelledOn": "2026-04-29",
+      "ruling": {
+        "publisher": "Spunt.mt",
+        "rating": "Mostly True"
+      },
+      "call": "PARTLY FALSE",
+      "rule": "claims-partly-false",
+      "confidence": 0.75,
+      "kind": null,
+      "detail": "Partly false: some of this is confirmed, but on “The Carer's Grant was increased to half the national minimum wage” outlets report “increase to €7,500”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "The Carer's Grant started at €500 per year and was later increased to half the national minimum wage.",
+        "claims": [
+          {
+            "claim": "The Carer's Grant started at €500 per year.",
+            "time": "past",
+            "kind": "standing_fact",
+            "checkable": true
+          },
+          {
+            "claim": "The Carer's Grant was increased to half the national minimum wage.",
+            "time": "past",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 6.912,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 6,
+          "cached": 1,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    },
+    {
+      "id": "rp2-094",
+      "category": "rated true",
+      "language": "en",
+      "input": "Malta has among the lowest energy prices in the EU — first cheapest for households and second cheapest for businesses.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.spunt.mt/malta-fact-check/does-malta-really-have-among-the-lowest-energy-prices-in-the-eu"
+      ],
+      "labelledOn": "2026-04-30",
+      "ruling": {
+        "publisher": "Spunt.mt",
+        "rating": "True"
+      },
+      "call": "CANNOT VERIFY",
+      "rule": "only-partly-confirmed",
+      "confidence": 0.5,
+      "kind": null,
+      "detail": "Only partly confirmed: “Malta has the lowest energy prices for households in the European Union” is reported, but nothing supports “Malta has the second lowest energy prices for businesses in the European Union”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Malta has among the lowest energy prices in the EU — first cheapest for households and second cheapest for businesses.",
+        "claims": [
+          {
+            "claim": "Malta has the lowest energy prices for households in the European Union.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          },
+          {
+            "claim": "Malta has the second lowest energy prices for businesses in the European Union.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 9.614,
+      "modelCalls": {
+        "total": 8,
+        "byProvider": {
+          "gemini": 7,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "missed"
+    },
+    {
+      "id": "rp2-126",
+      "category": "rated true",
+      "language": "en",
+      "input": "Malta has the highest healthy life expectancy in Europe.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.spunt.mt/malta-fact-check/does-malta-really-have-the-highest-healthy-life-expectancy-in-europe"
+      ],
+      "labelledOn": "2026-05-11",
+      "ruling": {
+        "publisher": "Spunt.mt",
+        "rating": "True"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-one-independent-source",
+      "confidence": 0.62,
+      "kind": null,
+      "detail": "An independent outlet reports otherwise: “Bulgaria ranks among Europe's top three for healthy life expectancy”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Malta has the highest healthy life expectancy in Europe.",
+        "claims": [
+          {
+            "claim": "Malta has the highest healthy life expectancy in Europe.",
+            "time": "timeless",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 7.795,
+      "modelCalls": {
+        "total": 7,
+        "byProvider": {
+          "gemini": 6,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    },
+    {
+      "id": "rp2-144",
+      "category": "rated true",
+      "language": "en",
+      "input": "Malta no longer has an unemployment problem.",
+      "expected": "REAL",
+      "sources": [
+        "https://www.spunt.mt/malta-fact-check/has-malta-really-eliminated-its-unemployment-problem.html"
+      ],
+      "labelledOn": "2026-05-09",
+      "ruling": {
+        "publisher": "Spunt.mt",
+        "rating": "True"
+      },
+      "call": "FAKE",
+      "rule": "contradicted-by-multiple-independent-sources",
+      "confidence": 0.77,
+      "kind": null,
+      "detail": "3 independent outlets report otherwise: “Unemployment Rate: Third Lowest In The EU”.",
+      "readAs": {
+        "language": "en",
+        "languageName": "English",
+        "romanized": false,
+        "speechAct": "assertion",
+        "tone": [
+          "neutral"
+        ],
+        "english": "Malta no longer has an unemployment problem.",
+        "claims": [
+          {
+            "claim": "Malta has no unemployment problem.",
+            "time": "past",
+            "kind": "standing_fact",
+            "checkable": true
+          }
+        ]
+      },
+      "memory": null,
+      "seconds": 14.353,
+      "modelCalls": {
+        "total": 6,
+        "byProvider": {
+          "gemini": 5,
+          "nim": 1
+        }
+      },
+      "degraded": [],
+      "outcome": "wrong"
+    }
+  ]
+}

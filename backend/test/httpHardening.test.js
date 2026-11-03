@@ -276,6 +276,7 @@ test('/health is liveness; /ready says not ready without a database', async () =
   const ready = await api.request('GET', '/ready');
   assert.equal(ready.status, 503);
   assert.equal(ready.json.checks.database, 'not connected');
+  assert.ok('commit' in ready.json, '/ready names the commit being served');
 });
 
 // ------------------------------------------------------------------ auth

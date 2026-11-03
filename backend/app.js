@@ -148,6 +148,8 @@ const createApp = ({ rateLimits = {}, log = console.log } = {}) => {
   // serves fall back to the hosted models, as they did before it existed.
   // Which news sources answer from where the server runs (utils/newsFetcher.js, probed at most every ten
   // minutes) is reported, not required: GDELT stands in when Google News refuses.
+  // The commit being served (Render sets RENDER_GIT_COMMIT) shows whether a push has gone live.
+  const commit = (process.env.RENDER_GIT_COMMIT || process.env.GIT_COMMIT || '').slice(0, 7) || null;
   app.get('/ready', async (req, res) => {
     const database = mongoose.connection.readyState === 1;
     const models = Object.values(PROVIDERS).some(p => p.isConfigured());
@@ -157,6 +159,7 @@ const createApp = ({ rateLimits = {}, log = console.log } = {}) => {
     ]).catch(() => null);
     res.status(database && models ? 200 : 503).json({
       status: database && models ? 'READY' : 'NOT READY',
+      commit,
       checks: {
         database: database ? 'connected' : 'not connected',
         models: models ? 'configured' : 'none configured',

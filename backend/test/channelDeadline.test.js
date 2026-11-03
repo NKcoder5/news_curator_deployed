@@ -22,10 +22,13 @@ const { UNREAD } = require(AGENT_PATH);
 
 const ASOF = Date.parse('2026-10-12T07:30:00Z');
 const RECENT = '2026-10-10T08:00:00Z';
+// The end-to-end checks below run on today's clock, so their coverage is dated from it: coverage
+// fixed at 10 Oct turned old news (STALE_AFTER_DAYS) on 31 Oct and a confirmed "now" claim with it.
+const RECENT_TODAY = new Date(Date.now() - 2 * 86400000).toISOString();
 const WORDS = ['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot'];
-const outlets = (n, side) => Array.from({ length: n }, (_, k) => ({
+const outlets = (n, side, publishedAt = RECENT) => Array.from({ length: n }, (_, k) => ({
   source: `Outlet ${side} ${WORDS[k]}`, title: `${WORDS[k]} ${side} report`, description: '',
-  url: `https://${side}-${WORDS[k]}.test/`, reliability: 8, publishedAt: RECENT, reported: side === 'for' ? 'confirms' : 'otherwise'
+  url: `https://${side}-${WORDS[k]}.test/`, reliability: 8, publishedAt, reported: side === 'for' ? 'confirms' : 'otherwise'
 }));
 const CLAIM = 'Narendra Modi resigned as Prime Minister.';
 const REVIEW = { publisher: 'Factly', rating: 'False', claimReviewed: 'the claim', url: 'https://factly.test/r', via: 'claimreview' };
@@ -152,7 +155,7 @@ const loadAgent = (over = {}) => {
       verifyClaims: answer('verification', (title, text, source, claims) => ({
         score: 8, status: 'corroborated', explanation: 'Reported elsewhere.',
         claims: claims.map(c => ({ claim: c.claim, time: c.time || null, kind: c.kind || null, verdict: 'supported',
-          supportingEvidence: outlets(2, 'for'), contradictingEvidence: [], explanation: '' }))
+          supportingEvidence: outlets(2, 'for', RECENT_TODAY), contradictingEvidence: [], explanation: '' }))
       })),
       extractClaims: async () => []
     },

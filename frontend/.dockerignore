@@ -1,0 +1,13 @@
+# Reinstalled and rebuilt inside the image.
+node_modules
+build
+coverage
+npm-debug.log*
+
+# Build-time configuration is passed as a build argument, never copied in.
+.env
+.env.*
+
+Dockerfile
+.dockerignore
+*.md

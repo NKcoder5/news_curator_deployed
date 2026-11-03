@@ -135,13 +135,24 @@ test('outcomes: an abstention is missed, a verdict the other way is wrong', () =
   assert.strictEqual(outcomeOf(c, 'REAL'), 'wrong');
 });
 
+// The key is set here, not read from backend/.env: CI has no .env, and with Gemini switched off by
+// configuration nothing counts as a fallback.
 test('a Gemini-led judgement answered by another provider marks the case degraded; a cached one does not', () => {
-  assert.deepStrictEqual(degradedLabels([
+  const calls = [
     { label: 'input understanding', provider: 'nim' },
     { label: 'stance judgement', provider: 'gemini' },
     { label: 'clickbait', provider: 'ollama' },
     { label: 'fact-check match', provider: 'ollama', cached: true }
-  ]), ['input understanding']);
+  ];
+  const saved = process.env.GEMINI_API_KEY;
+  try {
+    process.env.GEMINI_API_KEY = 'test-key';
+    assert.deepStrictEqual(degradedLabels(calls), ['input understanding']);
+    process.env.GEMINI_API_KEY = '';
+    assert.deepStrictEqual(degradedLabels(calls), []);
+  } finally {
+    if (saved === undefined) delete process.env.GEMINI_API_KEY; else process.env.GEMINI_API_KEY = saved;
+  }
 });
 
 test('the quota guard stops after two degraded or failed cases in a row', () => {

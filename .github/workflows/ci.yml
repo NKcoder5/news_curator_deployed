@@ -29,8 +29,8 @@ jobs:
       # Any connection to another machine fails, as on a laptop with no network.
       CI_OFFLINE: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -51,8 +51,8 @@ jobs:
       # Build: treat lint warnings as errors, as the container build does.
       CI: "true"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       # The compose file needs backend/.env to exist; an empty one is enough to
       # check that the file is valid.
       - run: touch backend/.env && docker compose config --quiet

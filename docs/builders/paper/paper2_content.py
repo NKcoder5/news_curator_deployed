@@ -64,6 +64,16 @@ RUL_DEV = _eval('robustness_rulings_dev_rc2.json')['summary']['overall']
 RUL_GEMINI = _eval('robustness_rulings_others_gemini_2026-10-25_fixed.json')['summary']['overall']
 RUL_NO_GEMINI = _eval('robustness_rulings_others_no_gemini_ollama_nim.json')['summary']['overall']
 
+# Claim memory and explanations, measured on the final code (eval/claimMatching.js, eval/counterfactualFaithfulness.js).
+CM = _eval('claim_matching_heldout_with_model.json')['summary']
+_CF = _eval('counterfactual_faithfulness.json')
+_CF_SETS = _CF['sets']
+assert not _CF['disagreements'] and all(p['broken'] == 0 for p in _CF['monotonicity']['perturbations'])
+CF = {'stored': _CF_SETS['stored']['ledgers'], 'scenarios': _CF_SETS['scenarios']['ledgers'],
+      'random': _CF_SETS['random']['ledgers'], 'statements': sum(s['statements'] for s in _CF_SETS.values()),
+      'grid': _CF['monotonicity']['grid']}
+assert CM['falseMerges'] == 0
+
 
 def rulings_rows():
     row = lambda name, t: [name, str(t['n']), str(t['right']), str(t['safe']), str(t['missed']), str(t['wrong'])]
@@ -614,7 +624,30 @@ def body():
          ['Rulings and code', 'Claims', 'Desk’s', 'Accept.', 'None', 'Wrong'],
          rulings_rows(),
          [2.65, 0.75, 0.75, 0.75, 0.65, 0.72], ['left'] + ['center'] * 5))
-    add(('h2', '4.9', 'Comparison with Published Results'))
+    add(('h2', '4.9', 'Explanations, Claim Memory and Our Own Model'))
+    add(('p', 'Every check is kept as an append-only record of the exact inputs the verdict engine read, so a stored '
+         'verdict can be reached again from its record. Rewordings and translations of a claim are filed under one '
+         'record, and a changed figure, date, outcome or role is linked as a variant rather than merged. On ' +
+         str(CM['pairs']) + ' held-out claim pairs, with our own pair model settling the unclear ones, the matcher filed ' +
+         str(CM['exact']) + ' correctly, merged no two different claims and kept all ' + CM['decoysKeptApart'].split('/')[1] +
+         ' decoys apart.'))
+    add(('p', 'Because rules decide the verdict, the reader can be told what decided it and what would change it, and '
+         'each such statement can be checked. We compute it by running the same rules again with each line of '
+         'evidence removed, or with hypothetical evidence added. A separate script recomputed every statement on ' +
+         str(CF['stored']) + ' stored checks, ' + str(CF['scenarios']) + ' scenario ledgers and ' + str(CF['random']) +
+         ' random ones, and all ' + f'{CF["statements"]:,}' + ' agreed. Over ' + f'{CF["grid"]:,}' + ' further random '
+         'ledgers, adding a fact-checker’s false rating, an encyclopedia contradiction or two more outlets reporting '
+         'otherwise never made a verdict milder, and adding confirming evidence never made it harsher.'))
+    add(('p', 'Our own pair model is a multilingual MiniLM with 118M parameters. We fine-tuned it on a laptop GPU on '
+         'English, Tamil and Hindi sentence pairs and on fact-checkers’ claim pairs split by rumour, and exported it '
+         'as a 42 MB int8 model that judges a pair in 8 to 12 ms on the server’s processor. On 72 hand-written blind '
+         'pairs it is right in 76%. It matches claims to fact-checks and to earlier checks, and vetoes contradictions '
+         'that a fallback model reports but the encyclopedia sentence does not state. Changed details in a true story '
+         'are caught by comparison rather than by a model: figures and codes in the claim are matched against '
+         'headlines and snippets, so ‘sent to 4 days in judicial custody’ is reported false against outlets that say '
+         'five. Untrusted text is fenced in every prompt and model replies are validated strictly; nine of nine live '
+         'injection attempts in English, Hindi and Tamil failed.'))
+    add(('h2', '4.10', 'Comparison with Published Results'))
     add(('p', 'Table 10 puts our numbers next to DEFAME’s and next to the ISOT shortcut reported by Verma '
          '[@Verma], who found that a classifier given only the subject field of each article, with the text '
          'thrown away, reaches F1 = 1.000. The rows use different data, labels and tasks, so this is not a '
@@ -678,7 +711,6 @@ def body():
          'ruled on it.'))
 
     # ================================================================== 6
-    add(('para', 'Since the first submission the system keeps every check as a replayable record, shows what decided each verdict by recomputing it with evidence removed (all 32,272 explanatory statements confirmed; no case in 20,000 random evidence combinations where added counter-evidence softened a verdict), reports each rule\'s measured record instead of a set confidence, and uses its own fine-tuned 43 MB multilingual pair model for claim matching and as a veto on invented contradictions. Changed figures and codes in true stories are caught by comparison against headlines and article snippets. On the final code the benchmark was answered correctly in 22 of 22 cases and a second held-out suite of 51 messages in 49, with none wrong; a plain language model scored 15 of 22 with 4 wrong.'))
     add(('h1', '6', 'Conclusion'))
     add(('p', 'We built a fake news checker that weighs evidence by who controls it. Writing signals can only '
          'count against a story, and support has to come from independent outlets, reference entries and a '
@@ -707,6 +739,7 @@ MOVES = [
     (('table', '5'), 'Table 6 shows the five lookalikes'),
     (('figure', '4'), ('table', '5')),
     (('table', '6'), ('figure', '4')),
+    (('table', '10'), 'The drop of 0.032 in ROC-AUC'),
 ]
 
 

@@ -1,56 +1,56 @@
 {
-  "ranAt": "2026-10-13T19:15:09.908Z",
+  "ranAt": "2026-11-04T10:26:02.187Z",
   "seed": 12,
   "sets": {
     "stored": {
-      "ledgers": 14,
-      "statements": 200,
-      "agree": 200,
+      "ledgers": 94,
+      "statements": 1220,
+      "agree": 1220,
       "rate": 1,
       "byKind": {
         "verdict": {
-          "n": 14,
-          "agree": 14
+          "n": 94,
+          "agree": 94
         },
         "channels present": {
-          "n": 14,
-          "agree": 14
+          "n": 94,
+          "agree": 94
         },
         "decisive": {
-          "n": 44,
-          "agree": 44
+          "n": 200,
+          "agree": 200
         },
         "from absence": {
-          "n": 14,
-          "agree": 14
+          "n": 94,
+          "agree": 94
         },
         "rests on": {
-          "n": 44,
-          "agree": 44
+          "n": 192,
+          "agree": 192
         },
         "would change": {
-          "n": 14,
-          "agree": 14
+          "n": 132,
+          "agree": 132
         },
         "would change (smallest)": {
-          "n": 14,
-          "agree": 14
+          "n": 132,
+          "agree": 132
         },
         "would change (complete)": {
-          "n": 28,
-          "agree": 28
+          "n": 188,
+          "agree": 188
         },
         "would change (ruling)": {
-          "n": 14,
-          "agree": 14
+          "n": 94,
+          "agree": 94
         }
       },
       "datedSensitivity": 0
     },
     "scenarios": {
       "ledgers": 380,
-      "statements": 4102,
-      "agree": 4102,
+      "statements": 4072,
+      "agree": 4072,
       "rate": 1,
       "byKind": {
         "verdict": {
@@ -70,16 +70,16 @@
           "agree": 380
         },
         "rests on": {
-          "n": 435,
-          "agree": 435
+          "n": 445,
+          "agree": 445
         },
         "would change": {
-          "n": 496,
-          "agree": 496
+          "n": 476,
+          "agree": 476
         },
         "would change (smallest)": {
-          "n": 496,
-          "agree": 496
+          "n": 476,
+          "agree": 476
         },
         "would change (complete)": {
           "n": 760,
@@ -113,19 +113,19 @@
           "verdicts": "FAKE"
         },
         "rumour fact-checked, debunk headlines": {
-          "agree": 240,
-          "statements": 240,
+          "agree": 200,
+          "statements": 200,
           "verdicts": "FAKE"
         },
         "ruling overtaken by reporting": {
-          "agree": 220,
-          "statements": 220,
-          "verdicts": "CANNOT VERIFY"
+          "agree": 230,
+          "statements": 230,
+          "verdicts": "FAKE/CANNOT VERIFY"
         },
         "misleading ruling": {
           "agree": 200,
           "statements": 200,
-          "verdicts": "FAKE"
+          "verdicts": "MISLEADING"
         },
         "old news as today": {
           "agree": 200,
@@ -191,8 +191,8 @@
     },
     "random": {
       "ledgers": 2000,
-      "statements": 27938,
-      "agree": 27938,
+      "statements": 28137,
+      "agree": 28137,
       "rate": 1,
       "byKind": {
         "verdict": {
@@ -212,16 +212,16 @@
           "agree": 2000
         },
         "rests on": {
-          "n": 5455,
-          "agree": 5455
+          "n": 5576,
+          "agree": 5576
         },
         "would change": {
-          "n": 2242,
-          "agree": 2242
+          "n": 2281,
+          "agree": 2281
         },
         "would change (smallest)": {
-          "n": 2242,
-          "agree": 2242
+          "n": 2281,
+          "agree": 2281
         },
         "would change (complete)": {
           "n": 4000,

@@ -1,18 +1,18 @@
 {
-  "ranAt": "2026-10-13T23:00:29.694Z",
+  "ranAt": "2026-11-04T10:27:41.654Z",
   "suite": "claim_matching_heldout",
   "summary": {
     "pairs": 46,
-    "exact": 46,
+    "exact": 44,
     "falseMerges": 0,
     "variantsMerged": 0,
     "falseLinks": 0,
-    "sameRecall": "14/14",
-    "variantRecall": "12/12",
+    "sameRecall": "13/14",
+    "variantRecall": "11/12",
     "differentKeptApart": "20/20",
     "decoysKeptApart": "18/18",
-    "ambiguous": 6,
-    "modelConsulted": 6
+    "ambiguous": 17,
+    "modelConsulted": 17
   },
   "rows": [
     {
@@ -31,9 +31,11 @@
       "a": "Navi Pillay won the 2026 Nobel Peace Prize.",
       "b": "The 2026 Nobel Peace Prize was awarded to Navi Pillay.",
       "label": "same",
-      "got": "same",
-      "differences": [],
-      "score": 0.84,
+      "got": "variant",
+      "differences": [
+        "roles reversed: navi over nobel vs nobel over navi"
+      ],
+      "score": 1,
       "ambiguous": false,
       "askedModel": false
     },
@@ -99,7 +101,7 @@
       "label": "same",
       "got": "same",
       "differences": [],
-      "score": 0.91,
+      "score": 0.87,
       "ambiguous": false,
       "askedModel": false
     },
@@ -121,7 +123,7 @@
       "label": "same",
       "got": "same",
       "differences": [],
-      "score": 0.6,
+      "score": 0.63,
       "ambiguous": true,
       "askedModel": true
     },
@@ -305,11 +307,9 @@
       "a": "Navi Pillay accepted the Nobel Peace Prize.",
       "b": "Navi Pillay did not accept the Nobel Peace Prize.",
       "label": "variant",
-      "got": "variant",
-      "differences": [
-        "one says the opposite of the other"
-      ],
-      "score": 0.84,
+      "got": "different",
+      "differences": [],
+      "score": 0.6,
       "ambiguous": false,
       "askedModel": false
     },
@@ -334,9 +334,9 @@
       "decoy": true,
       "got": "different",
       "differences": [],
-      "score": 0.1,
-      "ambiguous": false,
-      "askedModel": false
+      "score": 0.55,
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "id": "m-28",
@@ -347,8 +347,8 @@
       "got": "different",
       "differences": [],
       "score": 0.29,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "id": "m-29",
@@ -371,8 +371,8 @@
       "got": "different",
       "differences": [],
       "score": 0.28,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "id": "m-31",
@@ -383,8 +383,8 @@
       "got": "different",
       "differences": [],
       "score": 0.23,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "id": "m-32",
@@ -419,8 +419,8 @@
       "got": "different",
       "differences": [],
       "score": 0.12,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "id": "m-35",
@@ -430,7 +430,7 @@
       "decoy": true,
       "got": "different",
       "differences": [],
-      "score": 0.48,
+      "score": 0.4,
       "ambiguous": true,
       "askedModel": true
     },
@@ -442,7 +442,7 @@
       "decoy": true,
       "got": "different",
       "differences": [],
-      "score": 0.46,
+      "score": 0.45,
       "ambiguous": true,
       "askedModel": true
     },
@@ -455,8 +455,8 @@
       "got": "different",
       "differences": [],
       "score": 0.09,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "id": "m-38",
@@ -467,8 +467,8 @@
       "got": "different",
       "differences": [],
       "score": 0.64,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "id": "m-39",
@@ -479,8 +479,8 @@
       "got": "different",
       "differences": [],
       "score": 0.5,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "id": "m-40",
@@ -515,8 +515,8 @@
       "got": "different",
       "differences": [],
       "score": 0.2,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "id": "m-43",
@@ -526,9 +526,9 @@
       "decoy": true,
       "got": "different",
       "differences": [],
-      "score": 0.23,
-      "ambiguous": false,
-      "askedModel": false
+      "score": 0.16,
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "id": "m-44",
@@ -539,8 +539,8 @@
       "got": "different",
       "differences": [],
       "score": 0.43,
-      "ambiguous": false,
-      "askedModel": false
+      "ambiguous": true,
+      "askedModel": true
     },
     {
       "id": "m-45",

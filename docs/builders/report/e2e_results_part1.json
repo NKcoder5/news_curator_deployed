@@ -1,0 +1,137 @@
+{
+  "ranAt": "2026-10-04T15:02:54.023Z",
+  "rows": [
+    {
+      "id": "1",
+      "expect": "REAL",
+      "medium": "Pasted text",
+      "got": "REAL",
+      "httpStatus": 200,
+      "rule": "corroborated-by-multiple-independent-sources",
+      "oneLine": "Confirmed by 5 independent outlets reporting the same facts.",
+      "pFake": 2,
+      "seconds": 99.6
+    },
+    {
+      "id": "2",
+      "expect": "REAL",
+      "medium": "News link",
+      "got": "REAL",
+      "httpStatus": 200,
+      "rule": "corroborated-by-multiple-independent-sources",
+      "oneLine": "Confirmed by 3 independent outlets reporting the same facts.",
+      "pFake": 0,
+      "seconds": 33.4
+    },
+    {
+      "id": "3",
+      "expect": "REAL",
+      "medium": "Screenshot",
+      "got": "REAL",
+      "httpStatus": 200,
+      "rule": "corroborated-by-multiple-independent-sources",
+      "oneLine": "Confirmed by 5 independent outlets reporting the same facts.",
+      "pFake": 2,
+      "seconds": 111.9
+    },
+    {
+      "id": "4",
+      "expect": "REAL",
+      "medium": "Pasted text (Tamil)",
+      "got": "CANNOT VERIFY",
+      "httpStatus": 200,
+      "rule": "verification-unavailable",
+      "oneLine": "We could not complete the search, so nothing has been checked.",
+      "pFake": 38,
+      "seconds": 24.1
+    },
+    {
+      "id": "5",
+      "expect": "REAL",
+      "medium": "YouTube video",
+      "got": "REFUSED",
+      "httpStatus": 422,
+      "rule": "publisher blocks reading",
+      "oneLine": "We could not reach that website.",
+      "pFake": null,
+      "seconds": 0
+    },
+    {
+      "id": "6",
+      "expect": "FAKE",
+      "medium": "Pasted text",
+      "got": "CANNOT VERIFY",
+      "httpStatus": 200,
+      "rule": "verification-unavailable",
+      "oneLine": "We could not complete the search, so nothing has been checked.",
+      "pFake": 35,
+      "seconds": 10
+    },
+    {
+      "id": "7",
+      "expect": "FAKE",
+      "medium": "Screenshot",
+      "got": "CANNOT VERIFY",
+      "httpStatus": 200,
+      "rule": "verification-unavailable",
+      "oneLine": "We could not complete the search, so nothing has been checked.",
+      "pFake": 35,
+      "seconds": 12.9
+    },
+    {
+      "id": "8",
+      "expect": "CANNOT VERIFY",
+      "medium": "Pasted text",
+      "got": "CANNOT VERIFY",
+      "httpStatus": 200,
+      "rule": "verification-unavailable",
+      "oneLine": "We could not complete the search, so nothing has been checked.",
+      "pFake": 35,
+      "seconds": 12.5
+    },
+    {
+      "id": "9",
+      "expect": "CANNOT VERIFY",
+      "medium": "Pasted text",
+      "got": "CANNOT VERIFY",
+      "httpStatus": 200,
+      "rule": "verification-unavailable",
+      "oneLine": "We could not complete the search, so nothing has been checked.",
+      "pFake": 35,
+      "seconds": 11.5
+    },
+    {
+      "id": "10",
+      "expect": "REFUSED",
+      "medium": "Pasted text",
+      "got": "REFUSED",
+      "httpStatus": 422,
+      "rule": "question",
+      "oneLine": "This asks a question rather than stating something. Paste the claim you want checked, not the question about it.",
+      "pFake": null,
+      "seconds": 0
+    },
+    {
+      "id": "11",
+      "expect": "REFUSED",
+      "medium": "Screenshot",
+      "got": "REFUSED",
+      "httpStatus": 422,
+      "rule": "unfalsifiable",
+      "oneLine": "This tells the reader what to do but does not say what actually happened. There is no specific claim here for another outlet to confirm or deny.",
+      "pFake": null,
+      "seconds": 0.5
+    },
+    {
+      "id": "12",
+      "expect": "REFUSED",
+      "medium": "News link",
+      "got": "REFUSED",
+      "httpStatus": 422,
+      "rule": "publisher blocks reading",
+      "oneLine": "We could not reach that website.",
+      "pFake": null,
+      "seconds": 0
+    }
+  ]
+}

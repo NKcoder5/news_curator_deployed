@@ -1,0 +1,8 @@
+# Build outputs and Word/PowerPoint export scratch; the finished documents live in docs/report, docs/paper, docs/review.
+*.docx
+*.pdf
+export*.ps1
+page_map.json
+spelling.txt
+chk_*.png
+__pycache__/

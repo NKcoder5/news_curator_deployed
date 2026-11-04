@@ -1,0 +1,71 @@
+{
+  "ranAt": "2026-10-04T15:08:07.088Z",
+  "rows": [
+    {
+      "id": "4",
+      "expect": "REAL",
+      "medium": "Pasted text (Tamil)",
+      "got": "REAL",
+      "httpStatus": 200,
+      "rule": "corroborated-by-multiple-independent-sources",
+      "oneLine": "Confirmed by 4 independent outlets reporting the same facts.",
+      "pFake": 2,
+      "seconds": 29.9
+    },
+    {
+      "id": "5",
+      "expect": "REAL",
+      "medium": "YouTube video",
+      "got": "CANNOT VERIFY",
+      "httpStatus": 200,
+      "rule": "no-independent-coverage",
+      "oneLine": "No other outlet is reporting this, so nothing supports it either way.",
+      "pFake": 23,
+      "seconds": 55.4
+    },
+    {
+      "id": "6",
+      "expect": "FAKE",
+      "medium": "Pasted text",
+      "got": "FAKE",
+      "httpStatus": 200,
+      "rule": "premise-contradicted-by-reference",
+      "oneLine": "A reference entry on Rahul Gandhi contradicts what this article states about them.",
+      "pFake": 44,
+      "seconds": 21.8
+    },
+    {
+      "id": "7",
+      "expect": "FAKE",
+      "medium": "Screenshot",
+      "got": "FAKE",
+      "httpStatus": 200,
+      "rule": "premise-contradicted-by-reference",
+      "oneLine": "A reference entry on Rahul Gandhi contradicts what this article states about them.",
+      "pFake": 44,
+      "seconds": 29.8
+    },
+    {
+      "id": "8",
+      "expect": "CANNOT VERIFY",
+      "medium": "Pasted text",
+      "got": "CANNOT VERIFY",
+      "httpStatus": 200,
+      "rule": "no-independent-coverage",
+      "oneLine": "No other outlet is reporting this, so nothing supports it either way.",
+      "pFake": 44,
+      "seconds": 24.6
+    },
+    {
+      "id": "9",
+      "expect": "CANNOT VERIFY",
+      "medium": "Pasted text",
+      "got": "CANNOT VERIFY",
+      "httpStatus": 200,
+      "rule": "no-independent-coverage",
+      "oneLine": "No other outlet is reporting this, so nothing supports it either way.",
+      "pFake": 44,
+      "seconds": 28
+    }
+  ]
+}

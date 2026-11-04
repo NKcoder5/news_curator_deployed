@@ -410,8 +410,8 @@ def body():
          'task goes to the local model only if at least 80% of its local replies are valid, at least 80% are '
          'correct where the answer is known, and its scores stay within 2 points of the hosted reference on the '
          '0–10 scale. The gateway retries congested providers and moves on when a model is withdrawn. That '
-         'happened to us once: NVIDIA retired <tt>meta/llama-3.1-8b-instruct</tt>, the model we had used in '
-         'Phase I, on 26 August 2026, and every analysis began failing with HTTP 410. If no provider answers, '
+         'happened to us once: NVIDIA retired <tt>meta/llama-3.1-8b-instruct</tt>, the model our first version '
+         'used, on 26 August 2026, and every analysis began failing with HTTP 410. If no provider answers, '
          'each writing check falls back to word lists and surface patterns, and the report marks it as '
          'degraded.'))
     add(('p', 'Six judgements were later moved to Gemini by hand, each after a live failure that the fixed-input '

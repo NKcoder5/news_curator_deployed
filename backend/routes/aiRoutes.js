@@ -124,6 +124,26 @@ const inFlightSummaries = new Map();
  * Requests that carry no URL (a pasted body with nothing to key on) simply run
  * uncached rather than failing.
  */
+/**
+ * May this stored summary be shown to a caller who sent this text?
+ *
+ * When the publisher's page could not be read, or did not match the headline the caller sent, the
+ * summary was written from the caller's own text. An entry with no fingerprint (the caller sent only a
+ * headline) used to match every later caller, so one request naming a real article and a made-up
+ * headline put a summary of that headline on the article for every reader, for fourteen days (measured
+ * in test/summaryCacheSharing.test.js). When both sides have text, the fingerprints must match, as
+ * before. When either has none, only a summary of the publisher's own page may be shown; entries
+ * written before the flag existed keep the old rule.
+ */
+const isUsableSummary = (hit, sourcePrint) => {
+  if (!hit) return false;
+  if (sourcePrint && hit.sourcePrint) return hit.sourcePrint === sourcePrint;
+  return hit.shareable !== false;
+};
+
+/** Requests that may share one running job: same address, same headline, same text. */
+const flightKey = (...parts) => parts.map(p => String(p ?? '')).join('\n');
+
 const summariseWithCache = async (kind, { url, title, text }, generate) => {
   const clean = sanitizeContent(text);
   if (!clean) throw new Error('Article content is required');
@@ -137,16 +157,20 @@ const summariseWithCache = async (kind, { url, title, text }, generate) => {
   // Seen in the app: a page headlined "Nasdaq rose to a new all-time intraday
   // high" carrying a summary, written nine days earlier, of a sell-off.
   const sourcePrint = printOf(clean, title);
+  // A caller with no text of its own must not replace an entry it was not allowed to see: that entry
+  // still serves the readers who sent its text.
+  let keepStored = false;
   if (url) {
     const hit = await SummaryCache.findOne({ articleUrl: url, kind }).lean();
-    if (hit && (!sourcePrint || !hit.sourcePrint || hit.sourcePrint === sourcePrint)) {
+    if (isUsableSummary(hit, sourcePrint)) {
       return {
         summary: hit.summary,
         cached: true,
         sourceText: { chars: hit.summary.length, coverage: 'cached' }
       };
     }
-    if (hit) console.log(`Article changed under ${url}; re-summarising.`);
+    if (hit && !sourcePrint) keepStored = true;
+    else if (hit) console.log(`Article changed under ${url}; re-summarising.`);
   }
 
   // The feed supplies ~200 characters, which is why the "long" summary used to
@@ -160,7 +184,9 @@ const summariseWithCache = async (kind, { url, title, text }, generate) => {
     coverage: resolved.source === 'full' ? 'article-text' : 'publisher-excerpt'
   };
 
-  const key = url ? `${kind}:${url}:${sourcePrint}` : null;
+  // The headline and the text are part of the key: the page reader checks the page against the
+  // headline, and a blocked page is summarised from the text, so different callers get different jobs.
+  const key = url ? flightKey(kind, url, title, fingerprintText(clean)) : null;
   let job = key && inFlightSummaries.get(key);
   if (!job) {
     job = generate(body);
@@ -174,12 +200,12 @@ const summariseWithCache = async (kind, { url, title, text }, generate) => {
   }
   const summary = await job;
 
-  if (url && summary) {
+  if (url && summary && !keepStored) {
     // Awaited for the same reason as the trust report: a reader who reloads at
     // once must hit the cache, not regenerate. Failure is never fatal.
     await SummaryCache.updateOne(
       { articleUrl: url, kind },
-      { $set: { articleUrl: url, kind, summary, sourcePrint, createdAt: new Date() } },
+      { $set: { articleUrl: url, kind, summary, sourcePrint, shareable: resolved.source === 'full', createdAt: new Date() } },
       { upsert: true }
     ).catch(err => console.error('Summary cache write failed:', err.message));
   }
@@ -237,8 +263,11 @@ router.post('/trust-analysis', validate.article, async (req, res) => {
     }
 
     // Coalesce duplicate work for the same article. A URL is the normal key;
-    // pasted articles without one deliberately remain independent.
-    let job = url && inFlightTrustReports.get(url);
+    // pasted articles without one deliberately remain independent. The headline and text are part of
+    // the key: keyed on the URL alone, a second caller sending different text was handed the first
+    // caller's report and then stored it under its own text's fingerprint.
+    const key = url ? flightKey(url, title, fingerprintText(sanitizeContent(content) || '')) : null;
+    let job = key && inFlightTrustReports.get(key);
     if (!job) {
       // Give the factors the real article rather than the feed's ~200-character
       // stub. This costs one page fetch (1-3s, no model call) and is what lets
@@ -252,11 +281,11 @@ router.post('/trust-analysis', validate.article, async (req, res) => {
           publishedAt: publishedAt || null,
           textCoverage: resolved.source
         }));
-      if (url) {
-        inFlightTrustReports.set(url, job);
+      if (key) {
+        inFlightTrustReports.set(key, job);
         job.then(
-          () => inFlightTrustReports.delete(url),
-          () => inFlightTrustReports.delete(url)
+          () => inFlightTrustReports.delete(key),
+          () => inFlightTrustReports.delete(key)
         );
       }
     }
@@ -565,6 +594,6 @@ router.post('/detailed-summary', validate.article, async (req, res) => {
 
 
 // Exposed for tests only: the caching and fingerprint policy are pure functions.
-router.__test = { isCompleteReport, isUsableCachedReport, isShareable, printOf };
+router.__test = { isCompleteReport, isUsableCachedReport, isShareable, printOf, isUsableSummary };
 
 module.exports = router;

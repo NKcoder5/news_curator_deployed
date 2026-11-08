@@ -18,6 +18,9 @@ const summaryCacheSchema = new mongoose.Schema({
   // text: the page said the Nasdaq had hit a record while the summary below it
   // described a sell-off nine days earlier. Same URL, different article.
   sourcePrint: { type: String },
+  // Written from the publisher's own page, read by this server. Only such a summary may be shown to a
+  // caller whose text cannot be compared with sourcePrint (routes/aiRoutes.js, isUsableSummary).
+  shareable: { type: Boolean },
   createdAt: { type: Date, default: Date.now, expires: 60 * 60 * 24 * 14 } // 14 days
 });
 

@@ -7,6 +7,7 @@ import DecisionExplanation from './DecisionExplanation';
 import VerdictHeader from './VerdictHeader';
 import { Link } from 'react-router-dom';
 import { Badge } from './ui';
+import { publicClaimId } from '../utils/publicClaim';
 import '../styles/TrustReport.css';
 
 // Reader-facing names for the internal check ids.
@@ -618,8 +619,8 @@ const TrustReport = ({ report, evidenceFirst = false, children }) => {
           <aside className="report-aside" aria-label="About this check">
             <ReadAs understanding={report.understanding} call={report.call} perClaim={report.evidence?.perClaim} />
             <ClaimRecord memory={report.memory} call={report.call} />
-            {report.memory?.claims?.length === 1 && (
-              <Link className="report-permalink" to={`/claims/${report.memory.claims[0].claimId}`}>
+            {publicClaimId(report.memory) && (
+              <Link className="report-permalink" to={`/claims/${publicClaimId(report.memory)}`}>
                 Open this claim’s public page <ExternalLink size={14} aria-hidden="true" />
               </Link>
             )}

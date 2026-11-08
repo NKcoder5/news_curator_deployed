@@ -14,16 +14,20 @@
 // fields it knows about, so a field added to the models later stays private
 // until someone decides it should not.
 //
-// Records the evaluation scripts filed (origin 'eval') are test data and are
-// left out of every listing and every count. They are also not found by id.
+// Only claims a check settled, on evidence, are public (services/registryPolicy.js): a claim nobody could
+// confirm or refute is not published as a page of its own. Records the evaluation scripts filed (origin
+// 'eval') are test data. Claims that are not public are left out of every listing and every count, and
+// are not found by id.
 const mongoose = require('mongoose');
 const ClaimRecord = require('../models/ClaimRecord');
 const ClaimAssessment = require('../models/ClaimAssessment');
 const { claimHistory } = require('./claimMemory');
 const { trackRecordFor } = require('./ruleReliability');
 const { getSourceReputation } = require('../agents/sourceReputationAgent');
+const { SETTLED_CALLS, publicFilter } = require('./registryPolicy');
 
-const CALLS = ['REAL', 'FAKE', 'PARTLY FALSE', 'MISLEADING', 'CANNOT VERIFY'];
+// The calls a public claim can carry, and so the ones a list can be filtered by.
+const CALLS = SETTLED_CALLS;
 const SORTS = ['recent', 'checked'];
 const MAX_LIMIT = 50;
 const DEFAULT_LIMIT = 20;
@@ -33,8 +37,8 @@ const MAX_TERMS = 6;
 const WINDOW_DAYS = 7;
 const DAY = 24 * 3600000;
 
-// Test data from the evaluation suites. 'recheck' and 'user' are real claims.
-const PUBLIC = { origin: { $ne: 'eval' } };
+// Settled on evidence, and not test data from the evaluation suites (services/registryPolicy.js).
+const PUBLIC = publicFilter;
 // What a reader did, as opposed to what the scheduler or a test run did.
 const READER_CHECKS = { trigger: { $nin: ['eval', 'recheck'] } };
 
@@ -159,7 +163,7 @@ const afterCursor = (sort, cursor) => {
  * @param {boolean} [withCursor] - false for the count, which ignores the page
  */
 const buildListFilter = ({ q, call, sort, cursor }, withCursor = true) => {
-  const clauses = [PUBLIC];
+  const clauses = [PUBLIC()];
   if (call) clauses.push({ 'current.call': call });
   for (const term of searchTerms(q)) {
     const re = new RegExp(escapeRegex(term), 'i');
@@ -279,7 +283,7 @@ const listClaims = async (query) => {
 
 /** The public records among these ids, in the order the ids were given. */
 const publicRecords = async (ids) => {
-  const records = await ClaimRecord.find({ _id: { $in: ids }, ...PUBLIC }).select(LIST_FIELDS).lean();
+  const records = await ClaimRecord.find({ _id: { $in: ids }, ...PUBLIC() }).select(LIST_FIELDS).lean();
   const byId = new Map(records.map(r => [String(r._id), r]));
   return ids.map(id => byId.get(String(id))).filter(Boolean);
 };
@@ -345,7 +349,7 @@ const changedVerdicts = async (query = {}) => {
 const registryStats = async (now = Date.now()) => {
   requireDatabase();
   const [facets] = await ClaimRecord.aggregate([
-    { $match: PUBLIC },
+    { $match: PUBLIC() },
     { $facet: {
       totals: [{ $group: { _id: null, claims: { $sum: 1 }, checks: { $sum: '$timesSeen' }, since: { $min: '$firstSeenAt' } } }],
       calls: [{ $group: { _id: '$current.call', claims: { $sum: 1 } } }],
@@ -365,7 +369,7 @@ const registryStats = async (now = Date.now()) => {
   const [week] = await ClaimAssessment.aggregate([
     { $match: { createdAt: { $gte: new Date(now - WINDOW_DAYS * DAY) }, ...READER_CHECKS } },
     { $lookup: { from: ClaimRecord.collection.name, localField: 'claimIds', foreignField: '_id', as: 'public',
-      pipeline: [{ $match: PUBLIC }, { $project: { _id: 1 } }] } },
+      pipeline: [{ $match: PUBLIC() }, { $project: { _id: 1 } }] } },
     { $match: { 'public.0': { $exists: true } } },
     { $count: 'checks' }
   ]);
@@ -386,7 +390,7 @@ const registryStats = async (now = Date.now()) => {
 const claimDetail = async (id) => {
   if (!isValidId(id)) throw new RegistryError('That is not a claim id.', 400);
   requireDatabase();
-  const record = await ClaimRecord.findOne({ _id: id, ...PUBLIC }).select('current.assessmentId variants').lean();
+  const record = await ClaimRecord.findOne({ _id: id, ...PUBLIC() }).select('current.assessmentId variants').lean();
   if (!record) return null;
   const history = await claimHistory(id);
   if (!history) return null;

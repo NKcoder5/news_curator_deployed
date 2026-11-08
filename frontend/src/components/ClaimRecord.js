@@ -123,7 +123,8 @@ const ClaimRecord = ({ memory, call }) => {
           <CalendarClock size={16} aria-hidden="true" />
           <span>
             Nothing settles this yet. It will be checked again automatically around {formatWhen(recheckDue)}, and again
-            over the next three days; any change, and what caused it, will be on this record.
+            over the next three days; any change, and what caused it, will be on this record. The public claims
+            database lists it only once a check settles it on evidence.
           </span>
         </p>
       )}

@@ -3,6 +3,7 @@ import { Check, Copy, Share2 } from 'lucide-react';
 import { RULE_LABELS } from './EvidenceBoard';
 import { TrackRecord } from './DecisionExplanation';
 import { Button, VerdictBadge, verdictFor } from './ui';
+import { publicClaimId } from '../utils/publicClaim';
 
 /**
  * The answer, laid out the way fact-checkers lay out a rating: the claim that
@@ -30,7 +31,8 @@ const claimOf = (report) => {
 
 const ShareActions = ({ report, claim }) => {
   const [copied, setCopied] = useState(false);
-  const claimId = report.memory?.claims?.length === 1 ? report.memory.claims[0].claimId : null;
+  // Only a published claim has a page to share (utils/publicClaim.js).
+  const claimId = publicClaimId(report.memory);
   const url = claimId ? `${window.location.origin}/claims/${claimId}` : null;
   const rule = RULE_LABELS[report.decision?.rule];
   const summary = [

@@ -81,17 +81,21 @@ test('every word of a search must be found, in any case and any order', () => {
   assert.strictEqual(searchTerms('a b c d e f g h').length, 6);
 });
 
-test('test data from the evaluation suites is excluded from every listing', () => {
+test('test data and claims not settled on evidence are excluded from every listing', () => {
+  // The rule itself is tested in test/registryPolicy.test.js.
+  const { publicFilter } = require('../services/registryPolicy');
   const plain = buildListFilter(parseListQuery({}));
-  assert.deepStrictEqual(plain, { origin: { $ne: 'eval' } });
+  assert.deepStrictEqual(plain, publicFilter());
+  assert.deepStrictEqual(plain.origin, { $ne: 'eval' });
   const filtered = buildListFilter(parseListQuery({ q: 'medals', call: 'FAKE' }));
-  assert.deepStrictEqual(filtered.$and[0], { origin: { $ne: 'eval' } });
+  assert.deepStrictEqual(filtered.$and[0], publicFilter());
   assert.deepStrictEqual(filtered.$and[1], { 'current.call': 'FAKE' });
 });
 
 // ------------------------------------------------------------------ cursors --
 
-const row = (id, lastSeenAt, timesSeen = 1) => ({ _id: id, lastSeenAt: new Date(lastSeenAt), timesSeen });
+// A public claim: settled on evidence (services/registryPolicy.js).
+const row = (id, lastSeenAt, timesSeen = 1) => ({ _id: id, lastSeenAt: new Date(lastSeenAt), timesSeen, origin: 'user', current: { call: 'REAL', evidenceCount: 2 } });
 
 test('a cursor carries the position of the last row and survives the round trip', () => {
   const recent = decodeCursor(encodeCursor('recent', row(ID, 1760000000000)), 'recent');
@@ -119,14 +123,19 @@ test('a cursor that is damaged, forged or from another list is refused', () => {
 const keyOf = (v) => (v instanceof Date ? v.getTime() : v instanceof mongoose.Types.ObjectId ? v.toString() : v);
 const lt = (a, b) => keyOf(a) < keyOf(b);
 const same = (a, b) => keyOf(a) === keyOf(b);
+const valueAt = (doc, path) => path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), doc);
 const matches = (doc, filter) => Object.entries(filter).every(([field, cond]) => {
   if (field === '$or') return cond.some(c => matches(doc, c));
   if (field === '$and') return cond.every(c => matches(doc, c));
+  const value = valueAt(doc, field);
+  if (cond === null) return value === null || value === undefined;
   if (cond && typeof cond === 'object' && !(cond instanceof Date) && !(cond instanceof mongoose.Types.ObjectId)) {
-    if ('$lt' in cond) return lt(doc[field], cond.$lt);
-    if ('$ne' in cond) return !same(doc[field], cond.$ne);
+    if ('$lt' in cond) return lt(value, cond.$lt);
+    if ('$ne' in cond) return !same(value, cond.$ne);
+    if ('$in' in cond) return cond.$in.some(v => same(value, v));
+    if ('$gt' in cond) return typeof value === 'number' && value > cond.$gt;
   }
-  return same(doc[field], cond);
+  return same(value, cond);
 });
 // Descending on every key, as the registry sorts.
 const descending = (spec) => (a, b) => {

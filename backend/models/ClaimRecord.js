@@ -39,7 +39,10 @@ const claimRecordSchema = new mongoose.Schema({
     rule: String,
     oneLine: String,
     at: Date,
-    assessmentId: mongoose.Schema.Types.ObjectId
+    assessmentId: mongoose.Schema.Types.ObjectId,
+    // Items of evidence behind this verdict, as the claim's page shows them. The public registry lists
+    // a claim only when it is settled and this is above zero (services/registryPolicy.js).
+    evidenceCount: Number
   },
   // Claims about the same thing with a different figure, date or polarity.
   variants: [{ claimId: mongoose.Schema.Types.ObjectId, claim: String, differences: [String], at: Date, _id: false }],

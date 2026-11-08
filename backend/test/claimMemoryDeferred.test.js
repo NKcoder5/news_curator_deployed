@@ -263,3 +263,39 @@ test('a stored check stays current until a later check of the claim is filed', a
   await file('REAL');
   assert.strictEqual(await memory.stillCurrent(first.recordIds, first.assessmentId), null);
 });
+
+// The public registry shows a claim only when a check settled it on evidence (services/registryPolicy.js).
+// The page is told whether a public page exists, so it links one only when it does.
+const fileOnce = async (call, { trigger = 'user', report } = {}) => {
+  reset();
+  const plan = await memory.lookupClaims({ claims: [CLAIM], understanding: understandingFor(CLAIM), trigger });
+  const prepared = memory.prepareRecord(plan, { report: report || reportFor(CLAIM, call, 'r'),
+    understanding: understandingFor(CLAIM), ledgerInput: ledgerFor(CLAIM), trigger });
+  await prepared.write();
+  return { told: prepared.memory.claims[0], stored: db.records.get(prepared.memory.claims[0].claimId) };
+};
+
+test('a verdict settled on evidence is public, and the record keeps how much evidence it rests on', async () => {
+  const { told, stored } = await fileOnce('REAL');
+  assert.strictEqual(told.public, true);
+  assert.strictEqual(stored.current.evidenceCount, 2);
+});
+
+test('a claim nobody could settle is kept and re-checked, but not published', async () => {
+  const { told, stored } = await fileOnce('CANNOT VERIFY');
+  assert.strictEqual(told.public, false);
+  assert.ok(told.recheckDue instanceof Date, 'still booked for a re-check');
+  assert.strictEqual(stored.current.evidenceCount, 0);
+});
+
+test('a settled call with no evidence a reader could open is not published', async () => {
+  const { told, stored } = await fileOnce('FAKE');
+  assert.strictEqual(told.public, false);
+  assert.strictEqual(stored.current.call, 'FAKE');
+  assert.strictEqual(stored.current.evidenceCount, 0);
+});
+
+test('a claim filed by an evaluation run is never public, whatever its verdict', async () => {
+  const { told } = await fileOnce('REAL', { trigger: 'eval' });
+  assert.strictEqual(told.public, false);
+});

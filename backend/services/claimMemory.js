@@ -22,6 +22,7 @@ const ClaimRecord = require('../models/ClaimRecord');
 const ClaimAssessment = require('../models/ClaimAssessment');
 const { signatureOf, compareSignatures } = require('./claimSignature');
 const { sameClaim, ownModelSays } = require('./claimMatchJudge');
+const { isPublicClaim } = require('./registryPolicy');
 const { replayVerdict } = require('../agents/verdictEngine');
 
 const sha1 = (text) => crypto.createHash('sha1').update(text).digest('hex').slice(0, 12);
@@ -256,8 +257,14 @@ const prepareRecord = (plan, { report, understanding = null, ledgerInput, modelC
 
   // The id is chosen here, so the page can link the record before it is written.
   const assessmentId = new mongoose.Types.ObjectId();
+  // The evidence that is this claim's own, counted as its public page shows it (claimRegistry.js,
+  // evidenceFor): all of it for a check of this claim alone, else the news found for this claim. The
+  // registry shows a claim only when its verdict rests on some (services/registryPolicy.js).
+  const evidenceCountFor = (f) => (filed.length > 1
+    ? evidence.filter(e => e.channel === 'news' && e.claim === f.claim).length
+    : evidence.length);
   const currentFor = (f) => ({ call: f.call, status: f.status, rule: single ? report.decision?.rule : 'per-claim',
-    oneLine: single ? report.oneLine : null, at: now, assessmentId });
+    oneLine: single ? report.oneLine : null, at: now, assessmentId, evidenceCount: evidenceCountFor(f) });
 
   // When a re-check is next due, as the write will book it.
   const recheckDue = (f) => {
@@ -276,6 +283,8 @@ const prepareRecord = (plan, { report, understanding = null, ledgerInput, modelC
       firstSeenAt: f.record.firstSeenAt,
       previous: f.previous ? { call: f.previous.call, oneLine: f.previous.oneLine, at: f.previous.at } : null,
       recheckDue: recheckDue(f),
+      // Whether this claim has a public page after this check, so the page links one only when it exists.
+      public: isPublicClaim({ origin: f.record.origin, call: f.call, evidenceCount: evidenceCountFor(f) }),
       variants: f.variants.map(v => ({
         claimId: String(v.record._id), claim: v.record.claim, differences: v.differences,
         call: v.record.current?.call || null, at: v.record.current?.at || null

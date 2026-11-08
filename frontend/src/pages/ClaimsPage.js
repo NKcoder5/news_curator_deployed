@@ -1,8 +1,10 @@
 /**
- * The claims registry: every claim that has been checked, searchable, with a
- * permanent page for each. Professional fact-checkers publish a database like
+ * The claims registry: every claim a check settled on evidence, searchable, with
+ * a permanent page for each. Professional fact-checkers publish a database like
  * this; the checks were already being kept, and this makes them readable by
- * anyone, not only the person who ran one.
+ * anyone, not only the person who ran one. A claim nothing could confirm or
+ * refute is kept and re-checked, but not published (backend
+ * services/registryPolicy.js), so the registry lists no "Unproven" claims.
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
@@ -16,7 +18,8 @@ import '../styles/Claims.css';
 const SIDE_LIST = 5;
 const PAGE = 20;
 const SORTS = [['recent', 'Most recent'], ['checked', 'Most checked']];
-const CALLS = Object.entries(CALL_NAMES);
+// The verdicts a published claim can carry: unsettled claims are not published.
+const CALLS = Object.entries(CALL_NAMES).filter(([call]) => call !== 'CANNOT VERIFY');
 
 const loadStats = () => getStats();
 const loadTrending = () => getTrending(SIDE_LIST);
@@ -182,7 +185,7 @@ const ClaimsPage = () => {
       <PageHeader
         eyebrow="Public record"
         title="Claims database"
-        description="Every claim checked so far, the evidence behind each verdict, and what changed when a claim was checked again."
+        description="Every claim a check has settled on evidence, the evidence behind each verdict, and what changed when a claim was checked again. Claims nothing could confirm or refute are not published."
       />
 
       <Stats onFilter={setCall} active={filters.call} />

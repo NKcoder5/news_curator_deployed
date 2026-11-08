@@ -249,7 +249,8 @@ On 300 ISOT articles with source identity hidden so the benchmark's Reuters labe
 ### The tests
 
 ```bash
-npm test     # 103 tests, no API keys required
+cd backend && npm test           # 536 tests, no API keys required
+cd frontend && npm run test:ci   # 46 tests
 ```
 
 The whole suite, the weight estimation, the held-out validation and both benchmarks run with **every key removed**. That is deliberate: it makes "the contribution is not the API" a checkable claim rather than a sentence in a report.

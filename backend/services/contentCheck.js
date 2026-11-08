@@ -9,6 +9,7 @@ const { analyzeTrust, startMessageChecks } = require('../agents/trustAnalysisAge
 const { extractArticle } = require('../utils/articleExtractor');
 const { ingestSocialContent } = require('../utils/socialIngest');
 const { readImageText, packForLanguage } = require('../utils/ocr');
+const { imageSize, MAX_PIXELS } = require('../utils/imageSize');
 const { assessCheckability } = require('../agents/checkability');
 const { arithmeticReport } = require('./arithmetic');
 const { limitText, TEXT_BUDGET } = require('../utils/articleText');
@@ -234,6 +235,18 @@ const checkContent = async (requestBody, { onStage, onChannel, trigger = 'user',
         throw new ContentCheckError(400, { error: 'That image could not be decoded.', code: 'INVALID_IMAGE' });
       }
       if (buffer.length > 8 * 1024 * 1024) throw new ContentCheckError(413, { error: 'That image is too large. Send one under 8 MB.' });
+      // Bytes are not what reading costs: the OCR engine decodes every pixel first, and a small file
+      // can declare a huge picture (utils/imageSize.js). Checked from the header, before decoding.
+      const size = imageSize(buffer);
+      if (!size || !size.width || !size.height) {
+        throw new ContentCheckError(400, { error: 'That image could not be decoded.', code: 'INVALID_IMAGE' });
+      }
+      if (size.width * size.height > MAX_PIXELS) {
+        throw new ContentCheckError(413, {
+          error: `That image is too large to read (${size.width.toLocaleString('en-IN')} × ${size.height.toLocaleString('en-IN')} pixels). Crop it or send a screenshot under 20 megapixels.`,
+          code: 'IMAGE_TOO_LARGE'
+        });
+      }
       stage({ id: 'ocr', name: 'Reading the text out of the screenshot' });
 
       const packs = ['eng', packForLanguage(languageHint)].filter(Boolean);

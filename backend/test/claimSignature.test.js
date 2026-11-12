@@ -46,3 +46,18 @@ test('figures are read with their units and scale; years are kept apart', () => 
   assert.strictEqual(s.numbers[0].unit, 'rupee');
   assert.strictEqual(s.numbers[0].value, 130000000000);
 });
+
+// A swapped name is a changed fact. On 8 Nov 2026 the live registry filed "The Taj Mahal is located in
+// Chennai, India" under the record of "... in Agra, India": three of four names shared and the same wording
+// compared as the same claim, and the Agra record then showed the Chennai verdict, FAKE.
+test('a claim with one name swapped for another is a variant, never the same claim', () => {
+  const swap = (a, b) => compareSignatures(signatureOf(a), signatureOf(b));
+  const place = swap('The Taj Mahal is located in Chennai, India.', 'The Taj Mahal is located in Agra, India.');
+  assert.strictEqual(place.relation, 'variant');
+  assert.deepStrictEqual(place.differences, ['name: chennai vs agra']);
+  assert.notStrictEqual(relation('Narendra Modi met Joe Biden in Washington.', 'Narendra Modi met Vladimir Putin in Washington.'), 'same');
+  assert.notStrictEqual(relation('Narendra Modi visited Chennai on 11 October 2026.', 'Narendra Modi visited Delhi on 11 October 2026.'), 'same');
+  // Adding or dropping a name is not a swap: these stay the same claim.
+  assert.strictEqual(relation('Narendra Modi resigned as Prime Minister today.', 'PM Modi resigned today.'), 'same');
+  assert.strictEqual(relation('The Taj Mahal is located in Agra, India.', 'The Taj Mahal is located in Agra.'), 'same');
+});

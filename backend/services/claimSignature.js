@@ -306,6 +306,14 @@ const compareSignatures = (a, b) => {
   if (a.years.length && b.years.length && a.years.join() !== b.years.join()) {
     differences.push(`date: ${a.years.join(', ')} vs ${b.years.join(', ')}`);
   }
+  // A name in each claim that the other lacks is a substitution, not a rewording: "The Taj Mahal is located
+  // in Agra, India" against "... in Chennai, India", or "Modi met Biden" against "Modi met Putin". With three
+  // of four names shared and the same wording, the two used to compare as the same claim, and on 8 Nov 2026
+  // the live registry filed the Chennai check under the Agra record, which then showed FAKE. A swapped name
+  // is a changed fact, like a changed figure: never the same claim, at most a variant with the names stated.
+  const onlyA = a.entities.filter(e => !b.entities.includes(e));
+  const onlyB = b.entities.filter(e => !a.entities.includes(e));
+  if (onlyA.length && onlyB.length) differences.push(`name: ${onlyA.join(' ')} vs ${onlyB.join(' ')}`);
   if (a.negated !== b.negated) differences.push('one says the opposite of the other');
   if (a.roles && b.roles && a.roles[0] === b.roles[1] && a.roles[1] === b.roles[0]) {
     differences.push(`roles reversed: ${a.roles[0]} over ${a.roles[1]} vs ${b.roles[0]} over ${b.roles[1]}`);
